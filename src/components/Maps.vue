@@ -119,6 +119,7 @@
       :options="mapOptions"
       :zoom.sync="zoom"
       :center.sync="center">
+
       <l-tile-layer
         :url="tileSetUrl"
         :attribution="tileSets[selectedTileSet].attribution" />
@@ -126,6 +127,12 @@
         v-if="!updateLayers && showHillshades"
         url="http://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png"
       />
+<!-- 
+      <l-wms-tile-layer
+        :base-url="'http://131.130.186.139:54321/geoserver/test/wms'"
+        layer-type="base"
+      /> -->
+
       <l-geo-json
         v-if="!updateLayers && showDialektregionen"
         :options="{ onEachFeature: bindTooltip(['name']) }"
@@ -179,7 +186,7 @@
 <script lang="ts">
 
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { LMap, LTileLayer, LMarker, LGeoJson, LIconDefault } from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker, LGeoJson, LIconDefault, LWMSTileLayer as LWmsTileLayer } from 'vue2-leaflet'
 import InfoText from '@components/InfoText.vue'
 import InfoBox from '@components/InfoBox.vue'
 import * as geojson from 'geojson'
@@ -210,7 +217,8 @@ const defaultZoom = 7
     LMap,
     LTileLayer,
     LGeoJson,
-    LMarker
+    LMarker,
+    LWmsTileLayer
   }
 })
 export default class Maps extends Vue {
