@@ -87,6 +87,8 @@
               <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
               <v-checkbox v-model="showDialektregionen" hide-details label="Dialektregionen" />
               <v-checkbox v-model="showBundeslaender" hide-details label="Bundesländer" />
+              <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
+              <v-checkbox v-model="showGemeinden" hide-details label="Gemeinden" />
             </v-card-text>
           </v-card>
         </v-menu>
@@ -142,6 +144,27 @@
         :optionsStyle="{
           fillOpacity: 0,
           color: '#800',
+          weight: 2
+        }"
+      />
+      <l-geo-json
+        v-if="!updateLayers && showGrossregionen"
+        :options="{ onEachFeature: bindTooltip(['Grossreg']) }"
+        :geojson="grossregionen"
+        :optionsStyle="{
+          fillOpacity: 0,
+          color: '#008',
+          weight: 2
+        }"
+      />
+      <l-geo-json
+        v-if="!updateLayers && showGemeinden"
+        :options="optionsEveryGemeinde"
+        :geojson="gemeinden"
+        :optionsStyle="{
+          fillOpacity: 0.5,
+          color: '#080',
+          fillColor: '#0B0',
           weight: 2
         }"
       />
@@ -237,6 +260,8 @@ export default class Maps extends Vue {
   showRivers = false
   showDialektregionen = false
   showBundeslaender = false
+  showGrossregionen = false
+  showGemeinden = false
   updateLayers = false
 
   rivers: any = null
@@ -259,6 +284,19 @@ export default class Maps extends Vue {
     scrollWheelZoom: false, zoomControl: false,
     renderer: L.canvas()
   }
+  optionsEveryGemeinde = {
+    pointToLayer: (feature: any, latlng: any) => {
+			return L.circleMarker(latlng, {
+				radius: 5,
+				fillColor: '#ff7800',
+				color: '#000',
+				weight: 1,
+				opacity: 1,
+				fillOpacity: 0.8
+			})
+		}
+  }
+
   options = {
     onEachFeature: this.onEachFeatureFunction,
     pointToLayer: (feature: any, latlng: any) => {
@@ -359,6 +397,22 @@ export default class Maps extends Vue {
   get bundeslaender(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.bundeslaender !== null) {
       return this.geoStore.bundeslaender.features
+    } else {
+      return []
+    }
+  }
+
+  get grossregionen(): geojson.Feature[] {
+    if (!this.isLoading && this.geoStore.grossregionen !== null) {
+      return this.geoStore.grossregionen.features
+    } else {
+      return []
+    }
+  }
+
+  get gemeinden(): geojson.Feature[] {
+    if (!this.isLoading && this.geoStore.gemeinden !== null) {
+      return this.geoStore.gemeinden.features
     } else {
       return []
     }
