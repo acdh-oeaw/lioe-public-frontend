@@ -90,66 +90,20 @@
           </v-menu>
         </v-flex>
       </v-layout>
-      <v-expansion-panels
-        class="mt-3 article-panels"
-        @click.native="handleArticleClick"
-        v-model="expanded"
-        multiple
-        accordion
-      >
-          <article-fragment
-            v-if="!isEmptyXML(verbreitungXML)"
-            class="article-fragment"
-            ext-info-url="wboe-artikel/verbreitung/"
-            info-url="wboe-artikel/verbreitung-short/"
-            :content="verbreitungXML"
-            title="Verbreitung"
-          />
-          <article-fragment
-            v-if="!isEmptyXML(belegauswahlXML)"
-            class="article-fragment"
-            ext-info-url="wboe-artikel/belegauswahl/"
-            info-url="wboe-artikel/belegauswahl-short/"
-            :content="belegauswahlXML"
-            title="Belegauswahl"
-          />
-
-          <article-fragment
-            v-if="!isEmptyXML(etymologieXML)"
-            class="article-fragment"
-            ext-info-url="wboe-artikel/etymologie/"
-            info-url="wboe-artikel/etymologie-short/"
-            :content="etymologieXML"
-            title="Etymologie"
-          />
-
-          <article-fragment
-           v-if="!isEmptyXML(bedeutungXML)"
-            class="article-fragment"
-            ext-info-url="wboe-artikel/bedeutung/"
-            info-url="wboe-artikel/bedeutung-short/"
-            :content="bedeutungXML"
-            title="Bedeutung"
-          />
-
-          <article-fragment
-          v-if="!isEmptyXML(wortbildungXML)"
-            class="article-fragment"
-            ext-info-url="wboe-artikel/wortbildung/"
-            info-url="wboe-artikel/wortbildung-short/"
-            :content="wortbildungXML"
-            title="Wortbildung"
-          />
-
-          <article-fragment
-           v-if="!isEmptyXML(redewendungenXML)"
-            ext-info-url="wboe-artikel/redewendungen/"
-            info-url="wboe-artikel/redewendungen-short/"
-            :content="redewendungenXML"
-            title="Redewendungen"
-            class="article-fragment redewendungen"
-          />
-      </v-expansion-panels>
+      <article-view-legacy
+        v-show="false"
+        @article-click="handleArticleClick"
+        :xmls="{
+          redewendungenXML,
+          verbreitungXML,
+          belegauswahlXML,
+          bedeutungXML,
+          etymologieXML,
+          wortbildungXML
+        }"
+      />
+      <article-view v-trim-whitespace v-if="articleXML !== null" :xml="articleXML" :filename="filename">
+      </article-view>
       <div class="text-xs-right pa-4">
         <v-tooltip top color="ci">
            <template v-slot:activator="{ on }">
@@ -181,21 +135,23 @@
 </template>
 <script lang="ts">
 // tslint:disable:max-line-length
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { getArticleByFileName, getArticles } from "../api";
-import XmlEditor from "@components/XmlEditor.vue";
-import { geoStore } from "../store/geo";
-import * as _ from "lodash";
-import InfoText from "@components/InfoText.vue";
-import ArticleFragment from "@components/ArticleFragment.vue";
-import * as FileSaver from "file-saver";
-import { userStore } from "../store/user";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { getArticleByFileName, getArticles } from '../api'
+import XmlEditor from '@components/XmlEditor.vue'
+import { geoStore } from '../store/geo'
+import * as _ from 'lodash'
+import InfoText from '@components/InfoText.vue'
+import ArticleViewLegacy from '@components/ArticleViewLegacy.vue'
+import ArticleView from '@components/ArticleView.vue'
+import * as FileSaver from 'file-saver'
+import { userStore } from '../store/user'
 
 @Component({
   components: {
     XmlEditor,
     InfoText,
-    ArticleFragment
+    ArticleViewLegacy,
+    ArticleView
   }
 })
 export default class Article extends Vue {
@@ -353,8 +309,10 @@ export default class Article extends Vue {
   }
 
   downloadEditorXML() {
-    const blob = this.articleXML;
-    FileSaver.saveAs(new Blob([blob]), this.filename + ".xml");
+    const blob = this.articleXML
+    if (blob !== null) {
+      FileSaver.saveAs(new Blob([blob]), this.filename + '.xml')
+    }
   }
 
   async mounted() {
