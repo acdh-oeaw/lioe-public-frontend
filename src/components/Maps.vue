@@ -143,7 +143,7 @@
         :geojson="bundeslaender"
         :optionsStyle="{
           fillOpacity: 0,
-          color: '#800',
+          color: colorBundesland,
           weight: 2
         }"
       />
@@ -153,7 +153,7 @@
         :geojson="grossregionen"
         :optionsStyle="{
           fillOpacity: 0,
-          color: '#008',
+          color: colorGrossregionen,
           weight: 2
         }"
       />
@@ -161,12 +161,6 @@
         v-if="!updateLayers && showGemeinden"
         :options="optionsEveryGemeinde"
         :geojson="gemeinden"
-        :optionsStyle="{
-          fillOpacity: 0.5,
-          color: '#080',
-          fillColor: '#0B0',
-          weight: 2
-        }"
       />
       <l-geo-json
         v-if="!updateLayers && showRivers && rivers !== null"
@@ -263,6 +257,9 @@ export default class Maps extends Vue {
   showGrossregionen = false
   showGemeinden = false
   updateLayers = false
+  colorGemeinde = '#800'
+  colorBundesland = '#000'
+  colorGrossregionen = '#080'
 
   rivers: any = null
   autoFit = false
@@ -285,10 +282,11 @@ export default class Maps extends Vue {
     renderer: L.canvas()
   }
   optionsEveryGemeinde = {
+    onEachFeature: this.bindTooltip(['name']),
     pointToLayer: (feature: any, latlng: any) => {
 			return L.circleMarker(latlng, {
 				radius: 5,
-				fillColor: '#ff7800',
+				fillColor: this.colorGemeinde,
 				color: '#000',
 				weight: 1,
 				opacity: 1,
