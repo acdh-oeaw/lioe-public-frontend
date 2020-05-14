@@ -16,12 +16,16 @@
     "name": "University of Vienna, German in Austria"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.28",
+    "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@fortawesome/vue-fontawesome": "^0.1.9",
     "@mdi/font": "^3.0.39",
     "@rgrove/parse-xml": "^1.1.1",
     "@types/dom-to-image": "^2.6.0",
     "@types/lodash": "^4.14.118",
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
+    "bootstrap-vue": "^2.14.0",
     "codemirror": "^5.42.0",
     "compression": "^1.7.3",
     "cookie-session": "^2.0.0-beta.3",
