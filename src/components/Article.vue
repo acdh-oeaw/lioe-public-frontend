@@ -102,7 +102,7 @@
           wortbildungXML
         }"
       />
-      <article-view v-trim-whitespace v-if="articleXML !== null" :xml="articleXML" :filename="filename">
+      <article-view v-if="articleXML !== null" :xml="articleXML" :filename="filename">
       </article-view>
       <div class="text-xs-right pa-4">
         <v-tooltip top color="ci">
