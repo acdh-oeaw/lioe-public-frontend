@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-5 text-xs-center">
+  <div class="pa-5 text-center">
     <h1 class="text-light">Zugriffsgeschützter Bereich</h1>
     <p class="grey--text">
       Bitte geben Sie das Ihnen zugewiesene Passwort an.<br>
@@ -22,9 +22,9 @@
       <div>Alle Informationen zum „Wörterbuch der bairischen Mundarten in Österreich“ finden Sie <a href="https://vawadioe.acdh.oeaw.ac.at/projekte/wboe/wboe-startseite/" target="_blank">hier</a>.</div>
     </InfoBox>
     <v-dialog v-model="subDialog" max-width="1000" color="#2b2735" scrollable>
-      <v-card flat class="fill-height pl-4 pt-4 pr-4 pb-3">
+      <v-card text class="fill-height pl-4 pt-4 pr-4 pb-3">
         <div class="close-btn">
-          <v-btn @click="subDialog = false" flat icon><v-icon dark>close</v-icon></v-btn>
+          <v-btn @click="subDialog = false" text icon><v-icon dark>close</v-icon></v-btn>
         </div>
         <v-card-text class="pa-0 fill-height">
           <info-text class="pa-4 white fill-height" path="wboe-artikel/hinweise-zum-forschungsdatenmanagement/" />

@@ -1,31 +1,36 @@
 <template>
-  <v-expansion-panel-content v-show="!isEmptyXML(content)">
-    <v-layout slot="header">
-      <v-flex xs12>
-        <b>{{ title }}</b>
-      </v-flex>
-      <v-flex>
-        <v-menu open-on-hover v-if="infoUrl" max-width="400" max-height="95vh" top left>
-          <v-icon class="mr-3" slot="activator">info_outline</v-icon>
+<v-expansion-panel>
+
+    <v-expansion-panel-header><v-flex xs12>{{ title }}</v-flex>
+    <v-flex>
+    <v-menu open-on-hover v-if="infoUrl" max-width="400" max-height="95vh" top left>
+          <template v-slot:activator="{ on }">
+            <v-btn color="grey" class="mr-3" small v-on="on" icon text>
+              <v-icon>info_outline</v-icon>
+            </v-btn>
+          </template>
           <info-text class="elevation-24 pa-4 white" :path="infoUrl" />
           <v-btn @click="showDetails = true" block color="ci" class="ma-0" dark v-if="extInfoUrl">Weitere Informationen</v-btn>
         </v-menu>
-      </v-flex>
-      <v-dialog v-model="showDetails" max-width="1000" color="#2b2735" scrollable v-if="extInfoUrl">
+    </v-flex>
+     <v-dialog v-model="showDetails" max-width="1000" color="#2b2735" scrollable v-if="extInfoUrl">
         <v-card flat class="fill-height pa-4">
           <div class="close-btn">
-            <v-btn @click="showDetails = false" flat icon><v-icon dark>close</v-icon></v-btn>
+            <v-btn @click="showDetails = false" text icon><v-icon dark>close</v-icon></v-btn>
           </div>
           <v-card-text class="pa-0 fill-height">
-            <info-text class="pa-4 white fill-height" :path="extInfoUrl" />
+            <info-text class="pa-1 white fill-height" :path="extInfoUrl" />
           </v-card-text>
         </v-card>
       </v-dialog>
-    </v-layout>
-    <v-card class="article-xml">
+    </v-expansion-panel-header>
+  <v-expansion-panel-content>
+    <v-card flat class="article-xml">
       <v-card-text class="pl-4 pt-1 pr-4 pb-4" v-html="content" />
     </v-card>
   </v-expansion-panel-content>
+
+</v-expansion-panel>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'

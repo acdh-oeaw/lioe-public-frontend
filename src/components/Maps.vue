@@ -12,7 +12,7 @@
               autofocus
               hide-details
               dense
-              flat
+              text
               prepend-inner-icon="search"
               solo
               clearable
@@ -20,20 +20,20 @@
               <template
                 slot="item"
                 slot-scope="data">
-                <v-list-tile-action>
+                <v-list-item-action>
                   <v-checkbox v-model="data.tile.props.value"></v-checkbox>
-                </v-list-tile-action>
-                <v-list-tile-content>
-                  <v-list-tile-title style="height: 19px;">{{ data.item.text }}</v-list-tile-title>
-                  <v-list-tile-sub-title style="font-size: 85%;">{{ data.item.parents }}</v-list-tile-sub-title>
-                </v-list-tile-content>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title style="height: 19px;">{{ data.item.text }}</v-list-item-title>
+                  <v-list-item-sub-title style="font-size: 85%;">{{ data.item.parents }}</v-list-item-sub-title>
+                </v-list-item-content>
               </template>
             </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>
             <v-select
               dense
-              flat
+              text
               solo
               hide-details
               class="divider-left"
@@ -42,17 +42,21 @@
           </v-flex>
           <v-flex>
             <v-tooltip color="secondary" dark top>
-              <v-btn slot="activator" @click="autoFit = !autoFit" :color="autoFit ? 'primary' : 'grey'" icon flat>
-                <v-icon>my_location</v-icon>
-              </v-btn>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" @click="autoFit = !autoFit" :color="autoFit ? 'primary' : 'grey'" icon text>
+                  <v-icon>my_location</v-icon>
+                </v-btn>
+              </template>
               <span>Ausschnitt automatisch wählen</span>
             </v-tooltip>
           </v-flex>
           <v-flex>
             <v-menu open-on-hover max-width="400" max-height="95vh" top left>
-              <v-btn slot="activator" color="accent" icon flat>
-                <v-icon>info</v-icon>
-              </v-btn>
+              <template v-slot:activator="{ on }">
+                <v-btn color="accent" class="mr-3" small v-on="on" icon text>
+                  <v-icon>info_outline</v-icon>
+                </v-btn>
+              </template>
               <info-text class="elevation-24 pa-4 white" path="karten/infokasten-zur-den-karten/" />
             </v-menu>
           </v-flex>
@@ -66,14 +70,22 @@
       <v-flex xs1>
         <v-btn fab small @click="zoom = zoom + 1"><v-icon>add</v-icon></v-btn>
         <v-tooltip color="ci" dark right>
-          <v-btn slot="activator" fab small @click="resetView"><v-icon>home</v-icon></v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" fab small @click="resetView">
+              <v-icon>home</v-icon>
+            </v-btn>
+          </template>
           <span>Ursprungsposition</span>
         </v-tooltip>
         <v-btn fab small @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
         <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left lazy>
-          <v-btn slot="activator" fab @click="true"><v-icon>layers</v-icon></v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn fab v-on="on" @click="true">
+              <v-icon>layers</v-icon>
+            </v-btn>
+          </template>
           <v-card scrollable>
             <v-card-title>
               <small class="grey--text">Ansicht und Ebenen</small>
@@ -94,22 +106,25 @@
         </v-menu>
       </v-flex>
       <v-menu open-on-hover min-width="200" fixed left lazy>
-        <v-btn slot="activator" color="ci" dark fab fixed bottom right >
-          <v-icon>save_alt</v-icon>
-        </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn dark color="ci" fab fixed bottom right v-on="on">
+              <v-icon>save_alt</v-icon>
+            </v-btn>
+          </template>
+          
         <v-list class="context-menu-list" dense>
           <v-subheader>
             <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
           </v-subheader>
-          <v-list-tile @click="printMap('png')">
+          <v-list-item @click="printMap('png')">
             PNG
-          </v-list-tile>
-          <v-list-tile disabled @click="printMap('svg')">
+          </v-list-item>
+          <v-list-item disabled @click="printMap('svg')">
             SVG
-          </v-list-tile>
-          <v-list-tile @click="printMap('json')">
+          </v-list-item>
+          <v-list-item @click="printMap('json')">
             GeoJSON
-          </v-list-tile>
+          </v-list-item>
         </v-list>
       </v-menu>
     </v-layout>

@@ -7,7 +7,7 @@
             <v-text-field
               v-if="searchItemType === 'fulltext'"
               autofocus
-              flat
+              text
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
               v-model="searchTerm"
@@ -20,7 +20,7 @@
             <v-autocomplete
               v-if="searchItemType === 'collection'"
               autofocus
-              flat
+              text
               label="Sammlungen suchen…"
               :search-input.sync="searchCollection"
               prepend-inner-icon="search"
@@ -40,13 +40,13 @@
               <template
                 slot="item"
                 slot-scope="data">
-                <v-list-tile-action>
+                <v-list-item-action>
                   <v-checkbox v-model="data.tile.props.value"></v-checkbox>
-                </v-list-tile-action>
-                <v-list-tile-content>
-                  <v-list-tile-title style="height: 19px;">{{ data.item.text }}</v-list-tile-title>
-                  <v-list-tile-sub-title style="font-size: 85%;">{{ data.item.description }}</v-list-tile-sub-title>
-                </v-list-tile-content>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title style="height: 19px;">{{ data.item.text }}</v-list-item-title>
+                  <v-list-item-sub-title style="font-size: 85%;">{{ data.item.description }}</v-list-item-sub-title>
+                </v-list-item-content>
               </template>
             </v-autocomplete>
           </v-flex>
@@ -55,7 +55,7 @@
               <v-select
                 class="divider-left"
                 dense
-                flat
+                text
                 solo
                 hide-details
                 v-model="searchItemType"
@@ -63,15 +63,17 @@
             </div>
           </v-flex>
           <v-flex>
-            <v-dialog slot="activator" max-width="1000" color="#2b2735" scrollable>
-              <v-btn slot="activator" color="accent" icon flat>
-                <v-icon>info</v-icon>
-              </v-btn>
-              <v-card flat class="fill-height pa-4">
-                <v-card-text class="pa-0 fill-height">
-                  <info-text class="pt-4 white fill-height" path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/" />
-                </v-card-text>
-              </v-card>
+            <v-dialog max-width="1000" color="#2b2735" scrollable>
+               <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" color="accent" icon text>
+                    <v-icon>info</v-icon>
+                  </v-btn>
+               </template>
+                  <v-card text class="fill-height pa-4">
+                    <v-card-text class="pa-0 fill-height">
+                      <info-text class="pt-4 white fill-height" path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/" />
+                    </v-card-text>
+                  </v-card>
             </v-dialog>
           </v-flex>
         </v-layout>
@@ -84,61 +86,70 @@
     <v-flex>
       <v-data-table
         v-model="selected"
-        select-all
+        show-select
         class="data-table"
-        :total-items="pagination.totalItems"
-        rows-per-page-text="Pro Seite"
-        :rows-per-page-items="[10, 25, 50, 100]"
-        :pagination.sync="pagination"
+        :server-items-length="pagination.totalItems"
+        :footer-props="footerProps"
+        :options.sync="pagination"
         :headers="headers"
         :loading="loading"
-        item-key="id"
-        :items="items">
-        <v-flex slot="actions-prepend">
+        :items="_items">
+        <v-flex slot="footer">
           <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
-            <v-menu :nudge-top="4" top offset-y slot="activator" open-on-hover :disabled="mappableSelectionItems.length === 0" >
-              <v-btn
-                @click="showSelectionOnMap"
-                slot="activator"
-                :disabled="mappableSelectionItems.length === 0"
-                small
-                class="pl-3 pr-3"
-                round
-                depressed
-                color="primary">
-                auf Karte zeigen ({{ mappableSelectionItems.length }})
-              </v-btn>
+            <template v-slot:activator="{ on }">
+              <v-menu v-on="on" :nudge-top="4" top offset-y open-on-hover :disabled="mappableSelectionItems.length === 0" >
+              <template v-slot:activator="{ on: menu }">
+                <v-btn
+                  @click="showSelectionOnMap"
+                  :disabled="mappableSelectionItems.length === 0"
+                  small
+                  v-on="menu"
+                  class="pl-3 pr-3"
+                  rounded
+                  depressed
+                  color="primary">
+                  auf Karte zeigen ({{ mappableSelectionItems.length }})
+                </v-btn>
+              </template>
               <v-list dense>
-                <v-list-tile @click="selected = []">Auswahl leeren</v-list-tile>
+                <v-list-item @click="selected = []">Auswahl leeren</v-list-item>
               </v-list>
             </v-menu>
+          </template>
+            
             <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
           </v-tooltip>
           <v-menu top open-on-hover>
-            <v-btn slot="activator" :disabled="items.length === 0" small flat class="pl-3 pr-3" round color="ci">
+            <template v-slot:activator="{ on: secondMenu }">
+              <v-btn slot="activator" v-on="secondMenu" :disabled="items.length === 0" small text class="pl-3 pr-3" rounded color="ci">
               Export {{ selected.length > 0 ? `(${this.selected.length})` : ''}}
             </v-btn>
+            </template>
+            
             <v-list class="context-menu-list" dense>
               <v-subheader>
                 <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
               </v-subheader>
-              <v-list-tile @click="saveXLSX">Microsoft Excel</v-list-tile>
-              <v-list-tile @click="saveJSON">JSON</v-list-tile>
-              <v-list-tile @click="saveCSV">CSV</v-list-tile>
+              <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
+              <v-list-item @click="saveJSON">JSON</v-list-item>
+              <v-list-item @click="saveCSV">CSV</v-list-item>
               <v-divider />
-              <v-list-tile :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-tile>
+              <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
             </v-list>
           </v-menu>
         </v-flex>
-        <template slot="items" slot-scope="props">
+         <template v-slot:item="{ item, index }">
           <td>
-            <v-checkbox v-model="props.selected" hide-details />
+            <v-checkbox v-model="selected[index]" hide-details />
           </td>
-          <td @click="props.selected = !props.selected" class="line-clamp" v-for="(header, i) in headers" :key="i">
-            {{ props.item[header.value] }}
+          <template v-for="(header, i) in headers">
+                        
+          <td @click="selected[index] = !selected[index]" class="line-clamp"  :key="`${item.id}_${i}`">
+            {{ item[header.value] }}
           </td>
+            </template>
         </template>
-        <template slot="pageText" slot-scope="props">
+        <template v-slot:footer="{ pageText }" slot-scope="props">
           {{ props.pageStart }} - {{ props.pageStop }} von {{ props.itemsLength }}
         </template>
       </v-data-table>
@@ -189,23 +200,28 @@ export default class Database extends Vue {
   loading = false
   searching = false
   pagination = {
+
     descending: true,
     page: 1,
     rowsPerPage: 100,
-    sortBy: null,
+    sortBy: [],
     totalItems: 0
   }
   headers = [
-    { text: 'Hauptlemma', value: 'Hauptlemma' },
-    { text: 'Wortart', value: 'Wortart' },
-    { text: 'Lautung', value: 'Lautung' },
-    { text: 'Bedeutung', value: 'Bedeutung' },
-    { text: 'Kontext', value: 'Kontext' },
-    { text: 'FB-Nr.', value: 'Fragebogennummer' },
+    { text: 'Hauptlemma', value: 'HL' },
+    { text: 'Wortart', value: 'POS' },
+    { text: 'Lautung', value: 'LT' },
+    { text: 'Bedeutung', value: 'BIBL' },
+//    { text: 'Kontext', value: 'Kontext' },
+//    { text: 'FB-Nr.', value: 'Fragebogennummer' },
     { text: 'Ort', value: 'Ort', sortable: false },
-    { text: 'Großreg.', value: 'Großregion', sortable: false },
+    { text: 'Großreg.', value: 'Gemeinde', sortable: false },
     { text: 'Bundesl.', value: 'Bundesland', sortable: false }
   ]
+  footerProps = {
+          'items-per-page-text': 'Pro Seite',
+          'items-per-page-options': [10, 25, 50, 100]
+        };
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 250)
 
@@ -215,6 +231,10 @@ export default class Database extends Vue {
     } else {
       this.init()
     }
+  }
+
+  get _items() {
+    return this.items.filter((i, index) => this.items.indexOf(i) === index);
   }
 
   @Watch('searchCollection')

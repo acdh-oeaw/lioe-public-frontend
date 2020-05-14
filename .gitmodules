@@ -1,0 +1,6 @@
+[submodule "src/service/parser-functions"]
+	path = src/service/parser-functions
+	url = https://gitlab.com/acdh-oeaw/wboe/wboe-article-parser.git
+[submodule "src/components/ViewPreview"]
+	path = src/components/ViewPreview
+	url = https://gitlab.com/acdh-oeaw/wboe/wboe-article-view.git

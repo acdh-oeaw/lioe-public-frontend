@@ -5,11 +5,11 @@
         <v-layout column>
           <v-flex class="header-navigation">
             <!-- <v-flex class="text-xs-right" xs12>
-              <v-btn class="text-no-transform" color="grey" small round flat>test</v-btn>
-              <v-btn class="text-no-transform" color="grey" small round flat>test</v-btn>
+              <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
+              <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
             </v-flex> -->
             <v-layout>
-              <v-flex xs12 class="text-xs-center">
+              <v-flex xs12 class="text-center">
                 <img class="logo mt-2" src="/static/img/logo.svg" />
                 <div class="project-name">Lexikographisches Informationssystem Österreich</div>
               </v-flex>
@@ -20,11 +20,11 @@
               <v-tabs
                 active-class="active-tab"
                 grow
-                dark
                 class="tabs-top"
-                fixed-tabs
                 centered
-                color="ci"
+                background-color="ci"
+                dark
+                color="accent"
                 slider-color="white">
                 <v-tab to="/">Home</v-tab>
                 <v-tab to="/articles">WBÖ-Artikel</v-tab>
@@ -39,7 +39,7 @@
               <router-view />
             </keep-alive>
           </v-flex>
-          <v-flex class="pl-5 pr-5 xmt-5 pb-5 text-xs-center footer-navigation" v-if="$route.name !== 'maps'">
+          <v-flex class="pl-5 pr-5 xmt-5 pb-5 text-center footer-navigation" v-if="$route.name !== 'maps'">
             <v-divider class="ma-5" />
             <h4 class="mb-2 mt-2 grey--text">Ein Projekt von</h4>
             <v-layout align-center justify-space-around wrap>

@@ -1,10 +1,10 @@
 <template>
   <v-layout column fill-height>
-    <v-flex class="text-xs-center">
+    <v-flex class="text-center">
       <v-text-field
         :loading="loading"
         autofocus
-        flat
+        text
         v-model="searchTerm"
         label="Suche…"
         prepend-inner-icon="search"

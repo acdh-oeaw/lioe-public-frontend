@@ -3,9 +3,9 @@
     <v-flex xs12 sm12 md10 lg8 xl6 offset-md1 offset-lg2 offset-xl3 :style="fstyle" v-if="show">
       <v-card>
         <v-card-text primary-title>
-          <div class="text-xs-center w-100">
+          <div class="text-center w-100">
             <div class="close-btn">
-              <v-btn @click="show = false" small flat icon><v-icon dark>close</v-icon></v-btn>
+              <v-btn @click="show = false" small text icon><v-icon dark>close</v-icon></v-btn>
             </div>
             <slot/>
           </div>

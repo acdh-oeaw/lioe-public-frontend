@@ -8,7 +8,7 @@
         :loading="loading"
         clearable
         solo
-        flat
+        text
         @change="loadArticle"
         :items="articles"
         prepend-inner-icon="search"
@@ -19,11 +19,13 @@
         </v-flex>
         <v-flex class="text-xs-right">
           <v-menu open-on-hover max-width="400" max-height="95vh" top left>
-            <v-btn color="grey" class="mr-3" small slot="activator" icon flat>
-              <v-icon>info_outline</v-icon>
-            </v-btn>
-            <info-text class="elevation-24 pa-4 white" path="wboe-artikel/lemma-short/" />
-            <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn>
+            <template v-slot:activator="{ on }">
+              <v-btn color="grey" class="mr-3" small v-on="on" icon text>
+                <v-icon>info_outline</v-icon>
+              </v-btn>
+            </template>
+              <info-text class="elevation-24 pa-4 white" path="wboe-artikel/lemma-short/" />
+              <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn>
           </v-menu>
         </v-flex>
       </v-layout>
@@ -32,68 +34,145 @@
           <div v-html="diminutiveXML" />
         </v-flex>
         <v-flex class="text-xs-right">
-          <v-btn small round flat @click="toggleAll">
-            {{ isEveryArticleExpanded ? 'Einklappen' : 'Ausklappen'}}
-          </v-btn>
+          <v-btn
+            small
+            rounded
+            text
+            @click="toggleAll"
+          >{{ isEveryArticleExpanded ? 'Einklappen' : 'Ausklappen'}}</v-btn>
         </v-flex>
         <v-flex v-if="userStore.showPdfPrintButton">
-          <v-btn small round flat @click="printArticle">
-            PDF
-          </v-btn>
+          <v-btn small rounded text @click="printArticle">PDF</v-btn>
         </v-flex>
         <v-flex class="text-xs-right">
-          <v-dialog transition="none" v-model="showEditor" max-width="1000" content-class="fill-height" color="#2b2735" scrollable>
-            <v-btn small round flat slot="activator">XML/TEI</v-btn>
-            <v-card color="#342f40" dark flat class="fill-height">
-              <v-card-title class="pt-1 pb-1">
-                <v-flex>
-                  {{ filename }}
-                </v-flex>
-                <v-flex class="text-xs-right">
-                  <v-btn class="pl-3 pr-3" small round flat @click="downloadEditorXML">download</v-btn>
-                  <v-btn small round flat @click="saveEditorXML">view</v-btn>
-                </v-flex>
-              </v-card-title>
-              <v-card-text class="pa-0 fill-height">
-                <xml-editor v-if="showEditor" :show="showEditor" class="fill-height" v-model="articleXML" />
-              </v-card-text>
-            </v-card>
+          <v-dialog
+            transition="none"
+            v-model="showEditor"
+            max-width="1000"
+            content-class="fill-height"
+            color="#2b2735"
+            scrollable
+          >
+            <template v-slot:activator="{ on }">
+              <v-btn small rounded text v-on="on">XML/TEI</v-btn>
+            </template>
+              <v-card color="#342f40" dark text class="fill-height">
+                <v-card-title class="pt-1 pb-1">
+                  <v-flex>{{ filename }}</v-flex>
+                  <v-flex class="text-xs-right">
+                    <v-btn class="pl-3 pr-3" small rounded text @click="downloadEditorXML">download</v-btn>
+                    <v-btn small rounded text @click="saveEditorXML">view</v-btn>
+                  </v-flex>
+                </v-card-title>
+                <v-card-text class="pa-0 fill-height">
+                  <xml-editor
+                    v-if="showEditor"
+                    :show="showEditor"
+                    class="fill-height"
+                    v-model="articleXML"
+                  />
+                </v-card-text>
+              </v-card>
           </v-dialog>
         </v-flex>
         <v-flex class="text-xs-right">
           <v-menu open-on-hover max-width="400" max-height="95vh" top left>
-            <v-btn color="grey" class="mr-3" small slot="activator" icon flat>
-              <v-icon>info_outline</v-icon>
-            </v-btn>
-            <info-text class="elevation-24 pa-4 white" path="wboe-artikel/grammatische-angaben-short/" />
-            <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn>
+            <template v-slot:activator="{ on }">
+              <v-btn color="grey" class="mr-3" small v-on="on" icon text>
+                <v-icon>info_outline</v-icon>
+              </v-btn>
+            </template>
+              <info-text
+                class="elevation-24 pa-4 white"
+                path="wboe-artikel/grammatische-angaben-short/"
+              />
+              <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn>
           </v-menu>
         </v-flex>
       </v-layout>
-      <v-expansion-panel class="mt-3 article-panels" @click.native="handleArticleClick" v-model="expanded" expand>
-        <article-fragment class="article-fragment" ext-info-url="wboe-artikel/verbreitung/" info-url="wboe-artikel/verbreitung-short/" :content="verbreitungXML" title="Verbreitung" />
-        <article-fragment class="article-fragment" ext-info-url="wboe-artikel/belegauswahl/" info-url="wboe-artikel/belegauswahl-short/" :content="belegauswahlXML" title="Belegauswahl" />
-        <article-fragment class="article-fragment" ext-info-url="wboe-artikel/etymologie/" info-url="wboe-artikel/etymologie-short/" :content="etymologieXML" title="Etymologie" />
-        <article-fragment class="article-fragment" ext-info-url="wboe-artikel/bedeutung/" info-url="wboe-artikel/bedeutung-short/" :content="bedeutungXML" title="Bedeutung" />
-        <article-fragment class="article-fragment" ext-info-url="wboe-artikel/wortbildung/" info-url="wboe-artikel/wortbildung-short/" :content="wortbildungXML" title="Wortbildung" />
-        <article-fragment
-          ext-info-url="wboe-artikel/redewendungen/"
-          info-url="wboe-artikel/redewendungen-short/"
-          :content="redewendungenXML"
-          title="Redewendungen"
-          class="article-fragment redewendungen"
-        />
-      </v-expansion-panel>
+      <v-expansion-panels
+        class="mt-3 article-panels"
+        @click.native="handleArticleClick"
+        v-model="expanded"
+        multiple
+        accordion
+      >
+          <article-fragment
+            v-if="!isEmptyXML(verbreitungXML)"
+            class="article-fragment"
+            ext-info-url="wboe-artikel/verbreitung/"
+            info-url="wboe-artikel/verbreitung-short/"
+            :content="verbreitungXML"
+            title="Verbreitung"
+          />
+          <article-fragment
+            v-if="!isEmptyXML(belegauswahlXML)"
+            class="article-fragment"
+            ext-info-url="wboe-artikel/belegauswahl/"
+            info-url="wboe-artikel/belegauswahl-short/"
+            :content="belegauswahlXML"
+            title="Belegauswahl"
+          />
+
+          <article-fragment
+            v-if="!isEmptyXML(etymologieXML)"
+            class="article-fragment"
+            ext-info-url="wboe-artikel/etymologie/"
+            info-url="wboe-artikel/etymologie-short/"
+            :content="etymologieXML"
+            title="Etymologie"
+          />
+
+          <article-fragment
+           v-if="!isEmptyXML(bedeutungXML)"
+            class="article-fragment"
+            ext-info-url="wboe-artikel/bedeutung/"
+            info-url="wboe-artikel/bedeutung-short/"
+            :content="bedeutungXML"
+            title="Bedeutung"
+          />
+
+          <article-fragment
+          v-if="!isEmptyXML(wortbildungXML)"
+            class="article-fragment"
+            ext-info-url="wboe-artikel/wortbildung/"
+            info-url="wboe-artikel/wortbildung-short/"
+            :content="wortbildungXML"
+            title="Wortbildung"
+          />
+
+          <article-fragment
+           v-if="!isEmptyXML(redewendungenXML)"
+            ext-info-url="wboe-artikel/redewendungen/"
+            info-url="wboe-artikel/redewendungen-short/"
+            :content="redewendungenXML"
+            title="Redewendungen"
+            class="article-fragment redewendungen"
+          />
+      </v-expansion-panels>
       <div class="text-xs-right pa-4">
         <v-tooltip top color="ci">
-          <span slot="activator">{{ editor.initials ? editor.initials : editor.fullname }}</span>
+           <template v-slot:activator="{ on }">
+            <span v-on="on">{{ editor.initials ? editor.initials : editor.fullname }}</span>
+          </template>
           <span>{{ editor.fullname }}</span>
         </v-tooltip>
       </div>
-      <v-flex class="comment-box" xs12 sm12 md10 lg8 xl6 offset-md1 offset-lg2 offset-xl3 v-if="userStore.showComment">
+      <v-flex
+        class="comment-box"
+        xs12
+        sm12
+        md10
+        lg8
+        xl6
+        offset-md1
+        offset-lg2
+        offset-xl3
+        v-if="userStore.showComment"
+      >
         <v-card>
           <v-card-text class="pa-0">
-            <iframe :src="commentUrl" class="comment"/>
+            <iframe :src="commentUrl" class="comment" />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -101,17 +180,16 @@
   </v-layout>
 </template>
 <script lang="ts">
-
 // tslint:disable:max-line-length
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { getArticleByFileName, getArticles } from '../api'
-import XmlEditor from '@components/XmlEditor.vue'
-import { geoStore } from '../store/geo'
-import * as _ from 'lodash'
-import InfoText from '@components/InfoText.vue'
-import ArticleFragment from '@components/ArticleFragment.vue'
-import * as FileSaver from 'file-saver'
-import { userStore } from '../store/user'
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { getArticleByFileName, getArticles } from "../api";
+import XmlEditor from "@components/XmlEditor.vue";
+import { geoStore } from "../store/geo";
+import * as _ from "lodash";
+import InfoText from "@components/InfoText.vue";
+import ArticleFragment from "@components/ArticleFragment.vue";
+import * as FileSaver from "file-saver";
+import { userStore } from "../store/user";
 
 @Component({
   components: {
@@ -121,239 +199,278 @@ import { userStore } from '../store/user'
   }
 })
 export default class Article extends Vue {
+  @Prop() filename: string;
 
-  @Prop() filename: string
-
-  showEditor = false
-  articles: Array<{text: string, value: string}> = []
-  geoStore = geoStore
-  loading = false
+  showEditor = false;
+  articles: Array<{ text: string; value: string }> = [];
+  geoStore = geoStore;
+  loading = false;
   editor = {
-    id: '',
-    initials: '',
-    fullname: ''
+    id: "",
+    initials: "",
+    fullname: ""
+  };
+  expanded: number[] = [];
+
+  articleXML: string | null = "";
+  title: string | null = null;
+  bedeutungXML: string | null = null;
+  verbreitungXML: string | null = null;
+  belegauswahlXML: string | null = null;
+  etymologieXML: string | null = null;
+  wortbildungXML: string | null = null;
+  redewendungenXML: string | null = null;
+  lemmaXML: string | null = null;
+  diminutiveXML: string | null = null;
+  userStore = userStore;
+
+  get commentUrl(): string {
+    return (
+      "https://vawadioe.acdh.oeaw.ac.at/lioecomment/?artikel=" +
+      this.title +
+      "&author=" +
+      (this.editor.initials
+        ? this.editor.initials.toLowerCase()
+        : this.editor.fullname)
+    );
   }
-  expanded = [
-    false,
-    false,
-    false,
-    true,
-    false,
-    false
-  ]
 
-  articleXML: string|null = ''
-  title: string|null = null
-  bedeutungXML: string|null = null
-  verbreitungXML: string|null = null
-  belegauswahlXML: string|null = null
-  etymologieXML: string|null = null
-  wortbildungXML: string|null = null
-  redewendungenXML: string|null = null
-  lemmaXML: string|null = null
-  diminutiveXML: string|null = null
-  userStore = userStore
-
-  get commentUrl() : string {
-    return 'https://vawadioe.acdh.oeaw.ac.at/lioecomment/?artikel=' + this.title + '&author=' + (this.editor.initials ? this.editor.initials.toLowerCase() : this.editor.fullname)
-  }
-
-  getGrossregionFromGemeinde(sigle: string): string|null {
+  getGrossregionFromGemeinde(sigle: string): string | null {
     if (geoStore.grossregionen !== null) {
-      const s = sigle.split(/([a-z])/)[0]
-      const g = geoStore.grossregionen.features.find((f) => {
-        return f.properties!.Sigle === s
-      })
-      return g ? g.properties!.Grossreg : null
+      const s = sigle.split(/([a-z])/)[0];
+      const g = geoStore.grossregionen.features.find(f => {
+        return f.properties!.Sigle === s;
+      });
+      return g ? g.properties!.Grossreg : null;
     } else {
-      return null
+      return null;
     }
   }
-  
+
   printArticle() {
     // expand all
-    this.expanded = this.expanded.map(e => true)
+    this.expanded = [0,1,2,3,4,5];
     // set pdf title, store old title
-    const oldTitle = document.title
-    document.title = 'wboe_' + this.title
+    const oldTitle = document.title;
+    document.title = "wboe_" + this.title;
     // wait for expansion (a bit overly cautious)
     this.$nextTick(() => {
       setTimeout(() => {
         requestAnimationFrame(() => {
           // open print dialog
-          window.print()
+          window.print();
           // reset title
-          document.title = oldTitle
-        })
-      }, 500)
-    })
+          document.title = oldTitle;
+        });
+      }, 500);
+    });
   }
 
-  isPlaceNameElement(el: HTMLElement|any) {
-    return el.nodeName === 'PLACENAME' && el.hasAttribute('ref')
+  isPlaceNameElement(el: HTMLElement | any) {
+    return el.nodeName === "PLACENAME" && el.hasAttribute("ref");
   }
 
-  getPlacenameSigleFromRef(ref: string|null): string|null {
+  getPlacenameSigleFromRef(ref: string | null): string | null {
     if (ref === null) {
-      return null
+      return null;
     } else {
-      return _.last(ref.split(/([#p])/)) || null
+      return _.last(ref.split(/([#p])/)) || null;
     }
   }
 
-  getCollectionLink(el: HTMLElement|any): string|null {
-    return el.getAttribute('collection-href') || el.parentElement.getAttribute('collection-href')
+  getCollectionLink(el: HTMLElement | any): string | null {
+    return (
+      el.getAttribute("collection-href") ||
+      el.parentElement.getAttribute("collection-href")
+    );
   }
 
   handleArticleClick(e: MouseEvent) {
     if (this.isPlaceNameElement(e.target)) {
-      const sigle = this.getPlacenameSigleFromRef((e.target as HTMLElement).getAttribute('ref'))
+      const sigle = this.getPlacenameSigleFromRef(
+        (e.target as HTMLElement).getAttribute("ref")
+      );
       if (sigle !== null) {
-        this.openMapsWithPlaces([ sigle ])
+        this.openMapsWithPlaces([sigle]);
       }
     } else if (this.getCollectionLink(e.target) !== null) {
-      const id = this.getCollectionLink(e.target)!
-      this.$router.push({ path: '/db', query: { collection_ids: id } })
+      const id = this.getCollectionLink(e.target)!;
+      this.$router.push({ path: "/db", query: { collection_ids: id } });
     }
   }
 
   openMapsWithPlaces(placeIds: string[]) {
-    this.$router.push({ path: '/maps',  query: { loc: placeIds.join(',') } })
+    this.$router.push({ path: "/maps", query: { loc: placeIds.join(",") } });
   }
 
   get isEveryArticleExpanded(): boolean {
-    return _(this.expanded).every(x => x)
+    return this.expanded.length === 6;
   }
 
   toggleAll() {
-    this.expanded = this.expanded.map(() => !this.isEveryArticleExpanded)
+    this.expanded = this.isEveryArticleExpanded ? [] : [0, 1, 2 ,3, 4, 5];
   }
 
   loadArticle(e: string) {
-    if (e.trim() !== '') {
-      this.$router.push(`/articles/${e}`)
+    if (e.trim() !== "") {
+      this.$router.push(`/articles/${e}`);
     } else {
-      this.$router.push('/')
+      this.$router.push("/");
     }
   }
 
   isEmptyXML(xml: string): boolean {
-    const d = document.createElement('div')
-    d.innerHTML = xml
-    return d.innerText.trim() === ''
+    const d = document.createElement("div");
+    d.innerHTML = xml;
+    return d.innerText.trim() === "";
   }
 
   fragementFromSelector(selector: string, body: string, contains?: string) {
-    const elements = Array.from(this.elementsFromDom(selector, body))
+    const elements = Array.from(this.elementsFromDom(selector, body));
     if (contains !== undefined) {
       return elements
         .filter(e => e.querySelectorAll(contains).length > 0)
-        .reduce((m, e) => m = m + e.outerHTML, '')
+        .reduce((m, e) => (m = m + e.outerHTML), "");
     } else {
-      return elements.reduce((m, e) => m = m + e.outerHTML, '')
+      return elements.reduce((m, e) => (m = m + e.outerHTML), "");
     }
   }
 
   elementsFromDom(selector: string, body: string) {
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(body, 'text/xml')
-    return xmlDoc.querySelectorAll(selector)
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(body, "text/xml");
+    return xmlDoc.querySelectorAll(selector);
   }
 
-  @Watch('filename')
+  @Watch("filename")
   onFileChange() {
-    this.initArticle(this.filename)
+    this.initArticle(this.filename);
   }
 
   saveEditorXML() {
-    this.showEditor = false
-    this.initXML(this.articleXML!)
+    this.showEditor = false;
+    this.initXML(this.articleXML!);
   }
 
   downloadEditorXML() {
-    const blob = this.articleXML
-    FileSaver.saveAs(new Blob([blob]), this.filename + '.xml')
+    const blob = this.articleXML;
+    FileSaver.saveAs(new Blob([blob]), this.filename + ".xml");
   }
 
   async mounted() {
     this.articles = (await getArticles()).map(t => {
       return {
         text: t.title,
-        value: t.filename.replace('.xml', '')
-      }
-    })
-    this.initArticle(this.filename)
+        value: t.filename.replace(".xml", "")
+      };
+    });
+    this.initArticle(this.filename);
   }
 
   linkParentsToCollection(selector: string, xml: string) {
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(xml, 'text/xml')
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xml, "text/xml");
     Array.from(xmlDoc.querySelectorAll(selector)).forEach((v, i) => {
-      const p = v.parentElement
-      const href = v.getAttribute('target') ? _.last(v.getAttribute('target')!.split('#c')) : null
-      if (p !== null && p.firstElementChild !== null && href !== null && href !== undefined) {
-        p.firstElementChild.setAttribute('collection-href', href)
+      const p = v.parentElement;
+      const href = v.getAttribute("target")
+        ? _.last(v.getAttribute("target")!.split("#c"))
+        : null;
+      if (
+        p !== null &&
+        p.firstElementChild !== null &&
+        href !== null &&
+        href !== undefined
+      ) {
+        p.firstElementChild.setAttribute("collection-href", href);
       }
-      v.remove()
-    })
-    const s = new XMLSerializer()
-    return s.serializeToString(xmlDoc)
+      v.remove();
+    });
+    const s = new XMLSerializer();
+    return s.serializeToString(xmlDoc);
   }
 
   appendGrossregionViaRef(selector: string, xml: string) {
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(xml, 'text/xml')
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xml, "text/xml");
     Array.from(xmlDoc.querySelectorAll(selector)).forEach((v, i) => {
-      const sigle = this.getPlacenameSigleFromRef(v.getAttribute('ref'))
+      const sigle = this.getPlacenameSigleFromRef(v.getAttribute("ref"));
       if (sigle !== null) {
-        const reg = this.getGrossregionFromGemeinde(sigle)
+        const reg = this.getGrossregionFromGemeinde(sigle);
         if (reg !== null) {
-          const grossregion = document.createElement('grossregion')
-          grossregion.innerHTML = reg
-          v.appendChild(grossregion)
+          const grossregion = document.createElement("grossregion");
+          grossregion.innerHTML = reg;
+          v.appendChild(grossregion);
         }
       }
-    })
+    });
     const s = new XMLSerializer();
-    return s.serializeToString(xmlDoc)
+    return s.serializeToString(xmlDoc);
   }
 
   initXML(xml: string) {
-    const idInitials: any = {PhS: 'PS'}
-    // the body element doesn’t go well with a HTML Parser
-    xml                   = xml.split('<body>').join('').split('</body>').join('')
-    xml                   = this.linkParentsToCollection('ptr[type=collection]', xml)
-    xml                   = this.appendGrossregionViaRef('form[type=dialect] placeName[type=gemeinde], cit placeName[type=gemeinde]', xml)
-    this.lemmaXML         = this.fragementFromSelector('entry > form[type=lemma], entry > gramGrp', xml)
-    this.diminutiveXML    = this.fragementFromSelector('entry > form[subtype=diminutive]', xml)
-    this.bedeutungXML     = this.fragementFromSelector('entry > sense', xml)
-    this.verbreitungXML   = this.fragementFromSelector('entry > usg[type=geo]', xml)
-    this.belegauswahlXML  = this.fragementFromSelector('entry > form[type=dialect]:not([subtype])', xml)
-    this.etymologieXML    = this.fragementFromSelector('entry > etym', xml)
-    this.wortbildungXML   = this.fragementFromSelector('entry > re', xml, '[subtype=compound]')
-    this.redewendungenXML = this.fragementFromSelector('entry > re', xml, '[subtype=MWE]')
-    this.title            = this.elementsFromDom('title', xml)[0].innerHTML
-    const aEditor         = this.elementsFromDom('teiHeader > fileDesc > titleStmt > respStmt > name[ref]', xml)[0]
-    let aInitials = aEditor.getAttribute('ref')
-    aInitials = typeof aInitials === 'string' ? aInitials.substr(1) : ''
+    const idInitials: any = { PhS: "PS" };
+    xml = xml
+      .split("<body>")
+      .join("")
+      .split("</body>")
+      .join("");
+    xml = this.linkParentsToCollection("ptr[type=collection]", xml);
+    xml = this.appendGrossregionViaRef(
+      "form[type=dialect] placeName[type=gemeinde], cit placeName[type=gemeinde]",
+      xml
+    );
+    this.lemmaXML = this.fragementFromSelector(
+      "entry > form[type=lemma], entry > gramGrp",
+      xml
+    );
+    this.diminutiveXML = this.fragementFromSelector(
+      "entry > form[subtype=diminutive]",
+      xml
+    );
+    this.bedeutungXML = this.fragementFromSelector("entry > sense", xml);
+    this.verbreitungXML = this.fragementFromSelector(
+      "entry > usg[type=geo]",
+      xml
+    );
+    this.belegauswahlXML = this.fragementFromSelector(
+      "entry > form[type=dialect]:not([subtype])",
+      xml
+    );
+    this.etymologieXML = this.fragementFromSelector("entry > etym", xml);
+    this.wortbildungXML = this.fragementFromSelector(
+      "entry > re",
+      xml,
+      "[subtype=compound]"
+    );
+    this.redewendungenXML = this.fragementFromSelector(
+      "entry > re",
+      xml,
+      "[subtype=MWE]"
+    );
+    this.title = this.elementsFromDom("title", xml)[0].innerHTML;
+    const aEditor = this.elementsFromDom(
+      "teiHeader > fileDesc > titleStmt > respStmt > name[ref]",
+      xml
+    )[0];
+    let aInitials = aEditor.getAttribute("ref");
+    aInitials = typeof aInitials === "string" ? aInitials.substr(1) : "";
     this.editor = {
       id: aInitials,
       initials: idInitials[aInitials] || aInitials,
       fullname: aEditor.innerHTML
-    }
+    };
   }
 
   async initArticle(fileName: string) {
-    this.loading = true
-    this.articleXML = await getArticleByFileName(fileName + '.xml')
-    this.initXML(this.articleXML)
-    this.loading = false
+    this.loading = true;
+    this.articleXML = await getArticleByFileName(fileName + ".xml");
+    this.initXML(this.articleXML);
+    this.loading = false;
   }
 }
 </script>
 <style lang="scss">
 @media print {
-
   // FIREFOX HAS A PROBLEM WITH FLEXBOX
   // IN PRINT MODE, SO WE NEED TO (RATHER STUPIDLY)
   // CONVERT ALL FLEX BOXES TO BLOCK BOXES BEFORE
@@ -383,21 +500,20 @@ export default class Article extends Vue {
     display: none !important;
   }
 
-
-  .article-fragment{
+  .article-fragment {
     border-top: 0 !important;
   }
 
-  .article-panels{
+  .article-panels {
     box-shadow: none;
   }
 
   .v-expansion-panel__header,
-  .v-expansion-panel__body{
+  .v-expansion-panel__body {
     padding-left: 0;
     padding-right: 0;
   }
-  body{
+  body {
     font-size: 14px;
   }
 }
@@ -410,11 +526,12 @@ iframe.comment {
   height: 100%;
   min-height: 500px;
 }
-.wortbildung, .redewendungen{
-  re{
+.wortbildung,
+.redewendungen {
+  re {
     display: block;
     margin-bottom: 1em;
-    sense{
+    sense {
       display: inline;
       sense {
         margin-left: 0;
@@ -424,9 +541,9 @@ iframe.comment {
       }
     }
   }
-  form{
+  form {
     font-style: italic;
-    margin-right: .5em;
+    margin-right: 0.5em;
   }
 }
 </style>

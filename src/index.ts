@@ -5,21 +5,29 @@ import router from '@src/router'
 import VueRouter from 'vue-router'
 import * as fontLoader from 'webfontloader'
 import Vuetify from 'vuetify'
-import { lineClamp } from 'vue-line-clamp-extended'
+import 'vuetify/dist/vuetify.min.css'
+// import { lineClamp } from 'vue-line-clamp-extended'
 import VueLazyload from 'vue-lazyload'
 
 Vue.config.productionTip = true
-Vue.directive('line-clamp', lineClamp)
+// Vue.directive('line-clamp', lineClamp)
 Vue.use(Vuex)
 Vue.use(VueRouter)
-Vue.use(Vuetify, {
+Vue.use(Vuetify)
+const vuetifyOptions = {
+  // iconfont: 'fa4',
   theme: {
-    ci: '#3B89A0',
-    primary: '#3B89A0',
-    secondary: '#2C6374',
-    accent: '#88DBDF'
+    dark: false,
+    themes: {
+      light: {
+        ci: '#3B89A0',
+        primary: '#3B89A0',
+        secondary: '#2C6374',
+        accent: '#88DBDF'
+      }
+    }
   }
-})
+}
 Vue.use(VueLazyload, { lazyComponent : true })
 import VueWordCloud from 'vuewordcloud'
 Vue.component(VueWordCloud.name, VueWordCloud)
@@ -32,11 +40,13 @@ if (window) {
   })
 }
 
+
 /* tslint:disable */
 window.onload = () => {
   new Vue({
-    el : '#app',
+    el: '#app',
     render : h => h(App),
+    vuetify: new Vuetify(vuetifyOptions),
     router
-  })
+  }).$mount('#app')
 }

@@ -1,20 +1,20 @@
 <template>
   <div>
-    <div class="pa-2 mb-2 grey--text text-xs-center" v-if="error">
+    <div class="pa-2 mb-2 grey--text text-center" v-if="error">
       could not load {{ path }}.
     </div>
     <div class="info-text" v-else>
       <slot />
-      <div class="pa-2 grey--text text-xs-center" v-if="html === ''">
+      <div class="pa-2 grey--text text-center" v-if="html === ''">
         <v-icon>code</v-icon> <br> "{{ path }}" is empty
       </div>
       <div v-if="subHtml !== null && !subDialog">
         <div>
-          <v-btn @click="subHtml = null" flat small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
+          <v-btn @click="subHtml = null" text small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
         </div>
         <div ref="infoContent" v-html="subHtml" />
         <div>
-          <v-btn @click="subHtml = null" flat small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
+          <v-btn @click="subHtml = null" text small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
         </div>
       </div>
       <div
@@ -23,8 +23,8 @@
         ref="infoContent"
         :style="lines && !expanded ? {height: (lines * 1.6) + 'em', overflow: 'hidden'} : {}"
       />
-      <div class="text-xs-center" v-if="lines !== null">  
-        <v-btn color="primary" @click="expanded = !expanded" flat round>
+      <div class="text-center" v-if="lines !== null">  
+        <v-btn color="primary" @click="expanded = !expanded" text rounded>
           <span v-if="!expanded">Mehr</span>
           <span v-else>Weniger</span>
           &nbsp;anzeigen
@@ -39,9 +39,9 @@
         </ul>
       </div>
       <v-dialog v-model="showSubDialog" max-width="1000" color="#2b2735" scrollable v-if="subDialog">
-        <v-card flat class="fill-height pa-4">
+        <v-card text class="fill-height pa-4">
           <div class="close-btn">
-            <v-btn @click="showSubDialog = false" flat icon><v-icon dark>close</v-icon></v-btn>
+            <v-btn @click="showSubDialog = false" text icon><v-icon dark>close</v-icon></v-btn>
           </div>
           <v-card-text class="pa-0 fill-height">
             <info-text class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />

@@ -2,24 +2,27 @@
   <v-layout column>
     <v-card class="sticky-card" width="100%">
       <v-layout>
-        <v-flex class="text-xs-center" xs12>
+        <v-flex class="text-center" xs12>
           <v-text-field
             :loading="loading"
             autofocus
-            flat
+            text
             hide-details
             label="Suche…"
             prepend-inner-icon="search"
             @input="debouncedSearchArticle"
+            append-inner-icon="info"
             solo
             clearable
           />
         </v-flex>
         <v-flex>
           <v-menu open-on-hover max-width="700" max-height="95vh" top left>
-            <v-btn slot="activator" color="accent" icon flat>
+            <template v-slot:activator="{ on }">
+            <v-btn v-on="on" color="accent" icon text>
               <v-icon>info</v-icon>
             </v-btn>
+          </template>
             <info-text class="elevation-24 pa-4 white" path="wboe-artikel/showcases/" />
           </v-menu>
         </v-flex>
@@ -30,11 +33,11 @@
       <v-list>
         <template v-for="(articles, i) in articlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
-          <v-list-tile :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="article in articles.articles" :key="article.filename">
-            <v-list-tile-title>
+          <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="article in articles.articles" :key="article.filename">
+            <v-list-item-title>
               {{ article.title }}
-            </v-list-tile-title>
-          </v-list-tile>
+            </v-list-item-title>
+          </v-list-item>
         </template>
       </v-list>
     </v-flex>
@@ -59,8 +62,10 @@ export default class Articles extends Vue {
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
 
   getCleanInitial(lemmaName: string) {
-    return lemmaName.replace(/\(.*\)/g, '')[0].toUpperCase() + lemmaName.replace(/\(.*\)/g, '')[1].toLowerCase()
-  }
+    console.debug('lemmaName', lemmaName);
+    const noKlammer = lemmaName.replace(/\(.*\)/g, ''); 
+    return !noKlammer? null : (noKlammer[0] || '') + (noKlammer[1] || '');
+    }
 
   get articlesByInitial() {
     return _(this.articles)

@@ -11,6 +11,9 @@
         "target": "es5",
         "experimentalDecorators": true,
         "baseUrl": "src",
+        "types":[
+            "vuetify"
+        ],
         "paths": {
             "@src/*": [
               "./*"
