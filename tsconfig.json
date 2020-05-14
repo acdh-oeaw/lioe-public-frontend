@@ -9,6 +9,7 @@
         "lib": ["webworker", "es2015", "dom"],
         "moduleResolution": "node",
         "target": "es5",
+        "allowJs": true,
         "experimentalDecorators": true,
         "baseUrl": "src",
         "types":[
@@ -35,6 +36,9 @@
             ],
             "@models/*": [
                 "models/*"
+            ],
+            "@/functions/*": [
+              "service/parser-functions/*"
             ]
         }
     },

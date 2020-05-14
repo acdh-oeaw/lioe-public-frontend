@@ -22,8 +22,8 @@ module.exports = {
       }
     ], [
       {
-        from: path.resolve(__dirname, "./article"),
-        to: "./static/article"
+        from: path.resolve(__dirname, "./parser-xml"),
+        to: "./static/parser-xml"
       }
     ]),
   ],
