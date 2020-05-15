@@ -257,6 +257,7 @@
 
             <etym>
               <?options {
+                          "id": "etymologie",
                           "title": "Etymologie",
                           "tagAsTitle": false,
                           "layout": {
