@@ -92,10 +92,4 @@ function getOrtsliste(aOlDatenObj: any): any|null {
   return aList
 }
 
-export const methods = {
-  test() {
-    console.log('hello')
-  }
-}
-
 export const initialize = _.once(init)

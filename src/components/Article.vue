@@ -15,7 +15,7 @@
       />
       <v-layout align-end>
         <v-flex @click="handleArticleClick" xs12>
-          <div v-html="lemmaXML" class="article-xml" />
+          <div v-html="lemmaXML" class="lemma" />
         </v-flex>
         <v-flex class="text-xs-right">
           <v-menu open-on-hover max-width="400" max-height="95vh" top left>
@@ -90,20 +90,7 @@
           </v-menu>
         </v-flex>
       </v-layout>
-      <article-view-legacy
-        v-show="false"
-        @article-click="handleArticleClick"
-        :xmls="{
-          redewendungenXML,
-          verbreitungXML,
-          belegauswahlXML,
-          bedeutungXML,
-          etymologieXML,
-          wortbildungXML
-        }"
-      />
-      <article-view v-if="articleXML !== null" :xml="articleXML" :filename="filename">
-      </article-view>
+      <article-view v-if="articleXML !== null" :xml="articleXML" :filename="filename" v-model="expanded" />
       <div class="text-xs-right pa-4">
         <v-tooltip top color="ci">
            <template v-slot:activator="{ on }">
@@ -484,9 +471,18 @@ iframe.comment {
   height: 100%;
   min-height: 500px;
 }
-.wortbildung,
-.redewendungen {
-  re {
+.lemma {
+  form[type="lemma"] > orth {
+    display: inline-block;
+    font-size: 2.5em;
+  }
+  > form[type="lemma"] + form[type="lemma"]::before {
+    content: ','
+  }
+}
+
+.wortbildung, .redewendungen{
+  re{
     display: block;
     margin-bottom: 1em;
     sense {
