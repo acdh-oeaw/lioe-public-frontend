@@ -90,7 +90,12 @@
           </v-menu>
         </v-flex>
       </v-layout>
-      <article-view v-if="articleXML !== null" :xml="articleXML" :filename="filename" v-model="expanded" />
+      <article-view
+        v-if="articleXML !== null"
+        :xml="articleXML"
+        :filename="filename"
+        v-model="expanded"
+        :geo-store="geoStore" />
       <div class="text-xs-right pa-4">
         <v-tooltip top color="ci">
            <template v-slot:activator="{ on }">

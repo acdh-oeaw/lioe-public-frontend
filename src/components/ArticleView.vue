@@ -11,7 +11,7 @@
       ext-info-url="wboe-artikel/verbreitung/"
       info-url="wboe-artikel/verbreitung-short/">
       <template>
-        <PreviewContent v-for="(v, i) in verbreitung" :key="'v'+i" :content="v" />
+        <PreviewContent :geo-store="geoStore" v-for="(v, i) in verbreitung" :key="'v'+i" :content="v" />
       </template>
     </article-fragment-panel>
     <article-fragment-panel
@@ -20,7 +20,7 @@
       ext-info-url="wboe-artikel/belegauswahl/"
       info-url="wboe-artikel/belegauswahl-short/">
       <template>
-        <PreviewContent v-for="(b, i) in belegauswahl" :key="'b'+i" :content="b" />
+        <PreviewContent :geo-store="geoStore" v-for="(b, i) in belegauswahl" :key="'b'+i" :content="b" />
       </template>
     </article-fragment-panel>
     <article-fragment-panel
@@ -28,14 +28,14 @@
       title="Etymologie"
       ext-info-url="wboe-artikel/etymologie/"
       info-url="wboe-artikel/etymologie-short/">
-      <PreviewContent :content="etymologie" />
+      <PreviewContent :geo-store="geoStore" :content="etymologie" />
     </article-fragment-panel>
     <article-fragment-panel
       v-if="bedeutung"
       title="Bedeutung"
       ext-info-url="wboe-artikel/bedeutung/"
       info-url="wboe-artikel/bedeutung-short/">
-      <PreviewContent :content="bedeutung" />
+      <PreviewContent :geo-store="geoStore" :content="bedeutung" />
     </article-fragment-panel>
     <article-fragment-panel
       v-if="wortbildung"
@@ -49,7 +49,7 @@
       title="Redewendungen"
       ext-info-url="wboe-artikel/redewendungen/"
       info-url="wboe-artikel/redewendungen-short/">
-      <PreviewContent :content="redewendungen" />
+      <PreviewContent :geo-store="geoStore" :content="redewendungen" />
     </article-fragment-panel>
   </v-expansion-panel>
 </template>
@@ -103,6 +103,7 @@ export default class ArticleView extends Vue {
 
   @Prop({required: true}) xml: string
   @Prop({required: true}) filename: string
+  @Prop({ default: {} }) geoStore: any
   @Prop() value: boolean[]
 
   parser: any = null
