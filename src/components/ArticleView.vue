@@ -16,13 +16,12 @@ import ParserObject from '../service/parser-functions/parser/Parser'
 import { localEndpoint } from '../api'
 import * as xlsx from 'xlsx'
 
-const replace = async (input: string, regex: RegExp, replacer: any) => {
+const replaceAsync = async (input: string, regex: RegExp, replacer: any) => {
   // we need to remove the 'g' flag, if defined, so that all replacements can be made
   const flags = (regex.flags || '').replace('g', '');
   const re = new RegExp(regex, flags);
   let index = 0;
   let match;
-
   // tslint:disable-next-line:no-conditional-assignment
   while ((match = re.exec(input.slice(index)))) {
     const value = await replacer(...match);
@@ -90,9 +89,9 @@ export default class ArticleView extends Vue {
 
   async getParserMainDef(path: string): Promise<string> {
     // get the orignal file
-    const xmlWithImports = await (await fetch(path)).text()
+    const xmlWithImportTags = await (await fetch(path)).text()
     // replace the <?import {{filename}}> tags with contents of the referenced file
-    return replace(xmlWithImports, /<\?import "(.+)" \?>/gi, async (match: string, capture: string) => {
+    return replaceAsync(xmlWithImportTags, /<\?import "(.+)" \?>/gi, async (match: string, capture: string) => {
       // get the imported file
       return (await (await fetch(this.parserDefinitionPath + capture)).text())
         // remove the opening xml tag from the imported file
@@ -101,14 +100,12 @@ export default class ArticleView extends Vue {
   }
 
   async mounted() {
-    console.log(this.xml)
     this.defs = await this.getAllParserDefinitions()
     const parserFilePath = this.parserDefinitionPath + 'parser.xml'
     const parserXML = await this.getParserMainDef(parserFilePath)
-    console.log(parserXML)
     const parser = new ParserObject.ParserBase(parserXML, parserFilePath, this.getAdditionalFile)
-    const xmlObj = new XmlObject.XmlBase(this.xml, (...a: any[]) => console.log('changed 1', a))
-    this.editorObj = new EditorObject.EditorBase(parser, xmlObj, (...a: any[]) => console.log('changed 2', a))
+    const xmlObj = new XmlObject.XmlBase(this.xml, () => void(0))
+    this.editorObj = new EditorObject.EditorBase(parser, xmlObj, () => void(0))
   }
 }
 </script>
