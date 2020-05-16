@@ -62,10 +62,8 @@ export default class Articles extends Vue {
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
 
   getCleanInitial(lemmaName: string) {
-    console.debug('lemmaName', lemmaName);
-    const noKlammer = lemmaName.replace(/\(.*\)/g, ''); 
-    return !noKlammer? null : (noKlammer[0] || '') + (noKlammer[1] || '');
-    }
+    return (lemmaName.replace(/\(.*\)/g, '')[0] || '').toUpperCase() + (lemmaName.replace(/\(.*\)/g, '')[1] || '').toLowerCase()
+  }
 
   get articlesByInitial() {
     return _(this.articles)
@@ -80,16 +78,20 @@ export default class Articles extends Vue {
 
   async mounted() {
     this.loading = true
-    this.articles = await getArticles()
+    this.articles = await this.getArticles()
     this.loading = false
+  }
+
+  async getArticles(search?: string) {
+    return (await getArticles(search)).filter(a => a.title !== '' && a.title !== undefined)
   }
 
   async searchArticle(search: string) {
     this.loading = true
     if (search) {
-      this.articles = await getArticles(search)
+      this.articles = await this.getArticles(search)
     } else {
-      this.articles = await getArticles()
+      this.articles = await this.getArticles()
     }
     this.loading = false
   }
