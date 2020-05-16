@@ -91,6 +91,7 @@
         </v-flex>
       </v-layout>
       <article-view
+        @article-click="handleArticleClick"
         v-if="articleXML !== null"
         :xml="articleXML"
         :filename="filename"
@@ -241,6 +242,8 @@ export default class Article extends Vue {
       if (sigle !== null) {
         this.openMapsWithPlaces([sigle]);
       }
+    } else if (e.target instanceof HTMLElement && e.target.dataset.geoSigle !== undefined) {
+      this.openMapsWithPlaces([ e.target.dataset.geoSigle ])
     } else if (this.getCollectionLink(e.target) !== null) {
       const id = this.getCollectionLink(e.target)!;
       this.$router.push({ path: "/db", query: { collection_ids: id } });

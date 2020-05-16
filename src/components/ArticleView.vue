@@ -15,6 +15,15 @@
       </template>
     </article-fragment-panel>
     <article-fragment-panel
+      v-if="lautung"
+      title="Lautung"
+      ext-info-url="wboe-artikel/lautung/"
+      info-url="wboe-artikel/lautung-short/">
+      <template>
+        <PreviewContent :geo-store="geoStore" v-for="(l, i) in lautung" :key="'l'+i" :content="l" />
+      </template>
+    </article-fragment-panel>
+    <article-fragment-panel
       v-if="belegauswahl"
       title="Belegauswahl"
       ext-info-url="wboe-artikel/belegauswahl/"
@@ -77,7 +86,6 @@ const replaceAsync = async (input: string, regex: RegExp, replacer: any) => {
     index += match.index;
     input = input.slice(0, index) + value + input.slice(index + match[0].length);
     index += match[0].length;
-
     // if 'g' was not defined on flags, break
     if (flags === regex.flags) {
       break
@@ -116,6 +124,7 @@ export default class ArticleView extends Vue {
   etymologie: any = null
   wortbildung: any = null
   redewendungen: any = null
+  lautung: any = null
 
   allDefinitionPaths = [
     'Literaturliste_Belegsätze_und_Sekundärliteratur_WBÖ_gesamt.xlsx',
@@ -178,6 +187,11 @@ export default class ArticleView extends Vue {
     this.etymologie = editorObj.getEditorObjById('etymologie')
     this.wortbildung = editorObj.getEditorObjById('re-compound')
     this.redewendungen = editorObj.getEditorObjById('re-MWE')
+    this.lautung = editorObj.getAllEditorObjById('note').filter((e: any) => {
+      return e.orgXmlObj !== undefined
+        && e.orgXmlObj.attributes !== undefined
+        && e.orgXmlObj.attributes.type === 'kommentar'
+    })
     this.editorObj = editorObj
   }
 
@@ -191,6 +205,13 @@ export default class ArticleView extends Vue {
 .article-panels{
   .h1, .h2, .h3, .h4, .h5, .h6 {
     display: none;
+  }
+  [data-geo-sigle] {
+    cursor: pointer;
+    color: dimgray;
+    &:hover{
+      text-decoration: underline;
+    }
   }
 }
 </style>

@@ -23,7 +23,7 @@ module.exports = {
     ], [
       {
         from: path.resolve(__dirname, "./parser-xml"),
-        to: "./static/parser-xml"
+        to: "./dist/static/parser-xml"
       }
     ]),
   ],
@@ -37,6 +37,17 @@ module.exports = {
       {
         test: /\.wasm$/,
         loader: 'arraybuffer-loader',
+      },
+      {
+        test: /\.js$/,
+        // Exclude transpiling `node_modules`, except `bootstrap-vue/src`
+        exclude: /node_modules\/(?!bootstrap-vue\/src\/)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
       },
       {
         test: /\.vue$/,
@@ -144,11 +155,12 @@ if (process.env.NODE_ENV === 'production') {
         return JSON.stringify(v)
       }).value()
     }),
-    // new UglifyJsPlugin({
-    //   sourceMap: false
-    // }),
+    new UglifyJsPlugin({
+      sourceMap: false
+    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
-    })
+    }),
+    new BundleAnalyzerPlugin({})
   ])
 }
