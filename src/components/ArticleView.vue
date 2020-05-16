@@ -15,7 +15,7 @@
       </template>
     </article-fragment-panel>
     <article-fragment-panel
-      v-if="lautung"
+      v-if="lautung.length > 0"
       title="Lautung"
       ext-info-url="wboe-artikel/lautung/"
       info-url="wboe-artikel/lautung-short/">
@@ -191,6 +191,7 @@ export default class ArticleView extends Vue {
       return e.orgXmlObj !== undefined
         && e.orgXmlObj.attributes !== undefined
         && e.orgXmlObj.attributes.type === 'kommentar'
+        && e.orgXmlObj.childs.length > 0
     })
     this.editorObj = editorObj
   }

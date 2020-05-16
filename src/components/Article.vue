@@ -311,13 +311,10 @@ export default class Article extends Vue {
   }
 
   async mounted() {
-    this.articles = (await getArticles()).map(t => {
-      return {
-        text: t.title,
-        value: t.filename.replace(".xml", "")
-      };
-    });
-    this.initArticle(this.filename);
+    this.articles = (await getArticles())
+      .filter(a => a.title !== '' && a.title !== undefined)
+      .map(t => ({ text: t.title, value: t.filename.replace('.xml', '') }))
+    this.initArticle(this.filename)
   }
 
   linkParentsToCollection(selector: string, xml: string) {
