@@ -38,7 +38,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Lemma', value: 'Lemma', disabled: true}]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Lemma', value: 'Lemma', disabled: true}, ]" />
           </v-flex>
           <v-flex>
             <v-tooltip color="secondary" dark top>
@@ -440,13 +440,20 @@ export default class Maps extends Vue {
 
   get locationsSearchItems() {
     if (!this.isLoading) {
-      return this.geoStore.ortslisteGeo.map((f: any) => {
-        return {
-          text: f.name,
-          value: f.sigle,
-          parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
+      var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
+        if(f.field === this.searchItemType || this.searchItemType === 'Ort'){
+          return {
+            text: f.name,
+            value: f.sigle,
+            parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
+          }
+        }else {
+          return null
         }
       })
+      return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
+        return el != null;
+      });
     } else {
       return []
     }
