@@ -9,6 +9,8 @@ import 'vuetify/dist/vuetify.min.css'
 // import { lineClamp } from 'vue-line-clamp-extended'
 import VueLazyload from 'vue-lazyload'
 
+// useful comment here
+
 Vue.config.productionTip = true
 // Vue.directive('line-clamp', lineClamp)
 Vue.use(Vuex)
