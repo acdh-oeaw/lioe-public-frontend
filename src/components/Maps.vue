@@ -18,15 +18,16 @@
               clearable
               multiple>
               <template
-                slot="item"
-                slot-scope="data">
-                <v-list-item-action>
-                  <v-checkbox v-model="data.tile.props.value"></v-checkbox>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title style="height: 19px;">{{ data.item.text }}</v-list-item-title>
-                  <v-list-item-sub-title style="font-size: 85%;">{{ data.item.parents }}</v-list-item-sub-title>
-                </v-list-item-content>
+                v-slot="{ item, attrs, on }">
+                <v-list-item v-bind="attrs" v-on="on">
+                  <v-list-item-action>
+                    <v-checkbox v-model="item.value"></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title style="height: 19px;">{{ data.item.text }}</v-list-item-title>
+                    <v-list-item-sub-title style="font-size: 85%;">{{ data.item.parents }}</v-list-item-sub-title>
+                  </v-list-item-content>
+                </v-list-item>
               </template>
             </v-autocomplete>
           </v-flex>
