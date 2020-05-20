@@ -20,7 +20,6 @@
             <v-autocomplete
               v-if="searchItemType === 'collection'"
               autofocus
-              text
               label="Sammlungen suchen…"
               :search-input.sync="searchCollection"
               prepend-inner-icon="search"
@@ -33,7 +32,6 @@
               cache-items
               return-object
               hide-details
-              dense
               multiple
               solo
               clearable>
@@ -54,7 +52,6 @@
             <div>
               <v-select
                 class="divider-left"
-                dense
                 text
                 solo
                 hide-details
@@ -88,13 +85,16 @@
         v-model="selected"
         show-select
         class="data-table"
+        return-object
         :server-items-length="pagination.totalItems"
         :footer-props="footerProps"
         :options.sync="pagination"
         :headers="headers"
         :loading="loading"
+        @click:row="addToSelection($event)"
         :items="_items">
-        <v-flex slot="footer">
+
+        <template slot="footer">
           <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
             <template v-slot:activator="{ on }">
               <v-menu v-on="on" :nudge-top="4" top offset-y open-on-hover :disabled="mappableSelectionItems.length === 0" >
@@ -122,7 +122,7 @@
           <v-menu top open-on-hover>
             <template v-slot:activator="{ on: secondMenu }">
               <v-btn slot="activator" v-on="secondMenu" :disabled="items.length === 0" small text class="pl-3 pr-3" rounded color="ci">
-              Export {{ selected.length > 0 ? `(${this.selected.length})` : ''}}
+              Export {{ selected.length > 0 ? `(${selected.length})` : ''}}
             </v-btn>
             </template>
             
@@ -137,21 +137,26 @@
               <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
             </v-list>
           </v-menu>
-        </v-flex>
-         <template v-slot:item="{ item, index }">
-          <td>
-            <v-checkbox v-model="selected[index]" hide-details />
-          </td>
-          <template v-for="(header, i) in headers">
-                        
-          <td @click="selected[index] = !selected[index]" class="line-clamp"  :key="`${item.id}_${i}`">
-            {{ item[header.value] }}
-          </td>
-            </template>
         </template>
+
+         <template v-slot:item="{item, index, isSelected}">
+           <tr>
+          <td>
+            <v-checkbox v-model="selected[index]"></v-checkbox>
+          </td>
+          <template v-for="header in headers">       
+            <td @click="isSelected = !isSelected" class="line-clamp"  :key="`${header.value}_${index}`">
+              {{ item[header.value] }}
+            </td>
+          </template>
+           </tr>
+        </template>
+
+        <!--
         <template v-slot:footer="{ pageText }" slot-scope="props">
           {{ props.pageStart }} - {{ props.pageStop }} von {{ props.itemsLength }}
         </template>
+        -->
       </v-data-table>
     </v-flex>
   </v-layout>
@@ -225,6 +230,11 @@ export default class Database extends Vue {
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 250)
 
+  addToSelection = (event: any) => {
+    console.log('add to row', event);
+  }
+
+
   async mounted() {
     if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList)
@@ -234,7 +244,7 @@ export default class Database extends Vue {
   }
 
   get _items() {
-    return this.items.filter((i, index) => this.items.indexOf(i) === index);
+    return this.items.filter((i, index) => !!i && this.items.indexOf(i) === index);
   }
 
   @Watch('searchCollection')
@@ -328,10 +338,8 @@ export default class Database extends Vue {
   }
 
   get mappableSelectionItems() {
-    return _(this.selected)
-      .filter(i => i.Bundesland !== '' || i.Großregion !== '' || i.Ort !== '')
-      .uniqBy(i => i.ortsSigle)
-      .value()
+    return _(this._items
+      .filter((i, index) => !!i && this.selected[index] && (i.Bundesland !== '' || i.Großregion !== '' || i.Ort !== ''))).value()
   }
 
   showSelectionOnMap() {
@@ -353,8 +361,7 @@ export default class Database extends Vue {
         search,
         this.pagination.page,
         this.pagination.rowsPerPage,
-        this.pagination.descending,
-        this.pagination.sortBy
+        this.pagination.descending
       )
       this.items = res.documents.map(d => ({
         ...d,
@@ -395,9 +402,11 @@ export default class Database extends Vue {
 }
 </script>
 <style lang="scss">
+/*
 div.v-datatable.v-table.v-datatable--select-all.theme--light{
   position: -webkit-sticky;
   position: sticky;
   bottom: 0;
 }
+*/
 </style>
