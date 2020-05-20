@@ -159,7 +159,7 @@ export default class Article extends Vue {
     initials: "",
     fullname: ""
   };
-  expanded: number[] = [];
+  expanded: number[] = [4];
 
   articleXML: string | null = "";
   title: string | null = null;

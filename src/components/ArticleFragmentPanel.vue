@@ -1,33 +1,43 @@
 <template>
-  <v-expansion-panel-content>
-    <v-layout slot="header">
-      <v-flex xs12>
-        <b>{{ title }}</b>
-      </v-flex>
-      <v-flex>
-        <v-menu open-on-hover v-if="infoUrl" max-width="400" max-height="95vh" top left>
-          <v-icon class="mr-3" slot="activator">info_outline</v-icon>
-          <info-text class="elevation-24 pa-4 white" :path="infoUrl" />
-          <v-btn @click="showDetails = true" block color="ci" class="ma-0" dark v-if="extInfoUrl">Weitere Informationen</v-btn>
-        </v-menu>
-      </v-flex>
-      <v-dialog v-model="showDetails" max-width="1000" color="#2b2735" scrollable v-if="extInfoUrl">
-        <v-card flat class="fill-height pa-4">
-          <div class="close-btn">
-            <v-btn @click="showDetails = false" flat icon><v-icon dark>close</v-icon></v-btn>
-          </div>
-          <v-card-text class="pa-0 fill-height">
-            <info-text class="pa-4 white fill-height" :path="extInfoUrl" />
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-    </v-layout>
-    <v-card class="article-xml">
-      <v-card-text class="pl-4 pt-1 pr-4 pb-4">
+  <v-expansion-panel>
+    <v-expansion-panel-header>
+      <v-row no-gutters>
+        <v-col class="header">
+          {{ title }}
+        </v-col>
+        <v-col class="text-right" cols="1">
+          <v-menu
+            v-if="infoUrl"
+            open-on-hover
+            max-width="400"
+            max-height="95vh"
+            top
+            left>
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" class="mr-3">info_outline</v-icon>
+            </template>
+            <info-text class="elevation-24 pa-4 white" :path="infoUrl" />
+            <v-btn @click="showDetails = true" block color="ci" class="ma-0" dark v-if="extInfoUrl">Weitere Informationen</v-btn>
+          </v-menu>
+        </v-col>
+        <v-dialog v-model="showDetails" max-width="1000" color="#2b2735" scrollable v-if="extInfoUrl">
+          <v-card flat class="fill-height pa-4">
+            <div class="close-btn">
+              <v-btn @click="showDetails = false" flat icon><v-icon dark>close</v-icon></v-btn>
+            </div>
+            <v-card-text class="pa-0 fill-height">
+              <info-text class="pa-4 white fill-height" :path="extInfoUrl" />
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </v-expansion-panel-header>
+    <v-expansion-panel-content>
+      <div class="article-xml">
         <slot />
-      </v-card-text>
-    </v-card>
-  </v-expansion-panel-content>
+      </div>
+    </v-expansion-panel-content>
+  </v-expansion-panel>
 </template>
 
 <script lang="ts">
@@ -51,6 +61,11 @@ export default class ArticleFragementPanel extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.header{
+  font-weight: bold;
+  font-size: 100%;
+  line-height: 1.6em;
+}
 .close-btn {
   position: absolute;
   right: 0;

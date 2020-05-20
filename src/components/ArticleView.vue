@@ -1,66 +1,67 @@
 <template>
-  <v-expansion-panel
+  <v-expansion-panels
     :value="value"
     @change="$emit('input', $event)" v-if="editorObj != null"
     class="mt-3 article-panels"
     @click.native="$emit('article-click', $event)"
-    expand>
+    accordion
+    multiple>
     <article-fragment-panel
-      v-if="verbreitung"
+      v-show="verbreitung"
       title="Verbreitung"
       ext-info-url="wboe-artikel/verbreitung/"
       info-url="wboe-artikel/verbreitung-short/">
-      <template>
+      <template v-if="verbreitung">
         <PreviewContent :geo-store="geoStore" v-for="(v, i) in verbreitung" :key="'v'+i" :content="v" />
       </template>
     </article-fragment-panel>
     <article-fragment-panel
-      v-if="lautung.length > 0"
+      v-show="lautung.length > 0"
       title="Lautung"
       ext-info-url="wboe-artikel/lautung/"
       info-url="wboe-artikel/lautung-short/">
-      <template>
+      <template v-if="lautung.length > 0">
         <PreviewContent :geo-store="geoStore" v-for="(l, i) in lautung" :key="'l'+i" :content="l" />
       </template>
     </article-fragment-panel>
     <article-fragment-panel
-      v-if="belegauswahl"
+      v-show="belegauswahl"
       title="Belegauswahl"
       ext-info-url="wboe-artikel/belegauswahl/"
       info-url="wboe-artikel/belegauswahl-short/">
-      <template>
+      <template v-if="belegauswahl">
         <PreviewContent :geo-store="geoStore" v-for="(b, i) in belegauswahl" :key="'b'+i" :content="b" />
       </template>
     </article-fragment-panel>
     <article-fragment-panel
-      v-if="etymologie"
+      v-show="etymologie"
       title="Etymologie"
       ext-info-url="wboe-artikel/etymologie/"
       info-url="wboe-artikel/etymologie-short/">
-      <PreviewContent :geo-store="geoStore" :content="etymologie" />
+      <PreviewContent v-if="etymologie" :geo-store="geoStore" :content="etymologie" />
     </article-fragment-panel>
     <article-fragment-panel
-      v-if="bedeutung"
+      v-show="bedeutung"
       title="Bedeutung"
       ext-info-url="wboe-artikel/bedeutung/"
       info-url="wboe-artikel/bedeutung-short/">
-      <PreviewContent :geo-store="geoStore" :content="bedeutung" />
+      <PreviewContent v-if="bedeutung" :geo-store="geoStore" :content="bedeutung" />
     </article-fragment-panel>
     <article-fragment-panel
-      v-if="wortbildung"
+      v-show="wortbildung"
       title="Wortbildung"
       ext-info-url="wboe-artikel/wortbildung/"
       info-url="wboe-artikel/wortbildung-short/">
-      <PreviewContent :content="wortbildung" />
+      <PreviewContent v-if="wortbildung" :content="wortbildung" />
     </article-fragment-panel>
     <article-fragment-panel
-      v-if="redewendungen"
+      v-show="redewendungen"
       title="Redewendungen"
       ext-info-url="wboe-artikel/redewendungen/"
       info-url="wboe-artikel/redewendungen-short/">
-      <PreviewContent :geo-store="geoStore" :content="redewendungen" />
+      <PreviewContent v-if="redewendungen" :geo-store="geoStore" :content="redewendungen" />
     </article-fragment-panel>
-  </v-expansion-panel>
+  </v-expansion-panels>
 </template>
 <script lang="ts">
 
