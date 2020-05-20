@@ -80,7 +80,7 @@
         <v-btn fab small @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
-        <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left lazy>
+        <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
           <template v-slot:activator="{ on }">
             <v-btn fab v-on="on" @click="true">
               <v-icon>layers</v-icon>
@@ -105,7 +105,7 @@
           </v-card>
         </v-menu>
       </v-flex>
-      <v-menu open-on-hover min-width="200" fixed left lazy>
+      <v-menu open-on-hover min-width="200" fixed left>
           <template v-slot:activator="{ on }">
             <v-btn dark color="ci" fab fixed bottom right v-on="on">
               <v-icon>save_alt</v-icon>
