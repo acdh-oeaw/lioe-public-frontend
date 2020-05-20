@@ -17,7 +17,6 @@
               solo
               clearable
             />
-            {{selected.length}}
             <v-autocomplete
               v-if="searchItemType === 'collection'"
               autofocus
@@ -289,7 +288,7 @@ export default class Database extends Vue {
 
   async init() {
     this.loading = true
-    this.pagination.totalItems = await getDocumentTotalCount()
+    this.pagination.totalItems = await getDocumentTotalCount() || 0
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.rowsPerPage,
