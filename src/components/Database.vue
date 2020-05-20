@@ -17,6 +17,7 @@
               solo
               clearable
             />
+            {{selected.length}}
             <v-autocomplete
               v-if="searchItemType === 'collection'"
               autofocus
@@ -139,13 +140,13 @@
           </v-menu>
         </template>
 
-         <template v-slot:item="{item, index, isSelected}">
+         <template v-slot:item="{item, index, isSelected, select}">
            <tr>
           <td>
-            <v-checkbox v-model="selected[index]"></v-checkbox>
+            <v-checkbox :value="isSelected" @click="select(item)"></v-checkbox>
           </td>
-          <template v-for="header in headers">       
-            <td @click="isSelected = !isSelected" class="line-clamp"  :key="`${header.value}_${index}`">
+          <template v-for="header in headers">
+            <td class="line-clamp"  :key="`${header.value}_${index}`">
               {{ item[header.value] }}
             </td>
           </template>
