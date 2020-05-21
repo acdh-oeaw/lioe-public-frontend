@@ -36,10 +36,21 @@
               dense
               text
               solo
+              flat
               hide-details
               class="divider-left"
               v-model="searchItemType"
               :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Lemma', value: 'Lemma', disabled: true}, ]" />
+          </v-flex>
+          <v-flex >
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon text>
+                  <v-icon>mdi-format-color-fill</v-icon>
+                </v-btn>
+              </template>
+               <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
+            </v-menu>
           </v-flex>
           <v-flex>
             <v-tooltip color="secondary" dark top>
@@ -52,9 +63,9 @@
             </v-tooltip>
           </v-flex>
           <v-flex>
-            <v-menu open-on-hover max-width="400" max-height="95vh" top left>
+            <v-menu open-on-hover max-width="400" max-height="95vh">
               <template v-slot:activator="{ on }">
-                <v-btn color="accent" class="mr-3" small v-on="on" icon text>
+                <v-btn color="accent" class="mr-3" small v-on="on" icon text bottom>
                   <v-icon>info_outline</v-icon>
                 </v-btn>
               </template>
@@ -153,10 +164,9 @@
         v-if="!updateLayers && showDialektregionen"
         :options="{ onEachFeature: bindTooltip(['name']) }"
         :optionsStyle="(feature) => ({
-          fillColor : dialektColors[feature.properties.id],
-          color: dialektColors[feature.properties.id],
+          color: '#000',
           weight: 2,
-          fillOpacity: 1
+          fillOpacity: 0
         })"
         :geojson="dialektregionen"
       />
@@ -284,6 +294,7 @@ export default class Maps extends Vue {
   colorGemeinde = '#800'
   colorBundesland = '#000'
   colorGrossregionen = '#080'
+  colorSelect = '#044'
 
   rivers: any = null
   autoFit = false
@@ -484,6 +495,7 @@ export default class Maps extends Vue {
   }
   get styleFunction() {
     const aThis: any = this
+    var color: string = this.colorSelect;
     return (feature: any) => {
       const aSigleS: string = feature.properties.sigle
       if (!aThis.randomColors[aSigleS]) {
@@ -493,8 +505,7 @@ export default class Maps extends Vue {
         weight: 1,
         color: '#333333',
         opacity: 1,
-        // fillColor: aThis.randomColors[aSigleS],
-        fillColor: '#800',
+        fillColor: color,
         fillOpacity: 0.5
       }
     }
@@ -517,15 +528,12 @@ export default class Maps extends Vue {
       this.bindTooltip(['name', 'sigle'], true)(feature, layer)
       layer.on('mouseover', function(this: any) {
         this.setStyle({
-          fillColor: '#0000ff',
           fillOpacity: 1
         })
       })
       layer.on('mouseout', function(this: any) {
         const aSigleS = (feature.properties as any).sigle
         this.setStyle({
-          // fillColor: aThis.randomColors[aSigleS],
-          fillColor: '#800',
           fillOpacity: 0.5
         })
       })
