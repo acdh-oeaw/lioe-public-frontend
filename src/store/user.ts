@@ -1,10 +1,10 @@
 
 //fe
 export const userStore = {
-  showPdfPrintButton: true,
-  isLoggedIn: true,
-  showComment: true,
-  articleStatus: ''
+  showPdfPrintButton: false,
+  isLoggedIn: false,
+  showComment: false,
+  articleStatus: 'proofed'
 }
 
 
