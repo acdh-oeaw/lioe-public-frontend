@@ -93,7 +93,6 @@
         :server-items-length="totalItems"
         :headers="headers"
         :loading="loading"
-        @click:row="addToSelection($event)"
         :items="_items">
 
         <template slot="footer">
@@ -238,10 +237,6 @@ export default class Database extends Vue {
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
 
-  addToSelection = (event: any) => {
-    console.log('add to row', event);
-  }
-
 
   async mounted() {
     if (this.collection_ids) {
@@ -257,14 +252,12 @@ export default class Database extends Vue {
 
   @Watch('searchCollection')
   async onSearchCollection(val: string|null) {
-    console.debug('inside onSearchCollection', val)
     if (val !== null && val.trim() !== '') {
       this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
     }
   }
 
   selectCollections(colls: any[]) {
-    console.debug('inside selectCollections', colls)
     this.$router.replace({ query: { collection_ids: colls.map((x) => x.value).join() } })
   }
 
@@ -302,7 +295,7 @@ export default class Database extends Vue {
     this.loading = true
 
     let countDocument = await getDocumentTotalCount();
-    console.log('lel', countDocument)
+    // console.log('lel', countDocument)
     this.totalItems = countDocument || 0
     const res = await getDocuments(
       this.pagination.page,
@@ -327,8 +320,8 @@ export default class Database extends Vue {
         .uniqBy(d => d.id)
         .map(d => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle)}))
         .value()
-      console.log({res})
-      console.log('950', res.total)
+      // console.log({res})
+      // console.log('950', res.total)
       this.totalItems = typeof res.total ==='number' ? res.total : 0
       const cs = await getCollectionByIds(ids)
       this.selectedCollections = cs.map(x => ({...x, text: x.name}))
@@ -360,6 +353,7 @@ export default class Database extends Vue {
 
   showSelectionOnMap() {
     if (this.selected.length > 0) {
+    //  console.debug('what dis', this.mappableSelectionItems.map(d => d.ortsSigle).join(','))
       this.$router.push({
         path: '/maps',
         query: {
@@ -384,7 +378,7 @@ export default class Database extends Vue {
         ...this.getPlacesFromSigle(d.ortsSigle)
       }))
 
-      console.log('fluss', res.total)
+      // console.log('fluss', res.total)
       this.totalItems = res.total.value || 0
       this.searching = false
     } else {

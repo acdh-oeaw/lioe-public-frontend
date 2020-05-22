@@ -63,8 +63,6 @@ export function isLocalUrl(url: string): string|null {
 }
 
 export async function getDocumentTotalCount(): Promise<number> {
-  console.log('getDocumentTotalCount');
-
   const r = await (await axios({
     method: 'GET',
     url: apiEndpoint + '/documents/?page=1&page_size=1'
@@ -73,7 +71,6 @@ export async function getDocumentTotalCount(): Promise<number> {
 }
 
 export async function getDocuments(page = 1, items = 100): Promise<Documents> {
-  console.log('getDocuments ', page, items)
 
   const r = await (await fetch(apiEndpoint + '/documents/?page=' + page + '&page_size=' + items)).json()
   const ds = (await axios({
@@ -120,7 +117,7 @@ function sigleFromEsRef(ref: Array<{$: string, '@type': string}>): string|null {
 
 // tslint:disable-next-line:max-line-length
 export async function searchCollections(val: string): Promise<{ name: string, value: string, description: string }[]> {
-  console.log('are we here?')
+  //console.log('are we here?')
   
   const res = await (await fetch(apiEndpoint + '/collections/?page=1&page_size=10&title=' + val)).json()
   return res.results.map((r: any) => {
