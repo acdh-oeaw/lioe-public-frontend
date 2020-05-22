@@ -217,7 +217,6 @@ export default class Database extends Vue {
     sortBy: [],
     sortDesc: [],
     multiSort: false,
-    rowsPerPage: 100,
   }
   headers = [
     { text: 'Hauptlemma', renderFnc: (val: any) => Array.isArray(val.HL) ? `${_(val.HL).flatten()}` : val.HL, value: 'HL' },
@@ -299,7 +298,7 @@ export default class Database extends Vue {
     this.totalItems = countDocument || 0
     const res = await getDocuments(
       this.pagination.page,
-      this.pagination.rowsPerPage,
+      this.pagination.itemsPerPage,
       // this.pagination.descending,
       // this.pagination.sortBy
     )
@@ -334,6 +333,7 @@ export default class Database extends Vue {
 
   @Watch('pagination', {deep: true})
   updateResults(newVal: any, oldVal: any) {
+    console.log('pagination changed', newVal, oldVal);
     if (newVal.page !== oldVal.page) {
       window.scroll({ top: 0, behavior: 'smooth' })
     }
@@ -370,7 +370,7 @@ export default class Database extends Vue {
       const res = await searchDocuments(
         search,
         this.pagination.page,
-        this.pagination.rowsPerPage,
+        this.pagination.itemsPerPage,
         this.pagination.sortDesc,
       )
       this.items = res.documents.map(d => ({
