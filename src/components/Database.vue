@@ -183,6 +183,7 @@ import { geoStore } from '../store/geo'
 import * as FileSaver from 'file-saver'
 import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
+import { log } from 'util'
 
 interface Places {
   Ort: string
@@ -354,7 +355,7 @@ export default class Database extends Vue {
 
   get mappableSelectionItems() {
     return _(this._items
-      .filter((i, index) => !!i && this.selected.includes(i) && (i.Bundesland !== '' || i.Großregion !== '' || i.Ort !== ''))).value()
+      .filter((i, index) => !!i && this.selected.find(item => item.id === i.id) && (i.Bundesland !== '' || i.Bundesland1 !== '' ||  i.Großregion !== '' || i.Ort !== ''))).value()
   }
 
   showSelectionOnMap() {
