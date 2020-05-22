@@ -25,6 +25,7 @@
               prepend-inner-icon="search"
               :loading="searching"
               :items="collectionSearchItems"
+              item-text="text"
               :value="selectedCollections"
               @input="selectCollections"
               chips
@@ -35,6 +36,7 @@
               multiple
               solo
               clearable>
+              <!--
               <template
                 slot="item"
                 slot-scope="data">
@@ -45,7 +47,7 @@
                   <v-list-item-title style="height: 19px;">{{ data.item.text }}</v-list-item-title>
                   <v-list-item-sub-title style="font-size: 85%;">{{ data.item.description }}</v-list-item-sub-title>
                 </v-list-item-content>
-              </template>
+              </template>-->
             </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>
@@ -86,9 +88,9 @@
         show-select
         class="data-table"
         return-object
-        :server-items-length="pagination.totalItems"
         :footer-props="footerProps"
         :options.sync="pagination"
+        :server-items-length="totalItems"
         :headers="headers"
         :loading="loading"
         @click:row="addToSelection($event)"
@@ -210,15 +212,15 @@ export default class Database extends Vue {
   loading = false
   searching = false
   pagination = {
-
-    descending: true,
     page: 1,
-    rowsPerPage: 100,
+    itemsPerPage: 100,
     sortBy: [],
-    totalItems: 0
+    sortDesc: [],
+    multiSort: false,
+    rowsPerPage: 100,
   }
   headers = [
-    { text: 'Hauptlemma', value: 'HL' },
+    { text: 'Hauptlemma', renderFnc: (val: any) => Array.isArray(val.HL) ? `${_(val.HL).flatten()}` : val.HL, value: 'HL' },
     { text: 'Wortart', value: 'POS' },
     { text: 'Lautung', value: 'LT' },
     { text: 'Bedeutung', value: 'BIBL' },
@@ -233,7 +235,7 @@ export default class Database extends Vue {
           'items-per-page-options': [10, 25, 50, 100]
         };
 
-  debouncedSearchDatabase = _.debounce(this.searchDatabase, 250)
+  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
 
   addToSelection = (event: any) => {
     console.log('add to row', event);
@@ -254,12 +256,14 @@ export default class Database extends Vue {
 
   @Watch('searchCollection')
   async onSearchCollection(val: string|null) {
+    console.debug('inside onSearchCollection', val)
     if (val !== null && val.trim() !== '') {
       this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
     }
   }
 
   selectCollections(colls: any[]) {
+    console.debug('inside selectCollections', colls)
     this.$router.replace({ query: { collection_ids: colls.map((x) => x.value).join() } })
   }
 
@@ -291,9 +295,14 @@ export default class Database extends Vue {
     }
   }
 
+  totalItems = 100
+
   async init() {
     this.loading = true
-    this.pagination.totalItems = await getDocumentTotalCount() || 0
+
+    let countDocument = await getDocumentTotalCount();
+    console.log('lel', countDocument)
+    this.totalItems = countDocument || 0
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.rowsPerPage,
@@ -318,7 +327,8 @@ export default class Database extends Vue {
         .map(d => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle)}))
         .value()
       console.log({res})
-      this.pagination.totalItems = res.total
+      console.log('950', res.total)
+      this.totalItems = typeof res.total ==='number' ? res.total : 0
       const cs = await getCollectionByIds(ids)
       this.selectedCollections = cs.map(x => ({...x, text: x.name}))
       this.collectionSearchItems = cs.map(x => ({...x, text: x.name}))
@@ -366,13 +376,15 @@ export default class Database extends Vue {
         search,
         this.pagination.page,
         this.pagination.rowsPerPage,
-        this.pagination.descending
+        this.pagination.sortDesc,
       )
       this.items = res.documents.map(d => ({
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle)
       }))
-      this.pagination.totalItems = res.total
+
+      console.log('fluss', res.total)
+      this.totalItems = res.total.value || 0
       this.searching = false
     } else {
       this.init()

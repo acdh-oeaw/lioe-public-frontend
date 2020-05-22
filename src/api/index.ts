@@ -9,8 +9,11 @@ declare var process: {
 }
 
 interface Documents {
-  total: number
-  documents: Array<{
+  total: {
+    value: number
+    relation: string
+  },
+  documents: {
     Bedeutung: string
     Fragebogennummer: string
     Hauptlemma: string
@@ -21,7 +24,7 @@ interface Documents {
     entry: any
     id: string
     ortsSigle: string
-  }>
+  }[]
 }
 
 const apiEndpoint = 'https://dboeannotation.acdh-dev.oeaw.ac.at/api'
@@ -60,14 +63,18 @@ export function isLocalUrl(url: string): string|null {
 }
 
 export async function getDocumentTotalCount(): Promise<number> {
+  console.log('getDocumentTotalCount');
+
   const r = await (await axios({
     method: 'GET',
     url: apiEndpoint + '/documents/?page=1&page_size=1'
-  })).data
-  return r.count
+  }).catch(er => {console.error(er)}))
+  return r && r.data  && r.data.count ? r.data.count  : 0;
 }
 
 export async function getDocuments(page = 1, items = 100): Promise<Documents> {
+  console.log('getDocuments ', page, items)
+
   const r = await (await fetch(apiEndpoint + '/documents/?page=' + page + '&page_size=' + items)).json()
   const ds = (await axios({
     method: 'POST',
@@ -112,7 +119,9 @@ function sigleFromEsRef(ref: Array<{$: string, '@type': string}>): string|null {
 }
 
 // tslint:disable-next-line:max-line-length
-export async function searchCollections(val: string): Promise<Array<{ name: string, value: string, description: string }>> {
+export async function searchCollections(val: string): Promise<{ name: string, value: string, description: string }[]> {
+  console.log('are we here?')
+  
   const res = await (await fetch(apiEndpoint + '/collections/?page=1&page_size=10&title=' + val)).json()
   return res.results.map((r: any) => {
     return {
@@ -123,7 +132,7 @@ export async function searchCollections(val: string): Promise<Array<{ name: stri
   })
 }
 // tslint:disable-next-line:max-line-length
-export async function getCollectionByIds(ids: string[]): Promise<Array<{ name: string, value: string, description: string }>> {
+export async function getCollectionByIds(ids: string[]): Promise<{ name: string, value: string, description: string }[]> {
   const ress = await Promise.all(ids.map(async (id) => (await fetch(apiEndpoint + '/collections/' + id)).json()))
   return ress.map((r: any) => ({
     name: r.title,
@@ -133,7 +142,7 @@ export async function getCollectionByIds(ids: string[]): Promise<Array<{ name: s
 }
 
 export async function searchDocuments(
-  search: string, page = 1, items = 100, descending = false, sortBy = null
+  search: string, page = 1, items = 100, descending = [false], sortBy = null
 ): Promise<Documents> {
   const sort = sortBy !== null && {
     sort: [
@@ -151,13 +160,13 @@ export async function searchDocuments(
       query: {
         multi_match: {
           fields: [
-            'Hauptlemma',
-            'Bedeutung',
-            'Fragebogennummer',
-            'Kontext',
-            'Lautung',
-            'Nebenlemma',
-            'Wortart'
+            'HL',
+            'POS',
+            'BIBL',
+            'Gemeinde1',
+            'LT',
+            'NL',
+            'LT1_teuthonista',
           ],
           query: search,
           type: 'phrase_prefix'
