@@ -11,6 +11,7 @@
               label="Suche…"
               autofocus
               hide-details
+              return-object
               dense
               text
               prepend-inner-icon="search"
