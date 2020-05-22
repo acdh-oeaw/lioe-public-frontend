@@ -10,15 +10,16 @@
               @input="selectLocations"
               label="Suche…"
               autofocus
+              item-text="text"
+              item-value="value"
               hide-details
-              return-object
               dense
               text
               prepend-inner-icon="search"
               solo
               clearable
               multiple>
-              <template
+              <!--template 
                 v-slot="{ item, attrs, on }">
                 <v-list-item v-bind="attrs" v-on="on">
                   <v-list-item-action>
@@ -29,7 +30,7 @@
                     <v-list-item-sub-title style="font-size: 85%;">{{ data.item.parents }}</v-list-item-sub-title>
                   </v-list-item-content>
                 </v-list-item>
-              </template>
+              </template -->
             </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>

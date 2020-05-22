@@ -23,6 +23,7 @@ async function init() {
 }
 
 function filterOrtslisteByGeoJSON (oList: any, gList: any) {
+  console.log(oList, gList);
   if (oList !== null && gList !== null) {
     const nOList: any[] = []
     const mSigle: any[] = []
@@ -65,7 +66,7 @@ function getOrtslistenDaten (aOlDaten: any): any|null {
             }
           });
           if (aObj.parents[aOlDaten.uFieldsRev[aFIndex - 1]]) {
-            const aPField = aOlDaten.uFieldsRev[aFIndex - 1]
+            let aPField = aOlDaten.uFieldsRev[aFIndex - 1]
             if (aObj.parents[aPField] && aOlDaten[aPField + 'Obj'] && aOlDaten[aPField + 'Obj'][aObj.parents[aPField]]) {
               if (!aOlDaten[aPField + 'Obj'][aObj.parents[aPField]].childs) { aOlDaten[aPField + 'Obj'][aObj.parents[aPField]].childs = [] }
               aOlDaten[aPField + 'Obj'][aObj.parents[aPField]].childs.push(aObj)
@@ -84,11 +85,11 @@ function getOrtslistenDaten (aOlDaten: any): any|null {
 
 function getOrtsliste(aOlDatenObj: any): any|null {
   let aList: any[] = []
-  if (Array.isArray(aOlDatenObj.childs)) {
-    aOlDatenObj.forEach((aObj: any) => {
-      aList = [...aList, ...aObj, ...getOrtsliste(aObj.childs)]
-    })
-  }
+  aOlDatenObj.forEach((aObj: any) => {
+    if ( aObj.childs && Array.isArray(aObj.childs)) {
+      aList = [...aList, aObj, ...getOrtsliste(aObj.childs)]
+    }
+  });
   return aList
 }
 
