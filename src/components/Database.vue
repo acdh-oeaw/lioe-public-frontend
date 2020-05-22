@@ -146,7 +146,12 @@
           </td>
           <template v-for="header in headers">
             <td class="line-clamp"  :key="`${header.value}_${index}`">
-              {{ item[header.value] }}
+              <template v-if="header.renderFnc">
+                {{ header.renderFnc(item) }}                
+              </template>
+              <template v-else>
+                {{ item[header.value] }}
+              </template>
             </td>
           </template>
            </tr>
@@ -219,9 +224,9 @@ export default class Database extends Vue {
     { text: 'Bedeutung', value: 'BIBL' },
 //    { text: 'Kontext', value: 'Kontext' },
 //    { text: 'FB-Nr.', value: 'Fragebogennummer' },
-    { text: 'Ort', value: 'Ort', sortable: false },
-    { text: 'Großreg.', value: 'Gemeinde', sortable: false },
-    { text: 'Bundesl.', value: 'Bundesland', sortable: false }
+    { text: 'Ort', value: 'Ort', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}`, sortable: false },
+    { text: 'Großreg.', value: 'Gemeinde', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, sortable: false },
+    { text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`,  sortable: false }
   ]
   footerProps = {
           'items-per-page-text': 'Pro Seite',
@@ -339,7 +344,7 @@ export default class Database extends Vue {
 
   get mappableSelectionItems() {
     return _(this._items
-      .filter((i, index) => !!i && this.selected[index] && (i.Bundesland !== '' || i.Großregion !== '' || i.Ort !== ''))).value()
+      .filter((i, index) => !!i && this.selected.includes(i) && (i.Bundesland !== '' || i.Großregion !== '' || i.Ort !== ''))).value()
   }
 
   showSelectionOnMap() {
