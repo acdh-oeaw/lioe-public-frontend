@@ -172,4 +172,12 @@ div /deep/ .frame > p:last-child {
 div /deep/ a{
   text-decoration: none;
 }
+div /deep/ a.button {
+  display: inline-block;
+  background-color: #408ca3;
+  color: #fff;
+  font-size: 18px;
+  border-radius: 5px;
+  padding: 10px 15px;
+}
 </style>
