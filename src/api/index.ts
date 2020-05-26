@@ -70,8 +70,19 @@ export async function getDocumentTotalCount(): Promise<number> {
   return r && r.data  && r.data.count ? r.data.count  : 0;
 }
 
-export async function getDocuments(page = 1, items = 100): Promise<Documents> {
-
+export async function getDocuments(page = 1, items = 100, sortBy: string[] = [], descending: boolean[] = [true]): Promise<Documents> {
+  const sort = [];
+  if(sortBy.length !== 0) {
+    if(descending.length !== 0) {
+      sort.push(
+        {
+          [`${sortBy[0]}.keyword`] : descending[0] ? 'desc' : 'asc'
+        }
+      );
+    } else {
+      sort.push(sortBy[0]);
+    }
+  }
   const r = await (await fetch(apiEndpoint + '/documents/?page=' + page + '&page_size=' + items)).json()
   const ds = (await axios({
     method: 'POST',
@@ -82,7 +93,8 @@ export async function getDocuments(page = 1, items = 100): Promise<Documents> {
           type: '_doc',
           values: r.results.map((result: any) => result.es_id)
         }
-      }
+      },
+    sort,
     },
     url: localEndpoint + '/es-query'
   })).data

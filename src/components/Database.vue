@@ -218,21 +218,129 @@ export default class Database extends Vue {
     sortDesc: [],
     multiSort: false,
   }
+
+  renderBedeutung(val:any) {
+
+    const bd: string[] = [];
+    for(let i = 1; i < 10; i += 1) {
+      let at = `LT${i}`
+      let b = val[`LT${i}`];
+      console.log('at', at, val[at]);
+      if(!b) continue;
+      bd.push(b);
+    }
+    return _(bd).flatten();
+  }
+
+  renderFragenummer(val:any) {
+    const replacer = (match:string, p1:string, p2:string, offset: any, what: any) => {
+      console.log(match, p1, p2, offset, what);
+      return match;
+    }
+    const fragenummerRegex = /.* (\(.*\)){0,1}:/;
+    let nr = val['NR']
+    if (!nr) return '';
+    if (Array.isArray(nr)) {
+      nr = nr.map(n => {
+        const m = n.match(fragenummerRegex);
+        return m ? m[0] : null 
+      });
+    } else{
+      const m = nr.match(fragenummerRegex);
+      return m ? m[0] : ''; 
+    }
+    nr = nr.filter((n: any) => n);
+    return _(nr).flatten();
+  }
+
+  renderGefragterAusdruck(val:any) {
+    const replacer = (match:string, p1:string, p2:string, offset: any, what: any) => {
+      console.log(match, p1, p2, offset, what);
+      return match;
+    }
+    const fragenummerRegex = / ≈.* (\(.*\)){0,1}:/;
+    let nr = val['NR']
+    if (!nr) return '';
+
+    if (Array.isArray(nr)) {
+      nr = nr.map(n => {
+        const m = n.match(fragenummerRegex);
+        return m ? m[0] : null 
+      });
+    } else{
+      const m = nr.match(fragenummerRegex);
+      return m ? m[0] : ''; 
+    }
+    nr = nr.filter((n: any) => n);
+    return _(nr).flatten();
+  }
+
+  renderLautung(val:any) {
+    const kts = [
+      'KT1',
+      'KT2',
+      'KT3',
+      'KT4',
+      'KT5',
+      'KT6',
+      'KT7',
+      'KT8',
+    ];
+    const res: string[] = [];
+    kts.forEach(t => {
+      if (Array.isArray(val[t] && val[t].length > 0)) 
+        res.push(val[t][0]);
+      else if(val[t])
+        res.push(val[t]);
+    });
+    return _(res).flatten();
+  }
+  renderBelegsaetze(val:any) {
+    const tauts = [
+      'LT1_teuthonista',
+      'LT2_theutonista',
+      'LT3_theutonista',
+      'LT4_theutonista',
+      'LT5_theutonista',
+      'LT6_theutonista',
+      'LT7_theutonista',
+      'LT8_theutonista',
+      'LT9_theutonista'
+    ];
+
+    const res: string[] = [];
+    tauts.forEach(t => {
+      if (Array.isArray(val[t] && val[t].length > 0))
+        res.push(val[t][0]);
+      else if(val[t])
+        res.push(val[t]);
+    });
+    return _(res).flatten();
+  }
+
   headers = [
-    { text: 'Hauptlemma', renderFnc: (val: any) => Array.isArray(val.HL) ? `${_(val.HL).flatten()}` : val.HL, value: 'HL' },
+    { text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
+    { text: 'Lemma einfach', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? val.HL[1] : val.HL, sortable: false, value: 'HL2' },
     { text: 'Wortart', value: 'POS' },
-    { text: 'Lautung', value: 'LT' },
-    { text: 'Bedeutung', value: 'BIBL' },
-//    { text: 'Kontext', value: 'Kontext' },
-//    { text: 'FB-Nr.', value: 'Fragebogennummer' },
-    { text: 'Ort', value: 'Ort', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}`, sortable: false },
-    { text: 'Großreg.', value: 'Gemeinde', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, sortable: false },
-    { text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`,  sortable: false }
+    { text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
+    { text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
+    { text: 'Gefragter Ausdruck', renderFnc: this.renderGefragterAusdruck, value: 'NR2', sortable: false },
+    { text: 'Lautung', renderFnc: this.renderLautung, value: 'LT1_teuthonista' },
+    { text: 'Quelle', value: 'QU' },
+    { text: 'Bibliographische Angabe', renderFnc: this.renderBelegsaetze, value: 'BIBL' },
+    // { text: 'Belegsätze', value: 'BIBL' },
+    // { text: 'Bedeutung', value: 'BD/KT*' },
+    // { text: 'Kontext', value: 'BD/KT*' },
+    // { text: 'FB-Nr.', value: 'Fragebogennummer' },
+    { text: 'Ort', value: 'Gemeinde1', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}` },
+    { text: 'Großreg.', value: 'Großregion1', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, },
+    { text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`, }
   ]
+
   footerProps = {
-          'items-per-page-text': 'Pro Seite',
-          'items-per-page-options': [10, 25, 50, 100]
-        };
+    'items-per-page-text': 'Pro Seite',
+    'items-per-page-options': [10, 25, 50, 100]
+  };
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
 
@@ -299,8 +407,8 @@ export default class Database extends Vue {
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
-      // this.pagination.descending,
-      // this.pagination.sortBy
+      this.pagination.sortBy,
+      this.pagination.sortDesc,
     )
     this.items = res.documents.map(d => ({
       ...d,
