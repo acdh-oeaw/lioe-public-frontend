@@ -82,6 +82,7 @@
         <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen sowie Transkriptionszeichen zur Wiedergabe der Dialektlautung angezeigt werden können!</div>
       </InfoBox>
     </v-flex>
+    <v-switch label="alles zeigen" v-model="extended"></v-switch>
     <v-flex>
       <v-data-table
         v-model="selected"
@@ -91,9 +92,10 @@
         :footer-props="footerProps"
         :options.sync="pagination"
         :server-items-length="totalItems"
-        :headers="headers"
+        :headers="shownHeaders"
         :loading="loading"
         :items="_items">
+        <template v-for="h of headers" :slot="`header.${h.name}`">test</template>
 
         <template slot="footer">
           <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
@@ -146,7 +148,7 @@
             <v-checkbox :value="isSelected" @click="select(item)"></v-checkbox>
           </td>
           <template v-for="header in headers">
-            <td class="line-clamp"  :key="`${header.value}_${index}`">
+            <td class="line-clamp"  :key="`${header.value}_${index}`" v-if="extended || !header.extended">
               <template v-if="header.renderFnc">
                 {{ header.renderFnc(item) }}                
               </template>
@@ -218,18 +220,30 @@ export default class Database extends Vue {
     sortDesc: [],
     multiSort: false,
   }
+  extended = false;
+
+  get shownHeaders() {
+    return this.headers.filter((h:any) => h.show);
+  }
+
+  @Watch('extended')
+  onExtendedChanged(val: boolean) {
+    this.headers.forEach((h:any) => {
+      if (h.extended)
+        h.show = val;
+    });
+  }
 
   renderBedeutung(val:any) {
-
     const bd: string[] = [];
     for(let i = 1; i < 10; i += 1) {
-      let at = `LT${i}`
-      let b = val[`LT${i}`];
-      console.log('at', at, val[at]);
+      let at = `GRAM/LT${i}`
+      let b = val[`GRAM/LT${i}`];
+     // console.log('at', at, val);
       if(!b) continue;
       bd.push(b);
     }
-    return _(bd).flatten();
+    return _(bd).flatten().replace('≈', '');
   }
 
   renderFragenummer(val:any) {
@@ -254,25 +268,17 @@ export default class Database extends Vue {
   }
 
   renderGefragterAusdruck(val:any) {
-    const replacer = (match:string, p1:string, p2:string, offset: any, what: any) => {
-      console.log(match, p1, p2, offset, what);
-      return match;
-    }
-    const fragenummerRegex = / ≈.* (\(.*\)){0,1}:/;
+    const fragenummerRegex = /.*(\(.*\)){0,1}:/;
     let nr = val['NR']
     if (!nr) return '';
 
     if (Array.isArray(nr)) {
-      nr = nr.map(n => {
-        const m = n.match(fragenummerRegex);
-        return m ? m[0] : null 
-      });
+     
+      nr = nr[0].replace(fragenummerRegex, '');
     } else{
-      const m = nr.match(fragenummerRegex);
-      return m ? m[0] : ''; 
+      return nr.replace(fragenummerRegex, '');
     }
-    nr = nr.filter((n: any) => n);
-    return _(nr).flatten();
+    return nr;
   }
 
   renderLautung(val:any) {
@@ -319,22 +325,24 @@ export default class Database extends Vue {
   }
 
   headers = [
-    { text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
-    { text: 'Lemma einfach', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? val.HL[1] : val.HL, sortable: false, value: 'HL2' },
-    { text: 'Wortart', value: 'POS' },
-    { text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
-    { text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
-    { text: 'Gefragter Ausdruck', renderFnc: this.renderGefragterAusdruck, value: 'NR2', sortable: false },
-    { text: 'Lautung', renderFnc: this.renderLautung, value: 'LT1_teuthonista' },
-    { text: 'Quelle', value: 'QU' },
-    { text: 'Bibliographische Angabe', renderFnc: this.renderBelegsaetze, value: 'BIBL' },
+    {show: true, text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
+    {show: true, text: 'Lemma einfach', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
+    {show: true, text: 'Wortart', value: 'POS' },
+    {show: true, text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
+    {show: true, text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
+    {show: true, text: 'Gefragter Ausdruck', renderFnc: this.renderGefragterAusdruck, value: 'NR2', sortable: false },
+    {show: true, text: 'Belegseatze', renderFnc: this.renderBelegsaetze, sortable: false, value: 'belegsaetze' },
+    {show: true, text: 'Lautung', renderFnc: this.renderLautung, value: 'LT1_teuthonista' },
+    {show: false, text: 'Quelle', value: 'QU', extended: true },
+    {show: false, text: 'Bibliographische Angabe', value: 'BIBL', extended: true },
     // { text: 'Belegsätze', value: 'BIBL' },
     // { text: 'Bedeutung', value: 'BD/KT*' },
     // { text: 'Kontext', value: 'BD/KT*' },
     // { text: 'FB-Nr.', value: 'Fragebogennummer' },
-    { text: 'Ort', value: 'Gemeinde1', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}` },
-    { text: 'Großreg.', value: 'Großregion1', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, },
-    { text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`, }
+    // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
+    {show: true, text: 'Ort', value: 'Gemeinde1', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}` },
+    {show: true, text: 'Großreg.', value: 'Großregion1', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, },
+    {show: true, text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`, }
   ]
 
   footerProps = {
@@ -441,7 +449,7 @@ export default class Database extends Vue {
 
   @Watch('pagination', {deep: true})
   updateResults(newVal: any, oldVal: any) {
-    console.log('pagination changed', newVal, oldVal);
+    //console.log('pagination changed', newVal, oldVal);
     if (newVal.page !== oldVal.page) {
       window.scroll({ top: 0, behavior: 'smooth' })
     }

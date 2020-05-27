@@ -88,19 +88,43 @@ export async function getDocuments(page = 1, items = 100, sortBy: string[] = [],
     method: 'POST',
     data: {
       size: items,
-      query: {
-        ids: {
+      /* query: {
+      ids: {
           type: '_doc',
           values: r.results.map((result: any) => result.es_id)
+          }
+        },
+       */
+       /*query: {
+        bool: {
+          must: [
+            {
+              exists: {
+                field: "_source.entry"
+              }
+            }
+          ]
         }
       },
-    sort,
+      query:  {
+        nested : {
+            path : '_source',
+            query : {
+                bool : {
+                    must : [
+                      { exists : { field: 'entry' } },
+                    ]
+                }
+            }
+        }
+    },*/
+      sort,
     },
     url: localEndpoint + '/es-query'
   })).data
-  // console.log(ds.hits.hits)
+  console.log('nintendoDS', ds.hits.hits)
   return {
-    documents: ds.hits.hits.map((h: any) => {
+    documents: ds.hits.hits.filter((e:any) => e._source.entry).map((h: any) => {
       return {
         ...h._source,
         id: h._id,

@@ -67,7 +67,7 @@ app.post('/es-query', async (req, res) => {
     const r = (await axios({
       method: 'GET',
       data: q,
-      url: 'https://walk-want-grew.acdh.oeaw.ac.at/_search'
+      url: 'https://walk-want-grew.acdh.oeaw.ac.at/dboe/_search?_source_excludes=location*&version=true'
     })).data
     res.send(r)
   } catch (e) {
