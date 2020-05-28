@@ -6,6 +6,7 @@ export const geoStore = {
   gemeinden: null as geojson.FeatureCollection|null,
   grossregionen: null as geojson.FeatureCollection|null,
   bundeslaender: null as geojson.FeatureCollection|null,
+  kleinregionen: null as geojson.FeatureCollection|null,
   dialektregionen: null as geojson.FeatureCollection|null,
   ortslistenDaten: null as any|null,
   ortsliste: null as any|null,
@@ -13,17 +14,17 @@ export const geoStore = {
 }
 
 async function init() {
+  geoStore.kleinregionen = await (await fetch('https://vle-curation.acdh.oeaw.ac.at/dboe/Kleinregionen.geojson')).json() as geojson.FeatureCollection
   geoStore.gemeinden = await (await fetch('/static/gemeinden-punkte-geojson.json')).json() as geojson.FeatureCollection
   geoStore.grossregionen = await (await fetch('/static/grossregionen-geojson-optimized.json')).json() as geojson.FeatureCollection
   geoStore.bundeslaender = await (await fetch('/static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
   geoStore.dialektregionen = await (await fetch('/static/WBOE_Dialektregionen.geojson')).json() as geojson.FeatureCollection
   geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json')).json() as geojson.FeatureCollection)
   geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || null : null
-  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features])
+  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features, ...geoStore.kleinregionen!.features])
 }
 
 function filterOrtslisteByGeoJSON (oList: any, gList: any) {
-  console.log(oList, gList);
   if (oList !== null && gList !== null) {
     const nOList: any[] = []
     const mSigle: any[] = []

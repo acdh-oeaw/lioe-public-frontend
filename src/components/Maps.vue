@@ -42,7 +42,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Lemma', value: 'Lemma', disabled: true}, ]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Lemma', value: 'Lemma', disabled: true}, ]" />
           </v-flex>
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
@@ -114,7 +114,9 @@
               <v-checkbox v-model="showDialektregionen" hide-details label="Dialektregionen" />
               <v-checkbox v-model="showBundeslaender" hide-details label="Bundesländer" />
               <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
+              <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
               <v-checkbox v-model="showGemeinden" hide-details label="Gemeinden" />
+              
             </v-card-text>
           </v-card>
         </v-menu>
@@ -196,6 +198,16 @@
         v-if="!updateLayers && showGemeinden"
         :options="optionsEveryGemeinde"
         :geojson="gemeinden"
+      />
+      <l-geo-json
+        v-if="!updateLayers && showKleinregionen"
+        :options="{ onEachFeature: bindTooltip(['Name']) }"
+        :geojson="kleinregionen"
+        :optionsStyle="{
+          fillOpacity: 0,
+          color: colorKleinregionen,
+          weight: 1
+        }"
       />
       <l-geo-json
         v-if="!updateLayers && showRivers && rivers !== null"
@@ -291,11 +303,13 @@ export default class Maps extends Vue {
   showDialektregionen = false
   showBundeslaender = false
   showGrossregionen = false
+  showKleinregionen = false
   showGemeinden = false
   updateLayers = false
   colorGemeinde = '#800'
   colorBundesland = '#000'
   colorGrossregionen = '#080'
+  colorKleinregionen = '#020'
   colorSelect = '#044'
 
   rivers: any = null
@@ -409,7 +423,8 @@ export default class Maps extends Vue {
       return _([
         ...this.geoStore.bundeslaender!.features,
         ...this.geoStore.grossregionen!.features,
-        ...this.geoStore.gemeinden!.features
+        ...this.geoStore.gemeinden!.features,
+        ...this.geoStore.kleinregionen!.features
       ]).map((f) => {
         return {
           ...f,
@@ -448,6 +463,14 @@ export default class Maps extends Vue {
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
       return this.geoStore.gemeinden.features
+    } else {
+      return []
+    }
+  }
+
+    get kleinregionen(): geojson.Feature[] {
+    if (!this.isLoading && this.geoStore.kleinregionen !== null) {
+      return this.geoStore.kleinregionen.features
     } else {
       return []
     }
@@ -546,7 +569,8 @@ export default class Maps extends Vue {
       this.geoStore.gemeinden !== null &&
       this.geoStore.grossregionen !== null &&
       this.geoStore.bundeslaender !== null &&
-      this.geoStore.ortsliste !== null
+      this.geoStore.ortsliste !== null &&
+      this.geoStore.kleinregionen !== null
     ) {
       return false
     } else {
