@@ -10,7 +10,7 @@
             </v-flex> -->
             <v-layout>
               <v-flex xs12 class="text-center">
-                <img class="logo mt-2" src="/static/img/logo.svg" />
+                <router-link to="/"><img class="logo mt-2" src="/static/img/logo.svg" /></router-link>
                 <div class="project-name">Lexikographisches Informationssystem Österreich</div>
               </v-flex>
             </v-layout>
@@ -25,12 +25,13 @@
                 background-color="ci"
                 dark
                 color="accent"
+                hide-slider
                 slider-color="white">
-                <v-tab to="/">Home</v-tab>
-                <v-tab to="/articles">WBÖ-Artikel</v-tab>
-                <v-tab to="/maps">Karten</v-tab>
-                <v-tab to="/db">Belegdatenbank</v-tab>
-                <v-tab to="/resources">Materialien</v-tab>
+                <v-tab to="/"><div><v-icon>mdi-home-outline</v-icon>Home</div></v-tab>
+                <v-tab to="/articles"><div><v-icon>mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
+                <v-tab to="/maps"><div><v-icon>mdi-map</v-icon>Karten</div></v-tab>
+                <v-tab to="/db"><div><v-icon>mdi-database</v-icon>Belegdatenbank</div></v-tab>
+                <v-tab to="/resources"><div><v-icon>mdi-folder-open</v-icon>Materialien</div></v-tab>
               </v-tabs>
             </v-flex>
           </v-flex>
@@ -80,9 +81,18 @@ export default class App extends Vue {
   @import '/static/css/materialdesignicons.min.css';
   @import '../styles/fonts.scss';
   @import '../styles/global.scss';
+  .tabs-top .v-slide-group__prev.v-slide-group__prev--disabled {
+    display: none!important;
+  }
+  .v-tab{
+    color: #fff!important;
+  }
   .active-tab{
-    color: white;
-    background: rgba(255,255,255,.2)
+    color: #3b89a0!important;
+    background: rgba(255,255,255,.6)
+  }
+  .active-tab .v-icon{
+    color: #3b89a0!important;
   }
 </style>
 <style>
@@ -98,6 +108,24 @@ html{
 .tabs-top{
   overflow: hidden;
   border-radius: 5px;
+}
+.v-tabs /deep/ .v-item-group:not(.v-tabs-bar--is-mobile) .v-tab > div {
+  padding-top: 4px;
+}
+.v-tab .v-icon{
+  margin-top: -4px;
+  margin-right: 10px;
+  font-size: 28px;
+}
+.v-tabs /deep/ .v-tabs-bar--is-mobile .v-tab .v-icon{
+  display: block;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 5px;
+  font-size: 50px;
+}
+.v-tabs /deep/ .v-tabs-bar.v-tabs-bar--is-mobile {
+  height: 90px!important;
 }
 .project-name{
   margin-top: -1em;

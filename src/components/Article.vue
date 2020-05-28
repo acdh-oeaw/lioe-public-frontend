@@ -159,7 +159,7 @@ export default class Article extends Vue {
     initials: "",
     fullname: ""
   };
-  expanded: number[] = [4];
+  expanded: number[] = [3];
 
   articleXML: string | null = "";
   title: string | null = null;
@@ -255,11 +255,11 @@ export default class Article extends Vue {
   }
 
   get isEveryArticleExpanded(): boolean {
-    return this.expanded.length === 6;
+    return this.expanded.length === 5;
   }
 
   toggleAll() {
-    this.expanded = this.isEveryArticleExpanded ? [] : [0, 1, 2 ,3, 4, 5];
+    this.expanded = this.isEveryArticleExpanded ? [] : [0, 1, 2 ,3, 4];
   }
 
   loadArticle(e: string) {

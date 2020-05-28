@@ -16,20 +16,16 @@
       </template>
     </article-fragment-panel>
     <article-fragment-panel
-      v-show="lautung.length > 0"
+      v-show="belegauswahl || lautung.length > 0"
       title="Lautung"
       ext-info-url="wboe-artikel/lautung/"
       info-url="wboe-artikel/lautung-short/">
       <template v-if="lautung.length > 0">
-        <PreviewContent :geo-store="geoStore" v-for="(l, i) in lautung" :key="'l'+i" :content="l" />
+        <article-fragment-header title="Überblick" /> <!-- ext-info-url="wboe-artikel/ueberblick/" info-url="wboe-artikel/ueberblick-short/" -->
+        <PreviewContent :geo-store="geoStore" v-for="(u, i) in lautung" :key="'u'+i" :content="u" />
       </template>
-    </article-fragment-panel>
-    <article-fragment-panel
-      v-show="belegauswahl"
-      title="Belegauswahl"
-      ext-info-url="wboe-artikel/belegauswahl/"
-      info-url="wboe-artikel/belegauswahl-short/">
       <template v-if="belegauswahl">
+        <article-fragment-header class="mb-3" title="Belegauswahl" /> <!--  ext-info-url="wboe-artikel/belegauswahl/" info-url="wboe-artikel/belegauswahl-short/" -->
         <PreviewContent :geo-store="geoStore" v-for="(b, i) in belegauswahl" :key="'b'+i" :content="b" />
       </template>
     </article-fragment-panel>
@@ -71,6 +67,7 @@ import XmlObject from '../service/parser-functions/xml/Xml'
 import EditorObject from '../service/parser-functions/editor/Editor'
 import ParserObject from '../service/parser-functions/parser/Parser'
 import PreviewContent from '@components/ViewPreview/PreviewContent.vue'
+import ArticleFragmentHeader from '@components/ArticleFragmentHeader.vue'
 import ArticleFragmentPanel from '@components/ArticleFragmentPanel.vue'
 import { localEndpoint } from '../api'
 import * as xlsx from 'xlsx'
@@ -105,6 +102,7 @@ interface ParserFile {
   components: {
     ViewPreview,
     PreviewContent,
+    ArticleFragmentHeader,
     ArticleFragmentPanel
   }
 })
