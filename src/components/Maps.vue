@@ -562,7 +562,12 @@ export default class Maps extends Vue {
   get onEachFeatureFunction() {
     const aThis: any = this
     return (feature: geojson.Feature, layer: L.Layer) => {
-      this.bindTooltip(['Name', 'sigle'], true)(feature, layer)
+      //@ts-ignore
+      if(feature.properties.fid){
+        this.bindTooltip(['Name', 'sigle'], true)(feature, layer)
+      } else {
+        this.bindTooltip(['name', 'sigle'], true)(feature, layer)
+      }
       layer.on('mouseover', function(this: any) {
         this.setStyle({
           fillOpacity: 1
