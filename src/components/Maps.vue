@@ -92,21 +92,21 @@
       </InfoBox>
     <v-layout fill-height class="map-overlay pa-4">
       <v-flex xs1>
-        <v-btn fab small @click="zoom = zoom + 1"><v-icon>add</v-icon></v-btn>
+        <v-btn fab small class="zoom" @click="zoom = zoom + 1"><v-icon>add</v-icon></v-btn>
         <v-tooltip color="ci" dark right>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" fab small @click="resetView">
+            <v-btn v-on="on" class="zoom" fab small @click="resetView">
               <v-icon>home</v-icon>
             </v-btn>
           </template>
           <span>Ursprungsposition</span>
         </v-tooltip>
-        <v-btn fab small @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
+        <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
-        <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
+        <v-menu  :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
           <template v-slot:activator="{ on }">
-            <v-btn fab v-on="on" @click="true">
+            <v-btn style="margin-top:50px;" fab v-on="on" @click="true">
               <v-icon>layers</v-icon>
             </v-btn>
           </template>
@@ -340,7 +340,7 @@ export default class Maps extends Vue {
   attribution: string = '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   randomColors: object = {}
   mapOptions = {
-    scrollWheelZoom: false, zoomControl: false,
+    scrollWheelZoom: true, zoomControl: false,
     renderer: L.canvas()
   }
   optionsEveryGemeinde = {
@@ -638,6 +638,11 @@ export default class Maps extends Vue {
     pointer-events: all
   }
 }
+
+.zoom{
+  margin: 5px;
+}
+
 .sticky-card {
   z-index: 1;
   position: -webkit-sticky;
