@@ -42,7 +42,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Lemma', value: 'Lemma', disabled: true}, ]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'Collection', disabled: true}, ]" />
           </v-flex>
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
@@ -52,6 +52,16 @@
                 </v-btn>
               </template>
                <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
+            </v-menu>
+          </v-flex>
+           <v-flex >
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon text>
+                  <v-icon>mdi-border-color</v-icon>
+                </v-btn>
+              </template>
+               <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
             </v-menu>
           </v-flex>
           <v-flex>
@@ -311,6 +321,7 @@ export default class Maps extends Vue {
   colorGrossregionen = '#080'
   colorKleinregionen = '#020'
   colorSelect = '#044'
+  borderColorSelect = '#000'
 
   rivers: any = null
   autoFit = false
@@ -520,7 +531,8 @@ export default class Maps extends Vue {
   }
   get styleFunction() {
     const aThis: any = this
-    var color: string = this.colorSelect;
+    var colour: string = this.colorSelect;
+    var border: string = this.borderColorSelect;
     return (feature: any) => {
       const aSigleS: string = feature.properties.sigle
       if (!aThis.randomColors[aSigleS]) {
@@ -528,9 +540,9 @@ export default class Maps extends Vue {
       }
       return {
         weight: 1,
-        color: '#333333',
+        color: border,
         opacity: 1,
-        fillColor: color,
+        fillColor: colour,
         fillOpacity: 0.5
       }
     }
