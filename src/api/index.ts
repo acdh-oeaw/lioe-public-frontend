@@ -83,7 +83,7 @@ export async function getDocuments(page = 1, items = 100, sortBy: string[] = [],
       sort.push(sortBy[0]);
     }
   }
-  const r = await (await fetch(apiEndpoint + '/documents/?page=' + page + '&page_size=' + items)).json()
+  //const r = await (await fetch(apiEndpoint + '/documents/?page=' + page + '&page_size=' + items)).json()
   const ds = (await axios({
     method: 'POST',
     data: {
