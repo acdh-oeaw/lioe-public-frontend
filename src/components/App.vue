@@ -11,7 +11,7 @@
             <v-layout>
               <v-flex xs12 class="text-center">
                 <router-link to="/"><img class="logo mt-2" src="/static/img/logo.svg" /></router-link>
-                <div class="project-name">Lexikographisches Informationssystem Österreich</div>
+                <div class="project-name">Lexikalisches Informationssystem Österreich</div>
               </v-flex>
             </v-layout>
           </v-flex>
