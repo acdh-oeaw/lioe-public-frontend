@@ -38,6 +38,9 @@ function filterOrtslisteByGeoJSON (oList: any, gList: any) {
         mSigle.push(oObj.sigle)
       }
     })
+    gList.forEach((gemeinde: any) => {
+      
+    });
     if (mSigle.length > 0) {
       console.log('Fehlende Sigle in geoJSONs:', mSigle)
     }
