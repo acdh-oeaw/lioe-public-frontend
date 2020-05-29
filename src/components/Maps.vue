@@ -106,27 +106,39 @@
       <v-flex class="text-xs-right" offset-xs10 xs1>
         <v-menu  :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
           <template v-slot:activator="{ on }">
-            <v-btn style="margin-top:50px;" fab v-on="on" @click="true">
+            <v-btn style="margin-top:5px;" fab v-on="on" @click="true">
               <v-icon>layers</v-icon>
             </v-btn>
           </template>
           <v-card scrollable>
             <v-card-title>
-              <small class="grey--text">Ansicht und Ebenen</small>
+              Karten
             </v-card-title>
             <v-divider />
             <v-card-text>
+              <v-card-subtitle class="subtitles">
+                Grundkarten
+              </v-card-subtitle>
               <v-radio-group v-model="selectedTileSet">
                 <v-radio v-for="(tileSet, i) in tileSets" :value="i" :key="i" :label="tileSet.name" />
               </v-radio-group>
-              <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
-              <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
-              <v-checkbox v-model="showDialektregionen" hide-details label="Dialektregionen" />
-              <v-checkbox v-model="showBundeslaender" hide-details label="Bundesländer" />
+              <v-card-subtitle class="subtitles">
+                Zusatzkarten
+              </v-card-subtitle>
+              <v-card-subtitle class="subtitles">
+                <small>WBÖ</small>
+              </v-card-subtitle>
+              <v-checkbox v-model="showBundeslaender" hide-details label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)" />
+              <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
               <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
               <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
-              <v-checkbox v-model="showGemeinden" hide-details label="Gemeinden" />
-              
+              <v-card-subtitle style="margin-top:5px;" class="subtitles">
+                <small>Weitere</small>
+              </v-card-subtitle>
+              <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
+              <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
+              <v-checkbox v-model="showDialektregionenFill" hide-details label="DiÖ Dialektregionen (Flächen)" />
+              <v-checkbox v-model="showDialektregionenBorder" hide-details label="DiÖ Dialektregionen (Grenzen)" />
             </v-card-text>
           </v-card>
         </v-menu>
@@ -175,7 +187,7 @@
       /> -->
 
       <l-geo-json
-        v-if="!updateLayers && showDialektregionen"
+        v-if="!updateLayers && showDialektregionenBorder"
         :options="{ onEachFeature: bindTooltip(['name']) }"
         :optionsStyle="(feature) => ({
           color: '#000',
@@ -184,6 +196,19 @@
         })"
         :geojson="dialektregionen"
       />
+
+      <l-geo-json
+        v-if="!updateLayers && showDialektregionenFill"
+        :options="{ onEachFeature: bindTooltip(['name']) }"
+        :optionsStyle="(feature) => ({
+          fillColor : dialektColors[feature.properties.id],
+          color: dialektColors[feature.properties.id],
+          weight: 2,
+          fillOpacity: 0.8
+        })"
+        :geojson="dialektregionen"
+      />
+
       <l-geo-json
         v-if="!updateLayers && showBundeslaender"
         :options="{ onEachFeature: bindTooltip(['name']) }"
@@ -286,31 +311,28 @@ export default class Maps extends Vue {
       url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
     },
     {
-      name: 'Hell ohne Labels',
-      url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png',
-      attribution: 'Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL'
+      name: 'Minimal Ländergrenzen (hell)',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', 
+	    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
     },
     {
-      name: 'Hell mit Lables',
-      url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-      attribution: 'Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL'
+      name: 'Minimal Ländergrenzen (dunkel)',
+      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	    subdomains: 'abcd',
     },
     {
-      name: 'Terrain',
-      url: 'http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg',
-      // tslint:disable-next-line:max-line-length
-      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
-    },
-    {
-      name: 'Toner',
-      url: 'http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png'
+      name: 'Leer',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', 
+	    attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
     }
   ]
   selectedTileSet = 0
 
   showHillshades = false
   showRivers = false
-  showDialektregionen = false
+  showDialektregionenBorder = false
+  showDialektregionenFill = false
   showBundeslaender = false
   showGrossregionen = false
   showKleinregionen = false
@@ -646,6 +668,10 @@ export default class Maps extends Vue {
 
 .zoom{
   margin: 5px;
+}
+
+.subtitles{
+  margin: -15px;
 }
 
 .sticky-card {
