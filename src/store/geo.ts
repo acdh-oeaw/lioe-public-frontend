@@ -2,6 +2,8 @@
 import * as geojson from 'geojson'
 import * as _ from 'lodash'
 
+let i = 1;
+
 export const geoStore = {
   gemeinden: null as geojson.FeatureCollection|null,
   grossregionen: null as geojson.FeatureCollection|null,
@@ -38,9 +40,6 @@ function filterOrtslisteByGeoJSON (oList: any, gList: any) {
         mSigle.push(oObj.sigle)
       }
     })
-    gList.forEach((gemeinde: any) => {
-      
-    });
     if (mSigle.length > 0) {
       console.log('Fehlende Sigle in geoJSONs:', mSigle)
     }
@@ -82,16 +81,21 @@ function getOrtslistenDaten (aOlDaten: any): any|null {
     if (aOlDaten[aOlDaten.uFieldsRev[0]]) {
       aOlDaten.obj = aOlDaten[aOlDaten.uFieldsRev[0]]
       aOlDaten.all = getOrtsliste(aOlDaten.obj)
+      console.log(aOlDaten.all)
     }
   }
   return aOlDaten
 }
 
 function getOrtsliste(aOlDatenObj: any): any|null {
+  console.log(aOlDatenObj)
   let aList: any[] = []
   aOlDatenObj.forEach((aObj: any) => {
     if ( aObj.childs && Array.isArray(aObj.childs)) {
       aList = [...aList, aObj, ...getOrtsliste(aObj.childs)]
+    }
+    else {
+      aList = [...aList, aObj ]
     }
   });
   return aList
