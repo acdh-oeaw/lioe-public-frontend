@@ -42,7 +42,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Lemma', value: 'Lemma', disabled: true}, ]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'Collection', disabled: true}, ]" />
           </v-flex>
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
@@ -52,6 +52,16 @@
                 </v-btn>
               </template>
                <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
+            </v-menu>
+          </v-flex>
+           <v-flex >
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon text>
+                  <v-icon>mdi-border-color</v-icon>
+                </v-btn>
+              </template>
+               <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
             </v-menu>
           </v-flex>
           <v-flex>
@@ -82,39 +92,53 @@
       </InfoBox>
     <v-layout fill-height class="map-overlay pa-4">
       <v-flex xs1>
-        <v-btn fab small @click="zoom = zoom + 1"><v-icon>add</v-icon></v-btn>
+        <v-btn fab small class="zoom" @click="zoom = zoom + 1"><v-icon>add</v-icon></v-btn>
         <v-tooltip color="ci" dark right>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" fab small @click="resetView">
+            <v-btn v-on="on" class="zoom" fab small @click="resetView">
               <v-icon>home</v-icon>
             </v-btn>
           </template>
           <span>Ursprungsposition</span>
         </v-tooltip>
-        <v-btn fab small @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
+        <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
-        <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
+        <v-menu  :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
           <template v-slot:activator="{ on }">
-            <v-btn fab v-on="on" @click="true">
+            <v-btn style="margin-top:5px;" fab v-on="on" @click="true">
               <v-icon>layers</v-icon>
             </v-btn>
           </template>
           <v-card scrollable>
             <v-card-title>
-              <small class="grey--text">Ansicht und Ebenen</small>
+              Karten
             </v-card-title>
             <v-divider />
             <v-card-text>
+              <v-card-subtitle class="subtitles">
+                Grundkarten
+              </v-card-subtitle>
               <v-radio-group v-model="selectedTileSet">
                 <v-radio v-for="(tileSet, i) in tileSets" :value="i" :key="i" :label="tileSet.name" />
               </v-radio-group>
+              <v-card-subtitle class="subtitles">
+                Zusatzkarten
+              </v-card-subtitle>
+              <v-card-subtitle class="subtitles">
+                <small>WBÖ</small>
+              </v-card-subtitle>
+              <v-checkbox v-model="showBundeslaender" hide-details label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)" />
+              <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
+              <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
+              <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
+              <v-card-subtitle style="margin-top:5px;" class="subtitles">
+                <small>Weitere</small>
+              </v-card-subtitle>
               <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
               <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
-              <v-checkbox v-model="showDialektregionen" hide-details label="Dialektregionen" />
-              <v-checkbox v-model="showBundeslaender" hide-details label="Bundesländer" />
-              <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
-              <v-checkbox v-model="showGemeinden" hide-details label="Gemeinden" />
+              <v-checkbox v-model="showDialektregionenFill" hide-details label="DiÖ Dialektregionen (Flächen)" />
+              <v-checkbox v-model="showDialektregionenBorder" hide-details label="DiÖ Dialektregionen (Grenzen)" />
             </v-card-text>
           </v-card>
         </v-menu>
@@ -163,7 +187,7 @@
       /> -->
 
       <l-geo-json
-        v-if="!updateLayers && showDialektregionen"
+        v-if="!updateLayers && showDialektregionenBorder"
         :options="{ onEachFeature: bindTooltip(['name']) }"
         :optionsStyle="(feature) => ({
           color: '#000',
@@ -172,6 +196,19 @@
         })"
         :geojson="dialektregionen"
       />
+
+      <l-geo-json
+        v-if="!updateLayers && showDialektregionenFill"
+        :options="{ onEachFeature: bindTooltip(['name']) }"
+        :optionsStyle="(feature) => ({
+          fillColor : dialektColors[feature.properties.id],
+          color: dialektColors[feature.properties.id],
+          weight: 2,
+          fillOpacity: 0.8
+        })"
+        :geojson="dialektregionen"
+      />
+
       <l-geo-json
         v-if="!updateLayers && showBundeslaender"
         :options="{ onEachFeature: bindTooltip(['name']) }"
@@ -196,6 +233,16 @@
         v-if="!updateLayers && showGemeinden"
         :options="optionsEveryGemeinde"
         :geojson="gemeinden"
+      />
+      <l-geo-json
+        v-if="!updateLayers && showKleinregionen"
+        :options="{ onEachFeature: bindTooltip(['Name']) }"
+        :geojson="kleinregionen"
+        :optionsStyle="{
+          fillOpacity: 0,
+          color: colorKleinregionen,
+          weight: 1
+        }"
       />
       <l-geo-json
         v-if="!updateLayers && showRivers && rivers !== null"
@@ -264,39 +311,39 @@ export default class Maps extends Vue {
       url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
     },
     {
-      name: 'Hell ohne Labels',
-      url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png',
-      attribution: 'Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL'
+      name: 'Minimal Ländergrenzen (hell)',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', 
+	    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
     },
     {
-      name: 'Hell mit Lables',
-      url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-      attribution: 'Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL'
+      name: 'Minimal Ländergrenzen (dunkel)',
+      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	    subdomains: 'abcd',
     },
     {
-      name: 'Terrain',
-      url: 'http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg',
-      // tslint:disable-next-line:max-line-length
-      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
-    },
-    {
-      name: 'Toner',
-      url: 'http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png'
+      name: 'Leer',
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', 
+	    attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
     }
   ]
   selectedTileSet = 0
 
   showHillshades = false
   showRivers = false
-  showDialektregionen = false
+  showDialektregionenBorder = false
+  showDialektregionenFill = false
   showBundeslaender = false
   showGrossregionen = false
+  showKleinregionen = false
   showGemeinden = false
   updateLayers = false
   colorGemeinde = '#800'
   colorBundesland = '#000'
   colorGrossregionen = '#080'
+  colorKleinregionen = '#020'
   colorSelect = '#044'
+  borderColorSelect = '#000'
 
   rivers: any = null
   autoFit = false
@@ -315,7 +362,7 @@ export default class Maps extends Vue {
   attribution: string = '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   randomColors: object = {}
   mapOptions = {
-    scrollWheelZoom: false, zoomControl: false,
+    scrollWheelZoom: true, zoomControl: false,
     renderer: L.canvas()
   }
   optionsEveryGemeinde = {
@@ -409,7 +456,8 @@ export default class Maps extends Vue {
       return _([
         ...this.geoStore.bundeslaender!.features,
         ...this.geoStore.grossregionen!.features,
-        ...this.geoStore.gemeinden!.features
+        ...this.geoStore.gemeinden!.features,
+        ...this.geoStore.kleinregionen!.features
       ]).map((f) => {
         return {
           ...f,
@@ -448,6 +496,14 @@ export default class Maps extends Vue {
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
       return this.geoStore.gemeinden.features
+    } else {
+      return []
+    }
+  }
+
+    get kleinregionen(): geojson.Feature[] {
+    if (!this.isLoading && this.geoStore.kleinregionen !== null) {
+      return this.geoStore.kleinregionen.features
     } else {
       return []
     }
@@ -497,7 +553,8 @@ export default class Maps extends Vue {
   }
   get styleFunction() {
     const aThis: any = this
-    var color: string = this.colorSelect;
+    var colour: string = this.colorSelect;
+    var border: string = this.borderColorSelect;
     return (feature: any) => {
       const aSigleS: string = feature.properties.sigle
       if (!aThis.randomColors[aSigleS]) {
@@ -505,9 +562,9 @@ export default class Maps extends Vue {
       }
       return {
         weight: 1,
-        color: '#333333',
+        color: border,
         opacity: 1,
-        fillColor: color,
+        fillColor: colour,
         fillOpacity: 0.5
       }
     }
@@ -527,7 +584,12 @@ export default class Maps extends Vue {
   get onEachFeatureFunction() {
     const aThis: any = this
     return (feature: geojson.Feature, layer: L.Layer) => {
-      this.bindTooltip(['name', 'sigle'], true)(feature, layer)
+      //@ts-ignore
+      if(feature.properties.fid){
+        this.bindTooltip(['Name', 'sigle'], true)(feature, layer)
+      } else {
+        this.bindTooltip(['name', 'sigle'], true)(feature, layer)
+      }
       layer.on('mouseover', function(this: any) {
         this.setStyle({
           fillOpacity: 1
@@ -546,7 +608,8 @@ export default class Maps extends Vue {
       this.geoStore.gemeinden !== null &&
       this.geoStore.grossregionen !== null &&
       this.geoStore.bundeslaender !== null &&
-      this.geoStore.ortsliste !== null
+      this.geoStore.ortsliste !== null &&
+      this.geoStore.kleinregionen !== null
     ) {
       return false
     } else {
@@ -602,6 +665,15 @@ export default class Maps extends Vue {
     pointer-events: all
   }
 }
+
+.zoom{
+  margin: 5px;
+}
+
+.subtitles{
+  margin: -15px;
+}
+
 .sticky-card {
   z-index: 1;
   position: -webkit-sticky;
