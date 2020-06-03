@@ -104,6 +104,7 @@ export default class InfoText extends Vue {
   @Watch('subHtml')
   htmlChanged() {
     Vue.nextTick(() => {
+      console.log('htmlChanged',{ html: this.html, subHtml: this.subHtml })
       const aIcHtml: any = this.$refs['infoContent']
       aIcHtml.querySelectorAll('a').forEach((aLnk: any) => {
         aLnk.addEventListener('click', async (e: any) => {
@@ -143,9 +144,11 @@ export default class InfoText extends Vue {
   async init() {
     if (this.path !== null) {
       try {
+        console.log('init/path', this.path)
         this.html = await getWebsiteHtml(this.path)
         this.htmlChanged()
       } catch (e) {
+        console.log('error', e)
         this.error = true
       }
     }
