@@ -88,6 +88,7 @@ export async function getDocuments(page = 1, items = 100, sortBy: string[] = [],
     method: 'POST',
     data: {
       size: items,
+      from: (page-1)*items,
       /* query: {
       ids: {
           type: '_doc',
