@@ -505,4 +505,24 @@ iframe.comment {
     margin-right: 0.5em;
   }
 }
+*[collection-href] {
+  position: relative;
+  cursor: pointer;
+}
+*[collection-href]:hover {
+  text-decoration: underline;
+}
+*[collection-href]:after {
+  content: "\F1B8";
+  display: inline-block;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  font-size: inherit;
+  text-rendering: auto;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  margin-left: 5px;
+  color: #3b89a0;
+}
 </style>
