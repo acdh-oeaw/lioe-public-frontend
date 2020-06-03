@@ -4,6 +4,7 @@
         <v-layout>
           <v-flex xs12>
             <v-autocomplete
+              v-if="searchItemType != 'collection'"
               :loading="isLoading"
               :items="locationsSearchItems"
               :value="selectedLocations"
@@ -32,6 +33,26 @@
                 </v-list-item>
               </template -->
             </v-autocomplete>
+            <v-autocomplete
+              v-else
+              :loading="isLoading"
+              :search-input.sync="searchCollection"
+              :items="collectionSearchItems"
+              :value="selectedCollections"
+              @input="selectCollections"
+              label="Suche Sammlungen…"
+              autofocus
+              item-text="text"
+              hide-details
+              dense
+              text
+              prepend-inner-icon="search"
+              solo
+              clearable
+              multiple>
+            >
+              
+            </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>
             <v-select
@@ -42,7 +63,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'Collection', disabled: true}, ]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: false}, ]" />
           </v-flex>
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
@@ -104,16 +125,22 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
-        <v-menu  :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
+        <v-menu ref="kartenMenu" :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
           <template v-slot:activator="{ on }">
             <v-btn style="margin-top:5px;" fab v-on="on" @click="true">
               <v-icon>layers</v-icon>
             </v-btn>
           </template>
           <v-card scrollable>
-            <v-card-title>
-              Karten
-            </v-card-title>
+              <v-card-title>
+                Karten
+              </v-card-title>
+              <v-btn class="pinBtn" v-if="pinned" icon disabled small @click="pinned=!pinned">
+                <v-icon>mdi-pin</v-icon>
+              </v-btn>
+              <v-btn class="pinBtn" v-else icon small disabled @click="pinned=!pinned">
+                <v-icon>mdi-pin-off</v-icon>
+              </v-btn>
             <v-divider />
             <v-card-text>
               <v-card-subtitle class="subtitles">
@@ -270,6 +297,7 @@ import * as FileSaver from 'file-saver'
 import domtoimage from 'dom-to-image'
 import * as L from 'leaflet'
 import * as _ from 'lodash'
+import { searchCollections } from '../api'
 
 function base64ToBlob(dataURI: string) {
   const byteString = atob(dataURI.split(',')[1])
@@ -344,6 +372,11 @@ export default class Maps extends Vue {
   colorKleinregionen = '#020'
   colorSelect = '#044'
   borderColorSelect = '#000'
+  pinned = false;
+  //searchCollections
+  searchCollection: string|null = null
+  collectionSearchItems: any[] = []
+  selectedCollections: any[] = []
 
   rivers: any = null
   autoFit = false
@@ -551,6 +584,18 @@ export default class Maps extends Vue {
       return []
     }
   }
+
+  @Watch('searchCollection')
+  async onSearchCollection(val: string|null) {
+    if (val !== null && val.trim() !== '') {
+      this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
+    }
+  }
+
+  selectCollections(colls: any[]) {
+    this.$router.replace({ query: { collection_ids: colls.map((x) => x.value).join() } })
+  }
+
   get styleFunction() {
     const aThis: any = this
     var colour: string = this.colorSelect;
@@ -643,6 +688,14 @@ export default class Maps extends Vue {
       })
     }
   }
+  @Watch('pinned')
+  pinKarten(){
+    if(this.pinned){
+      (this.$refs.map as Vue).$el.removeAttribute('v-model');
+    }else {
+      (this.$refs.map as Vue).$el.setAttribute('v-model', 'true');
+    }
+  }
   mounted() {
     this.loadRivers()
     this.$nextTick(() => {
@@ -672,6 +725,12 @@ export default class Maps extends Vue {
 
 .subtitles{
   margin: -15px;
+}
+
+.pinBtn{
+  float:right;
+  margin:10px;
+  margin-top: -45px;
 }
 
 .sticky-card {
