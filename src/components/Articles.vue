@@ -29,9 +29,14 @@
       </v-layout>
     </v-card>
     <v-flex xs12>
+      <v-tabs v-model="letter" class="tabs-letter my-3" background-color="ci" dark color="accent" center-active centered>
+        <v-tab v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
+          {{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span>
+        </v-tab>
+      </v-tabs>
       <info-text subDialog="true" class="pa-4" path="wboe-artikel/wboe-artikelstruktur/" />
       <v-list>
-        <template v-for="(articles, i) in articlesByInitial">
+        <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
           <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="article in articles.articles" :key="article.filename">
             <v-list-item-title>
@@ -59,10 +64,23 @@ export default class Articles extends Vue {
 
   articles: Array<{ title: string, filename: string }> = []
   loading = false
+  letter = 0
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
 
   getCleanInitial(lemmaName: string) {
     return (lemmaName.replace(/\(.*\)/g, '')[0] || '').toUpperCase() + (lemmaName.replace(/\(.*\)/g, '')[1] || '').toLowerCase()
+  }
+
+  getCleanFirstLetter(lemmaName: string) {
+    return (lemmaName.replace(/\(.*\)/g, '')[0] || '').toUpperCase()
+  }
+
+  get filteredArticlesByInitial() {
+    if (this.letter === 0 || !(this.articlesFirstLetter && this.articlesFirstLetter[this.letter])) {
+      return this.articlesByInitial
+    } else {
+      return this.articlesByInitial.filter(a => a.initials.substr(0, 1) === this.articlesFirstLetter[this.letter].char )
+    }
   }
 
   get articlesByInitial() {
@@ -74,6 +92,16 @@ export default class Articles extends Vue {
       }))
       .value()
       .sort((a, b) => a.initials.localeCompare(b.initials))
+  }
+
+  get articlesFirstLetter() {
+    return [{ char: 'Alle', length: this.articles.length}, ...(_(this.articles)
+      .groupBy((a) => this.getCleanFirstLetter(a.title))
+      .map((v, k) => ({
+        char: k,
+        length: v.length
+      }))
+      .value())]
   }
 
   async mounted() {
@@ -105,5 +133,8 @@ export default class Articles extends Vue {
   background: white;
   z-index: 1;
   border-bottom: 1px solid rgba(0,0,0,.12)
+}
+.tabs-letter /deep/ .v-slide-group__prev.v-slide-group__prev--disabled {
+  display: none!important;
 }
 </style>

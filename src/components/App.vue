@@ -21,6 +21,7 @@
                 active-class="active-tab"
                 grow
                 class="tabs-top"
+                center-active
                 centered
                 background-color="ci"
                 dark
