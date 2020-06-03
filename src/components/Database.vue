@@ -326,7 +326,7 @@ export default class Database extends Vue {
 
   headers = [
     {show: true, text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
-    {show: true, text: 'Lemma einfach', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
+    {show: true, text: 'Lemma oS', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
     {show: true, text: 'Wortart', value: 'POS' },
     {show: true, text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
     {show: true, text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
