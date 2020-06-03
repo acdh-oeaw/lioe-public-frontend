@@ -50,10 +50,10 @@
               <a target="_blank" href="https://acdh.oeaw.ac.at">
                 <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/acdh-ch-logo-with-text.png" alt="" class="src" />
               </a>
-              <a target="_blank" href="https://vawadioe.acdh.oeaw.ac.at">
+              <a target="_blank" href="https://www.oeaw.ac.at/acdh/vawadioe/uebersicht/">
                 <v-img aspect-ratio="1" width="150" max-height="125" contain src="/static/img/logo-vawadioe.png" alt="" class="src" />
               </a>
-              <a target="_blank" href="https://vawadioe.acdh.oeaw.ac.at/projekte/wboe/wboe-startseite/">
+              <a target="_blank" href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/">
                 <v-img aspect-ratio="1" width="150" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/wboelogo_230px_transp.png" alt="" class="src" />
               </a>
             </v-layout>

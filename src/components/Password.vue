@@ -19,7 +19,7 @@
     </v-form>
     <InfoBox>
       <h4 class="headline mb-0">Sie suchen das WBÖ-Projekt?</h4>
-      <div>Alle Informationen zum „Wörterbuch der bairischen Mundarten in Österreich“ finden Sie <a href="https://vawadioe.acdh.oeaw.ac.at/projekte/wboe/wboe-startseite/" target="_blank">hier</a>.</div>
+      <div>Alle Informationen zum „Wörterbuch der bairischen Mundarten in Österreich“ finden Sie <a href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/" target="_blank">hier</a>.</div>
     </InfoBox>
     <v-dialog v-model="subDialog" max-width="1000" color="#2b2735" scrollable>
       <v-card text class="fill-height pl-4 pt-4 pr-4 pb-3">

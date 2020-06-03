@@ -38,7 +38,7 @@
     </v-flex>
     <InfoBox class="mt-5">
       <h4 class="headline mb-0">Sie suchen das WBÖ-Projekt?</h4>
-      <div>Alle Informationen zum „Wörterbuch der bairischen Mundarten in Österreich“ finden Sie <a href="https://vawadioe.acdh.oeaw.ac.at/projekte/wboe/wboe-startseite/" target="_blank">hier</a>.</div>
+      <div>Alle Informationen zum „Wörterbuch der bairischen Mundarten in Österreich“ finden Sie <a href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/" target="_blank">hier</a>.</div>
     </InfoBox>
     <v-flex class="pt-4">
       <info-text subDialog="true" path="home/einleitungstext/" />
