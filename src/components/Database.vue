@@ -215,7 +215,7 @@ export default class Database extends Vue {
   searching = false
   pagination = {
     page: 1,
-    itemsPerPage: 100,
+    itemsPerPage: 10,
     sortBy: [],
     sortDesc: [],
     multiSort: false,
