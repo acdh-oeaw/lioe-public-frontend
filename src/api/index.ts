@@ -202,7 +202,8 @@ export async function searchDocuments(
             'LT1_teuthonista',
           ],
           query: search,
-          type: 'phrase_prefix'
+          type: 'best_fields',
+          fuzziness: 'auto',
         }
       }
     }
