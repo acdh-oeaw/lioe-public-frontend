@@ -36,6 +36,7 @@
       </template>
       </vue-word-cloud>
     </v-flex>
+    <div class="text-center mt-5">{{ articles ? articles.length.toLocaleString() : '?' }} WBÖ Artikel</div>
     <InfoBox class="mt-5">
       <h4 class="headline mb-0">Sie suchen das WBÖ-Projekt?</h4>
       <div>Alle Informationen zum „Wörterbuch der bairischen Mundarten in Österreich“ finden Sie <a href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/" target="_blank">hier</a>.</div>
