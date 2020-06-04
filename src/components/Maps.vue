@@ -50,8 +50,6 @@
               solo
               clearable
               multiple>
-            >
-              
             </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>
@@ -125,9 +123,9 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
-        <v-menu ref="kartenMenu" :close-on-click="false" :close-on-content-click="false" open-on-hover min-width="200" left>
+        <v-menu ref="kartenMenu" :close-on-click="false" :close-on-content-click="false" v-model="pinned" min-width="200" left>
           <template v-slot:activator="{ on }">
-            <v-btn style="margin-top:5px;" fab v-on="on" @click="true">
+            <v-btn style="margin-top:5px;" fab v-on="on">
               <v-icon>layers</v-icon>
             </v-btn>
           </template>
@@ -135,11 +133,8 @@
               <v-card-title>
                 Karten
               </v-card-title>
-              <v-btn class="pinBtn" v-if="pinned" icon disabled small @click="pinned=!pinned">
-                <v-icon>mdi-pin</v-icon>
-              </v-btn>
-              <v-btn class="pinBtn" v-else icon small disabled @click="pinned=!pinned">
-                <v-icon>mdi-pin-off</v-icon>
+              <v-btn class="pinBtn" icon small @click="pinned=false">
+                <v-icon>mdi-window-close</v-icon>
               </v-btn>
             <v-divider />
             <v-card-text>
@@ -587,6 +582,7 @@ export default class Maps extends Vue {
 
   @Watch('searchCollection')
   async onSearchCollection(val: string|null) {
+    console.log(this.selectedCollections)
     if (val !== null && val.trim() !== '') {
       this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
     }
@@ -686,14 +682,6 @@ export default class Maps extends Vue {
       this.$nextTick(() => {
         this.updateLayers = false
       })
-    }
-  }
-  @Watch('pinned')
-  pinKarten(){
-    if(this.pinned){
-      (this.$refs.map as Vue).$el.removeAttribute('v-model');
-    }else {
-      (this.$refs.map as Vue).$el.setAttribute('v-model', 'true');
     }
   }
   mounted() {
