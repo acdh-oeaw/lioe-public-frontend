@@ -373,6 +373,7 @@ export default class Database extends Vue {
   }
 
   selectCollections(colls: any[]) {
+    console.log(colls)
     this.$router.replace({ query: { collection_ids: colls.map((x) => x.value).join() } })
   }
 

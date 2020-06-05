@@ -4,6 +4,7 @@
         <v-layout>
           <v-flex xs12>
             <v-autocomplete
+              v-if="searchItemType != 'collection'"
               :loading="isLoading"
               :items="locationsSearchItems"
               :value="selectedLocations"
@@ -20,7 +21,7 @@
               clearable
               multiple>
             </v-autocomplete>
-            <!--<v-autocomplete
+            <v-autocomplete
               v-else
               :loading="isLoading"
               :search-input.sync="searchCollection"
@@ -37,7 +38,7 @@
               solo
               clearable
               multiple>
-            </v-autocomplete>-->
+            </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>
             <v-select
@@ -48,7 +49,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: true}, ]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: false}, ]" />
           </v-flex>
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
@@ -238,7 +239,7 @@
         :options="optionsEveryGemeinde"
         :geojson="gemeinden"
       />
-      
+
       <l-geo-json
         v-if="!updateLayers && showKleinregionen"
         :options="{ onEachFeature: bindTooltip(['Name']) }"
@@ -260,6 +261,16 @@
         :options="options"
         :optionsStyle="styleFunction"
       />
+      
+      <l-geo-json
+        v-for="coll in geoCollections"
+        v-bind:key="coll"
+        ref="layerGeoJson"
+        :geojson="coll"
+        :options="options"
+        :optionsStyle="coll.style"
+      />
+      
     </l-map>
   </div>
 </template>
@@ -275,7 +286,7 @@ import * as FileSaver from 'file-saver'
 import domtoimage from 'dom-to-image'
 import * as L from 'leaflet'
 import * as _ from 'lodash'
-import { searchCollections } from '../api'
+import { searchCollections, getDocumentsByCollection, getCollectionByIds } from '../api'
 
 function base64ToBlob(dataURI: string) {
   const byteString = atob(dataURI.split(',')[1])
@@ -290,6 +301,12 @@ function base64ToBlob(dataURI: string) {
 
 const defaultCenter = [47.64318610543658, 13.53515625]
 const defaultZoom = 7
+
+interface Places {
+  Ort: string
+  Bundesland: string
+  Großregion: string
+}
 
 @Component({
   components: {
@@ -355,6 +372,7 @@ export default class Maps extends Vue {
   searchCollection: string|null = null
   collectionSearchItems: any[] = []
   selectedCollections: any[] = []
+  geoCollections: any[] = []
 
   rivers: any = null
   autoFit = false
@@ -447,16 +465,42 @@ export default class Maps extends Vue {
   }
 
   selectLocations(locs: string[]) {
-    if (locs.length === 0) {
-      this.$router.replace({ query: {} })
+    if(this.$route.query.collection_ids){
+      this.$router.replace({ query: { collection_ids: this.$route.query.collection_ids, loc: locs.join(',') } })
       if (this.autoFit) {
-        this.resetView()
+        this.fitMap()
       }
-    } else {
+    }else if (locs.length === 0) {
+      if(this.$route.query.collection_ids) {
+        this.$router.replace({ query: { collection_ids: this.$route.query.collection_ids } })
+      } else {
+        this.$router.replace({ query: {} })
+        if (this.autoFit) {
+          this.resetView()
+        }
+      }
+    }else {
       this.$router.replace({ query: { loc: locs.join(',') } })
       if (this.autoFit) {
         this.fitMap()
       }
+    }
+  }
+
+  async selectCollections(colls: any[]) {
+    if(colls.length === 0){
+      if(this.$route.query.loc){
+        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
+      } else {
+        this.$router.replace({ query: {} })
+      }
+    } else {
+      if(this.$route.query.loc){
+        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
+      }
+      this.$router.replace({ query: { collection_ids: colls.map((x) => x).join() } })
+      const res = await getDocumentsByCollection(colls)
+      console.log(res)
     }
   }
 
@@ -565,14 +609,29 @@ export default class Maps extends Vue {
 
   @Watch('searchCollection')
   async onSearchCollection(val: string|null) {
-    console.log(this.selectedCollections)
     if (val !== null && val.trim() !== '') {
       this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
     }
   }
 
-  selectCollections(colls: any[]) {
-    this.$router.replace({ query: { collection_ids: colls.map((x) => x.value).join() } })
+  getPlacesFromSigle(sigle: string): Places {
+    const place = _(geoStore.ortsliste).find(o => o.sigle === sigle)
+    if (place === undefined) {
+      return {
+        Ort: '',
+        Großregion: '',
+        Bundesland: ''
+      }
+    } else {
+      const bl = _(place.parentsObj).find(o => o.field === 'Bundesland')
+      const gr = _(place.parentsObj).find(o => o.field === 'Großregion')
+      return {
+        Ort: place.name,
+        Großregion: gr ? gr.name : '',
+        Bundesland: bl ? bl.name : '',
+        [ place.field ]: place.name,
+      }
+    }
   }
 
   get styleFunction() {
@@ -667,7 +726,7 @@ export default class Maps extends Vue {
       })
     }
   }
-  mounted() {
+  async mounted() {
     this.loadRivers()
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson
