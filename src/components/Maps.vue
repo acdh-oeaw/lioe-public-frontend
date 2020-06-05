@@ -4,7 +4,6 @@
         <v-layout>
           <v-flex xs12>
             <v-autocomplete
-              v-if="searchItemType != 'collection'"
               :loading="isLoading"
               :items="locationsSearchItems"
               :value="selectedLocations"
@@ -20,20 +19,8 @@
               solo
               clearable
               multiple>
-              <!--template 
-                v-slot="{ item, attrs, on }">
-                <v-list-item v-bind="attrs" v-on="on">
-                  <v-list-item-action>
-                    <v-checkbox v-model="item.value"></v-checkbox>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title style="height: 19px;">{{ data.item.text }}</v-list-item-title>
-                    <v-list-item-sub-title style="font-size: 85%;">{{ data.item.parents }}</v-list-item-sub-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template -->
             </v-autocomplete>
-            <v-autocomplete
+            <!--<v-autocomplete
               v-else
               :loading="isLoading"
               :search-input.sync="searchCollection"
@@ -50,7 +37,7 @@
               solo
               clearable
               multiple>
-            </v-autocomplete>
+            </v-autocomplete>-->
           </v-flex>
           <v-flex align-content-center fill-height>
             <v-select
@@ -61,7 +48,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: false}, ]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: true}, ]" />
           </v-flex>
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
@@ -202,11 +189,6 @@
         v-if="!updateLayers && showHillshades"
         url="http://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png"
       />
-<!-- 
-      <l-wms-tile-layer
-        :base-url="'http://131.130.186.139:54321/geoserver/test/wms'"
-        layer-type="base"
-      /> -->
 
       <l-geo-json
         v-if="!updateLayers && showDialektregionenBorder"
@@ -256,6 +238,7 @@
         :options="optionsEveryGemeinde"
         :geojson="gemeinden"
       />
+      
       <l-geo-json
         v-if="!updateLayers && showKleinregionen"
         :options="{ onEachFeature: bindTooltip(['Name']) }"
