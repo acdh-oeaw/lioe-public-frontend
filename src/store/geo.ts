@@ -81,14 +81,12 @@ function getOrtslistenDaten (aOlDaten: any): any|null {
     if (aOlDaten[aOlDaten.uFieldsRev[0]]) {
       aOlDaten.obj = aOlDaten[aOlDaten.uFieldsRev[0]]
       aOlDaten.all = getOrtsliste(aOlDaten.obj)
-      console.log(aOlDaten.all)
     }
   }
   return aOlDaten
 }
 
 function getOrtsliste(aOlDatenObj: any): any|null {
-  console.log(aOlDatenObj)
   let aList: any[] = []
   aOlDatenObj.forEach((aObj: any) => {
     if ( aObj.childs && Array.isArray(aObj.childs)) {
