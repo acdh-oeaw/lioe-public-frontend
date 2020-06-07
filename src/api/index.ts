@@ -175,14 +175,16 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  search: string, page = 1, items = 100, descending = [false], sortBy = null
+  search: string, page = 1, items = 100, descending = [false], sortBy:any[] = [null]
 ): Promise<Documents> {
-  const sort = sortBy !== null && {
-    sort: [
-      {
-        [ sortBy! ]: { order: descending ? 'desc' : 'asc' }
-      }
-    ]
+  let s: any[] = [];
+  s.push({
+    [`${sortBy[0]}.keyword`] : descending[0] ? 'desc' : 'asc'
+  });
+  s[sortBy[0]] = { order: descending[0] ? 'desc' : 'asc' }
+  const sort = sortBy !== [null] && {
+    sort: 
+      s
   }
   const ds = (await axios(localEndpoint + '/es-query', {
     method: 'POST',

@@ -488,6 +488,7 @@ export default class Database extends Vue {
         this.pagination.page,
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
+        this.pagination.sortBy,
       )
       this.items = res.documents.map(d => ({
         ...d,
