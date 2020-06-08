@@ -179,7 +179,7 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 
 export async function searchDocuments(
   
-  search: string, page = 1, items = 100, descending: boolean[] = [true], sortBy:any[] = [null]
+  search: string, page = 1, items = 100, descending: boolean[] = [true], sortBy:any[] = [null], searchFields: string[] = [], fuzziness:boolean = false
   ): Promise<Documents> {
   console.log('search docs', search, sortBy);
   const sort = [];
@@ -202,18 +202,10 @@ export async function searchDocuments(
       size: items,
       query: {
         multi_match: {
-          fields: [
-            'HL',
-            'POS',
-            'BIBL',
-            'Gemeinde1',
-            'LT',
-            'NL',
-            'LT1_teuthonista',
-          ],
+          fields: searchFields,
           query: search,
           type: 'best_fields',
-          fuzziness: 'auto',
+          fuzziness: fuzziness ? 3 : 0,
         }
       }
     }

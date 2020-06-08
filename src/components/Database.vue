@@ -3,8 +3,12 @@
     <v-flex>
       <v-card class="elevation-0">
         <v-layout class="mb-2">
+              <v-expansion-panels flat tile>
+    <v-expansion-panel>
+      <v-expansion-panel-header>
           <v-flex xs12>
             <v-text-field
+              @click.stop=""
               v-if="searchItemType === 'fulltext'"
               autofocus
               text
@@ -12,6 +16,7 @@
               prepend-inner-icon="search"
               v-model="searchTerm"
               @input="debouncedSearchDatabase"
+              @change="debouncedSearchDatabase"
               :loading="searching"
               hide-details
               solo
@@ -36,23 +41,12 @@
               multiple
               solo
               clearable>
-              <!--
-              <template
-                slot="item"
-                slot-scope="data">
-                <v-list-item-action>
-                  <v-checkbox v-model="data.tile.props.value"></v-checkbox>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title style="height: 19px;">{{ data.item.text }}</v-list-item-title>
-                  <v-list-item-sub-title style="font-size: 85%;">{{ data.item.description }}</v-list-item-sub-title>
-                </v-list-item-content>
-              </template>-->
             </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>
             <div>
               <v-select
+                @click.stop=""
                 class="divider-left"
                 text
                 solo
@@ -75,6 +69,32 @@
                   </v-card>
             </v-dialog>
           </v-flex>
+          </v-expansion-panel-header>
+                <v-expansion-panel-content>
+
+                  <h3>Spalten:</h3>
+    <v-switch label="Alle Spalten zeigen" v-model="extended"></v-switch>
+    <h3>Sucheinstellungen:</h3>
+                  
+    <v-switch label="Inklusive Suche" v-model="fuzziness"></v-switch>
+    <h3>Wonach gesucht wird:</h3>
+    <v-row>
+    <template v-for="h in shownHeaders">
+      <v-checkbox
+        style="margin-left: 40px"
+        :key="h.value"
+        :label="h.text"
+        v-model="h.inSearch"
+        v-if="h.searchable"
+      >
+      </v-checkbox>
+    </template>
+      <v-btn @click="onChangeQuery(searchTerm)" 
+        style="margin-left: 80px" >Suchen</v-btn>
+    </v-row>
+                   </v-expansion-panel-content>
+    </v-expansion-panel>
+              </v-expansion-panels>
         </v-layout>
       </v-card>
       <InfoBox class="mt-2 mb-2">
@@ -82,7 +102,6 @@
         <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen sowie Transkriptionszeichen zur Wiedergabe der Dialektlautung angezeigt werden können!</div>
       </InfoBox>
     </v-flex>
-    <v-switch label="alles zeigen" v-model="extended"></v-switch>
     <v-flex>
       <v-data-table
         v-model="selected"
@@ -142,7 +161,7 @@
           </v-menu>
         </template>
 
-         <template v-slot:item="{item, index, isSelected, select}">
+         <template v-slot:item="{item, index, isSelected}">
            <tr>
           <td>
             <v-checkbox :value="isSelected" @change="customSelect(item)"></v-checkbox>
@@ -333,25 +352,27 @@ export default class Database extends Vue {
     return _(res).flatten();
   }
 
+  fuzziness = true;
+
   headers = [
-    {show: true, text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
-    {show: true, text: 'Lemma oS', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
-    {show: true, text: 'Wortart', value: 'POS' },
-    {show: true, text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
-    {show: true, text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
-    {show: true, text: 'Gefragter Ausdruck', renderFnc: this.renderGefragterAusdruck, value: 'NR2', sortable: false },
-    {show: true, text: 'Belegseatze', renderFnc: this.renderLautung, value: 'LT1_teuthonista' },
-    {show: true, text: 'Lautung', renderFnc: this.renderBelegsaetze, sortable: false, value: 'belegsaetze' },
-    {show: false, text: 'Quelle', value: 'QU', extended: true },
-    {show: false, text: 'Bibliographische Angabe', value: 'BIBL', extended: true },
+    {searchable: true, inSearch: true, show: true, text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
+    {searchable: false, inSearch: false, show: true, text: 'Lemma oS', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
+    {searchable: true, inSearch: true, show: true, text: 'Wortart', value: 'POS' },
+    {searchable: true, inSearch: true, show: true, text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
+    {searchable: true, inSearch: true, show: true, text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
+    {searchable: false, inSearch: false, show: true, text: 'Gefragter Ausdruck', renderFnc: this.renderGefragterAusdruck, value: 'NR2', sortable: false },
+    {searchable: true, inSearch: true, show: true, text: 'Belegseatze', renderFnc: this.renderLautung, value: 'belegsaetze' },
+    {searchable: true, inSearch: true, show: true, text: 'Lautung', renderFnc: this.renderBelegsaetze, sortable: false, value: 'LT1_teuthonista' },
+    {searchable: true, inSearch: true, show: false, text: 'Quelle', value: 'QU', extended: true },
+    {searchable: true, inSearch: true, show: false, text: 'Bibliographische Angabe', value: 'BIBL', extended: true },
     // { text: 'Belegsätze', value: 'BIBL' },
     // { text: 'Bedeutung', value: 'BD/KT*' },
     // { text: 'Kontext', value: 'BD/KT*' },
     // { text: 'FB-Nr.', value: 'Fragebogennummer' },
     // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
-    {show: true, text: 'Ort', value: 'Gemeinde1', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}` },
-    {show: true, text: 'Großreg.', value: 'Großregion1', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, },
-    {show: true, text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`, }
+    {searchable: true, inSearch: true, show: true, text: 'Ort', value: 'Gemeinde1', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}` },
+    {searchable: true, inSearch: true, show: true, text: 'Großreg.', value: 'Großregion1', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, },
+    {searchable: true, inSearch: true, show: true, text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`, }
   ]
 
   footerProps = {
@@ -414,6 +435,10 @@ export default class Database extends Vue {
   }
 
   totalItems = 100
+
+  get headerInSearch() {
+    return this.shownHeaders.filter(h => h.searchable && h.inSearch).map(h => h.value);
+  }
 
   async init() {
     this.loading = true
@@ -488,6 +513,7 @@ export default class Database extends Vue {
     }
   }
 
+
   @Watch('query')
   async onChangeQuery(search: string|null) {
     if (search) {
@@ -498,6 +524,8 @@ export default class Database extends Vue {
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
         this.pagination.sortBy,
+        this.headerInSearch,
+        this.fuzziness,
       )
       this.items = res.documents.map(d => ({
         ...d,
