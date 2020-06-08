@@ -314,6 +314,7 @@ export default class Article extends Vue {
     this.articles = (await getArticles())
       .filter(a => a.title !== '' && a.title !== undefined)
       .map(t => ({ text: t.title, value: t.filename.replace('.xml', '') }))
+      .sort((a, b) => a.text.localeCompare(b.text))
     this.initArticle(this.filename)
   }
 
