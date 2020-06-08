@@ -523,6 +523,10 @@ iframe.comment {
   -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
   margin-left: 5px;
-  color: #3b89a0;
+  color: #ccc;
+  text-decoration: none;
+}
+*[collection-href]:hover:after {
+  color: #666;
 }
 </style>
