@@ -45,6 +45,7 @@
           </div>
           <v-card-text class="pa-0 fill-height">
             <info-text class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />
+            <div v-else>No subUrl!</div>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -86,10 +87,10 @@ export default class InfoText extends Vue {
     if (this.html !== null) {
       const e = document.createElement('div')
       e.innerHTML = this.html
-      console.log(e)
+      // console.log(e)
       return Array.from(e.querySelectorAll(`a[href^="${ this.prefix }"]`))
         .map((v) => {
-          console.log(v)
+          // console.log(v)
           return {
             text: v.textContent,
             link: v.getAttribute('href')
@@ -142,6 +143,7 @@ export default class InfoText extends Vue {
 
   @Watch('path')
   async init() {
+    console.log('InfoText - path', this.path)
     if (this.path !== null) {
       try {
         console.log('init/path', this.path)
