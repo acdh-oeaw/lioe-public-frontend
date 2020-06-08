@@ -264,10 +264,10 @@ export async function getArticles(search?: string): Promise<Array<{ title: strin
   // tslint:disable-next-line:max-line-length
   if (search !== undefined) {
     const r = await (await fetch(articleEndpoint + '?initial=' + search + '&status=' + userStore.articleStatus)).json()
-    return r.results.article.length ? r.results.article : [ r.results.article ]
+    return r.results.article ? (r.results.article.length ? r.results.article : [ r.results.article ]) : []
   } else {
     const r = await (await fetch(articleEndpoint + '?status=' + userStore.articleStatus)).json()
-    return r.results.article.length ? r.results.article : [ r.results.article ]
+    return r.results.article ? (r.results.article.length ? r.results.article : [ r.results.article ]) : []
   }
 }
 
