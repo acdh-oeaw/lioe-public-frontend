@@ -183,6 +183,7 @@
       :center.sync="center">
 
       <l-tile-layer
+        v-if="tileSetUrl != ''"
         :url="tileSetUrl"
         :attribution="tileSets[selectedTileSet].attribution" />
       <l-tile-layer
@@ -329,8 +330,7 @@ export default class Maps extends Vue {
     },
     {
       name: 'Leer',
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', 
-	    attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
+      url: '',
     }
   ]
   selectedTileSet = 0
