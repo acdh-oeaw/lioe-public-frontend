@@ -76,7 +76,7 @@
     <v-switch label="Alle Spalten zeigen" v-model="extended"></v-switch>
     <h3>Sucheinstellungen:</h3>
                   
-    <v-switch label="Inklusive Suche" v-model="fuzziness"></v-switch>
+    <v-switch label="Freundliche Suche (fuzzy search)" v-model="fuzziness"></v-switch>
     <h3>Wonach gesucht wird:</h3>
     <v-row>
     <template v-for="h in shownHeaders">
