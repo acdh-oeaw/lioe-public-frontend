@@ -71,6 +71,8 @@ export async function getDocumentTotalCount(): Promise<number> {
 }
 
 export async function getDocuments(page = 1, items = 100, sortBy: string[] = [], descending: boolean[] = [true]): Promise<Documents> {
+  
+  console.log('get docs', sortBy);
   const sort = [];
   if(sortBy.length !== 0) {
     if(descending.length !== 0) {
@@ -176,9 +178,11 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  search: string, page = 1, items = 100, descending = [false], sortBy:any[] = [null]
-): Promise<Documents> {
-  let sort: any = [];
+  
+  search: string, page = 1, items = 100, descending: boolean[] = [true], sortBy:any[] = [null]
+  ): Promise<Documents> {
+  console.log('search docs', search, sortBy);
+  const sort = [];
   if(sortBy.length !== 0) {
     if(descending.length !== 0) {
       sort.push(
@@ -193,7 +197,7 @@ export async function searchDocuments(
   const ds = (await axios(localEndpoint + '/es-query', {
     method: 'POST',
     data: {
-      ...sort,
+      sort,
       from: (page - 1) * items,
       size: items,
       query: {
