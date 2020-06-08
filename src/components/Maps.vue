@@ -51,7 +51,7 @@
               :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: true}, ]" />
           </v-flex>
           <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" icon text>
                   <v-icon>mdi-format-color-fill</v-icon>
@@ -61,7 +61,7 @@
             </v-menu>
           </v-flex>
            <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left>
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" icon text>
                   <v-icon>mdi-border-color</v-icon>
@@ -70,7 +70,7 @@
                <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
             </v-menu>
           </v-flex>
-          <v-flex>
+          <!--<v-flex>
             <v-tooltip color="secondary" dark top>
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" @click="autoFit = !autoFit" :color="autoFit ? 'primary' : 'grey'" icon text>
@@ -79,11 +79,11 @@
               </template>
               <span>Ausschnitt automatisch wählen</span>
             </v-tooltip>
-          </v-flex>
+          </v-flex> -->
           <v-flex>
-            <v-menu open-on-hover max-width="400" max-height="95vh">
+            <v-menu open-on-hover max-width="400" max-height="95vh" :offset-y="true">
               <template v-slot:activator="{ on }">
-                <v-btn color="accent" class="mr-3" small v-on="on" icon text bottom>
+                <v-btn color="accent" class="mr-3" small icon text v-on="on">
                   <v-icon>info_outline</v-icon>
                 </v-btn>
               </template>
