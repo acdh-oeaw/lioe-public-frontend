@@ -361,7 +361,6 @@ export default class Maps extends Vue {
   zoom: number = defaultZoom
   center: number[] = defaultCenter
   geoStore = geoStore
-  fillColor: string = '#2467a7'
   dialektColors = [
     'rgba(182, 216, 203, .8)',
     'rgba(153, 153, 241, .5)',
@@ -370,8 +369,6 @@ export default class Maps extends Vue {
     'rgba(0, 153, 0, .7)'
   ]
 
-  attribution: string = '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-  randomColors: object = {}
   mapOptions = {
     scrollWheelZoom: true, zoomControl: false,
     renderer: L.canvas()
@@ -395,8 +392,6 @@ export default class Maps extends Vue {
     pointToLayer: (feature: any, latlng: any) => {
 			return L.circleMarker(latlng, {
 				radius: 5,
-				fillColor: '#ff7800',
-				color: '#000',
 				weight: 1,
 				opacity: 1,
 				fillOpacity: 0.8
@@ -579,18 +574,12 @@ export default class Maps extends Vue {
     const aThis: any = this
     var colour: string = this.colorSelect;
     var border: string = this.borderColorSelect;
-    return (feature: any) => {
-      const aSigleS: string = feature.properties.sigle
-      if (!aThis.randomColors[aSigleS]) {
-        aThis.randomColors[aSigleS] = '#' + Math.floor(Math.random() * 16777215).toString(16)
-      }
-      return {
-        weight: 1,
-        color: border,
-        opacity: 1,
-        fillColor: colour,
-        fillOpacity: 0.5
-      }
+    return {
+      weight: 1,
+      color: border,
+      opacity: 1,
+      fillColor: colour,
+      fillOpacity: 0.5
     }
   }
 
@@ -654,6 +643,7 @@ export default class Maps extends Vue {
   }
   @Watch('selectedLocations')
   layerChangedSL(nVal: any, oVal: any) {
+    console.log(this.styleFunction)
     if ((oVal && oVal.length > 0) && (!nVal || nVal.length === 0)
     || (nVal && nVal.length > 0) && (!oVal || oVal.length === 0)) {
       this.updateLayers = true
