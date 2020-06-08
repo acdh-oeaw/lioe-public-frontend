@@ -145,7 +145,7 @@
          <template v-slot:item="{item, index, isSelected, select}">
            <tr>
           <td>
-            <v-checkbox :value="isSelected" @click="select(item)"></v-checkbox>
+            <v-checkbox :value="isSelected" @change="customSelect(item)"></v-checkbox>
           </td>
           <template v-for="header in headers">
             <td class="line-clamp"  :key="`${header.value}_${index}`" v-if="extended || !header.extended">
@@ -222,6 +222,15 @@ export default class Database extends Vue {
   }
   extended = false;
 
+  customSelect(item: any) {
+    console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id);
+    if(this.selected.find(i => item.id === i.id)) {
+      this.selected = this.selected.filter(i => i.id !== item.id);
+    } else {
+      this.selected.push(item);
+    }
+  }
+
   get shownHeaders() {
     return this.headers.filter((h:any) => h.show);
   }
@@ -233,7 +242,7 @@ export default class Database extends Vue {
         h.show = val;
     });
   }
-
+  c = console;
   renderBedeutung(val:any) {
     const bd: string[] = [];
     for(let i = 1; i < 10; i += 1) {
