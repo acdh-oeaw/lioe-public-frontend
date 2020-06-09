@@ -499,9 +499,22 @@ export default class Maps extends Vue {
         this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
       }
       this.$router.replace({ query: { collection_ids: colls.map((x) => x).join() } })
-      const res = await getDocumentsByCollection(colls)
-      console.log(res)
+      await this.getLocationsOfCollections(colls);
     }
+  }
+
+  async getLocationsOfCollections(colls: any[]) {
+    const res:any = await getDocumentsByCollection(colls,1,1000)
+    let CollLocation:any[] = []
+    //@ts-ignore
+    res.documents.forEach(document => {
+      let sigle:string = document.ortsSigle;
+      if(sigle){
+        CollLocation.push(document.ortsSigle.split(' ')[0])
+      }
+    });
+    this.geoCollections.push(CollLocation);
+    console.log(this.geoCollections);
   }
 
   get allFeatures(): geojson.Feature[] {
