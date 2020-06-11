@@ -261,12 +261,14 @@
         :options="options"
         :optionsStyle="styleFunction"
       />
-      
-      <l-geo-json
-        v-if="!updateLayers && geoCollections[0]"
-        :geojson="collDisplayLocations(geoCollections[0].geo)"
-        :options="options"
-      />
+      <div v-for="item in geoCollections" :key="item.collection + '-span'">
+        <l-geo-json
+          v-if="!updateLayers"
+          :geojson="collDisplayLocations(item.geo)"
+          :options="options"
+          :optionsStyle="item.style"
+        />
+      </div>
       
     </l-map>
   </div>
@@ -515,7 +517,14 @@ export default class Maps extends Vue {
           }
         }
       });
-      this.geoCollections.push({collection: coll, geo: CollLocation, style: null});
+      const styleElement = {
+        weight: 1,
+        color: '#000',
+        opacity: 1,
+        fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
+        fillOpacity: 0.5
+      }
+      this.geoCollections.push({collection: coll, geo: CollLocation, style: styleElement});
     });
   }
 
