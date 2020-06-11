@@ -263,12 +263,9 @@
       />
       
       <l-geo-json
-        v-for="coll in geoCollections"
-        v-bind:key="coll"
-        ref="layerGeoJson"
-        :geojson="coll"
+        v-if="!updateLayers && geoCollections[0]"
+        :geojson="collDisplayLocations(geoCollections[0].geo)"
         :options="options"
-        :optionsStyle="coll.style"
       />
       
     </l-map>
@@ -488,6 +485,7 @@ export default class Maps extends Vue {
   }
 
   async selectCollections(colls: any[]) {
+    this.geoCollections = [];
     if(colls.length === 0){
       if(this.$route.query.loc){
         this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
@@ -496,26 +494,36 @@ export default class Maps extends Vue {
       }
     } else {
       if(this.$route.query.loc){
-        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
+        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })   
+      } else {
+        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join() } })
       }
-      this.$router.replace({ query: { collection_ids: colls.map((x) => x).join() } })
       await this.getLocationsOfCollections(colls);
     }
   }
 
   async getLocationsOfCollections(colls: any[]) {
-    const res:any = await getDocumentsByCollection(colls,1,1000)
-    let CollLocation:any[] = []
-    //@ts-ignore
-    res.documents.forEach(document => {
-      let sigle:string = document.ortsSigle;
-      if(sigle){
-        CollLocation.push(document.ortsSigle.split(' ')[0])
-      }
+    colls.forEach(async coll => {
+      const res:any = await getDocumentsByCollection([coll],1,1000)
+      let CollLocation:any[] = []
+      //@ts-ignore
+      res.documents.forEach(document => {
+        let sigle:string = document.ortsSigle;
+        if(sigle){
+          if(!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
+            CollLocation.push(document.ortsSigle.split(' ')[0])
+          }
+        }
+      });
+      this.geoCollections.push({collection: coll, geo: CollLocation, style: null});
     });
-    this.geoCollections.push(CollLocation);
-    console.log(this.geoCollections);
   }
+
+  async asyncForEach(array: any[], callback:any) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
 
   get allFeatures(): geojson.Feature[] {
     if (this.isLoading) {
@@ -596,6 +604,15 @@ export default class Maps extends Vue {
       }
     } else {
       return this.allFeatures
+    }
+  }
+
+  collDisplayLocations(locations:string[]) {
+    return {
+      ...this.geoStore!.gemeinden,
+      features: this.allFeatures.filter((f: any) => {
+        return locations.indexOf(f.properties.sigle) > -1
+      })
     }
   }
 
