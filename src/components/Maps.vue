@@ -487,7 +487,6 @@ export default class Maps extends Vue {
   }
 
   async selectCollections(colls: any[]) {
-    this.geoCollections = [];
     if(colls.length === 0){
       if(this.$route.query.loc){
         this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
@@ -505,27 +504,51 @@ export default class Maps extends Vue {
   }
 
   async getLocationsOfCollections(colls: any[]) {
-    colls.forEach(async coll => {
-      const res:any = await getDocumentsByCollection([coll],1,1000)
-      let CollLocation:any[] = []
-      //@ts-ignore
-      res.documents.forEach(document => {
-        let sigle:string = document.ortsSigle;
-        if(sigle){
-          if(!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
-            CollLocation.push(document.ortsSigle.split(' ')[0])
+    //Collection got added
+    if(colls.length >= this.geoCollections.length) {
+      colls.forEach(async coll => {
+        //Is this the new collection or an old one
+        let shownInGeo = false;
+        this.geoCollections.forEach(CollInGeo => {
+          if(CollInGeo.collection === coll) {
+            shownInGeo = true;
           }
+        });
+        //It is the new one
+        if(!shownInGeo) {
+          const res:any = await getDocumentsByCollection([coll],1,1000)
+          let CollLocation:any[] = []
+          //@ts-ignore
+          res.documents.forEach(document => {
+            let sigle:string = document.ortsSigle;
+            if(sigle){
+              if(!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
+                CollLocation.push(document.ortsSigle.split(' ')[0])
+              }
+            }
+          });
+          const styleElement = {
+            weight: 1,
+            color: '#000',
+            opacity: 1,
+            fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
+            fillOpacity: 0.5
+          }
+          this.geoCollections.push({collection: coll, geo: CollLocation, style: styleElement});
         }
       });
-      const styleElement = {
-        weight: 1,
-        color: '#000',
-        opacity: 1,
-        fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
-        fillOpacity: 0.5
+    } else {
+      let deletedColl = -1;
+      this.geoCollections.forEach(CollInGeo => {
+          if(!colls.includes(CollInGeo.collection)) {
+            deletedColl = this.geoCollections.indexOf(CollInGeo);
+          }
+      });
+      if(deletedColl > -1){
+      this.geoCollections.splice(deletedColl, 1);
       }
-      this.geoCollections.push({collection: coll, geo: CollLocation, style: styleElement});
-    });
+    }
+    console.log(this.geoCollections)
   }
 
   async asyncForEach(array: any[], callback:any) {
