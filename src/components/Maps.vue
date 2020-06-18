@@ -26,7 +26,7 @@
               :loading="isLoading"
               :search-input.sync="searchCollection"
               :items="collectionSearchItems"
-              :value="selectedCollections"
+              v-model="selectedCollections"
               @input="selectCollections"
               label="Suche Sammlungen…"
               autofocus
@@ -153,6 +153,23 @@
           </v-card>
         </v-menu>
       </v-flex>
+
+      <v-list dense id="legende" v-if="geoCollections">
+        <v-list-item 
+          v-for="gC in geoCollections"
+          :key="gC.collection"
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ gC.collection }}</v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+              <v-btn icon x-small @click="pinned=false">
+                <v-icon @click="removeCollection(gC.collection)">mdi-window-close</v-icon>
+              </v-btn>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+
       <v-menu open-on-hover min-width="200" fixed left>
           <template v-slot:activator="{ on }">
             <v-btn dark color="ci" fab fixed bottom right v-on="on">
@@ -487,18 +504,8 @@ export default class Maps extends Vue {
   }
 
   async selectCollections(colls: any[]) {
-    if(colls.length === 0){
-      if(this.$route.query.loc){
-        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
-      } else {
-        this.$router.replace({ query: {} })
-      }
-    } else {
-      if(this.$route.query.loc){
-        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })   
-      } else {
-        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join() } })
-      }
+    this.changeURL(colls)
+    if(colls.length > 0) {
       await this.getLocationsOfCollections(colls);
     }
   }
@@ -507,14 +514,14 @@ export default class Maps extends Vue {
     //Collection got added
     if(colls.length >= this.geoCollections.length) {
       colls.forEach(async coll => {
-        //Is this the new collection or an old one
+        //Is this a new collection or an old one
         let shownInGeo = false;
         this.geoCollections.forEach(CollInGeo => {
           if(CollInGeo.collection === coll) {
             shownInGeo = true;
           }
         });
-        //It is the new one
+        //It is a new one
         if(!shownInGeo) {
           const res:any = await getDocumentsByCollection([coll],1,1000)
           let CollLocation:any[] = []
@@ -548,7 +555,6 @@ export default class Maps extends Vue {
       this.geoCollections.splice(deletedColl, 1);
       }
     }
-    console.log(this.geoCollections)
   }
 
   async asyncForEach(array: any[], callback:any) {
@@ -666,6 +672,50 @@ export default class Maps extends Vue {
       });
     } else {
       return []
+    }
+  }
+
+  removeCollection(coll : String){
+    //syncToGeoJSON
+    let deletedColl = -1;
+    let deletedCollAuto = -1;
+    this.geoCollections.forEach(CollInGeo => {
+        if(coll === CollInGeo.collection) {
+          deletedColl = this.geoCollections.indexOf(CollInGeo);
+        }
+    });
+    if(deletedColl > -1){
+      this.geoCollections.splice(deletedColl, 1);
+    }
+    //syncToautoCompleter
+    this.selectedCollections.forEach(sel => {
+      if(coll === sel) {
+        deletedCollAuto = this.selectedCollections.indexOf(sel);
+      }
+    });
+    if(deletedCollAuto > -1){
+      this.selectedCollections.splice(deletedCollAuto, 1);
+    }
+    let colls:String[] = []
+    this.geoCollections.forEach(element => {
+      colls.push(element.collection);
+    });
+    this.changeURL(colls);
+  }
+
+  changeURL(colls: String[]) {
+    if(colls.length === 0){
+      if(this.$route.query.loc){
+        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
+      } else {
+        this.$router.replace({ query: {} })
+      }
+    } else {
+      if(this.$route.query.loc){
+        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })   
+      } else {
+        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join() } })
+      }
     }
   }
 
@@ -809,6 +859,12 @@ export default class Maps extends Vue {
   * {
     pointer-events: all
   }
+}
+
+#legende{
+  position: fixed;
+  bottom: 50px;
+  left: 50px;
 }
 
 .zoom{
