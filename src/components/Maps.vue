@@ -635,7 +635,7 @@ export default class Maps extends Vue {
     }
   }
 
-    get kleinregionen(): geojson.Feature[] {
+  get kleinregionen(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.kleinregionen !== null) {
       return this.geoStore.kleinregionen.features
     } else {
@@ -862,6 +862,11 @@ export default class Maps extends Vue {
     this.loadRivers()
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson
+      if(Array.isArray(this.$route.query.collection_ids)){
+        this.getLocationsOfCollections(this.$route.query.collection_ids)
+      } else {
+        this.getLocationsOfCollections(this.$route.query.collection_ids.split(','))
+      }
       this.map = this.$refs.map
     })
   }
