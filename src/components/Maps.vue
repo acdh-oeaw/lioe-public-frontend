@@ -27,7 +27,6 @@
               :search-input.sync="searchCollection"
               :items="collectionSearchItems"
               v-model="selectedCollections"
-              @input="selectCollections"
               label="Suche Sammlungen…"
               autofocus
               item-text="text"
@@ -159,13 +158,23 @@
           v-for="gC in geoCollections"
           :key="gC.collection"
         >
+          <v-list-item-action>
+            <v-btn class="legendeButtons" icon x-small @click="removeCollection(gC.collection)">
+              <v-icon>mdi-window-close</v-icon>
+            </v-btn>
+          </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>{{ gC.collection }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
-              <v-btn icon x-small @click="pinned=false">
-                <v-icon @click="removeCollection(gC.collection)">mdi-window-close</v-icon>
-              </v-btn>
+            <v-menu :close-on-content-click="false" offset-y top>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon x-small text>
+                  <v-icon>mdi-format-color-fill</v-icon>
+                </v-btn>
+              </template>
+               <v-color-picker @input="updateColor" hide-inputs v-model="gC.color"></v-color-picker>
+            </v-menu>
           </v-list-item-action>
         </v-list-item>
       </v-list>
@@ -503,16 +512,17 @@ export default class Maps extends Vue {
     }
   }
 
-  async selectCollections(colls: any[]) {
-    this.changeURL(colls)
-    if(colls.length > 0) {
-      await this.getLocationsOfCollections(colls);
+  @Watch('selectedCollections')
+  async selectCollections() {
+    this.changeURL(this.selectedCollections)
+    if(this.selectedCollections.length > -1) {
+      await this.getLocationsOfCollections(this.selectedCollections);
     }
   }
 
   async getLocationsOfCollections(colls: any[]) {
     //Collection got added
-    if(colls.length >= this.geoCollections.length) {
+    if(colls.length > this.geoCollections.length) {
       colls.forEach(async coll => {
         //Is this a new collection or an old one
         let shownInGeo = false;
@@ -534,27 +544,37 @@ export default class Maps extends Vue {
               }
             }
           });
+          const color:String = '#' + Math.floor(Math.random() * 16777215).toString(16);
           const styleElement = {
             weight: 1,
             color: '#000',
             opacity: 1,
-            fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
+            fillColor: color,
             fillOpacity: 0.5
           }
-          this.geoCollections.push({collection: coll, geo: CollLocation, style: styleElement});
+          this.geoCollections.push({collection: coll, geo: CollLocation, style: styleElement, color: color});
         }
       });
     } else {
-      let deletedColl = -1;
-      this.geoCollections.forEach(CollInGeo => {
-          if(!colls.includes(CollInGeo.collection)) {
-            deletedColl = this.geoCollections.indexOf(CollInGeo);
-          }
-      });
-      if(deletedColl > -1){
-      this.geoCollections.splice(deletedColl, 1);
+      let i = 0;
+      for (i = this.geoCollections.length - colls.length; i != 0; i--) { 
+        let deletedColl = -1;
+        this.geoCollections.forEach(CollInGeo => {
+            if(!colls.includes(CollInGeo.collection)) {
+              deletedColl = this.geoCollections.indexOf(CollInGeo);
+            }
+        });
+        if(deletedColl > -1){
+          this.geoCollections.splice(deletedColl, 1);
+        }
       }
     }
+  }
+
+  updateColor() {
+    this.geoCollections.forEach(coll => {
+      coll.style.fillColor = coll.color;
+    });
   }
 
   async asyncForEach(array: any[], callback:any) {
@@ -869,6 +889,11 @@ export default class Maps extends Vue {
 
 .zoom{
   margin: 5px;
+}
+
+.legendeButtons{
+  margin-left: 7px;
+  margin-right: 7px;
 }
 
 .subtitles{
