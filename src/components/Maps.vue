@@ -490,12 +490,7 @@ export default class Maps extends Vue {
   }
 
   selectLocations(locs: string[]) {
-    if(this.$route.query.collection_ids){
-      this.$router.replace({ query: { collection_ids: this.$route.query.collection_ids, loc: locs.join(',') } })
-      if (this.autoFit) {
-        this.fitMap()
-      }
-    }else if (locs.length === 0) {
+    if (locs.length === 0) {
       if(this.$route.query.collection_ids) {
         this.$router.replace({ query: { collection_ids: this.$route.query.collection_ids } })
       } else {
@@ -505,9 +500,16 @@ export default class Maps extends Vue {
         }
       }
     }else {
-      this.$router.replace({ query: { loc: locs.join(',') } })
-      if (this.autoFit) {
-        this.fitMap()
+      if(this.$route.query.collection_ids){
+        this.$router.replace({ query: { collection_ids: this.$route.query.collection_ids, loc: locs.join(',') } })
+        if (this.autoFit) {
+          this.fitMap()
+        }
+      } else {
+        this.$router.replace({ query: { loc: locs.join(',') } })
+        if (this.autoFit) {
+          this.fitMap()
+        }
       }
     }
   }
@@ -726,7 +728,7 @@ export default class Maps extends Vue {
   changeURL(colls: String[]) {
     if(colls.length === 0){
       if(this.$route.query.loc){
-        this.$router.replace({ query: { collection_ids: colls.map((x) => x).join(), loc: this.$route.query.loc } })
+        this.$router.replace({ query: { loc: this.$route.query.loc } })
       } else {
         this.$router.replace({ query: {} })
       }
