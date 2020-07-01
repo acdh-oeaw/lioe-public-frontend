@@ -7,7 +7,9 @@
   "scripts": {
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env-shell NODE_ENV=development webpack-dev-server & cross-env-shell NODE_PORT=8081 nodemon ./server/index.js",
+    "dev": "concurrently \"npm run dev-frontend\" \"npm run dev-server\"",
+    "dev-frontend": "cross-env-shell NODE_ENV=development webpack-dev-server",
+    "dev-server": "cross-env-shell NODE_PORT=8081 nodemon ./server/index.js",
     "start": "node server/index.js",
     "load-swagger": "curl https://dboeannotation.acdh-dev.oeaw.ac.at > ./swagger.json && swagger-ts-client-generator < swagger.json > ./src/api/swagger.ts"
   },
@@ -69,6 +71,7 @@
     "@types/geojson": "^7946.0.7",
     "@types/node": "^10.17.24",
     "babel-loader": "^8.1.0",
+    "concurrently": "^5.2.0",
     "css-loader": "^0.28.7",
     "node-sass": "^4.13.1",
     "nodemon": "^1.19.4",
