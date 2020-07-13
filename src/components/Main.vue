@@ -12,7 +12,7 @@
         clearable
       />
     </v-flex>
-    <v-flex style="min-height: 400px" xs12>
+    <v-flex style="height: 40vh" xs12>
       <!-- <v-progress-linear
         height="1"
         class="pa-0 ma-0 absolute"

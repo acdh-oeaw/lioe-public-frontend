@@ -44,13 +44,13 @@
             <v-btn @click="showSubDialog = false" text icon><v-icon dark>close</v-icon></v-btn>
           </div>
           <v-card-text class="pa-0 fill-height">
-            <info-text class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />
+            <InfoText class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />
             <div v-else>No subUrl!</div>
           </v-card-text>
         </v-card>
       </v-dialog>
     </div>
-      </div>
+  </div>
 </template>
 <script lang="ts">
 

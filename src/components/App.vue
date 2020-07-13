@@ -28,11 +28,11 @@
                 color="accent"
                 hide-slider
                 slider-color="white">
-                <v-tab to="/"><div><v-icon>mdi-home-outline</v-icon>Home</div></v-tab>
-                <v-tab to="/articles"><div><v-icon>mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
-                <v-tab to="/maps"><div><v-icon>mdi-map</v-icon>Karten</div></v-tab>
-                <v-tab to="/db"><div><v-icon>mdi-database</v-icon>Belegdatenbank</div></v-tab>
-                <v-tab to="/resources"><div><v-icon>mdi-folder-open</v-icon>Materialien</div></v-tab>
+                <v-tab to="/"><div><v-icon color="white">mdi-home-outline</v-icon>Home</div></v-tab>
+                <v-tab to="/articles"><div><v-icon color="white">mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
+                <v-tab to="/db"><div><v-icon color="white">mdi-database</v-icon>Belegdatenbank</div></v-tab>
+                <v-tab to="/maps"><div><v-icon color="white">mdi-map</v-icon>Karten</div></v-tab>
+                <v-tab to="/resources"><div><v-icon color="white">mdi-folder-open</v-icon>Materialien</div></v-tab>
               </v-tabs>
             </v-flex>
           </v-flex>
@@ -78,14 +78,14 @@ export default class App extends Vue {
 
 <style>
   @import 'https://fonts.googleapis.com/icon?family=Material+Icons';
+  @import 'https://cdn.materialdesignicons.com/5.3.45/css/materialdesignicons.min.css';
   @import '../../node_modules/vuetify/dist/vuetify.min.css';
-  @import '/static/css/materialdesignicons.min.css';
   @import '../styles/fonts.scss';
   @import '../styles/global.scss';
   .tabs-top .v-slide-group__prev.v-slide-group__prev--disabled {
     display: none!important;
   }
-  .v-tab{
+  .header-navigation .v-tab{
     color: #fff!important;
   }
   .active-tab{

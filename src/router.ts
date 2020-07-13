@@ -9,6 +9,8 @@ import Resources from '@components/Resources.vue'
 import Password from '@components/Password.vue'
 import { userStore } from './store/user'
 
+const process: any = {}
+
 const r = new Router({
   mode : 'history',
   routes : [
