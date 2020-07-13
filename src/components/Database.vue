@@ -113,11 +113,12 @@
         <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen sowie Transkriptionszeichen zur Wiedergabe der Dialektlautung angezeigt werden können!</div>
       </InfoBox>
     </v-flex>
+    <fake-scrollbar class="mb-3" selector=".v-data-table__wrapper" />
     <v-flex>
       <v-data-table
         v-model="selected"
+        dense
         show-select
-        class="data-table"
         return-object
         :footer-props="footerProps"
         :options.sync="pagination"
@@ -204,6 +205,7 @@ import { geoStore } from '../store/geo'
 import * as FileSaver from 'file-saver'
 import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
+import FakeScrollbar from '@components/FakeScrollbar.vue'
 import { log } from 'util'
 
 interface Places {
@@ -215,7 +217,8 @@ interface Places {
 @Component({
   components: {
     InfoText,
-    InfoBox
+    InfoBox,
+    FakeScrollbar
   }
 })
 export default class Database extends Vue {
@@ -242,13 +245,13 @@ export default class Database extends Vue {
     sortDesc: [],
     multiSort: false,
   }
-  extended = false;
-  fuzziness = true;
+  extended = false
+  fuzziness = true
   totalItems = 100
 
   headers = [
     {searchable: true, inSearch: true, show: true, text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
-    // {searchable: false, inSearch: false, show: true, text: 'Lemma oS', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
+    {searchable: false, inSearch: false, show: false, text: 'Lemma oS', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
     {searchable: true, inSearch: true, show: true, text: 'Wortart', value: 'POS' },
     {searchable: true, inSearch: true, show: true, text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
     {searchable: true, inSearch: true, show: true, text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
