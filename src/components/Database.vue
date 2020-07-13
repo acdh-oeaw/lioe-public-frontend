@@ -174,7 +174,7 @@
             <td>
               <v-checkbox :value="isSelected" @change="customSelect(item)"></v-checkbox>
             </td>
-            <template v-for="header in headers">
+            <template v-for="header in shownHeaders">
               <td class="line-clamp"  :key="`${header.value}_${index}`" v-if="extended || !header.extended">
                 <template v-if="header.renderFnc">
                   {{ header.renderFnc(item) }}                
