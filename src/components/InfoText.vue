@@ -44,7 +44,7 @@
             <v-btn @click="showSubDialog = false" text icon><v-icon dark>close</v-icon></v-btn>
           </div>
           <v-card-text class="pa-0 fill-height">
-            <InfoText class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />
+            <info-text class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />
             <div v-else>No subUrl!</div>
           </v-card-text>
         </v-card>
@@ -57,8 +57,7 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { getWebsiteHtml, isExternUrl, isLocalUrl } from '../api'
 
-@Component
-
+@Component({ name: 'info-text' })
 export default class InfoText extends Vue {
 
   @Prop({ default: null }) path: string|null
