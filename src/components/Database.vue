@@ -64,13 +64,16 @@
                 </v-card-text>
               </v-card>
             </v-dialog>
-            <v-btn
-              icon
-              @click="showFilterOptions = !showFilterOptions">
-              <v-icon :color="showFilterOptions ? 'ci': undefined">
-                {{showFilterOptions ? 'mdi-cog' : 'mdi-cog-outline'}}
-              </v-icon>
-            </v-btn>
+            <v-tooltip color="ci" top>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon @click="showFilterOptions = !showFilterOptions">
+                  <v-icon :color="showFilterOptions ? 'ci': undefined">
+                    {{showFilterOptions ? 'mdi-cog' : 'mdi-cog-outline'}}
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Such- und Darstellungsoptionen</span>
+            </v-tooltip>
           </v-col>
         </v-row>
       </v-card>
