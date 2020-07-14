@@ -130,47 +130,49 @@
         :loading="loading"
         :items="_items">
         <template v-slot:footer>
-          <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
-            <template v-slot:activator="{ on }">
-              <v-menu v-on="on" :nudge-top="4" top offset-y open-on-hover :disabled="mappableSelectionItems.length === 0" >
-                <template v-slot:activator="{ on: menu }">
-                  <v-btn
-                    @click="showSelectionOnMap"
-                    :disabled="mappableSelectionItems.length === 0"
-                    small
-                    v-on="menu"
-                    class="pl-3 pr-3"
-                    rounded
-                    depressed
-                    color="primary">
-                    auf Karte zeigen ({{ mappableSelectionItems.length }})
-                  </v-btn>
-                </template>
-                <v-list dense>
-                  <v-list-item @click="selected = []">Auswahl leeren</v-list-item>
-                </v-list>
-              </v-menu>
-            </template>
-            <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
-          </v-tooltip>
-          <v-menu top open-on-hover>
-            <template v-slot:activator="{ on: secondMenu }">
-              <v-btn slot="activator" v-on="secondMenu" :disabled="items.length === 0" small text class="pl-3 pr-3" rounded color="ci">
-                Export {{ selected.length > 0 ? `(${selected.length})` : ''}}
-              </v-btn>
-            </template>
-            
-            <v-list class="context-menu-list" dense>
-              <v-subheader>
-                <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
-              </v-subheader>
-              <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
-              <v-list-item @click="saveJSON">JSON</v-list-item>
-              <v-list-item @click="saveCSV">CSV</v-list-item>
-              <v-divider />
-              <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
-            </v-list>
-          </v-menu>
+          <div>
+            <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
+              <template v-slot:activator="{ on }">
+                <v-menu v-on="on" :nudge-top="4" top offset-y open-on-hover :disabled="mappableSelectionItems.length === 0" >
+                  <template v-slot:activator="{ on: menu }">
+                    <v-btn
+                      @click="showSelectionOnMap"
+                      :disabled="mappableSelectionItems.length === 0"
+                      small
+                      v-on="menu"
+                      class="pl-3 pr-3"
+                      rounded
+                      depressed
+                      color="primary">
+                      auf Karte zeigen ({{ mappableSelectionItems.length }})
+                    </v-btn>
+                  </template>
+                  <v-list dense>
+                    <v-list-item @click="selected = []">Auswahl leeren</v-list-item>
+                  </v-list>
+                </v-menu>
+              </template>
+              <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
+            </v-tooltip>
+            <v-menu top open-on-hover>
+              <template v-slot:activator="{ on: secondMenu }">
+                <v-btn slot="activator" v-on="secondMenu" :disabled="items.length === 0" small text class="pl-3 pr-3" rounded color="ci">
+                  Export {{ selected.length > 0 ? `(${selected.length})` : ''}}
+                </v-btn>
+              </template>
+              
+              <v-list class="context-menu-list" dense>
+                <v-subheader>
+                  <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
+                </v-subheader>
+                <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
+                <v-list-item @click="saveJSON">JSON</v-list-item>
+                <v-list-item @click="saveCSV">CSV</v-list-item>
+                <v-divider />
+                <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
         </template>
         <template v-slot:item="{item, index, isSelected}">
           <tr>
@@ -253,24 +255,118 @@ export default class Database extends Vue {
   totalItems = 100
 
   headers = [
-    {searchable: true, inSearch: true, show: true, text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
-    {searchable: false, inSearch: false, show: false, text: 'Lemma oS', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
-    {searchable: true, inSearch: true, show: true, text: 'Wortart', value: 'POS' },
-    {searchable: true, inSearch: true, show: true, text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
-    {searchable: true, inSearch: true, show: true, text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
-    {searchable: false, inSearch: false, show: true, text: 'Gefragter Ausdruck', renderFnc: this.renderGefragterAusdruck, value: 'NR2', sortable: false },
-    {searchable: true, inSearch: true, show: true, text: 'Belegsätze', renderFnc: this.renderLautung, value: 'belegsaetze' },
-    {searchable: true, inSearch: true, show: true, text: 'Lautung', renderFnc: this.renderBelegsaetze, sortable: false, value: 'LT1_teuthonista' },
-    {searchable: true, inSearch: true, show: false, text: 'Quelle', value: 'QU', extended: true },
-    {searchable: true, inSearch: true, show: false, text: 'Bibliographische Angabe', value: 'BIBL', extended: true },
+    // tslint:disable-next-line:max-line-length
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Lemma',
+      renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL,
+      value: 'HL'
+    },
+    {
+      searchable: false,
+      inSearch: false,
+      show: false,
+      text: 'Lemma oS',
+      renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL,
+      sortable: false,
+      value: 'HL2'
+      },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Wortart',
+      value: 'POS'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Bedeutung',
+      renderFnc: this.renderBedeutung,
+      value: 'BD/LT*'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Fragenummer',
+      renderFnc: this.renderFragenummer,
+      value: 'NR'
+    },
+    {
+      searchable: false,
+      inSearch: false,
+      show: true,
+      text: 'Gefragter Ausdruck',
+      renderFnc: this.renderGefragterAusdruck,
+      value: 'NR2',
+      sortable: false
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Belegsätze',
+      renderFnc: this.renderLautung,
+      value: 'belegsaetze'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Lautung',
+      renderFnc: this.renderBelegsaetze,
+      sortable: false,
+      value: 'LT1_teuthonista'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: false,
+      text: 'Quelle',
+      value: 'QU',
+      extended: true
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: false,
+      text: 'Bibliographische Angabe',
+      value: 'BIBL',
+      extended: true
+    },
     // { text: 'Belegsätze', value: 'BIBL' },
     // { text: 'Bedeutung', value: 'BD/KT*' },
     // { text: 'Kontext', value: 'BD/KT*' },
     // { text: 'FB-Nr.', value: 'Fragebogennummer' },
     // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
-    {searchable: true, inSearch: true, show: true, text: 'Ort', value: 'Gemeinde1', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}` },
-    {searchable: true, inSearch: true, show: true, text: 'Großreg.', value: 'Großregion1', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, },
-    {searchable: true, inSearch: true, show: true, text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`, }
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Ort',
+      value: 'Gemeinde1',
+      renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}`
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Großreg.',
+      value: 'Großregion1',
+      renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Bundesl.',
+      value: 'Bundesland1',
+      renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`,
+    }
   ]
 
   footerProps = {
@@ -587,7 +683,8 @@ export default class Database extends Vue {
 th {
   vertical-align: top;
 }
-div.v-datatable.v-table.v-datatable--select-all.theme--light{
+div.v-data-footer{
+  background: white;
   position: -webkit-sticky;
   position: sticky;
   bottom: 0;
