@@ -28,7 +28,7 @@
         :spacing=".2"
         @update:progress="updateWordProgress"
         font-weight="800"
-        font-family="HKGrotesk">
+        font-family="fiduz">
       <template slot-scope="{text, weight, word}">
         <router-link class="word-cloud-link" :to="`/articles/${findArticleByTitle(text).filename.replace('.xml', '')}`">
           {{ text }}
