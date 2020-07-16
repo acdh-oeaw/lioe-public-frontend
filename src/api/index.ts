@@ -71,6 +71,8 @@ export async function getDocumentTotalCount(): Promise<number> {
 }
 
 export async function getDocuments(page = 1, items = 100, sortBy: string[] = [], descending: boolean[] = [true]): Promise<Documents> {
+  
+  console.log('get docs', sortBy);
   const sort = [];
   if(sortBy.length !== 0) {
     if(descending.length !== 0) {
@@ -88,6 +90,7 @@ export async function getDocuments(page = 1, items = 100, sortBy: string[] = [],
     method: 'POST',
     data: {
       size: items,
+      from: (page-1)*items,
       /* query: {
       ids: {
           type: '_doc',
@@ -175,34 +178,34 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  search: string, page = 1, items = 100, descending = [false], sortBy = null
-): Promise<Documents> {
-  const sort = sortBy !== null && {
-    sort: [
-      {
-        [ sortBy! ]: { order: descending ? 'desc' : 'asc' }
-      }
-    ]
+  
+  search: string, page = 1, items = 100, descending: boolean[] = [true], sortBy:any[] = [null], searchFields: string[] = [], fuzziness:boolean = false
+  ): Promise<Documents> {
+  console.log('search docs', search, sortBy);
+  const sort = [];
+  if(sortBy.length !== 0) {
+    if(descending.length !== 0) {
+      sort.push(
+        {
+          [`${sortBy[0]}.keyword`] : descending[0] ? 'desc' : 'asc'
+        }
+      );
+    } else {
+      sort.push(sortBy[0]);
+    }
   }
   const ds = (await axios(localEndpoint + '/es-query', {
     method: 'POST',
     data: {
-      ...sort,
+      sort,
       from: (page - 1) * items,
       size: items,
       query: {
         multi_match: {
-          fields: [
-            'HL',
-            'POS',
-            'BIBL',
-            'Gemeinde1',
-            'LT',
-            'NL',
-            'LT1_teuthonista',
-          ],
+          fields: searchFields,
           query: search,
-          type: 'phrase_prefix'
+          type: 'best_fields',
+          fuzziness: fuzziness ? 3 : 0,
         }
       }
     }
@@ -253,10 +256,10 @@ export async function getArticles(search?: string): Promise<Array<{ title: strin
   // tslint:disable-next-line:max-line-length
   if (search !== undefined) {
     const r = await (await fetch(articleEndpoint + '?initial=' + search + '&status=' + userStore.articleStatus)).json()
-    return r.results.article.length ? r.results.article : [ r.results.article ]
+    return r.results.article ? (r.results.article.length ? r.results.article : [ r.results.article ]) : []
   } else {
     const r = await (await fetch(articleEndpoint + '?status=' + userStore.articleStatus)).json()
-    return r.results.article.length ? r.results.article : [ r.results.article ]
+    return r.results.article ? (r.results.article.length ? r.results.article : [ r.results.article ]) : []
   }
 }
 

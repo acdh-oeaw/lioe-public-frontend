@@ -35,7 +35,7 @@
         </v-tab>
       </v-tabs>
       <info-text subDialog="true" class="pa-4" path="wboe-artikel/wboe-artikelstruktur/" />
-      <v-list>
+      <v-list v-if="filteredArticlesByInitial.length > 0">
         <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
           <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="article in articles.articles" :key="article.filename">
@@ -45,6 +45,9 @@
           </v-list-item>
         </template>
       </v-list>
+      <div v-else>
+        Keine Artikel gefunden.
+      </div>
     </v-flex>
   </v-layout>
 </template>

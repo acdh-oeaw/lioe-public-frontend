@@ -42,7 +42,7 @@ app.use(compression())
 app.use(bodyParser.json())
 app.get('/api/article', async (req, res) => {
   const r = (await axios({
-    url: 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=150'
+    url: 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=1000'
       + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
     headers: {
       Accept: 'application/json'
@@ -65,7 +65,7 @@ app.post('/es-query', async (req, res) => {
   const q = req.body
   try {
     const r = (await axios({
-      method: 'GET',
+      method: 'POST',
       data: q,
       url: 'https://walk-want-grew.acdh.oeaw.ac.at/dboe/_search?_source_excludes=location*&version=true'
     })).data

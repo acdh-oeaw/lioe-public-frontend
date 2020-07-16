@@ -130,6 +130,7 @@ module.exports = {
 };
 // process.env.NODE_ENV = 'development'
 console.log('process.env.NODE_ENV',process.env.NODE_ENV)
+console.log('process.env.API_HOST',process.env.API_HOST)
 if(process.env.NODE_ENV === 'development'){
   require('dotenv').config({ path : './env-dev.env' })
   module.exports.plugins = (module.exports.plugins || []).concat([

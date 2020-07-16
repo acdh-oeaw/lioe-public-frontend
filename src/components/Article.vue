@@ -314,6 +314,7 @@ export default class Article extends Vue {
     this.articles = (await getArticles())
       .filter(a => a.title !== '' && a.title !== undefined)
       .map(t => ({ text: t.title, value: t.filename.replace('.xml', '') }))
+      .sort((a, b) => a.text.localeCompare(b.text))
     this.initArticle(this.filename)
   }
 
@@ -523,6 +524,10 @@ iframe.comment {
   -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
   margin-left: 5px;
-  color: #3b89a0;
+  color: #ccc;
+  text-decoration: none;
+}
+*[collection-href]:hover:after {
+  color: #666;
 }
 </style>
