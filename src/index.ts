@@ -37,7 +37,7 @@ Vue.component(VueWordCloud.name, VueWordCloud)
 if (window) {
   fontLoader.load({
     custom: {
-      families : ['HKGrotesk']
+      families : ['fiduz']
     }
   })
 }

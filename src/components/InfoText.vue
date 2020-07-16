@@ -50,15 +50,14 @@
         </v-card>
       </v-dialog>
     </div>
-      </div>
+  </div>
 </template>
 <script lang="ts">
 
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { getWebsiteHtml, isExternUrl, isLocalUrl } from '../api'
 
-@Component
-
+@Component({ name: 'info-text' })
 export default class InfoText extends Vue {
 
   @Prop({ default: null }) path: string|null

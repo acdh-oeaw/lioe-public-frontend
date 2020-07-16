@@ -514,7 +514,7 @@ iframe.comment {
   text-decoration: underline;
 }
 *[collection-href]:after {
-  content: "\F1B8";
+  content: "\F01BC";
   display: inline-block;
   font: normal normal normal 24px/1 "Material Design Icons";
   font-size: inherit;

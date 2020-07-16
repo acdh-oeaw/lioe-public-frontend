@@ -1,17 +1,14 @@
 <template>
   <v-layout column>
-    <v-flex>
-      <v-card class="elevation-0">
-        <v-layout class="mb-2">
-              <v-expansion-panels flat tile>
-    <v-expansion-panel>
-      <v-expansion-panel-header>
-          <v-flex xs12>
+    <v-flex class="mb-4">
+      <v-card class="sticky-card" width="100%">
+        <v-row no-gutters>
+          <v-col class="pa-0" cols="8">
             <v-text-field
               @click.stop=""
               v-if="searchItemType === 'fulltext'"
               autofocus
-              text
+              flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
               v-model="searchTerm"
@@ -25,6 +22,7 @@
             <v-autocomplete
               v-if="searchItemType === 'collection'"
               autofocus
+              flat
               label="Sammlungen suchen…"
               :search-input.sync="searchCollection"
               prepend-inner-icon="search"
@@ -42,71 +40,88 @@
               solo
               clearable>
             </v-autocomplete>
-          </v-flex>
-          <v-flex align-content-center fill-height>
-            <div>
-              <v-select
-                @click.stop=""
-                class="divider-left"
-                text
-                solo
-                hide-details
-                v-model="searchItemType"
-                :items="[{text: 'Volltext', value: 'fulltext'}, { text: 'Sammlung', value: 'collection' }]" />
-            </div>
-          </v-flex>
-          <v-flex>
+          </v-col>
+          <v-col cols="2" class="pa-0">
+            <v-select
+              @click.stop=""
+              class="divider-left"
+              flat
+              solo
+              hide-details
+              v-model="searchItemType"
+              :items="[{text: 'Volltext', value: 'fulltext'}, { text: 'Sammlung', value: 'collection' }]" />
+          </v-col>
+          <v-col class="pr-2 pt-1 text-right">
             <v-dialog max-width="1000" color="#2b2735" scrollable>
-               <template v-slot:activator="{ on }">
-                  <v-btn v-on="on" color="accent" icon text>
-                    <v-icon>info</v-icon>
-                  </v-btn>
-               </template>
-                  <v-card text class="fill-height pa-4">
-                    <v-card-text class="pa-0 fill-height">
-                      <info-text class="pt-4 white fill-height" path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/" />
-                    </v-card-text>
-                  </v-card>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" color="accent" icon text>
+                  <v-icon>info</v-icon>
+                </v-btn>
+              </template>
+              <v-card text class="fill-height pa-4">
+                <v-card-text class="pa-0 fill-height">
+                  <info-text class="pt-4 white fill-height" path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/" />
+                </v-card-text>
+              </v-card>
             </v-dialog>
-          </v-flex>
-          </v-expansion-panel-header>
-                <v-expansion-panel-content>
-
-                  <h3>Spalten:</h3>
-    <v-switch label="Alle Spalten zeigen" v-model="extended"></v-switch>
-    <h3>Sucheinstellungen:</h3>
-                  
-    <v-switch label="Freundliche Suche (fuzzy search)" v-model="fuzziness"></v-switch>
-    <h3>Wonach gesucht wird:</h3>
-    <v-row>
-    <template v-for="h in shownHeaders">
-      <v-checkbox
-        style="margin-left: 40px"
-        :key="h.value"
-        :label="h.text"
-        v-model="h.inSearch"
-        v-if="h.searchable"
-      >
-      </v-checkbox>
-    </template>
-      <v-btn @click="onChangeQuery(searchTerm)" 
-        style="margin-left: 80px" >Suchen</v-btn>
-    </v-row>
-                   </v-expansion-panel-content>
-    </v-expansion-panel>
-              </v-expansion-panels>
-        </v-layout>
+            <v-tooltip color="ci" top>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon @click="showFilterOptions = !showFilterOptions">
+                  <v-icon :color="showFilterOptions ? 'ci': undefined">
+                    {{showFilterOptions ? 'mdi-cog' : 'mdi-cog-outline'}}
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Such- und Darstellungsoptionen</span>
+            </v-tooltip>
+          </v-col>
+        </v-row>
       </v-card>
+      <v-row class="px-5" v-show="showFilterOptions === true">
+        <v-col>
+          <v-row>
+            <v-col>
+              <h4>Suchoptionen</h4>
+            </v-col>
+          </v-row>
+          <v-switch label="Alle Spalten zeigen" v-model="extended" hide-details/>
+          <v-switch @change="onChangeQuery(searchTerm)" label="Fehlertolerante Suche (fuzzy search)" v-model="fuzziness" hide-details/>
+        </v-col>
+        <v-col>
+          <v-row>
+            <v-col class="pl-0">
+              <h4>Spalten durchsuchen</h4>
+            </v-col>
+            <v-col class="text-right">
+              <v-btn color="ci" @click="selectAllSearchColumnsAndSearch" small text rounded>alle</v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
+            <template v-for="h in shownHeaders">
+              <v-checkbox
+                class="mr-3"
+                :key="h.value"
+                :label="h.text"
+                hide-details
+                @change="onChangeQuery(searchTerm)"
+                v-model="h.inSearch"
+                v-if="h.searchable">
+              </v-checkbox>
+            </template>
+          </v-row>
+        </v-col>
+      </v-row>
       <InfoBox class="mt-2 mb-2">
         <h4 class="headline mb-0">Hinweis</h4>
         <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen sowie Transkriptionszeichen zur Wiedergabe der Dialektlautung angezeigt werden können!</div>
       </InfoBox>
     </v-flex>
+    <fake-scrollbar class="mb-3" selector=".v-data-table__wrapper" />
     <v-flex>
       <v-data-table
         v-model="selected"
+        dense
         show-select
-        class="data-table"
         return-object
         :footer-props="footerProps"
         :options.sync="pagination"
@@ -114,76 +129,68 @@
         :headers="shownHeaders"
         :loading="loading"
         :items="_items">
-        <template v-for="h of headers" :slot="`header.${h.name}`">test</template>
-
-        <template slot="footer">
-          <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
-            <template v-slot:activator="{ on }">
-              <v-menu v-on="on" :nudge-top="4" top offset-y open-on-hover :disabled="mappableSelectionItems.length === 0" >
-              <template v-slot:activator="{ on: menu }">
-                <v-btn
-                  @click="showSelectionOnMap"
-                  :disabled="mappableSelectionItems.length === 0"
-                  small
-                  v-on="menu"
-                  class="pl-3 pr-3"
-                  rounded
-                  depressed
-                  color="primary">
-                  auf Karte zeigen ({{ mappableSelectionItems.length }})
+        <template v-slot:footer>
+          <div>
+            <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
+              <template v-slot:activator="{ on }">
+                <v-menu v-on="on" :nudge-top="4" top offset-y open-on-hover :disabled="mappableSelectionItems.length === 0" >
+                  <template v-slot:activator="{ on: menu }">
+                    <v-btn
+                      @click="showSelectionOnMap"
+                      :disabled="mappableSelectionItems.length === 0"
+                      small
+                      v-on="menu"
+                      class="pl-3 pr-3"
+                      rounded
+                      depressed
+                      color="primary">
+                      auf Karte zeigen ({{ mappableSelectionItems.length }})
+                    </v-btn>
+                  </template>
+                  <v-list dense>
+                    <v-list-item @click="selected = []">Auswahl leeren</v-list-item>
+                  </v-list>
+                </v-menu>
+              </template>
+              <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
+            </v-tooltip>
+            <v-menu top open-on-hover>
+              <template v-slot:activator="{ on: secondMenu }">
+                <v-btn slot="activator" v-on="secondMenu" :disabled="items.length === 0" small text class="pl-3 pr-3" rounded color="ci">
+                  Export {{ selected.length > 0 ? `(${selected.length})` : ''}}
                 </v-btn>
               </template>
-              <v-list dense>
-                <v-list-item @click="selected = []">Auswahl leeren</v-list-item>
+              
+              <v-list class="context-menu-list" dense>
+                <v-subheader>
+                  <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
+                </v-subheader>
+                <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
+                <v-list-item @click="saveJSON">JSON</v-list-item>
+                <v-list-item @click="saveCSV">CSV</v-list-item>
+                <v-divider />
+                <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
               </v-list>
             </v-menu>
-          </template>
-            
-            <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
-          </v-tooltip>
-          <v-menu top open-on-hover>
-            <template v-slot:activator="{ on: secondMenu }">
-              <v-btn slot="activator" v-on="secondMenu" :disabled="items.length === 0" small text class="pl-3 pr-3" rounded color="ci">
-              Export {{ selected.length > 0 ? `(${selected.length})` : ''}}
-            </v-btn>
-            </template>
-            
-            <v-list class="context-menu-list" dense>
-              <v-subheader>
-                <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
-              </v-subheader>
-              <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
-              <v-list-item @click="saveJSON">JSON</v-list-item>
-              <v-list-item @click="saveCSV">CSV</v-list-item>
-              <v-divider />
-              <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
-            </v-list>
-          </v-menu>
+          </div>
         </template>
-
-         <template v-slot:item="{item, index, isSelected}">
-           <tr>
-          <td>
-            <v-checkbox :value="isSelected" @change="customSelect(item)"></v-checkbox>
-          </td>
-          <template v-for="header in headers">
-            <td class="line-clamp"  :key="`${header.value}_${index}`" v-if="extended || !header.extended">
-              <template v-if="header.renderFnc">
-                {{ header.renderFnc(item) }}                
-              </template>
-              <template v-else>
-                {{ item[header.value] }}
-              </template>
+        <template v-slot:item="{item, index, isSelected}">
+          <tr>
+            <td>
+              <v-checkbox :value="isSelected" @change="customSelect(item)"></v-checkbox>
             </td>
-          </template>
-           </tr>
+            <template v-for="header in shownHeaders">
+              <td class="line-clamp"  :key="`${header.value}_${index}`" v-if="extended || !header.extended">
+                <template v-if="header.renderFnc">
+                  {{ header.renderFnc(item) }}                
+                </template>
+                <template v-else>
+                  {{ item[header.value] }}
+                </template>
+              </td>
+            </template>
+          </tr>
         </template>
-
-        <!--
-        <template v-slot:footer="{ pageText }" slot-scope="props">
-          {{ props.pageStart }} - {{ props.pageStop }} von {{ props.itemsLength }}
-        </template>
-        -->
       </v-data-table>
     </v-flex>
   </v-layout>
@@ -203,6 +210,7 @@ import { geoStore } from '../store/geo'
 import * as FileSaver from 'file-saver'
 import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
+import FakeScrollbar from '@components/FakeScrollbar.vue'
 import { log } from 'util'
 
 interface Places {
@@ -214,7 +222,8 @@ interface Places {
 @Component({
   components: {
     InfoText,
-    InfoBox
+    InfoBox,
+    FakeScrollbar
   }
 })
 export default class Database extends Vue {
@@ -222,6 +231,7 @@ export default class Database extends Vue {
   @Prop() collection_ids: string|null
   @Prop() query: string|null
 
+  c = console
   geoStore = geoStore
   items: any[] = []
   searchTerm: string|null = null
@@ -232,6 +242,7 @@ export default class Database extends Vue {
   selected: any[] = []
   loading = false
   searching = false
+  showFilterOptions = false
   pagination = {
     page: 1,
     itemsPerPage: 10,
@@ -239,11 +250,141 @@ export default class Database extends Vue {
     sortDesc: [],
     multiSort: false,
   }
-  extended = false;
+  extended = false
+  fuzziness = true
+  totalItems = 100
+
+  headers = [
+    // tslint:disable-next-line:max-line-length
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Lemma',
+      renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL,
+      value: 'HL'
+    },
+    {
+      searchable: false,
+      inSearch: false,
+      show: false,
+      text: 'Lemma oS',
+      renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL,
+      sortable: false,
+      value: 'HL2'
+      },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Wortart',
+      value: 'POS'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Bedeutung',
+      renderFnc: this.renderBedeutung,
+      value: 'BD/LT*'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Fragenummer',
+      renderFnc: this.renderFragenummer,
+      value: 'NR'
+    },
+    {
+      searchable: false,
+      inSearch: false,
+      show: true,
+      text: 'Gefragter Ausdruck',
+      renderFnc: this.renderGefragterAusdruck,
+      value: 'NR2',
+      sortable: false
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Belegsätze',
+      renderFnc: this.renderLautung,
+      value: 'belegsaetze'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Lautung',
+      renderFnc: this.renderBelegsaetze,
+      sortable: false,
+      value: 'LT1_teuthonista'
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: false,
+      text: 'Quelle',
+      value: 'QU',
+      extended: true
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: false,
+      text: 'Bibliographische Angabe',
+      value: 'BIBL',
+      extended: true
+    },
+    // { text: 'Belegsätze', value: 'BIBL' },
+    // { text: 'Bedeutung', value: 'BD/KT*' },
+    // { text: 'Kontext', value: 'BD/KT*' },
+    // { text: 'FB-Nr.', value: 'Fragebogennummer' },
+    // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Ort',
+      value: 'Gemeinde1',
+      renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}`
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Großreg.',
+      value: 'Großregion1',
+      renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Bundesl.',
+      value: 'Bundesland1',
+      renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`,
+    }
+  ]
+
+  footerProps = {
+    'items-per-page-text': 'Pro Seite',
+    'items-per-page-options': [10, 25, 50, 100]
+  }
+
+  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
+
+  selectAllSearchColumnsAndSearch() {
+    // allow search in all columns that are searchable
+    this.headers = this.headers.map(h => ({ ...h, inSearch: h.searchable === true }))
+    this.onChangeQuery(this.searchTerm)
+  }
 
   customSelect(item: any) {
-    console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id);
-    if(this.selected.find(i => item.id === i.id)) {
+    // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id);
+    if (this.selected.find(i => item.id === i.id)) {
       this.selected = this.selected.filter(i => i.id !== item.id);
     } else {
       this.selected.push(item);
@@ -251,65 +392,68 @@ export default class Database extends Vue {
   }
 
   get shownHeaders() {
-    return this.headers.filter((h:any) => h.show);
+    return this.headers.filter((h: any) => h.show);
   }
 
   @Watch('extended')
   onExtendedChanged(val: boolean) {
-    this.headers.forEach((h:any) => {
-      if (h.extended)
-        h.show = val;
-    });
+    this.headers.forEach((h: any) => {
+      if (h.extended) {
+        h.show = val
+      }
+    })
   }
-  c = console;
-  renderBedeutung(val:any) {
+
+  renderBedeutung(val: any) {
     const bd: string[] = [];
-    for(let i = 1; i < 10; i += 1) {
-      let at = `GRAM/LT${i}`
-      let b = val[`GRAM/LT${i}`];
-     // console.log('at', at, val);
-      if(!b) continue;
+    for (let i = 1; i < 10; i += 1) {
+      const at = `GRAM/LT${i}`
+      const b = val[`GRAM/LT${i}`];
+      if (!b) {
+        continue
+      }
       bd.push(b);
     }
     return _(bd).flatten().replace('≈', '');
   }
 
-  renderFragenummer(val:any) {
-    const replacer = (match:string, p1:string, p2:string, offset: any, what: any) => {
-      console.log(match, p1, p2, offset, what);
-      return match;
+  renderFragenummer(val: any) {
+    let nr = val['NR']
+    if (!nr) {
+      return ''
+    }
+    const replacer = (match: string, p1: string, p2: string, offset: any, what: any) => {
+      console.log(match, p1, p2, offset, what)
+      return match
     }
     const fragenummerRegex = /.* (\(.*\)){0,1}:/;
-    let nr = val['NR']
-    if (!nr) return '';
     if (Array.isArray(nr)) {
       nr = nr.map(n => {
         const m = n.match(fragenummerRegex);
-        return m ? m[0] : null 
+        return m ? m[0] : null
       });
-    } else{
+    } else {
       const m = nr.match(fragenummerRegex);
-      return m ? m[0] : ''; 
+      return m ? m[0] : '';
     }
     nr = nr.filter((n: any) => n);
     return _(nr).flatten();
   }
 
-  renderGefragterAusdruck(val:any) {
+  renderGefragterAusdruck(val: any) {
     const fragenummerRegex = /.*(\(.*\)){0,1}:/;
     let nr = val['NR']
     if (!nr) return '';
 
     if (Array.isArray(nr)) {
-     
       nr = nr[0].replace(fragenummerRegex, '');
-    } else{
+    } else {
       return nr.replace(fragenummerRegex, '');
     }
     return nr;
   }
 
-  renderLautung(val:any) {
+  renderLautung(val: any) {
     const kts = [
       'KT1',
       'KT2',
@@ -322,14 +466,15 @@ export default class Database extends Vue {
     ];
     const res: string[] = [];
     kts.forEach(t => {
-      if (Array.isArray(val[t] && val[t].length > 0)) 
+      if (Array.isArray(val[t] && val[t].length > 0)) {
         res.push(val[t][0]);
-      else if(val[t])
+      } else if (val[t]) {
         res.push(val[t]);
+      }
     });
     return _(res).flatten();
   }
-  renderBelegsaetze(val:any) {
+  renderBelegsaetze(val: any) {
     const tauts = [
       'LT1_teuthonista',
       'LT2_theutonista',
@@ -344,44 +489,14 @@ export default class Database extends Vue {
 
     const res: string[] = [];
     tauts.forEach(t => {
-      if (Array.isArray(val[t] && val[t].length > 0))
-        res.push(val[t][0]);
-      else if(val[t])
-        res.push(val[t]);
+      if (Array.isArray(val[t] && val[t].length > 0)) {
+        res.push(val[t][0])
+      } else if(val[t]) {
+        res.push(val[t])
+      }
     });
     return _(res).flatten();
   }
-
-  fuzziness = true;
-
-  headers = [
-    {searchable: true, inSearch: true, show: true, text: 'Lemma', renderFnc: (val: any) => Array.isArray(val.HL) ? val.HL[0] : val.HL, value: 'HL' },
-    {searchable: false, inSearch: false, show: true, text: 'Lemma oS', renderFnc: (val: any) => Array.isArray(val.HL) && val.HL.length > 1 ? (val.HL[1]).replace('≈', '') : val.HL, sortable: false, value: 'HL2' },
-    {searchable: true, inSearch: true, show: true, text: 'Wortart', value: 'POS' },
-    {searchable: true, inSearch: true, show: true, text: 'Bedeutung', renderFnc: this.renderBedeutung, value: 'BD/LT*' },
-    {searchable: true, inSearch: true, show: true, text: 'Fragenummer', renderFnc: this.renderFragenummer, value: 'NR' },
-    {searchable: false, inSearch: false, show: true, text: 'Gefragter Ausdruck', renderFnc: this.renderGefragterAusdruck, value: 'NR2', sortable: false },
-    {searchable: true, inSearch: true, show: true, text: 'Belegseatze', renderFnc: this.renderLautung, value: 'belegsaetze' },
-    {searchable: true, inSearch: true, show: true, text: 'Lautung', renderFnc: this.renderBelegsaetze, sortable: false, value: 'LT1_teuthonista' },
-    {searchable: true, inSearch: true, show: false, text: 'Quelle', value: 'QU', extended: true },
-    {searchable: true, inSearch: true, show: false, text: 'Bibliographische Angabe', value: 'BIBL', extended: true },
-    // { text: 'Belegsätze', value: 'BIBL' },
-    // { text: 'Bedeutung', value: 'BD/KT*' },
-    // { text: 'Kontext', value: 'BD/KT*' },
-    // { text: 'FB-Nr.', value: 'Fragebogennummer' },
-    // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
-    {searchable: true, inSearch: true, show: true, text: 'Ort', value: 'Gemeinde1', renderFnc: (val: any) => `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ''}` },
-    {searchable: true, inSearch: true, show: true, text: 'Großreg.', value: 'Großregion1', renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`, },
-    {searchable: true, inSearch: true, show: true, text: 'Bundesl.', value: 'Bundesland1', renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`, }
-  ]
-
-  footerProps = {
-    'items-per-page-text': 'Pro Seite',
-    'items-per-page-options': [10, 25, 50, 100]
-  };
-
-  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
-
 
   async mounted() {
     if (this.collection_ids) {
@@ -435,8 +550,6 @@ export default class Database extends Vue {
     }
   }
 
-  totalItems = 100
-
   get headerInSearch() {
     return this.shownHeaders.filter(h => h.searchable && h.inSearch).map(h => h.value);
   }
@@ -444,7 +557,7 @@ export default class Database extends Vue {
   async init() {
     this.loading = true
 
-    let countDocument = await getDocumentTotalCount();
+    const countDocument = await getDocumentTotalCount();
     // console.log('lel', countDocument)
     this.totalItems = countDocument || 0
     const res = await getDocuments(
@@ -484,7 +597,6 @@ export default class Database extends Vue {
 
   @Watch('pagination', {deep: true})
   updateResults(newVal: any, oldVal: any) {
-    //console.log('pagination changed', newVal, oldVal);
     if (newVal.page !== oldVal.page) {
       window.scroll({ top: 0, behavior: 'smooth' })
     }
@@ -569,11 +681,13 @@ export default class Database extends Vue {
 }
 </script>
 <style lang="scss">
-/*
-div.v-datatable.v-table.v-datatable--select-all.theme--light{
+th {
+  vertical-align: top;
+}
+div.v-data-footer{
+  background: white;
   position: -webkit-sticky;
   position: sticky;
   bottom: 0;
 }
-*/
 </style>

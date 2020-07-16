@@ -12,7 +12,7 @@
         clearable
       />
     </v-flex>
-    <v-flex style="min-height: 400px" xs12>
+    <v-flex style="height: 40vh" xs12>
       <!-- <v-progress-linear
         height="1"
         class="pa-0 ma-0 absolute"
@@ -28,7 +28,7 @@
         :spacing=".2"
         @update:progress="updateWordProgress"
         font-weight="800"
-        font-family="HKGrotesk">
+        font-family="fiduz">
       <template slot-scope="{text, weight, word}">
         <router-link class="word-cloud-link" :to="`/articles/${findArticleByTitle(text).filename.replace('.xml', '')}`">
           {{ text }}

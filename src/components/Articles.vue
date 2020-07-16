@@ -29,12 +29,12 @@
       </v-layout>
     </v-card>
     <v-flex xs12>
-      <v-tabs v-model="letter" class="tabs-letter my-3" background-color="ci" dark color="accent" center-active centered>
+      <info-text subDialog="true" class="pa-4" path="wboe-artikel/wboe-artikelstruktur/" />
+      <v-tabs grow v-model="letter" class="tabs-letter my-3" color="ci" background-color="transparent" center-active centered>
         <v-tab v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
           {{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span>
         </v-tab>
       </v-tabs>
-      <info-text subDialog="true" class="pa-4" path="wboe-artikel/wboe-artikelstruktur/" />
       <v-list v-if="filteredArticlesByInitial.length > 0">
         <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
@@ -71,11 +71,23 @@ export default class Articles extends Vue {
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
 
   getCleanInitial(lemmaName: string) {
-    return (lemmaName.replace(/\(.*\)/g, '')[0] || '').toUpperCase() + (lemmaName.replace(/\(.*\)/g, '')[1] || '').toLowerCase()
+    return (
+      lemmaName
+        .replace(/\(.*\)/g, '')
+        .replace('-', '')[0] || ''
+      )
+      .toUpperCase()
+      + (lemmaName.replace(/\(.*\)/g, '')[1] || '')
+      .toLowerCase()
   }
 
   getCleanFirstLetter(lemmaName: string) {
-    return (lemmaName.replace(/\(.*\)/g, '')[0] || '').toUpperCase()
+    return (
+      lemmaName
+        .replace(/\(.*\)/g, '')
+        .replace('-', '')[0] || ''
+      )
+      .toUpperCase()
   }
 
   get filteredArticlesByInitial() {
@@ -104,6 +116,7 @@ export default class Articles extends Vue {
         char: k,
         length: v.length
       }))
+      .sortBy(v => v.char)
       .value())]
   }
 
@@ -136,6 +149,9 @@ export default class Articles extends Vue {
   background: white;
   z-index: 1;
   border-bottom: 1px solid rgba(0,0,0,.12)
+}
+.tabs-letter{
+  font-weight: bold;
 }
 .tabs-letter /deep/ .v-slide-group__prev.v-slide-group__prev--disabled {
   display: none!important;

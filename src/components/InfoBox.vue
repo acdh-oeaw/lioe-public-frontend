@@ -29,7 +29,7 @@ export default class InfoBox extends Vue {
 <style lang="scss" scoped>
 .close-btn {
   position: absolute;
-  right: 0;
-  top: 3px;
+  right: 12px;
+  top: 12px;
 }
 </style>
