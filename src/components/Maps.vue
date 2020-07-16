@@ -14,8 +14,8 @@
               item-text="text"
               item-value="value"
               hide-details
-              dense
               text
+              chips
               prepend-inner-icon="search"
               solo
               clearable
@@ -28,11 +28,12 @@
               :items="collectionSearchItems"
               v-model="selectedCollections"
               label="Suche Sammlungen…"
+              cache-items
               autofocus
               item-text="text"
               hide-details
-              dense
               text
+              chips
               prepend-inner-icon="search"
               solo
               clearable
@@ -41,7 +42,6 @@
           </v-flex>
           <v-flex align-content-center fill-height>
             <v-select
-              dense
               text
               solo
               flat
@@ -53,8 +53,8 @@
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
-                <v-btn v-on="on" icon text>
-                  <v-icon>mdi-format-color-fill</v-icon>
+                <v-btn v-on="on" large icon>
+                  <v-icon style="margin-top:7px;">mdi-format-color-fill</v-icon>
                 </v-btn>
               </template>
                <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
@@ -63,8 +63,8 @@
            <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
-                <v-btn v-on="on" icon text>
-                  <v-icon>mdi-border-color</v-icon>
+                <v-btn v-on="on" large icon>
+                  <v-icon style="margin-top:7px;">mdi-border-color</v-icon>
                 </v-btn>
               </template>
                <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
@@ -81,10 +81,10 @@
             </v-tooltip>
           </v-flex> -->
           <v-flex>
-            <v-menu open-on-hover max-width="400" max-height="95vh" :offset-y="true">
+            <v-menu open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
-                <v-btn color="accent" class="mr-3" small icon text v-on="on">
-                  <v-icon>info_outline</v-icon>
+                <v-btn color="accent" large icon text v-on="on">
+                  <v-icon>info</v-icon>
                 </v-btn>
               </template>
               <info-text class="elevation-24 pa-4 white" path="karten/infokasten-zur-den-karten/" />
@@ -110,7 +110,7 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
-        <v-menu ref="kartenMenu" :close-on-click="false" :close-on-content-click="false" v-model="pinned" min-width="200" left>
+        <v-menu ref="kartenMenu" :close-on-click="false" max-height="70%" :close-on-content-click="false" v-model="pinned" min-width="200">
           <template v-slot:activator="{ on }">
             <v-btn style="margin-top:5px;" fab v-on="on">
               <v-icon>layers</v-icon>
@@ -142,7 +142,7 @@
               <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
               <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
               <v-card-subtitle style="margin-top:5px;" class="subtitles">
-                <small>Weitere</small>
+                <small>Dialektregionen Ö - Flächen (SFB-DiÖ)</small>
               </v-card-subtitle>
               <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
               <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
@@ -159,19 +159,17 @@
           :key="gC.collection"
         >
           <v-list-item-action>
-            <v-btn class="legendeButtons" icon x-small @click="removeCollection(gC.collection)">
+            <v-btn class="legendeButtons" icon small @click="removeCollection(gC.collection)">
               <v-icon>mdi-window-close</v-icon>
             </v-btn>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>{{ gC.collection }}</v-list-item-title>
+            <v-list-item-title>{{ gC.name }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-menu :close-on-content-click="false" offset-y top>
               <template v-slot:activator="{ on }">
-                <v-btn v-on="on" icon x-small text>
-                  <v-icon>mdi-format-color-fill</v-icon>
-                </v-btn>
+                <v-btn v-on="on" color="gC.color" elevation="1" fab x-small></v-btn>
               </template>
                <v-color-picker @input="updateColor" hide-inputs v-model="gC.color"></v-color-picker>
             </v-menu>
@@ -549,7 +547,16 @@ export default class Maps extends Vue {
             fillColor: color,
             fillOpacity: 0.5
           }
-          this.geoCollections.push({collection: coll, geo: CollLocation, style: styleElement, color: color});
+          let collName = "";
+          let collDescription = "";
+          this.collectionSearchItems.forEach(iterColl => {
+            if(coll === iterColl.value){
+              collName=iterColl.name;
+              collDescription=iterColl.description;
+            }
+          });
+          this.geoCollections.push({collection: coll, name: collName, description: collDescription , geo: CollLocation, style: styleElement, color: color});
+          console.log(this.geoCollections);
         }
       });
     } else {
@@ -854,10 +861,12 @@ export default class Maps extends Vue {
     this.loadRivers()
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson
-      if(Array.isArray(this.$route.query.collection_ids)){
-        this.getLocationsOfCollections(this.$route.query.collection_ids)
-      } else {
-        this.getLocationsOfCollections(this.$route.query.collection_ids.split(','))
+      if(this.$route.query.collection_ids) {
+        if(Array.isArray(this.$route.query.collection_ids)){
+          this.getLocationsOfCollections(this.$route.query.collection_ids)
+        } else {
+          this.getLocationsOfCollections(this.$route.query.collection_ids.split(','))
+        }
       }
       this.map = this.$refs.map
     })
