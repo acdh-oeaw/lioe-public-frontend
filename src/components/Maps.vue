@@ -47,7 +47,7 @@
               hide-details
               class="divider-left"
               v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: false}, ]" />
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Sammlungen', value: 'collection', disabled: false}, ]" />
           </v-flex>
           <v-flex>
             <v-btn style="margin-top:9px" depressed small @click="title = !title">
@@ -147,12 +147,12 @@
               <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
               <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
               <v-card-subtitle style="margin-top:5px;" class="subtitles">
-                <small>Dialektregionen Ö - Flächen (SFB-DiÖ)</small>
+                <small>Weitere</small>
               </v-card-subtitle>
               <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
               <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
-              <v-checkbox v-model="showDialektregionenFill" hide-details label="DiÖ Dialektregionen (Flächen)" />
-              <v-checkbox v-model="showDialektregionenBorder" hide-details label="DiÖ Dialektregionen (Grenzen)" />
+              <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
+              <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
             </v-card-text>
           </v-card>
         </v-menu>
