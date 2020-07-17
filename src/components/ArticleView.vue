@@ -44,18 +44,22 @@
       <PreviewContent v-if="bedeutung" :geo-store="geoStore" :content="bedeutung" />
     </article-fragment-panel>
     <article-fragment-panel
-      v-show="wortbildung"
+      v-show="wortbildungen && wortbildungen.length > 0"
       title="Wortbildung"
       ext-info-url="wboe-artikel/wortbildung/"
       info-url="wboe-artikel/wortbildung-short/">
-      <PreviewContent v-if="wortbildung" :content="wortbildung" />
+      <template v-if="wortbildungen && wortbildungen.length > 0">
+        <PreviewContent :content="wortbildung" v-for="(wortbildung, wbKey) in wortbildungen" :key="'wb' + wbKey" />
+      </template>
     </article-fragment-panel>
     <article-fragment-panel
-      v-show="redewendungen"
+      v-show="redewendungen && redewendungen.length > 0"
       title="Redewendungen"
       ext-info-url="wboe-artikel/redewendungen/"
       info-url="wboe-artikel/redewendungen-short/">
-      <PreviewContent v-if="redewendungen" :geo-store="geoStore" :content="redewendungen" />
+      <template v-if="redewendungen && redewendungen.length > 0">
+        <PreviewContent :geo-store="geoStore" :content="redewendung" v-for="(redewendung, rwKey) in redewendungen" :key="'rw' + rwKey" />
+      </template>
     </article-fragment-panel>
   </v-expansion-panels>
 </template>
@@ -121,7 +125,7 @@ export default class ArticleView extends Vue {
   verbreitung: any = null
   belegauswahl: any = null
   etymologie: any = null
-  wortbildung: any = null
+  wortbildungen: any = null
   redewendungen: any = null
   lautung: any = null
 
@@ -184,8 +188,8 @@ export default class ArticleView extends Vue {
     this.verbreitung = editorObj.getAllEditorObjById('usg-geo-verbreitung')
     this.belegauswahl = editorObj.getAllEditorObjById('form-dialect')
     this.etymologie = editorObj.getEditorObjById('etymologie')
-    this.wortbildung = editorObj.getEditorObjById('re-compound')
-    this.redewendungen = editorObj.getEditorObjById('re-MWE')
+    this.wortbildungen = editorObj.getAllEditorObjById('re-compound')
+    this.redewendungen = editorObj.getAllEditorObjById('re-MWE')
     this.lautung = editorObj.getAllEditorObjById('note').filter((e: any) => {
       return e.orgXmlObj !== undefined
         && e.orgXmlObj.attributes !== undefined
