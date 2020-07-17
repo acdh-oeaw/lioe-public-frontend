@@ -49,14 +49,8 @@
               v-model="searchItemType"
               :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Sammlungen', value: 'collection', disabled: false}, ]" />
           </v-flex>
-          <v-flex>
-            <v-btn style="margin-top:9px" depressed small @click="title = !title">
-              <span v-if="title">Title</span>
-              <span v-else>Description</span>
-            </v-btn>
-          </v-flex>
           <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover top :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
                   <v-icon class="toolbar">mdi-format-color-fill</v-icon>
@@ -66,7 +60,7 @@
             </v-menu>
           </v-flex>
            <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover top :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
                   <v-icon class="toolbar">mdi-border-color</v-icon>
@@ -158,7 +152,15 @@
         </v-menu>
       </v-flex>
 
-      <v-list dense id="legende" v-if="geoCollections">
+      <v-list dense id="legende" v-if="geoCollections.length > 0">
+        <v-list-item dense>
+          <v-list-item-content>
+            <v-btn depressed small @click="title = !title">
+              <span v-if="title">Titel</span>
+              <span v-else>Beschreibung</span>
+            </v-btn>
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item dense
           v-for="gC in geoCollections"
           :key="gC.collection"
