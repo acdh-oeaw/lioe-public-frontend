@@ -25,73 +25,17 @@
               </v-btn>
             </template>
               <info-text class="elevation-24 pa-4 white" path="wboe-artikel/lemma-short/" />
-              <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn>
-          </v-menu>
-        </v-flex>
-      </v-layout>
-      <v-layout class="article-tools" align-end>
-        <v-flex @click="handleArticleClick" xs12>
-          <div v-html="diminutiveXML" />
-        </v-flex>
-        <v-flex class="text-xs-right">
-          <v-btn
-            small
-            rounded
-            text
-            @click="toggleAll"
-          >{{ isEveryArticleExpanded ? 'Einklappen' : 'Ausklappen'}}</v-btn>
-        </v-flex>
-        <v-flex v-if="userStore.showPdfPrintButton">
-          <v-btn small rounded text @click="printArticle">PDF</v-btn>
-        </v-flex>
-        <v-flex class="text-xs-right">
-          <v-dialog
-            transition="none"
-            v-model="showEditor"
-            max-width="1000"
-            content-class="fill-height"
-            color="#2b2735"
-            scrollable
-          >
-            <template v-slot:activator="{ on }">
-              <v-btn small rounded text v-on="on">XML/TEI</v-btn>
-            </template>
-              <v-card color="#342f40" dark text class="fill-height">
-                <v-card-title class="pt-1 pb-1">
-                  <v-flex>{{ filename }}</v-flex>
-                  <v-flex class="text-xs-right">
-                    <v-btn class="pl-3 pr-3" small rounded text @click="downloadEditorXML">download</v-btn>
-                    <v-btn small rounded text @click="saveEditorXML">view</v-btn>
-                  </v-flex>
-                </v-card-title>
-                <v-card-text class="pa-0 fill-height">
-                  <xml-editor
-                    v-if="showEditor"
-                    :show="showEditor"
-                    class="fill-height"
-                    v-model="articleXML"
-                  />
-                </v-card-text>
-              </v-card>
-          </v-dialog>
-        </v-flex>
-        <v-flex class="text-xs-right">
-          <v-menu open-on-hover max-width="400" max-height="95vh" top left>
-            <template v-slot:activator="{ on }">
-              <v-btn color="grey" class="mr-3" small v-on="on" icon text>
-                <v-icon>info_outline</v-icon>
-              </v-btn>
-            </template>
-              <info-text
-                class="elevation-24 pa-4 white"
-                path="wboe-artikel/grammatische-angaben-short/"
-              />
-              <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn>
+              <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
           </v-menu>
         </v-flex>
       </v-layout>
       <article-view
         @article-click="handleArticleClick"
+        @handleArticleClick="handleArticleClick"
+        @toggleAll="toggleAll"
+        @printArticle="printArticle"
+        @showEditor="showEditor = true"
+        :isEveryArticleExpanded="isEveryArticleExpanded"
         v-if="articleXML !== null"
         :xml="articleXML"
         :filename="filename"
@@ -124,6 +68,32 @@
         </v-card>
       </v-flex>
     </v-flex>
+    <v-dialog
+      transition="none"
+      v-model="showEditor"
+      max-width="1000"
+      content-class="fill-height"
+      color="#2b2735"
+      scrollable
+    >
+      <v-card color="#342f40" dark text class="fill-height">
+        <v-card-title class="pt-1 pb-1">
+          <v-flex>{{ filename }}</v-flex>
+          <v-flex class="text-xs-right">
+            <v-btn class="pl-3 pr-3" small rounded text @click="downloadEditorXML">download</v-btn>
+            <v-btn small rounded text @click="saveEditorXML">view</v-btn>
+          </v-flex>
+        </v-card-title>
+        <v-card-text class="pa-0 fill-height">
+          <xml-editor
+            v-if="showEditor"
+            :show="showEditor"
+            class="fill-height"
+            v-model="articleXML"
+          />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 <script lang="ts">
@@ -235,18 +205,20 @@ export default class Article extends Vue {
   }
 
   handleArticleClick(e: MouseEvent) {
-    if (this.isPlaceNameElement(e.target)) {
-      const sigle = this.getPlacenameSigleFromRef(
-        (e.target as HTMLElement).getAttribute("ref")
-      );
-      if (sigle !== null) {
-        this.openMapsWithPlaces([sigle]);
+    if (e) {
+      if (this.isPlaceNameElement(e.target)) {
+        const sigle = this.getPlacenameSigleFromRef(
+          (e.target as HTMLElement).getAttribute("ref")
+        );
+        if (sigle !== null) {
+          this.openMapsWithPlaces([sigle]);
+        }
+      } else if (e.target instanceof HTMLElement && e.target.dataset.geoSigle !== undefined) {
+        this.openMapsWithPlaces([ e.target.dataset.geoSigle ])
+      } else if (this.getCollectionLink(e.target) !== null) {
+        const id = this.getCollectionLink(e.target)!;
+        this.$router.push({ path: "/db", query: { collection_ids: id } });
       }
-    } else if (e.target instanceof HTMLElement && e.target.dataset.geoSigle !== undefined) {
-      this.openMapsWithPlaces([ e.target.dataset.geoSigle ])
-    } else if (this.getCollectionLink(e.target) !== null) {
-      const id = this.getCollectionLink(e.target)!;
-      this.$router.push({ path: "/db", query: { collection_ids: id } });
     }
   }
 
@@ -371,7 +343,7 @@ export default class Article extends Vue {
       xml
     );
     this.lemmaXML = this.fragementFromSelector(
-      "entry > form[type=lemma], entry > gramGrp",
+      "entry > form[type=lemma]",
       xml
     );
     this.diminutiveXML = this.fragementFromSelector(

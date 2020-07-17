@@ -55,6 +55,7 @@
             <form type="variant">
               <?options {
                           "title": "Variante (Aussprache/Orth)",
+                          "id": "variante",
                           "tagAsTitle": false,
                           "attributes": [{
                             "xml:lang": {"type": "edit", "canBeEmpty": {"use": true}, "possibleValues": ["bar-AT", "bar-IT"]},
@@ -69,43 +70,66 @@
                         } ?>
               <?copy { "fromId": "orth", "options": { "tag": ["possibleTag"], "layout": { "frame": "inline", "bold": true }, "editor": { "parentInContext": true } } } ?>
             </form>
-            <?copy { "fromId": "gramGrp", "options": { "layout": { "frame": "line" } } } ?>
+            <?copy { "fromId": "gramGrp", "id": "gramGrpLemma", "options": { "layout": { "frame": "line" } } } ?>
             <!-- Diminutiv -->
             <form type="variant" subtype="diminutive">
               <?options {
                           "title": "Diminutiv",
+                          "id": "diminutiv",
                           "attributes": [{
                             "xml:id": {"type": "edit", "canBeEmpty": {"use": true}, "shouldAttribute": {"use": true}, "value": { "fx": "orthId" }}
                           }],
                           "tag": ["multiple", "possibleTag"],
                           "layout": {
                             "frame": "line",
+                            "hideTitle": true
+                          },
+                          "previewLayout": {
+                            "frame": "inline",
                             "hideTitle": true,
                             "multiple": {
-                              "spaceBefore": 1,
-                              "spaceAfter": 1,
-                              "join": ", "
+                              "use": true,
+                              "join": ", ",
+                              "lastjoin": " und "
                             }
                           }
                         } ?>
-              <?copy { "fromId": "orth", "options": { "tag": ["multiple"], "layout": { "italic": true }, "editor": { "parentInContext": true } } } ?>
+              <?copy { "fromId": "orth",
+                       "options": {
+                                    "tag": ["multiple"],
+                                    "editor": { "parentInContext": true },
+                                    "layout": {
+                                      "italic": true,
+                                      "noSpaceAfter": true,
+                                      "multiple": {
+                                        "use": true,
+                                        "join": ", "
+                                      }
+                                    }
+                                  }
+                      } ?>
               <gramGrp>
                 <?options {
                             "title": "grammatische Information",
                             "layout": {
                               "frame": "inline",
                               "hideTitle": true,
-                              "before": "(Diminutiv, ",
-                              "after": ")"
+                              "before": " (Diminutiv, ",
+                              "after": ")",
+                              "noSpaceAfter": true
+                            },
+                            "previewLayout": {
+                              "fx": "hideIfParentNextSame"
                             }
                           } ?>
-                <?copy { "fromId": "gram-gender", "options": { "tag": {"multiple": null }, "layout": { "hideTitle": true, "frame": "inline" } } } ?>
+                <?copy { "fromId": "gram-gender", "options": { "tag": {"multiple": null }, "layout": { "hideTitle": true, "frame": "inline", "noSpaceAfter": true } } } ?>
               </gramGrp>
             </form>
             <!-- Movierung -->
             <form type="variant" subtype="movierung">
               <?options {
                           "title": "Movierung",
+                          "id": "movierung",
                           "attributes": [{
                             "xml:id": {"type": "edit", "canBeEmpty": {"use": true}, "shouldAttribute": {"use": true}, "value": { "fx": "orthId" }}
                           }],
@@ -139,6 +163,7 @@
             <form type="variant" subtype="shortform">
               <?options {
                           "title": "Shortform",
+                          "id": "shortform",
                           "attributes": [{
                             "xml:id": {"type": "edit", "canBeEmpty": {"use": true}, "shouldAttribute": {"use": true}, "value": { "fx": "orthId" }}
                           }],
@@ -921,8 +946,8 @@
                       "hideTitle": true,
                       "multiple": {
                         "use": true,
-                        "before": "(",
-                        "after": ")",
+                        "before": " (",
+                        "after": ") ",
                         "join": "; "
                       }
                     }
@@ -937,7 +962,8 @@
                         "frame": "inline"
                       },
                       "previewLayout": {
-                        "hideTitle": true
+                        "hideTitle": true,
+                        "fx": "hideIfParentPrevSame"
                       },
                       "editor": {
                         "parentInContext": true
@@ -1025,7 +1051,7 @@
         <gram type="pos">
           <?options {
                       "title": "Gram Pos",
-                      "value": ["edit", "required", {"is": {"possibleValues": ["Adjektiv", "Substantiv", "Verb", "Adverb", "Artikel", "Pronomen", "Konjunktion", "Präposition", "Partikel", "Interjektion"]}}],
+                      "value": ["edit", "required", {"is": {"possibleValues": ["Adjektiv", "Substantiv", "Verb", "Adverb", "Artikel", "Pronomen", "Konjunktion", "Präposition", "Partikel", "Interjektion", "Numerale", "Name", "auch Name"]}}],
                       "tag": ["possibleTag"],
                       "layout": {
                                 "frame": "inline",
@@ -1037,12 +1063,16 @@
           <?options {
                       "title": "Verbflektion",
                       "value": ["edit", "required", {"is": {"possibleValues": ["stark", "schwach", "gemischt"]}}],
-                      "tag": ["possibleTag"],
+                      "tag": ["possibleTag", "multiple"],
                       "layout": {
                         "frame": "inline",
                         "hideTitle": true,
-                        "before": "(",
-                        "after": ")"
+                        "multiple": {
+                          "use": true,
+                          "join": ", ",
+                          "before": "(",
+                          "after": ")"
+                        }
                       }
                     } ?>
         </iType>
