@@ -28,7 +28,6 @@
               :items="collectionSearchItems"
               v-model="selectedCollections"
               label="Suche Sammlungen…"
-              cache-items
               autofocus
               item-text="text"
               hide-details
@@ -50,11 +49,17 @@
               v-model="searchItemType"
               :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Collection', value: 'collection', disabled: false}, ]" />
           </v-flex>
+          <v-flex>
+            <v-btn style="margin-top:9px" depressed small @click="title = !title">
+              <span v-if="title">Title</span>
+              <span v-else>Description</span>
+            </v-btn>
+          </v-flex>
           <v-flex >
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
-                  <v-icon style="margin-top:7px;">mdi-format-color-fill</v-icon>
+                  <v-icon class="toolbar">mdi-format-color-fill</v-icon>
                 </v-btn>
               </template>
                <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
@@ -64,7 +69,7 @@
             <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
-                  <v-icon style="margin-top:7px;">mdi-border-color</v-icon>
+                  <v-icon class="toolbar">mdi-border-color</v-icon>
                 </v-btn>
               </template>
                <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
@@ -154,7 +159,7 @@
       </v-flex>
 
       <v-list dense id="legende" v-if="geoCollections">
-        <v-list-item 
+        <v-list-item dense
           v-for="gC in geoCollections"
           :key="gC.collection"
         >
@@ -164,7 +169,8 @@
             </v-btn>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>{{ gC.name }}</v-list-item-title>
+            <v-list-item-title v-if="title">{{ gC.name }}</v-list-item-title>
+            <v-list-item-title v-else> {{ gC.description }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-menu :close-on-content-click="false" offset-y top>
@@ -396,6 +402,7 @@ export default class Maps extends Vue {
   collectionSearchItems: any[] = []
   selectedCollections: any[] = []
   geoCollections: any[] = []
+  title: boolean = true;
 
   rivers: any = null
   autoFit = false
@@ -556,7 +563,6 @@ export default class Maps extends Vue {
             }
           });
           this.geoCollections.push({collection: coll, name: collName, description: collDescription , geo: CollLocation, style: styleElement, color: color});
-          console.log(this.geoCollections);
         }
       });
     } else {
@@ -746,7 +752,11 @@ export default class Maps extends Vue {
   @Watch('searchCollection')
   async onSearchCollection(val: string|null) {
     if (val !== null && val.trim() !== '') {
-      this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
+      if(this.title) {
+        this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
+      } else {
+        this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.description }))
+      }
     }
   }
 
@@ -843,7 +853,6 @@ export default class Maps extends Vue {
   }
   @Watch('selectedLocations')
   layerChangedSL(nVal: any, oVal: any) {
-    console.log(this.styleFunction)
     if ((oVal && oVal.length > 0) && (!nVal || nVal.length === 0)
     || (nVal && nVal.length > 0) && (!oVal || oVal.length === 0)) {
       this.updateLayers = true
@@ -910,6 +919,10 @@ export default class Maps extends Vue {
   float:right;
   margin:10px;
   margin-top: -45px;
+}
+
+.toolbar {
+  margin-top:7px;
 }
 
 .sticky-card {
