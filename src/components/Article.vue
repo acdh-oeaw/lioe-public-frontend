@@ -263,10 +263,10 @@ export default class Article extends Vue {
   }
 
   loadArticle(e: string) {
-    if (e.trim() !== "") {
+    if (e && e.trim() !== "") {
       this.$router.push(`/articles/${e}`);
     } else {
-      this.$router.push("/");
+      this.$router.push("/articles/");
     }
   }
 
