@@ -80,26 +80,47 @@
                           "tag": ["multiple", "possibleTag"],
                           "layout": {
                             "frame": "line",
+                            "hideTitle": true
+                          },
+                          "previewLayout": {
+                            "frame": "inline",
                             "hideTitle": true,
                             "multiple": {
-                              "spaceBefore": 1,
-                              "spaceAfter": 1,
-                              "join": ", "
+                              "use": true,
+                              "join": ", ",
+                              "lastjoin": " und "
                             }
                           }
                         } ?>
-              <?copy { "fromId": "orth", "options": { "tag": ["multiple"], "layout": { "italic": true }, "editor": { "parentInContext": true } } } ?>
+              <?copy { "fromId": "orth",
+                       "options": {
+                                    "tag": ["multiple"],
+                                    "editor": { "parentInContext": true },
+                                    "layout": {
+                                      "italic": true,
+                                      "noSpaceAfter": true,
+                                      "multiple": {
+                                        "use": true,
+                                        "join": ", "
+                                      }
+                                    }
+                                  }
+                      } ?>
               <gramGrp>
                 <?options {
                             "title": "grammatische Information",
                             "layout": {
                               "frame": "inline",
                               "hideTitle": true,
-                              "before": "(Diminutiv, ",
-                              "after": ")"
+                              "before": " (Diminutiv, ",
+                              "after": ")",
+                              "noSpaceAfter": true
+                            },
+                            "previewLayout": {
+                              "fx": "hideIfParentNextSame"
                             }
                           } ?>
-                <?copy { "fromId": "gram-gender", "options": { "tag": {"multiple": null }, "layout": { "hideTitle": true, "frame": "inline" } } } ?>
+                <?copy { "fromId": "gram-gender", "options": { "tag": {"multiple": null }, "layout": { "hideTitle": true, "frame": "inline", "noSpaceAfter": true } } } ?>
               </gramGrp>
             </form>
             <!-- Movierung -->
@@ -921,8 +942,8 @@
                       "hideTitle": true,
                       "multiple": {
                         "use": true,
-                        "before": "(",
-                        "after": ")",
+                        "before": " (",
+                        "after": ") ",
                         "join": "; "
                       }
                     }
@@ -937,7 +958,8 @@
                         "frame": "inline"
                       },
                       "previewLayout": {
-                        "hideTitle": true
+                        "hideTitle": true,
+                        "fx": "hideIfParentPrevSame"
                       },
                       "editor": {
                         "parentInContext": true
@@ -1025,7 +1047,7 @@
         <gram type="pos">
           <?options {
                       "title": "Gram Pos",
-                      "value": ["edit", "required", {"is": {"possibleValues": ["Adjektiv", "Substantiv", "Verb", "Adverb", "Artikel", "Pronomen", "Konjunktion", "Präposition", "Partikel", "Interjektion"]}}],
+                      "value": ["edit", "required", {"is": {"possibleValues": ["Adjektiv", "Substantiv", "Verb", "Adverb", "Artikel", "Pronomen", "Konjunktion", "Präposition", "Partikel", "Interjektion", "Numerale", "Name", "auch Name"]}}],
                       "tag": ["possibleTag"],
                       "layout": {
                                 "frame": "inline",
@@ -1037,12 +1059,16 @@
           <?options {
                       "title": "Verbflektion",
                       "value": ["edit", "required", {"is": {"possibleValues": ["stark", "schwach", "gemischt"]}}],
-                      "tag": ["possibleTag"],
+                      "tag": ["possibleTag", "multiple"],
                       "layout": {
                         "frame": "inline",
                         "hideTitle": true,
-                        "before": "(",
-                        "after": ")"
+                        "multiple": {
+                          "use": true,
+                          "join": ", ",
+                          "before": "(",
+                          "after": ")"
+                        }
                       }
                     } ?>
         </iType>
