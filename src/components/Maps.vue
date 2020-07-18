@@ -22,12 +22,12 @@
               multiple>
             </v-autocomplete>
             <v-autocomplete
-              v-else
+              v-if="searchItemType = 'collection'"
               :loading="isLoading"
               :search-input.sync="searchCollection"
               :items="collectionSearchItems"
               v-model="selectedCollections"
-              label="Suche Sammlungen…"
+              label="Zu tippen beginnen um nach Sammlungen zu suchen"
               autofocus
               item-text="text"
               hide-details
@@ -37,6 +37,15 @@
               solo
               clearable
               multiple>
+              <template v-slot:item="{ item }">
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.text"></v-list-item-title>
+                  <v-list-item-subtitle v-text="item.description"></v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-icon>mdi-coin</v-icon>
+                </v-list-item-action>
+              </template>
             </v-autocomplete>
           </v-flex>
           <v-flex align-content-center fill-height>
