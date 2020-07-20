@@ -104,29 +104,33 @@ export default class InfoText extends Vue {
   @Watch('subHtml')
   htmlChanged() {
     Vue.nextTick(() => {
-      console.log('htmlChanged',{ html: this.html, subHtml: this.subHtml })
+      // console.log('htmlChanged', { html: this.html, subHtml: this.subHtml })
       const aIcHtml: any = this.$refs['infoContent']
       aIcHtml.querySelectorAll('a').forEach((aLnk: any) => {
-        aLnk.addEventListener('click', async (e: any) => {
-          if (e.target && e.target.href) {
-            e.preventDefault()
-            let iLU = isLocalUrl(e.target.href)
-            if (iLU) {
-              this.$router.push(iLU)
-            } else if (isExternUrl(e.target.href)) {
-              window.open(e.target.href, '_blank')
-            } else {
-              if (this.subDialog) {
-                this.subUrl = e.target.href
-                this.showSubDialog = true
-              } else {
-                this.subHtml = await getWebsiteHtml(e.target.href)
-              }
-            }
-          }
-        })
+        // first remove the handler, so we can’t have duplicate listeners
+        aLnk.removeEventListener('click', this.linkClickHandler)
+        aLnk.addEventListener('click', this.linkClickHandler)
       }, this)
     })
+  }
+
+  async linkClickHandler(e: Event) {
+    if (e.target && e.target instanceof HTMLAnchorElement && e.target.href) {
+      e.preventDefault()
+      const iLU = isLocalUrl(e.target.href)
+      if (iLU) {
+        this.$router.push(iLU)
+      } else if (isExternUrl(e.target.href)) {
+        window.open(e.target.href, '_blank')
+      } else {
+        if (this.subDialog) {
+          this.subUrl = e.target.href
+          this.showSubDialog = true
+        } else {
+          this.subHtml = await getWebsiteHtml(e.target.href)
+        }
+      }
+    }
   }
 
   @Watch('showSubDialog')
@@ -142,7 +146,6 @@ export default class InfoText extends Vue {
 
   @Watch('path')
   async init() {
-    console.log('InfoText - path', this.path)
     if (this.path !== null) {
       try {
         console.log('init/path', this.path)
