@@ -13,6 +13,7 @@ export default class FakeScrollbar extends Vue {
   width: number = 1000
 
   async mounted() {
+    // to be extra safe
     await Vue.nextTick()
     await Vue.nextTick()
     const el = document.querySelector(this.selector)
@@ -28,14 +29,6 @@ export default class FakeScrollbar extends Vue {
         }
       })
       observer.observe(el, { box: 'content-box' })
-    }
-  }
-
-  // when the table dom changes, update the fake scrollbar
-  onMutateDataTable() {
-    const dt = document.querySelector(this.selector)
-    if (dt instanceof HTMLElement) {
-      this.width = dt.scrollWidth
     }
   }
 
