@@ -77,7 +77,7 @@
                   <v-icon class="toolbar">mdi-border-color</v-icon>
                 </v-btn>
               </template>
-               <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
+              <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
             </v-menu>
           </v-flex>
           <!--<v-flex>
@@ -188,7 +188,7 @@
           <v-list-item-action>
             <v-menu :close-on-content-click="false" offset-y top>
               <template v-slot:activator="{ on }">
-                <v-btn v-on="on" color="gC.color" elevation="1" fab x-small></v-btn>
+                <v-btn v-on="on" :color="gC.color" elevation="1" fab x-small></v-btn>
               </template>
                <v-color-picker @input="updateColor" hide-inputs v-model="gC.color"></v-color-picker>
             </v-menu>
@@ -232,7 +232,7 @@
         :attribution="tileSets[selectedTileSet].attribution" />
       <l-tile-layer
         v-if="!updateLayers && showHillshades"
-        url="http://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png"
+        url="https://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png"
       />
 
       <l-geo-json
@@ -370,7 +370,7 @@ export default class Maps extends Vue {
   tileSets = [
     {
       name: 'Humanitarian Open Tiles',
-      url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png '
+      url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png '
     },
     {
       name: 'Wikimedia',
