@@ -1,5 +1,44 @@
 <template>
   <div>
+    <v-navigation-drawer
+      :value="sideBar"
+      right
+      app
+      permanent
+      v-if="sideBar"
+    >
+      <v-card style="height:100%">
+          <v-card-title>
+            Karten
+          </v-card-title>
+        <v-divider />
+        <v-card-text>
+          <v-card-subtitle class="subtitles">
+            Grundkarten
+          </v-card-subtitle>
+          <v-radio-group v-model="selectedTileSet">
+            <v-radio v-for="(tileSet, i) in tileSets" :value="i" :key="i" :label="tileSet.name" />
+          </v-radio-group>
+          <v-card-subtitle class="subtitles">
+            Zusatzkarten
+          </v-card-subtitle>
+          <v-card-subtitle class="subtitles">
+            <small>WBÖ</small>
+          </v-card-subtitle>
+          <v-checkbox v-model="showBundeslaender" hide-details label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)" />
+          <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
+          <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
+          <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
+          <v-card-subtitle style="margin-top:5px;" class="subtitles">
+            <small>Weitere</small>
+          </v-card-subtitle>
+          <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
+          <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
+          <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
+          <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
+        </v-card-text>
+      </v-card>
+    </v-navigation-drawer>
       <v-card class="sticky-card" width="100%">
         <v-layout>
           <v-flex xs12>
@@ -61,7 +100,7 @@
               :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Sammlungen', value: 'collection', disabled: false}, ]" />
           </v-flex>
           <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover top :offset-y="true">
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
                   <v-icon class="toolbar">mdi-format-color-fill</v-icon>
@@ -71,7 +110,7 @@
             </v-menu>
           </v-flex>
            <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover top :offset-y="true">
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
                   <v-icon class="toolbar">mdi-border-color</v-icon>
@@ -80,16 +119,6 @@
               <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
             </v-menu>
           </v-flex>
-          <!--<v-flex>
-            <v-tooltip color="secondary" dark top>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" @click="autoFit = !autoFit" :color="autoFit ? 'primary' : 'grey'" icon text>
-                  <v-icon>my_location</v-icon>
-                </v-btn>
-              </template>
-              <span>Ausschnitt automatisch wählen</span>
-            </v-tooltip>
-          </v-flex> -->
           <v-flex>
             <v-menu open-on-hover :offset-y="true">
               <template v-slot:activator="{ on }">
@@ -120,47 +149,9 @@
         <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
       <v-flex class="text-xs-right" offset-xs10 xs1>
-        <v-menu ref="kartenMenu" :close-on-click="false" max-height="70%" :close-on-content-click="false" v-model="pinned" min-width="200">
-          <template v-slot:activator="{ on }">
-            <v-btn style="margin-top:5px;" fab v-on="on">
-              <v-icon>layers</v-icon>
-            </v-btn>
-          </template>
-          <v-card scrollable>
-              <v-card-title>
-                Karten
-              </v-card-title>
-              <v-btn class="pinBtn" icon small @click="pinned=false">
-                <v-icon>mdi-window-close</v-icon>
-              </v-btn>
-            <v-divider />
-            <v-card-text>
-              <v-card-subtitle class="subtitles">
-                Grundkarten
-              </v-card-subtitle>
-              <v-radio-group v-model="selectedTileSet">
-                <v-radio v-for="(tileSet, i) in tileSets" :value="i" :key="i" :label="tileSet.name" />
-              </v-radio-group>
-              <v-card-subtitle class="subtitles">
-                Zusatzkarten
-              </v-card-subtitle>
-              <v-card-subtitle class="subtitles">
-                <small>WBÖ</small>
-              </v-card-subtitle>
-              <v-checkbox v-model="showBundeslaender" hide-details label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)" />
-              <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
-              <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
-              <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
-              <v-card-subtitle style="margin-top:5px;" class="subtitles">
-                <small>Weitere</small>
-              </v-card-subtitle>
-              <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
-              <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
-              <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
-              <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
-            </v-card-text>
-          </v-card>
-        </v-menu>
+        <v-btn style="margin-top:5px;" fab @click="sideBar = !sideBar">
+          <v-icon>layers</v-icon>
+        </v-btn>
       </v-flex>
 
       <v-list dense id="legende" v-if="geoCollections.length > 0">
@@ -394,6 +385,7 @@ export default class Maps extends Vue {
   ]
   selectedTileSet = 0
 
+  sideBar = false;
   showHillshades = false
   showRivers = false
   showDialektregionenBorder = false
