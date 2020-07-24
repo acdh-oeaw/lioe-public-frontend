@@ -871,6 +871,16 @@ export default class Maps extends Vue {
       })
     }
   }
+
+  @Watch('$route.query')
+  comingFromArticle(){
+    if(this.$route.query.source === 'article'){
+      this.showGrossregionen = true;
+      this.selectedTileSet = 0;
+      this.$router.replace({ query: { loc: this.$route.query.loc } })
+    }
+  }
+
   async mounted() {
     this.loadRivers()
     this.$nextTick(() => {

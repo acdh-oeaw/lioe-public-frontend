@@ -223,7 +223,7 @@ export default class Article extends Vue {
   }
 
   openMapsWithPlaces(placeIds: string[]) {
-    this.$router.push({ path: "/maps", query: { loc: placeIds.join(",") } });
+    this.$router.push({ path: "/maps", query: { loc: placeIds.join(","), source: 'article' } });
   }
 
   get isEveryArticleExpanded(): boolean {
