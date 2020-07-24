@@ -100,22 +100,24 @@
               :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Sammlungen', value: 'collection', disabled: false}, ]" />
           </v-flex>
           <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left offset-y>
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
                   <v-icon class="toolbar">mdi-format-color-fill</v-icon>
                 </v-btn>
               </template>
-               <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
+              <div class="navButton">Füllfarbe</div>
+              <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
             </v-menu>
           </v-flex>
            <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover :offset-y="true">
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left offset-y>
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" large icon>
                   <v-icon class="toolbar">mdi-border-color</v-icon>
                 </v-btn>
               </template>
+              <div class="navButton">Rahmenfarbe</div>
               <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
             </v-menu>
           </v-flex>
@@ -924,6 +926,15 @@ export default class Maps extends Vue {
 .legendeButtons{
   margin-left: 7px;
   margin-right: 7px;
+}
+
+.navButton{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-radius: 2px;
+  background-color: white;
 }
 
 .subtitles{
