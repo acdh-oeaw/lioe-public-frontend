@@ -176,6 +176,11 @@ div /deep/ .frame > p:last-child {
   margin-left: auto;
   margin-right: auto;
 }
+.info-text /deep/ h1,
+.info-text /deep/ h2,
+.info-text /deep/ h3 {
+  margin-bottom: .35em;
+}
 div /deep/ a{
   text-decoration: none;
 }
