@@ -92,7 +92,7 @@ export default class InfoText extends Vue {
           // console.log(v)
           return {
             text: v.textContent,
-            link: v.getAttribute('href')
+            link: v.getAttribute('href') as string
           }
         })
     } else {
