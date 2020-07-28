@@ -1,6 +1,6 @@
 <template>
   <v-layout column>
-    <v-flex class="mb-4">
+    <v-flex>
       <v-card class="sticky-card" width="100%">
         <v-row no-gutters>
           <v-col class="pa-0" cols="8">
@@ -141,7 +141,6 @@
       </InfoBox>
     </v-flex>
     <fake-scrollbar
-      class="mb-3"
       for-element=".v-data-table__wrapper" />
     <v-flex>
       <v-data-table
@@ -154,17 +153,27 @@
         :server-items-length="totalItems"
         :headers="shownHeaders"
         :loading="loading"
-        :items="_items"
-      >
+        :items="_items">
         <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
-          <v-tooltip :disabled="true" :key="h.value" bottom>
+          <v-menu
+            :disabled="h.infoUrl === undefined"
+            :key="h.value"
+            open-on-hover
+            max-width="400"
+            max-height="95vh"
+            offset-y
+            bottom>
             <template v-slot:activator="{ on }">
               <span v-on="on">{{h.text}}</span>
             </template>
-            <span>hey hey!</span>
-          </v-tooltip>
+            <v-card>
+              <v-card-text>
+                <info-text :path="h.infoUrl" />
+              </v-card-text>
+            </v-card>
+          </v-menu>
         </template>
-        <template v-slot:footer>
+        <template v-slot:body.append>
           <div>
             <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
               <template v-slot:activator="{ on }">
@@ -245,9 +254,9 @@
   </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import InfoText from "@components/InfoText.vue";
-import InfoBox from "@components/InfoBox.vue";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import InfoText from '@components/InfoText.vue'
+import InfoBox from '@components/InfoBox.vue'
 import {
   getDocuments,
   searchDocuments,
@@ -255,18 +264,18 @@ import {
   getDocumentsByCollection,
   searchCollections,
   getCollectionByIds
-} from "../api";
-import { geoStore } from "../store/geo";
-import * as FileSaver from "file-saver";
-import * as xlsx from "xlsx";
-import * as _ from "lodash";
-import FakeScrollbar from "@components/FakeScrollbar.vue";
-import { log } from "util";
+} from '../api'
+import { geoStore } from '../store/geo'
+import * as FileSaver from 'file-saver'
+import * as xlsx from 'xlsx'
+import * as _ from 'lodash'
+import FakeScrollbar from '@components/FakeScrollbar.vue'
+import { log } from 'util'
 
 interface Places {
-  Ort: string;
-  Bundesland: string;
-  Großregion: string;
+  Ort: string
+  Bundesland: string
+  Großregion: string
 }
 
 @Component({
@@ -277,31 +286,31 @@ interface Places {
   }
 })
 export default class Database extends Vue {
-  @Prop() collection_ids: string | null;
-  @Prop() query: string | null;
+  @Prop() collection_ids: string | null
+  @Prop() query: string | null
 
-  c = console;
-  geoStore = geoStore;
-  items: any[] = [];
-  searchTerm: string | null = null;
-  searchItemType = "fulltext";
-  searchCollection: string | null = null;
-  collectionSearchItems: any[] = [];
-  selectedCollections: any[] = [];
-  selected: any[] = [];
-  loading = false;
-  searching = false;
-  showFilterOptions = false;
+  c = console
+  geoStore = geoStore
+  items: any[] = []
+  searchTerm: string | null = null
+  searchItemType = 'fulltext'
+  searchCollection: string | null = null
+  collectionSearchItems: any[] = []
+  selectedCollections: any[] = []
+  selected: any[] = []
+  loading = false
+  searching = false
+  showFilterOptions = false
   pagination = {
     page: 1,
     itemsPerPage: 10,
     sortBy: [],
     sortDesc: [],
     multiSort: false
-  };
-  extended = false;
-  fuzziness = true;
-  totalItems = 100;
+  }
+  extended = false
+  fuzziness = true
+  totalItems = 100
 
   headers = [
     // tslint:disable-next-line:max-line-length
@@ -309,85 +318,86 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Lemma",
+      text: 'Lemma',
+      infoUrl: 'wboe-artikel/lemma-short/',
       renderFnc: (val: any) => (Array.isArray(val.HL) ? val.HL[0] : val.HL),
-      value: "HL"
+      value: 'HL'
     },
     {
       searchable: false,
       inSearch: false,
       show: false,
-      text: "Lemma oS",
+      text: 'Lemma oS',
       renderFnc: (val: any) =>
         Array.isArray(val.HL) && val.HL.length > 1
-          ? val.HL[1].replace("≈", "")
+          ? val.HL[1].replace('≈', '')
           : val.HL,
       sortable: false,
-      value: "HL2"
+      value: 'HL2'
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Wortart",
-      value: "POS"
+      text: 'Wortart',
+      value: 'POS'
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Bedeutung",
+      text: 'Bedeutung',
       renderFnc: this.renderBedeutung,
-      value: "BD/LT*"
+      value: 'BD/LT*'
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Fragenummer",
+      text: 'Fragenummer',
       renderFnc: this.renderFragenummer,
-      value: "NR"
+      value: 'NR'
     },
     {
       searchable: false,
       inSearch: false,
       show: true,
-      text: "Gefragter Ausdruck",
+      text: 'Gefragter Ausdruck',
       renderFnc: this.renderGefragterAusdruck,
-      value: "NR2",
+      value: 'NR2',
       sortable: false
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Belegsätze",
+      text: 'Belegsätze',
       renderFnc: this.renderLautung,
-      value: "belegsaetze"
+      value: 'belegsaetze'
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Lautung",
+      text: 'Lautung',
       renderFnc: this.renderBelegsaetze,
       sortable: false,
-      value: "LT1_teuthonista"
+      value: 'LT1_teuthonista'
     },
     {
       searchable: true,
       inSearch: true,
       show: false,
-      text: "Quelle",
-      value: "QU",
+      text: 'Quelle',
+      value: 'QU',
       extended: true
     },
     {
       searchable: true,
       inSearch: true,
       show: false,
-      text: "Bibliographische Angabe",
-      value: "BIBL",
+      text: 'Bibliographische Angabe',
+      value: 'BIBL',
       extended: true
     },
     // { text: 'Belegsätze', value: 'BIBL' },
@@ -399,41 +409,41 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Ort",
-      value: "Gemeinde1",
+      text: 'Ort',
+      value: 'Gemeinde1',
       renderFnc: (val: any) =>
-        `${_(val.Gemeinde1).flatten()}${val.Ort ? `; ${val.Ort}` : ""}`
+        `${_(val.Gemeinde1).flatten()}${val.Ort ? ` ${val.Ort}` : ''}`
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Großreg.",
-      value: "Großregion1",
+      text: 'Großreg.',
+      value: 'Großregion1',
       renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: "Bundesl.",
-      value: "Bundesland1",
+      text: 'Bundesl.',
+      value: 'Bundesland1',
       renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`
     }
-  ];
+  ]
 
   footerProps = {
-    "items-per-page-text": "Pro Seite",
-    "items-per-page-options": [10, 25, 50, 100]
-  };
+    'items-per-page-text': 'Pro Seite',
+    'items-per-page-options': [10, 25, 50, 100]
+  }
 
-  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
+  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
 
   get areAllSearchColumsSelected() {
     // all columns are either selected, or not searchable
     return this.headers.every(
       h => h.inSearch === true || h.searchable === false
-    );
+    )
   }
 
   selectAllSearchColumnsAndSearch() {
@@ -441,57 +451,57 @@ export default class Database extends Vue {
     this.headers = this.headers.map(h => ({
       ...h,
       inSearch: h.searchable === true
-    }));
-    this.onChangeQuery(this.searchTerm);
+    }))
+    this.onChangeQuery(this.searchTerm)
   }
 
   selectNoColumnsAndSearch() {
     // allow search in no columns
-    this.headers = this.headers.map(h => ({ ...h, inSearch: false }));
-    this.onChangeQuery(this.searchTerm);
+    this.headers = this.headers.map(h => ({ ...h, inSearch: false }))
+    this.onChangeQuery(this.searchTerm)
   }
 
   customSelect(item: any) {
-    // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id);
+    // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id)
     if (this.selected.find(i => item.id === i.id)) {
-      this.selected = this.selected.filter(i => i.id !== item.id);
+      this.selected = this.selected.filter(i => i.id !== item.id)
     } else {
-      this.selected.push(item);
+      this.selected.push(item)
     }
   }
 
   get shownHeaders() {
-    return this.headers.filter((h: any) => h.show);
+    return this.headers.filter((h: any) => h.show)
   }
 
-  @Watch("extended")
+  @Watch('extended')
   onExtendedChanged(val: boolean) {
     this.headers.forEach((h: any) => {
       if (h.extended) {
-        h.show = val;
+        h.show = val
       }
-    });
+    })
   }
 
   renderBedeutung(val: any) {
-    const bd: string[] = [];
+    const bd: string[] = []
     for (let i = 1; i < 10; i += 1) {
-      const at = `GRAM/LT${i}`;
-      const b = val[`GRAM/LT${i}`];
+      const at = `GRAM/LT${i}`
+      const b = val[`GRAM/LT${i}`]
       if (!b) {
-        continue;
+        continue
       }
-      bd.push(b);
+      bd.push(b)
     }
     return _(bd)
       .flatten()
-      .replace("≈", "");
+      .replace('≈', '')
   }
 
   renderFragenummer(val: any) {
-    let nr = val["NR"];
+    let nr = val['NR']
     if (!nr) {
-      return "";
+      return ''
     }
     const replacer = (
       match: string,
@@ -500,189 +510,191 @@ export default class Database extends Vue {
       offset: any,
       what: any
     ) => {
-      console.log(match, p1, p2, offset, what);
-      return match;
-    };
-    const fragenummerRegex = /.* (\(.*\)){0,1}:/;
+      console.log(match, p1, p2, offset, what)
+      return match
+    }
+    const fragenummerRegex = /.* (\(.*\)){0,1}:/
     if (Array.isArray(nr)) {
       nr = nr.map(n => {
-        const m = n.match(fragenummerRegex);
-        return m ? m[0] : null;
-      });
+        const m = n.match(fragenummerRegex)
+        return m ? m[0] : null
+      })
     } else {
-      const m = nr.match(fragenummerRegex);
-      return m ? m[0] : "";
+      const m = nr.match(fragenummerRegex)
+      return m ? m[0] : ''
     }
-    nr = nr.filter((n: any) => n);
-    return _(nr).flatten();
+    nr = nr.filter((n: any) => n)
+    return _(nr).flatten()
   }
 
   renderGefragterAusdruck(val: any) {
-    const fragenummerRegex = /.*(\(.*\)){0,1}:/;
-    let nr = val["NR"];
-    if (!nr) return "";
-
-    if (Array.isArray(nr)) {
-      nr = nr[0].replace(fragenummerRegex, "");
-    } else {
-      return nr.replace(fragenummerRegex, "");
+    let nr = val['NR']
+    if (!nr) {
+      return ''
     }
-    return nr;
+
+    const fragenummerRegex = /.*(\(.*\)){0,1}:/
+    if (Array.isArray(nr)) {
+      nr = nr[0].replace(fragenummerRegex, '')
+    } else {
+      return nr.replace(fragenummerRegex, '')
+    }
+    return nr
   }
 
   renderLautung(val: any) {
-    const kts = ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8"];
-    const res: string[] = [];
+    const kts = ['KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6', 'KT7', 'KT8']
+    const res: string[] = []
     kts.forEach(t => {
       if (Array.isArray(val[t] && val[t].length > 0)) {
-        res.push(val[t][0]);
+        res.push(val[t][0])
       } else if (val[t]) {
-        res.push(val[t]);
+        res.push(val[t])
       }
-    });
-    return _(res).flatten();
+    })
+    return _(res).flatten()
   }
   renderBelegsaetze(val: any) {
     const tauts = [
-      "LT1_teuthonista",
-      "LT2_theutonista",
-      "LT3_theutonista",
-      "LT4_theutonista",
-      "LT5_theutonista",
-      "LT6_theutonista",
-      "LT7_theutonista",
-      "LT8_theutonista",
-      "LT9_theutonista"
-    ];
+      'LT1_teuthonista',
+      'LT2_theutonista',
+      'LT3_theutonista',
+      'LT4_theutonista',
+      'LT5_theutonista',
+      'LT6_theutonista',
+      'LT7_theutonista',
+      'LT8_theutonista',
+      'LT9_theutonista'
+    ]
 
-    const res: string[] = [];
+    const res: string[] = []
     tauts.forEach(t => {
       if (Array.isArray(val[t] && val[t].length > 0)) {
-        res.push(val[t][0]);
+        res.push(val[t][0])
       } else if (val[t]) {
-        res.push(val[t]);
+        res.push(val[t])
       }
-    });
-    return _(res).flatten();
+    })
+    return _(res).flatten()
   }
 
   async mounted() {
     if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList);
+      this.loadCollectionIds(this.collectionIdList)
     } else {
-      this.init();
+      this.init()
     }
   }
 
   get _items() {
     return this.items.filter(
       (i, index) => !!i && this.items.indexOf(i) === index
-    );
+    )
   }
 
-  @Watch("searchCollection")
+  @Watch('searchCollection')
   async onSearchCollection(val: string | null) {
-    if (val !== null && val.trim() !== "") {
+    if (val !== null && val.trim() !== '') {
       this.collectionSearchItems = (await searchCollections(val)).map(x => ({
         ...x,
         text: x.name
-      }));
+      }))
     }
   }
 
   selectCollections(colls: any[]) {
-    console.log(colls);
+    console.log(colls)
     this.$router.replace({
       query: { collection_ids: colls.map(x => x.value).join() }
-    });
+    })
   }
 
   get collectionIdList() {
     if (this.collection_ids) {
-      return this.collection_ids.split(",");
+      return this.collection_ids.split(',')
     } else {
-      return [];
+      return []
     }
   }
 
   getPlacesFromSigle(sigle: string): Places {
-    const place = _(geoStore.ortsliste).find(o => o.sigle === sigle);
+    const place = _(geoStore.ortsliste).find(o => o.sigle === sigle)
     if (place === undefined) {
       return {
-        Ort: "",
-        Großregion: "",
-        Bundesland: ""
-      };
+        Ort: '',
+        Großregion: '',
+        Bundesland: ''
+      }
     } else {
-      const bl = _(place.parentsObj).find(o => o.field === "Bundesland");
-      const gr = _(place.parentsObj).find(o => o.field === "Großregion");
+      const bl = _(place.parentsObj).find(o => o.field === 'Bundesland')
+      const gr = _(place.parentsObj).find(o => o.field === 'Großregion')
       return {
         Ort: place.name,
-        Großregion: gr ? gr.name : "",
-        Bundesland: bl ? bl.name : "",
+        Großregion: gr ? gr.name : '',
+        Bundesland: bl ? bl.name : '',
         [place.field]: place.name
-      };
+      }
     }
   }
 
   get headerInSearch() {
     return this.shownHeaders
       .filter(h => h.searchable && h.inSearch)
-      .map(h => h.value);
+      .map(h => h.value)
   }
 
   async init() {
-    this.loading = true;
+    this.loading = true
 
-    const countDocument = await getDocumentTotalCount();
+    const countDocument = await getDocumentTotalCount()
     // console.log('lel', countDocument)
-    this.totalItems = countDocument || 0;
+    this.totalItems = countDocument || 0
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
       this.pagination.sortBy,
       this.pagination.sortDesc
-    );
+    )
     this.items = res.documents.map(d => ({
       ...d,
       ...this.getPlacesFromSigle(d.ortsSigle)
-    }));
-    this.loading = false;
+    }))
+    this.loading = false
   }
 
-  @Watch("collectionIdList")
+  @Watch('collectionIdList')
   async loadCollectionIds(ids: string[]) {
     if (ids.length > 0) {
-      this.searchItemType = "collection";
-      this.searching = true;
-      const res = await getDocumentsByCollection(ids, this.pagination.page);
+      this.searchItemType = 'collection'
+      this.searching = true
+      const res = await getDocumentsByCollection(ids, this.pagination.page)
       this.items = _(res.documents)
         .uniqBy(d => d.id)
         .map(d => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
-        .value();
+        .value()
       // console.log({res})
       // console.log('950', res.total)
-      this.totalItems = typeof res.total === "number" ? res.total : 0;
-      const cs = await getCollectionByIds(ids);
-      this.selectedCollections = cs.map(x => ({ ...x, text: x.name }));
-      this.collectionSearchItems = cs.map(x => ({ ...x, text: x.name }));
-      this.searching = false;
+      this.totalItems = typeof res.total === 'number' ? res.total : 0
+      const cs = await getCollectionByIds(ids)
+      this.selectedCollections = cs.map(x => ({ ...x, text: x.name }))
+      this.collectionSearchItems = cs.map(x => ({ ...x, text: x.name }))
+      this.searching = false
     } else {
-      this.selectedCollections = [];
+      this.selectedCollections = []
     }
   }
 
-  @Watch("pagination", { deep: true })
+  @Watch('pagination', { deep: true })
   updateResults(newVal: any, oldVal: any) {
     if (newVal.page !== oldVal.page) {
-      window.scroll({ top: 0, behavior: "smooth" });
+      window.scroll({ top: 0, behavior: 'smooth' })
     }
     if (this.query) {
-      this.onChangeQuery(this.query);
+      this.onChangeQuery(this.query)
     } else if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList);
+      this.loadCollectionIds(this.collectionIdList)
     } else {
-      this.init();
+      this.init()
     }
   }
 
@@ -692,30 +704,30 @@ export default class Database extends Vue {
         (i, index) =>
           !!i &&
           this.selected.find(item => item.id === i.id) &&
-          (i.Bundesland !== "" ||
-            i.Bundesland1 !== "" ||
-            i.Großregion !== "" ||
-            i.Ort !== "")
+          (i.Bundesland !== '' ||
+            i.Bundesland1 !== '' ||
+            i.Großregion !== '' ||
+            i.Ort !== '')
       )
-    ).value();
+    ).value()
   }
 
   showSelectionOnMap() {
     if (this.selected.length > 0) {
       //  console.debug('what dis', this.mappableSelectionItems.map(d => d.ortsSigle).join(','))
       this.$router.push({
-        path: "/maps",
+        path: '/maps',
         query: {
-          loc: this.mappableSelectionItems.map(d => d.ortsSigle).join(",")
+          loc: this.mappableSelectionItems.map(d => d.ortsSigle).join(',')
         }
-      });
+      })
     }
   }
 
-  @Watch("query")
+  @Watch('query')
   async onChangeQuery(search: string | null) {
     if (search) {
-      this.searching = true;
+      this.searching = true
       const res = await searchDocuments(
         search,
         this.pagination.page,
@@ -724,55 +736,57 @@ export default class Database extends Vue {
         this.pagination.sortBy,
         this.headerInSearch,
         this.fuzziness
-      );
+      )
       this.items = res.documents.map(d => ({
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle)
-      }));
+      }))
 
       // console.log('fluss', res.total)
-      this.totalItems = res.total.value || 0;
-      this.searching = false;
+      this.totalItems = res.total.value || 0
+      this.searching = false
     } else {
-      this.init();
+      this.init()
     }
   }
 
   async searchDatabase(search: string) {
-    this.$router.replace({ query: { query: search } });
+    this.$router.replace({ query: { query: search } })
   }
 
   saveXLSX() {
-    const x = xlsx.utils.json_to_sheet(this.selected || this.items);
+    const x = xlsx.utils.json_to_sheet(this.selected || this.items)
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
-        SheetNames: ["sheet"]
+        SheetNames: ['sheet']
       },
-      "wboe-lioe-export.xlsx"
-    );
+      'wboe-lioe-export.xlsx'
+    )
   }
 
   saveCSV() {
-    const x = xlsx.utils.json_to_sheet(this.selected || this.items);
+    const x = xlsx.utils.json_to_sheet(this.selected || this.items)
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
-        SheetNames: ["sheet"]
+        SheetNames: ['sheet']
       },
-      "wboe-lioe-export.csv"
-    );
+      'wboe-lioe-export.csv'
+    )
   }
 
   saveJSON() {
-    const blob = JSON.stringify(this.selected || this.items, undefined, 2);
-    FileSaver.saveAs(new Blob([blob]), "wboe-lioe-export.json");
+    const blob = JSON.stringify(this.selected || this.items, undefined, 2)
+    FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json')
   }
 }
 </script>
 <style lang="scss">
 th {
-  vertical-align: top;
+  padding-top: 1em !important;
+  padding-bottom: 1em !important;
+  white-space: nowrap;
 }
 div.v-data-footer {
   background: white;
