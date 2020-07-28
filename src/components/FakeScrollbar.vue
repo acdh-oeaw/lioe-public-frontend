@@ -9,14 +9,14 @@ import ResizeObserver from '../resizeobserver'
 
 @Component
 export default class FakeScrollbar extends Vue {
-  @Prop() selector: string
+  @Prop() forElement: string
   width: number = 1000
 
   async mounted() {
     // to be extra safe
     await Vue.nextTick()
     await Vue.nextTick()
-    const el = document.querySelector(this.selector)
+    const el = document.querySelector(this.forElement)
     if (el instanceof HTMLElement) {
       el.addEventListener('scroll', (e) => {
         if (e.target instanceof HTMLElement) {
@@ -34,7 +34,7 @@ export default class FakeScrollbar extends Vue {
 
   // when the fake scrollbar scrolls, scroll the table
   onScrollFakeScrollbar(e: Event) {
-    const dt = document.querySelector(this.selector)
+    const dt = document.querySelector(this.forElement)
     const x = (e.target as HTMLElement).scrollLeft
     if (dt instanceof HTMLElement) {
       dt.scrollLeft = x

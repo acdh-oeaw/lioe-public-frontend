@@ -140,7 +140,9 @@
         <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen sowie Transkriptionszeichen zur Wiedergabe der Dialektlautung angezeigt werden können!</div>
       </InfoBox>
     </v-flex>
-    <fake-scrollbar class="mb-3" selector=".v-data-table__wrapper" />
+    <fake-scrollbar
+      class="mb-3"
+      for-element=".v-data-table__wrapper" />
     <v-flex>
       <v-data-table
         v-model="selected"
@@ -154,6 +156,14 @@
         :loading="loading"
         :items="_items"
       >
+        <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
+          <v-tooltip :disabled="true" :key="h.value" bottom>
+            <template v-slot:activator="{ on }">
+              <span v-on="on">{{h.text}}</span>
+            </template>
+            <span>hey hey!</span>
+          </v-tooltip>
+        </template>
         <template v-slot:footer>
           <div>
             <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
