@@ -19,7 +19,7 @@ Vue.use(Vuetify)
 const vuetifyOptions = {
   // iconfont: 'fa4',
   theme: {
-    dark: false,
+    // dark: true,
     themes: {
       light: {
         ci: '#3B89A0',
