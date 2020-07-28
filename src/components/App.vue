@@ -18,6 +18,7 @@
           <v-flex class="pl-3 pr-3 header-navigation">
             <v-flex>
               <v-tabs
+                show-arrows
                 active-class="active-tab"
                 grow
                 class="tabs-top"
@@ -116,17 +117,16 @@ html{
 .v-tab .v-icon{
   margin-top: -4px;
   margin-right: 10px;
-  font-size: 28px;
+  font-size: 30px;
 }
 .v-tabs /deep/ .v-tabs-bar--is-mobile .v-tab .v-icon{
   display: block;
   margin-top: 0;
   margin-right: 0;
   margin-bottom: 5px;
-  font-size: 50px;
 }
 .v-tabs /deep/ .v-tabs-bar.v-tabs-bar--is-mobile {
-  height: 90px!important;
+  height: 80px!important;
 }
 .project-name{
   margin-top: -1em;
