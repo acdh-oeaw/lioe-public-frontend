@@ -255,10 +255,12 @@ export async function getDocumentsByCollection(ids: string[], page = 1, items = 
 export async function getArticles(search?: string): Promise<Array<{ title: string, filename: string }>> {
   // tslint:disable-next-line:max-line-length
   if (search !== undefined) {
-    const r = await (await fetch(articleEndpoint + '?initial=' + search + '&status=' + userStore.articleStatus)).json()
+    const r = await (await fetch(
+      articleEndpoint + '?initial=' + search + '&status=' + userStore.articleStatus.join('|')
+    )).json()
     return r.results.article ? (r.results.article.length ? r.results.article : [ r.results.article ]) : []
   } else {
-    const r = await (await fetch(articleEndpoint + '?status=' + userStore.articleStatus)).json()
+    const r = await (await fetch(articleEndpoint + '?status=' + userStore.articleStatus.join('|'))).json()
     return r.results.article ? (r.results.article.length ? r.results.article : [ r.results.article ]) : []
   }
 }

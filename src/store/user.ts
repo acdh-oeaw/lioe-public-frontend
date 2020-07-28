@@ -1,37 +1,25 @@
 
-//fe
-export const userStore = {
+type ArticleStatus = 'unfinished'|
+  'draft'|
+  'proofed'|
+  'cleared'|
+  'in progress'|
+  'peer correction'|
+  'internal correction'|
+  'external correction'|
+  'finished'|
+  ''
+
+interface UserStore {
+  showPdfPrintButton: boolean
+  isLoggedIn: boolean
+  showComment: boolean
+  articleStatus: ArticleStatus[]
+}
+
+export const userStore: UserStore = {
   showPdfPrintButton: false,
   isLoggedIn: false,
   showComment: false,
-  articleStatus: 'proofed'
+  articleStatus: [ 'proofed' ]
 }
-
-
-/*
-fl -basic
-export const userStore = {
-  showPdfPrintButton: false,
-  isLoggedIn: true,
-  showComment: false,
-  articleStatus: 'proofed'
-}
-
-
-fe -advanced
-export const userStore = {
-  showPdfPrintButton: true,
-  isLoggedIn: true,
-  showComment: true,
-  articleStatus: ''
-}
-
-
-Default user State (requieres login)
-export const userStore = {
-  showPdfPrintButton: false,
-  isLoggedIn: false,
-  showComment: false,
-  articleStatus: 'proofed'
-}
-*/
