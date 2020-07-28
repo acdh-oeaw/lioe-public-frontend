@@ -173,7 +173,7 @@
             </v-card>
           </v-menu>
         </template>
-        <template v-slot:body.append>
+        <template v-slot:footer>
           <div>
             <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
               <template v-slot:activator="{ on }">
