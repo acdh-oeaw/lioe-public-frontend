@@ -1,14 +1,12 @@
 <template>
   <div>
-    <v-flex xs12 sm12 md10 lg8 xl6 offset-md1 offset-lg2 offset-xl3 :style="fstyle" v-if="show">
+    <v-flex xs12 :style="fstyle" v-if="show">
       <v-card>
-        <v-card-text primary-title>
-          <div class="text-center w-100">
-            <div class="close-btn">
-              <v-btn @click="show = false" small text icon><v-icon dark>close</v-icon></v-btn>
-            </div>
-            <slot/>
+        <v-card-text class="pa-5" primary-title>
+          <div class="close-btn">
+            <v-btn @click="show = false" small text icon><v-icon dark>close</v-icon></v-btn>
           </div>
+          <slot/>
         </v-card-text>
       </v-card>
     </v-flex>
