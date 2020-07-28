@@ -103,6 +103,7 @@ import { getArticleByFileName, getArticles } from '../api'
 import XmlEditor from '@components/XmlEditor.vue'
 import { geoStore } from '../store/geo'
 import * as _ from 'lodash'
+import InfoText from '@components/InfoText.vue'
 import ArticleViewLegacy from '@components/ArticleViewLegacy.vue'
 import ArticleView from '@components/ArticleView.vue'
 import * as FileSaver from 'file-saver'
@@ -111,6 +112,7 @@ import { userStore } from '../store/user'
 @Component({
   components: {
     XmlEditor,
+    InfoText,
     ArticleViewLegacy,
     ArticleView
   }
