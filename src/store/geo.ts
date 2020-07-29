@@ -16,7 +16,7 @@ export const geoStore = {
 }
 
 async function init() {
-  geoStore.kleinregionen = await (await fetch('https://vle-curation.acdh.oeaw.ac.at/dboe/Kleinregionen.geojson')).json() as geojson.FeatureCollection
+  geoStore.kleinregionen = await (await fetch('/static/Kleinregionen.geojson.json')).json() as geojson.FeatureCollection
   geoStore.gemeinden = await (await fetch('/static/gemeinden-punkte-geojson.json')).json() as geojson.FeatureCollection
   geoStore.grossregionen = await (await fetch('/static/grossregionen-geojson-optimized.json')).json() as geojson.FeatureCollection
   geoStore.bundeslaender = await (await fetch('/static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection

@@ -279,7 +279,7 @@
 
       <l-geo-json
         v-if="!updateLayers && showKleinregionen"
-        :options="{ onEachFeature: bindTooltip(['Name']) }"
+        :options="{ onEachFeature: bindTooltip(['name']) }"
         :geojson="kleinregionen"
         :optionsStyle="{
           fillOpacity: 0,
