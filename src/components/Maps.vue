@@ -73,7 +73,7 @@
               v-model="selectedCollections"
               label="Zu tippen beginnen um nach Sammlungen zu suchen"
               autofocus
-              item-text="description"
+              item-text="text"
               hide-details
               text
               chips
@@ -133,10 +133,6 @@
           </v-flex>
         </v-layout>
       </v-card>
-      <InfoBox fstyle="position:relative;z-index:1;margin-bottom:-129px!important;margin-top:15px!important;">
-        <h4 class="headline mb-0">Hinweis</h4>
-        <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen angezeigt werden können!</div>
-      </InfoBox>
     <v-layout fill-height class="map-overlay pa-4">
       <v-flex xs1>
         <v-btn fab small class="zoom" @click="zoom = zoom + 1"><v-icon>add</v-icon></v-btn>
@@ -150,7 +146,7 @@
         </v-tooltip>
         <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
       </v-flex>
-      <v-flex class="text-xs-right" offset-xs10 xs1>
+      <v-flex class="text-xs-right" offset-xs11>
         <v-btn style="margin-top:5px;" fab @click="sideBar = !sideBar">
           <v-icon>layers</v-icon>
         </v-btn>
@@ -213,7 +209,7 @@
       </v-menu>
     </v-layout>
     <l-map
-      style="z-index: 0; position: absolute; left: 0; right: 0; margin-top: -25px;"
+      style="z-index: 0; position: absolute; left: 0; right: 0;"
       ref="map"
       :options="mapOptions"
       :zoom.sync="zoom"
