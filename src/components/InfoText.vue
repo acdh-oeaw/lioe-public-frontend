@@ -12,7 +12,7 @@
         <div>
           <v-btn @click="subHtml = null" text small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
         </div>
-        <div ref="infoContent" v-html="subHtml" />
+        <div ref="infoContent" class="info-content" v-html="subHtml" />
         <div>
           <v-btn @click="subHtml = null" text small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
         </div>
@@ -21,6 +21,7 @@
         v-else
         v-html="html"
         ref="infoContent"
+        class="info-content"
         :style="lines && !expanded ? {height: (lines * 1.6) + 'em', overflow: 'hidden'} : {}"
       />
       <div class="text-center" v-if="lines !== null">  
@@ -191,5 +192,29 @@ div /deep/ a.button {
   font-size: 18px;
   border-radius: 5px;
   padding: 10px 15px;
+}
+.info-content /deep/ {
+  .fx-table-1 {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .fx-table-1 td, .fx-table-1 th {
+    border: 1px solid #fff;
+    padding: 12px;
+    vertical-align: middle;
+    p:last-child {
+      margin-bottom: 0;
+    }
+  }
+  .fx-table-1 tr:nth-child(even) {
+    background-color: #ebf3f5;
+  }
+  .fx-table-1 th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #3b89a0;
+    color: white;
+  }
 }
 </style>
