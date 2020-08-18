@@ -7,10 +7,13 @@
       permanent
       v-if="sideBar"
     >
-      <v-card style="height:100%">
-          <v-card-title>
-            Karten
-          </v-card-title>
+      <v-card rounded=false>
+        <v-card-title>
+          Karten
+        </v-card-title>
+        <v-card-text>
+          <v-checkbox v-model="fixTooltip" hide-details label="Tooltip fixieren" />
+        </v-card-text>
         <v-divider />
         <v-card-text>
           <v-card-subtitle class="subtitles">
@@ -36,8 +39,6 @@
           <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
           <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
           <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
-          <v-divider />
-          <v-checkbox v-model="fixTooltip" hide-details label="Tooltip fixieren" />
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
@@ -228,10 +229,10 @@
 
       <l-geo-json
         v-if="!updateLayers && showDialektregionenBorder"
-        :options="optionsFunctionToolTip"
+        :options="optionsFunction"
         :optionsStyle="(feature) => ({
           color: '#000',
-          weight: 2,
+          weight: 1,
           fillOpacity: 0
         })"
         :geojson="dialektregionen"
@@ -251,7 +252,7 @@
 
       <l-geo-json
         v-if="!updateLayers && showBundeslaender"
-        :options="{ onEachFeature: bindTooltip(['name']) }"
+        :options="optionsFunction"
         :geojson="bundeslaender"
         :optionsStyle="{
           fillOpacity: 0,
@@ -780,7 +781,7 @@ export default class Maps extends Vue {
     }
   }
 
-  get optionsFunctionTooltip() {
+  get optionsFunction() {
     const aThis: any = this
     var tooltip = this.fixTooltip;
     console.log('AAAAAAAAAAAAAAAAAA')
