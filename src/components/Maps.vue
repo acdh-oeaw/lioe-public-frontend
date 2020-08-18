@@ -36,6 +36,8 @@
           <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
           <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
           <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
+          <v-divider />
+          <v-checkbox v-model="fixTooltip" hide-details label="Tooltip fixieren" />
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
@@ -226,7 +228,7 @@
 
       <l-geo-json
         v-if="!updateLayers && showDialektregionenBorder"
-        :options="{ onEachFeature: bindTooltip(['name']) }"
+        :options="optionsFunctionToolTip"
         :optionsStyle="(feature) => ({
           color: '#000',
           weight: 2,
@@ -400,6 +402,7 @@ export default class Maps extends Vue {
   colorSelect = '#044'
   borderColorSelect = '#000'
   pinned = false;
+  fixTooltip = false;
   //searchCollections
   searchCollection: string|null = null
   collectionSearchItems: any[] = []
@@ -777,13 +780,22 @@ export default class Maps extends Vue {
     }
   }
 
-  bindTooltip(properties = ['name'], showLabel = false) {
+  get optionsFunctionTooltip() {
+    const aThis: any = this
+    var tooltip = this.fixTooltip;
+    console.log('AAAAAAAAAAAAAAAAAA')
+    return {
+      onEachFeature: this.bindTooltip(['name'], true, tooltip)
+    }
+  }
+
+  bindTooltip(properties = ['name'], showLabel = false, perm = false) {
     return (feature: geojson.Feature, layer: L.Layer) => {
       layer.bindTooltip(
         properties
           .map(p => `<div>${showLabel ? p + ': ' : ''}${ (feature.properties as any)[p] }</div>`)
           .join(''),
-        { permanent: false, sticky: true }
+        { permanent: perm, sticky: true }
       )
     }
   }
