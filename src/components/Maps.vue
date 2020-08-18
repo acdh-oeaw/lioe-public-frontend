@@ -7,9 +7,17 @@
       permanent
       v-if="sideBar"
     >
-      <v-card rounded=false>
+      <v-card>
         <v-card-title>
           Karten
+          <v-menu open-on-hover :offset-y="true">
+            <template v-slot:activator="{ on }">
+              <v-btn color="accent" small icon text v-on="on">
+                <v-icon>info</v-icon>
+              </v-btn>
+            </template>
+            <info-text class="elevation-24 pa-4 white" path="karten/infokasten-zur-den-karten/" />
+          </v-menu>
         </v-card-title>
         <v-card-text>
           <v-checkbox v-model="fixTooltip" hide-details label="Tooltip fixieren" />
