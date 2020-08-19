@@ -275,7 +275,7 @@
         :optionsStyle="{
           fillOpacity: 0,
           color: colorGrossregionen,
-          weight: 2
+          weight: 1.5
         }"
       />
       <l-geo-json
@@ -404,10 +404,10 @@ export default class Maps extends Vue {
   showKleinregionen = false
   showGemeinden = false
   updateLayers = false
-  colorGemeinde = '#800'
+  colorGemeinde = '#6f9f58'
   colorBundesland = '#000'
-  colorGrossregionen = '#080'
-  colorKleinregionen = '#020'
+  colorGrossregionen = '#555'
+  colorKleinregionen = '#888'
   colorSelect = '#044'
   borderColorSelect = '#000'
   pinned = false;
@@ -442,7 +442,6 @@ export default class Maps extends Vue {
 			return L.circleMarker(latlng, {
 				radius: 5,
 				fillColor: this.colorGemeinde,
-				color: '#000',
 				weight: 1,
 				opacity: 1,
 				fillOpacity: 0.8
@@ -797,7 +796,7 @@ export default class Maps extends Vue {
     }
   }
 
-    get optionsFunctionGross() {
+  get optionsFunctionGross() {
     const aThis: any = this
     var tooltip = this.fixTooltip;
     return {
