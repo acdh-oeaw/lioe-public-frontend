@@ -270,7 +270,7 @@
       />
       <l-geo-json
         v-if="!updateLayers && showGrossregionen"
-        :options="{ onEachFeature: bindTooltip(['Grossreg']) }"
+        :options="optionsFunctionGross"
         :geojson="grossregionen"
         :optionsStyle="{
           fillOpacity: 0,
@@ -792,9 +792,16 @@ export default class Maps extends Vue {
   get optionsFunction() {
     const aThis: any = this
     var tooltip = this.fixTooltip;
-    console.log('AAAAAAAAAAAAAAAAAA')
     return {
-      onEachFeature: this.bindTooltip(['name'], true, tooltip)
+      onEachFeature: this.bindTooltip(['name'], false, tooltip)
+    }
+  }
+
+    get optionsFunctionGross() {
+    const aThis: any = this
+    var tooltip = this.fixTooltip;
+    return {
+      onEachFeature: this.bindTooltip(['Grossreg'], false, tooltip)
     }
   }
 
