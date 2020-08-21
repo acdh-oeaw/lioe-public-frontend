@@ -10,13 +10,13 @@
       <v-card>
         <v-card-title>
           Karten
-          <v-menu open-on-hover :offset-y="true">
+          <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
             <template v-slot:activator="{ on }">
               <v-btn color="accent" small icon text v-on="on">
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
-            <info-text class="elevation-24 pa-4 white" path="karten/infokasten-zur-den-karten/" />
+            <info-text class="elevation-24 pa-4 white" path="quelle-karten/allgemein/" />
           </v-menu>
         </v-card-title>
         <v-card-text>
@@ -37,16 +37,16 @@
             <small>WBÖ</small>
           </v-card-subtitle>
           <v-checkbox v-model="showBundeslaender" hide-details label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)" />
-          <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
           <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
           <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
+          <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
           <v-card-subtitle style="margin-top:5px;" class="subtitles">
             <small>Weitere</small>
           </v-card-subtitle>
-          <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
-          <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
           <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
           <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
+          <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
+          <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
