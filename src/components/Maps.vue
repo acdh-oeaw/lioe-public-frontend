@@ -12,7 +12,7 @@
           Karten
           <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
             <template v-slot:activator="{ on }">
-              <v-btn color="accent" small icon text v-on="on">
+              <v-btn  style="left:63%" color="accent" small icon text v-on="on">
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
