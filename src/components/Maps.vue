@@ -170,6 +170,7 @@
             <v-btn depressed small @click="title = !title">
               <span v-if="title">Titel</span>
               <span v-else>Beschreibung</span>
+              <v-icon style="margin-left:10px;">mdi-swap-horizontal</v-icon>
             </v-btn>
           </v-list-item-content>
         </v-list-item>
