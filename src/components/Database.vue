@@ -446,7 +446,8 @@ export default class Database extends Vue {
       text: 'Ort',
       value: 'Gemeinde1',
       renderFnc: (val: any) =>
-        `${_(val.Gemeinde1).flatten()}${val.Ort ? ` ${val.Ort}` : ''}`
+        `${_(val.Gemeinde1).flatten()}${val.Ort ? '' : val.Sigle1 ? `${val.Ort}` : ''}`
+        // ${val.Ort ? ` ${val.Ort}` : ''}`
     },
     {
       searchable: true,
