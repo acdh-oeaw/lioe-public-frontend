@@ -325,6 +325,14 @@ export default class Database extends Vue {
       value: 'HL'
     },
     {
+      searchable: true,
+      inSearch: true,
+      show: false,
+      text: 'ID',
+      value: 'ID',
+      extended: true
+    },
+    {
       searchable: false,
       inSearch: false,
       show: false,
@@ -372,7 +380,7 @@ export default class Database extends Vue {
       searchable: false,
       inSearch: false,
       show: true,
-      text: 'Gefragter Ausdruck', //TODO - was soll dann wirklich da stehen? Steht nicht im Issue
+      text: 'Gefragter Ausdruck', 
       renderFnc: this.renderGefragterAusdruck, 
       value: 'NR2',
       sortable: false
@@ -603,14 +611,6 @@ export default class Database extends Vue {
     return kt.replace(regexSources, '')
   }
   }
-
-// var i;
-      // for(i = 0; i < lt.length; i++) {
-      //   lt[i] = lt[i].replace(regexSources, '')
-      //   lt[i] = lt[i].replace('≈', '')
-      // }
-      //return _(lt).flatten()
-      // console.log(lt)
 
   // renderBedeutung(val: any) {
   //  const lt = 'BD/LT*'
