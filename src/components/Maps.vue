@@ -84,10 +84,8 @@
               v-model="selectedCollections"
               label="Zu tippen beginnen um nach Sammlungen zu suchen"
               autofocus
-              item-text="text"
               hide-details
               text
-              chips
               prepend-inner-icon="search"
               solo
               clearable
@@ -97,6 +95,9 @@
                   <v-list-item-title v-text="item.text"></v-list-item-title>
                   <v-list-item-subtitle v-text="item.description"></v-list-item-subtitle>
                 </v-list-item-content>
+              </template>
+              <template v-slot:selection="{ item }">
+                <span v-if="false"> {{ item.text }} </span>
               </template>
             </v-autocomplete>
           </v-flex>
