@@ -47,10 +47,13 @@
             <h4 class="mb-2 mt-2 grey--text">Ein Projekt von</h4>
             <v-layout align-center justify-space-around wrap>
               <a target="_blank" href="https://www.oeaw.ac.at">
-                <v-img aspect-ratio="1" width="150" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/oeaw_logo_446x192.png" alt="" class="src" />
+                <v-img aspect-ratio="1" width="170" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/oeaw_logo_446x192.png" alt="" class="src" />
               </a>
               <a target="_blank" href="https://acdh.oeaw.ac.at">
                 <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/acdh-ch-logo-with-text.png" alt="" class="src" />
+              </a>
+              <a target="_blank" href="https://dioe.at/">
+                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/logodioe.png" alt="" class="src" />
               </a>
               <a target="_blank" href="https://www.oeaw.ac.at/acdh/vawadioe/uebersicht/">
                 <v-img aspect-ratio="1" width="150" max-height="125" contain src="/static/img/logo-vawadioe.png" alt="" class="src" />
