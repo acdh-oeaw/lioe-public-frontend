@@ -20,7 +20,7 @@
           </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-checkbox v-model="fixTooltip" hide-details label="Tooltip fixieren" />
+          <v-checkbox v-model="fixTooltip" hide-details label="Show Names" />
         </v-card-text>
         <v-divider />
         <v-card-text>
@@ -200,7 +200,7 @@
 
       <v-menu open-on-hover min-width="200" fixed left>
           <template v-slot:activator="{ on }">
-            <v-btn dark color="ci" fab fixed bottom right v-on="on">
+            <v-btn dark color="ci" fab fixed bottom left v-on="on">
               <v-icon>save_alt</v-icon>
             </v-btn>
           </template>
@@ -880,6 +880,14 @@ export default class Maps extends Vue {
     }
   }
 
+  @Watch('selectedTileSet')
+  darkModeBorderColor() {
+    if(this.selectedTileSet = 3) {
+      this.colorBundesland = '#FFF'
+      this.colorGrossregionen = '#BBB'
+      this.colorKleinregionen = '#888'
+    }
+  }
   @Watch('$route.query')
   comingFromArticle(){
     if(this.$route.query.source === 'article'){
