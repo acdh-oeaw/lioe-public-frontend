@@ -551,13 +551,13 @@ export default class Maps extends Vue {
               }
             }
           });
-          const color:String = '#' + Math.floor(Math.random() * 16777215).toString(16);
+          const color:String = '#' + Math.floor(Math.random() * 16777215).toString(16) + '99';
           const styleElement = {
             weight: 1,
             color: '#000',
             opacity: 1,
             fillColor: color,
-            fillOpacity: 0.5
+            fillOpacity: 1
           }
           let collName = "";
           let collDescription = "";
