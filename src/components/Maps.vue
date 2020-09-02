@@ -200,7 +200,7 @@
 
       <v-menu open-on-hover min-width="200" fixed left>
           <template v-slot:activator="{ on }">
-            <v-btn dark color="ci" fab fixed bottom left v-on="on">
+            <v-btn dark color="ci" fab fixed bottom right v-on="on">
               <v-icon>save_alt</v-icon>
             </v-btn>
           </template>
