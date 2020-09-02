@@ -892,7 +892,8 @@ export default class Maps extends Vue {
   comingFromArticle(){
     if(this.$route.query.source === 'article'){
       this.showGrossregionen = true;
-      this.selectedTileSet = 0;
+      this.selectedTileSet = 4;
+      this.fixTooltip = true;
       this.$router.replace({ query: { loc: this.$route.query.loc } })
     }
   }
