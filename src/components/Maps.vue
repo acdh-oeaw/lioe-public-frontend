@@ -882,7 +882,7 @@ export default class Maps extends Vue {
 
   @Watch('selectedTileSet')
   darkModeBorderColor() {
-    if(this.selectedTileSet = 3) {
+    if(this.selectedTileSet === 3) {
       this.colorBundesland = '#FFF'
       this.colorGrossregionen = '#BBB'
       this.colorKleinregionen = '#888'
