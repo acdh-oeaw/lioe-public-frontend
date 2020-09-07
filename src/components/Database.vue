@@ -271,6 +271,7 @@ import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
 import FakeScrollbar from '@components/FakeScrollbar.vue'
 import { log } from 'util'
+import value from '*.wasm'
 
 interface Places {
   Ort: string
@@ -346,9 +347,18 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
+      text: 'Grammatik', //TODO - passt es als die Beschreibung für die Artikel?
+      renderFnc: this.renderGrammatikAngabe,
+      value: 'BD/KT' 
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
       text: 'Bedeutung',
       renderFnc: this.renderBedeutung,
-      value: 'BD/LT*'
+      value: 'BD/LT*',  
+      sortable: false     
     },
     {
       searchable: true,
@@ -362,8 +372,8 @@ export default class Database extends Vue {
       searchable: false,
       inSearch: false,
       show: true,
-      text: 'Gefragter Ausdruck',
-      renderFnc: this.renderGefragterAusdruck,
+      text: 'Gefragter Ausdruck', //TODO - was soll dann wirklich da stehen? Steht nicht im Issue
+      renderFnc: this.renderGefragterAusdruck, 
       value: 'NR2',
       sortable: false
     },
@@ -372,15 +382,23 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Belegsätze',
-      renderFnc: this.renderLautung,
-      value: 'belegsaetze'
+      renderFnc: this.renderBelegsaetze,
+      value: 'BD/KT1' //'belegsaetze' 
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Bedeutung von Belegsätze',
+      renderFnc: this.renderBedeutungBelegsaetze,
+      value: 'BD/KT*'
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
       text: 'Lautung',
-      renderFnc: this.renderBelegsaetze,
+      renderFnc: this.renderLautung,
       sortable: false,
       value: 'LT1_teuthonista'
     },
@@ -399,6 +417,14 @@ export default class Database extends Vue {
       text: 'Bibliographische Angabe',
       value: 'BIBL',
       extended: true
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true, 
+      text: 'Sigle', 
+      value: 'Sigle1',
+      renderFnc: (val: any) => `${_(val.Sigle1).flatten()}` 
     },
     // { text: 'Belegsätze', value: 'BIBL' },
     // { text: 'Bedeutung', value: 'BD/KT*' },
@@ -481,10 +507,11 @@ export default class Database extends Vue {
         h.show = val
       }
     })
-  }
+  }  
 
-  renderBedeutung(val: any) {
-    const bd: string[] = []
+// the changed function - was before under the renderBedeutung function
+  renderGrammatikAngabe(val: any) {
+  const bd: string[] = []
     for (let i = 1; i < 10; i += 1) {
       const at = `GRAM/LT${i}`
       const b = val[`GRAM/LT${i}`]
@@ -510,7 +537,7 @@ export default class Database extends Vue {
       offset: any,
       what: any
     ) => {
-      console.log(match, p1, p2, offset, what)
+      console.log(match, p1, p2, offset, what) 
       return match
     }
     const fragenummerRegex = /.* (\(.*\)){0,1}:/
@@ -542,19 +569,85 @@ export default class Database extends Vue {
     return nr
   }
 
-  renderLautung(val: any) {
-    const kts = ['KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6', 'KT7', 'KT8']
+  renderBedeutung(val: any) {
+    let lt = val['BD/LT*']
+    if(!lt) {
+      return ''
+    }
+
+    const regexSources = /[≈›|›|≈]?LT\d?/
+    if (Array.isArray(lt)) {
+      return lt[0].replace(regexSources, '')
+    } else {
+      return lt.replace(regexSources, '')
+    }
+    return lt
+
+
+  }
+
+  renderBedeutungBelegsaetze(val: any) {
+    let kt = val['BD/KT*']
+    if(!kt) {
+      return ''
+    }
+
+    const regexSources = /›KT\d/
+    if(Array.isArray(kt)) {
+      var i;
+      for(i = 0; i < kt.length; i++) {
+        kt[i] = kt[i].replace(regexSources, '')
+    } 
+    return _(kt).flatten()//replace(regexSources, '')
+  } else {
+    return kt.replace(regexSources, '')
+  }
+  }
+
+// var i;
+      // for(i = 0; i < lt.length; i++) {
+      //   lt[i] = lt[i].replace(regexSources, '')
+      //   lt[i] = lt[i].replace('≈', '')
+      // }
+      //return _(lt).flatten()
+      // console.log(lt)
+
+  // renderBedeutung(val: any) {
+  //  const lt = 'BD/LT*'
+  //  const res: string [] = []
+  //  //const lts = ['›', '≈›', 'LT1', 'LT2', 'LT3', 'LT4', 'LT5', 'LT6', 'LT7', 'LT8']//'≈›LT1', ]
+  //  //console.log('tryyy ' + val['BD/LT*'])
+  //    if(Array.isArray(val[lt] && val[lt].length > 0)) {
+  //      //console.log(val[lt])
+  //      res.push(val[lt])
+  //    } else if (val[lt]) {
+  //      res.push(val[lt])
+  //   }
+
+  //  var regexSources = /[›|≈›]LT\d?/
+
+  //   return _(res).flatten().replace(regexSources, '')
+
+
+  //  //return _(res).flatten().replace(lts[0], '').replace({lts[0], lts[1]}, '')
+  //  //replace(lts[1], '') //replace('›LT1', '').replace('≈›LT1','')
+  //  }
+
+  renderBelegsaetze(val: any) {
+   // console.log(val)
+    const kts =  ['KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6', 'KT7', 'KT8']
     const res: string[] = []
     kts.forEach(t => {
       if (Array.isArray(val[t] && val[t].length > 0)) {
-        res.push(val[t][0])
+        res.push(val[t][0][0])
       } else if (val[t]) {
-        res.push(val[t])
+        res.push(val[t][0])
       }
     })
-    return _(res).flatten()
+      return _(res).flatten()
   }
-  renderBelegsaetze(val: any) {
+
+  renderLautung(val: any) {
     const tauts = [
       'LT1_teuthonista',
       'LT2_theutonista',
@@ -570,9 +663,9 @@ export default class Database extends Vue {
     const res: string[] = []
     tauts.forEach(t => {
       if (Array.isArray(val[t] && val[t].length > 0)) {
-        res.push(val[t][0])
+        res.push(val[t][0][0])
       } else if (val[t]) {
-        res.push(val[t])
+        res.push(val[t][0])
       }
     })
     return _(res).flatten()
@@ -603,7 +696,7 @@ export default class Database extends Vue {
   }
 
   selectCollections(colls: any[]) {
-    console.log(colls)
+    console.log(colls) 
     this.$router.replace({
       query: { collection_ids: colls.map(x => x.value).join() }
     })

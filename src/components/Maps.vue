@@ -7,10 +7,21 @@
       permanent
       v-if="sideBar"
     >
-      <v-card style="height:100%">
-          <v-card-title>
-            Karten
-          </v-card-title>
+      <v-card>
+        <v-card-title>
+          Karten
+          <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
+            <template v-slot:activator="{ on }">
+              <v-btn  style="left:63%" color="accent" small icon text v-on="on">
+                <v-icon>info</v-icon>
+              </v-btn>
+            </template>
+            <info-text class="elevation-24 pa-4 white" path="quelle-karten/allgemein/" />
+          </v-menu>
+        </v-card-title>
+        <v-card-text>
+          <v-checkbox v-model="fixTooltip" hide-details label="Tooltip fixieren" />
+        </v-card-text>
         <v-divider />
         <v-card-text>
           <v-card-subtitle class="subtitles">
@@ -26,16 +37,16 @@
             <small>WBÖ</small>
           </v-card-subtitle>
           <v-checkbox v-model="showBundeslaender" hide-details label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)" />
-          <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
           <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
           <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
+          <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
           <v-card-subtitle style="margin-top:5px;" class="subtitles">
             <small>Weitere</small>
           </v-card-subtitle>
-          <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
-          <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
           <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
           <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
+          <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
+          <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
@@ -226,10 +237,10 @@
 
       <l-geo-json
         v-if="!updateLayers && showDialektregionenBorder"
-        :options="{ onEachFeature: bindTooltip(['name']) }"
+        :options="optionsFunction"
         :optionsStyle="(feature) => ({
           color: '#000',
-          weight: 2,
+          weight: 1,
           fillOpacity: 0
         })"
         :geojson="dialektregionen"
@@ -249,7 +260,7 @@
 
       <l-geo-json
         v-if="!updateLayers && showBundeslaender"
-        :options="{ onEachFeature: bindTooltip(['name']) }"
+        :options="optionsFunction"
         :geojson="bundeslaender"
         :optionsStyle="{
           fillOpacity: 0,
@@ -259,12 +270,12 @@
       />
       <l-geo-json
         v-if="!updateLayers && showGrossregionen"
-        :options="{ onEachFeature: bindTooltip(['Grossreg']) }"
+        :options="optionsFunctionGross"
         :geojson="grossregionen"
         :optionsStyle="{
           fillOpacity: 0,
           color: colorGrossregionen,
-          weight: 2
+          weight: 1.5
         }"
       />
       <l-geo-json
@@ -393,13 +404,14 @@ export default class Maps extends Vue {
   showKleinregionen = false
   showGemeinden = false
   updateLayers = false
-  colorGemeinde = '#800'
+  colorGemeinde = '#6f9f58'
   colorBundesland = '#000'
-  colorGrossregionen = '#080'
-  colorKleinregionen = '#020'
+  colorGrossregionen = '#555'
+  colorKleinregionen = '#888'
   colorSelect = '#044'
   borderColorSelect = '#000'
   pinned = false;
+  fixTooltip = false;
   //searchCollections
   searchCollection: string|null = null
   collectionSearchItems: any[] = []
@@ -430,7 +442,6 @@ export default class Maps extends Vue {
 			return L.circleMarker(latlng, {
 				radius: 5,
 				fillColor: this.colorGemeinde,
-				color: '#000',
 				weight: 1,
 				opacity: 1,
 				fillOpacity: 0.8
@@ -777,13 +788,29 @@ export default class Maps extends Vue {
     }
   }
 
-  bindTooltip(properties = ['name'], showLabel = false) {
+  get optionsFunction() {
+    const aThis: any = this
+    var tooltip = this.fixTooltip;
+    return {
+      onEachFeature: this.bindTooltip(['name'], false, tooltip)
+    }
+  }
+
+  get optionsFunctionGross() {
+    const aThis: any = this
+    var tooltip = this.fixTooltip;
+    return {
+      onEachFeature: this.bindTooltip(['Grossreg'], false, tooltip)
+    }
+  }
+
+  bindTooltip(properties = ['name'], showLabel = false, perm = false) {
     return (feature: geojson.Feature, layer: L.Layer) => {
       layer.bindTooltip(
         properties
           .map(p => `<div>${showLabel ? p + ': ' : ''}${ (feature.properties as any)[p] }</div>`)
           .join(''),
-        { permanent: false, sticky: true }
+        { permanent: perm, sticky: true }
       )
     }
   }

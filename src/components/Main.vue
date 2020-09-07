@@ -1,17 +1,77 @@
 <template>
   <v-layout column fill-height>
-    <v-flex class="text-center">
+    
+    <!-- <v-flex class="text-center">
       <v-text-field
         :loading="loading"
         autofocus
         text
         v-model="searchTerm"
-        label="Suche…"
+        label="Suche…" 
         prepend-inner-icon="search"
         solo
         clearable
       />
-    </v-flex>
+    </v-flex> -->
+
+<!-- TRY -->
+
+<v-layout column>
+  <v-flex>
+    <v-row no-gutters>
+    <v-col><v-text-field
+      :loading="loading"
+        autofocus
+        text
+        v-model="searchTerm"
+        label="Suche nach Wort" 
+        @input="debouncedSearchArticle"
+        prepend-inner-icon="search"
+        solo
+        clearable
+    ></v-text-field></v-col>
+    <v-col><v-autocomplete
+      :loading="loading" 
+      :items='locationsSearchItems'
+      :value="locationsSearchItems"
+      @input="selectLocations"
+        label="Suche nach Ort"
+        autofocus
+        v-model="searchOrt" 
+        item-text="text"
+        item-value="value"
+        text
+        hide-details
+        chips 
+        prepend-inner-icon="search"
+        solo
+        clearable
+        >
+        <template v-slot:item="{ item }">
+          <v-list-item-content>
+            <v-list-item-title v-text="item.text"></v-list-item-title>
+        <router-link :to="`/maps`"></router-link>
+          </v-list-item-content>
+        </template>
+        </v-autocomplete>
+    </v-col>
+    <!-- <v-col><v-text-field TODO : bind here Lemma once exists
+      :loading="loading"
+        autofocus
+        text
+        v-model="searchLemma"
+        label="Suche nach Lemma" 
+        prepend-inner-icon="search"
+        solo
+        clearable
+    ></v-text-field></v-col> -->
+  </v-row>
+  </v-flex>
+  </v-layout>
+
+
+<!-- END TRY -->
+
     <v-flex style="height: 40vh" xs12>
       <!-- <v-progress-linear
         height="1"
@@ -19,6 +79,9 @@
         v-if="wordProgress !== null && wordProgress !== 100"
         indeterminate
       /> -->
+
+
+
       <vue-word-cloud
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
         :rotation="searchTerm === '' ? .875 : 0"
@@ -56,6 +119,9 @@ import * as _ from 'lodash'
 import InfoText from '@components/InfoText.vue'
 import { getArticles } from '../api'
 import InfoBox from '@components/InfoBox.vue'
+import { get } from 'http'
+import { geoStore } from '../store/geo'
+
 
 @Component({
   components: {
@@ -67,16 +133,27 @@ export default class Main extends Vue {
 
   wordProgress: number|null = null
   searchTerm: string = ''
+  searchOrt: string = '' 
+  searchLemma: string = '' 
   articles: Array<{title: string, filename: string}> = []
+  articlesPlus: Array<{title: string, filename: string, ort: string}> = []  //extended articles list
   loading = false
   visited: boolean = false
-  findArticleByTitle(title: string) {
-    return this.articles.find(a => a.title === title)
+  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250) //TODO RECHECK what to debounce
+  autoFit = false
+  loc: string|null
+  geoStore = geoStore
+  items={text: 'Ort', value: 'Ort', disabled: false}
+
+
+  findArticleByTitle(title: string) { //check also based on ort
+    return this.articles.find(a => a.title === title) 
   }
 
-  get words(): string[] {
+ get words(): string[] {
     return this.articles.map(w => w.title)
   }
+
 
   get wordsWithWeights(): Array<[string, number]> {
     return this.words.map((w: string) => {
@@ -84,12 +161,15 @@ export default class Main extends Vue {
     })
   }
 
+
   get filteredWords() {
+
     if (this.searchTerm) {
       return this.wordsWithWeights.filter(w => {
         return w[0].toLowerCase().indexOf(this.searchTerm.toLowerCase()) > -1
       })
-    } else {
+    }
+    else {
       return _(this.wordsWithWeights).sampleSize(25).value()
     }
   }
@@ -100,9 +180,36 @@ export default class Main extends Vue {
     }
   }
 
+    get locationsSearchItems() {
+      var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
+          return {
+            text: f.name,
+            value: f.sigle//,
+           // parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
+          }
+      })
+      return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
+        return el != null;
+      });
+    }
+
+  selectLocations(locs: string[]) {
+    if (locs.length === 0) {
+      this.loc = ''
+    } else {
+      this.$router.push({
+        path: '/maps',
+        query: {
+          loc : locs
+        }
+      })
+    }
+  }
+
   log(e: any) {
     console.log(e)
   }
+
 
   @Watch('$route')
   siteChanged(to: any, from: any) {
