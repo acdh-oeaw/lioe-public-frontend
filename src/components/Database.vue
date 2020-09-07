@@ -292,11 +292,13 @@ interface Places {
 export default class Database extends Vue {
   @Prop() collection_ids: string | null
   @Prop() query: string | null
+  @Prop() fields: string | null
 
   c = console
   geoStore = geoStore
   regions = regions
   items: any[] = []
+  searchInFields: string | null
   searchTerm: string | null = null
   searchItemType = 'fulltext'
   searchCollection: string | null = null
@@ -535,6 +537,20 @@ export default class Database extends Vue {
 
   get shownHeaders() {
     return this.headers.filter((h: any) => h.show)
+  }
+
+  @Watch('fields', {immediate: true})
+  onUpdateFields(newVal: string|null) {
+    if (newVal !== null) {
+
+      this.headers = this.headers.map(h => {
+        if (newVal.split(",").includes(h.value)) {
+          return { ...h, inSearch: true }
+      } else {
+        return { ...h, inSearch: false }
+      }
+    })
+    }
   }
 
   @Watch('extended')
@@ -824,7 +840,7 @@ export default class Database extends Vue {
     }
   }
 
-  @Watch('query')
+  @Watch('query', {immediate: true})
   async onChangeQuery(search: string | null) {
     if (search) {
       this.searching = true

@@ -18,7 +18,43 @@
 
 <v-layout column>
   <v-flex>
-    <v-row no-gutters>
+
+ <v-col>
+   <v-autocomplete
+    :loading="loading" 
+    :items='searchItems'
+    @input="selectItems"
+    label="Suche nach Ort"
+    autofocus
+    v-model="searchedItem" 
+    text
+    hide-details
+    prepend-inner-icon="search"
+    solo
+    clearable
+    >
+    <template v-slot:item="{ item }">
+      <v-list-item :to="item.type === 'artikel' ? `/article/${item.value}` : `/db?query=${item.value}&fields=HL`">
+        <v-list-item-avatar></v-list-item-avatar>
+        <v-list-item-content >
+          <v-list-item-title>{{item.text}}</v-list-item-title>
+      </v-list-item-content>
+         <v-list-item-action>
+            <v-btn @click.stop.prevent="$router.replace(`/maps?loc=${item.value}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
+         </v-list-item-action>
+        <!-- <template v-if="item.type === 'artikel'"> searchedItem = _.debounce(this.findArticleByTitle, 250) </template>
+        <template v-if="item.type === 'maps'"> TODO ruft router auf fuer belegdatenbank plus query parameters -->
+        <!-- <router-link :to="`/maps`"></router-link> -->
+      </v-list-item>
+    </template>
+    </v-autocomplete>
+  </v-col>
+
+
+
+
+
+    <!-- <v-row no-gutters>
     <v-col><v-text-field
       :loading="loading"
         autofocus
@@ -55,17 +91,8 @@
         </template>
         </v-autocomplete>
     </v-col>
-    <!-- <v-col><v-text-field TODO : bind here Lemma once exists
-      :loading="loading"
-        autofocus
-        text
-        v-model="searchLemma"
-        label="Suche nach Lemma" 
-        prepend-inner-icon="search"
-        solo
-        clearable
-    ></v-text-field></v-col> -->
-  </v-row>
+
+  </v-row> -->
   </v-flex>
   </v-layout>
 
@@ -134,6 +161,7 @@ export default class Main extends Vue {
   wordProgress: number|null = null
   searchTerm: string = ''
   searchOrt: string = '' 
+  searchedItem: string = ''
   searchLemma: string = '' 
   articles: Array<{title: string, filename: string}> = []
   articlesPlus: Array<{title: string, filename: string, ort: string}> = []  //extended articles list
@@ -143,8 +171,11 @@ export default class Main extends Vue {
   autoFit = false
   loc: string|null
   geoStore = geoStore
-  items={text: 'Ort', value: 'Ort', disabled: false}
+  // items=[{text: 'Lemma', value: 'Lemma', disabled: false},{text: 'Ort', value: 'Ort', disabled: false}]
 
+  selectItems(input: string) {
+    console.log(input)
+  }
 
   findArticleByTitle(title: string) { //check also based on ort
     return this.articles.find(a => a.title === title) 
@@ -180,18 +211,21 @@ export default class Main extends Vue {
     }
   }
 
-    get locationsSearchItems() {
-      var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
-          return {
-            text: f.name,
-            value: f.sigle//,
-           // parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
-          }
-      })
-      return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
-        return el != null;
-      });
-    }
+  get searchItems() {
+    var lokaleOrtsliste = this.articles.map(a => ({type: "article", text: a.title, value: a.filename})).concat(    
+    this.geoStore.ortslisteGeo.map((f: any) => {
+      return {
+          type: "place",
+          text: f.name,
+          value: f.sigle//,
+          // parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
+        }
+    }))
+    
+    return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
+      return el != null;
+    });
+  }
 
   selectLocations(locs: string[]) {
     if (locs.length === 0) {
