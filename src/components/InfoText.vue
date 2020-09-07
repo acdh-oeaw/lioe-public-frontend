@@ -194,11 +194,14 @@ div /deep/ a.button {
   padding: 10px 15px;
 }
 .info-content /deep/ {
-  .fx-table-1 {
+  .fx-table-1, .fx-table-2 {
     border-collapse: collapse;
     width: 100%;
   }
-  .fx-table-1 td, .fx-table-1 th {
+  .fx-table-2 {
+    table-layout: fixed;
+  }
+  .fx-table-1 td, .fx-table-1 th, .fx-table-2 td, .fx-table-2 th {
     border: 1px solid #fff;
     padding: 12px;
     vertical-align: middle;
@@ -206,10 +209,10 @@ div /deep/ a.button {
       margin-bottom: 0;
     }
   }
-  .fx-table-1 tr:nth-child(even) {
+  .fx-table-1 tr:nth-child(even), .fx-table-2 tr:nth-child(even) {
     background-color: #ebf3f5;
   }
-  .fx-table-1 th {
+  .fx-table-1 th, .fx-table-2 th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;

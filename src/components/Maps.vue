@@ -20,7 +20,7 @@
           </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-checkbox v-model="fixTooltip" hide-details label="Tooltip fixieren" />
+          <v-checkbox v-model="fixTooltip" hide-details label="Show Names" />
         </v-card-text>
         <v-divider />
         <v-card-text>
@@ -84,10 +84,8 @@
               v-model="selectedCollections"
               label="Zu tippen beginnen um nach Sammlungen zu suchen"
               autofocus
-              item-text="text"
               hide-details
               text
-              chips
               prepend-inner-icon="search"
               solo
               clearable
@@ -97,6 +95,9 @@
                   <v-list-item-title v-text="item.text"></v-list-item-title>
                   <v-list-item-subtitle v-text="item.description"></v-list-item-subtitle>
                 </v-list-item-content>
+              </template>
+              <template v-slot:selection="{ item }">
+                <span v-if="false"> {{ item.text }} </span>
               </template>
             </v-autocomplete>
           </v-flex>
@@ -169,6 +170,7 @@
             <v-btn depressed small @click="title = !title">
               <span v-if="title">Titel</span>
               <span v-else>Beschreibung</span>
+              <v-icon style="margin-left:10px;">mdi-swap-horizontal</v-icon>
             </v-btn>
           </v-list-item-content>
         </v-list-item>
@@ -549,13 +551,13 @@ export default class Maps extends Vue {
               }
             }
           });
-          const color:String = '#' + Math.floor(Math.random() * 16777215).toString(16);
+          const color:String = '#' + Math.floor(Math.random() * 16777215).toString(16) + '99';
           const styleElement = {
             weight: 1,
             color: '#000',
             opacity: 1,
             fillColor: color,
-            fillOpacity: 0.5
+            fillOpacity: 1
           }
           let collName = "";
           let collDescription = "";
@@ -878,11 +880,20 @@ export default class Maps extends Vue {
     }
   }
 
+  @Watch('selectedTileSet')
+  darkModeBorderColor() {
+    if(this.selectedTileSet === 3) {
+      this.colorBundesland = '#FFF'
+      this.colorGrossregionen = '#BBB'
+      this.colorKleinregionen = '#888'
+    }
+  }
   @Watch('$route.query')
   comingFromArticle(){
     if(this.$route.query.source === 'article'){
       this.showGrossregionen = true;
-      this.selectedTileSet = 0;
+      this.selectedTileSet = 4;
+      this.fixTooltip = true;
       this.$router.replace({ query: { loc: this.$route.query.loc } })
     }
   }
