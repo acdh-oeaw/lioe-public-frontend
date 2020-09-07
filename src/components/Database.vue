@@ -243,7 +243,9 @@
                 :key="`${header.value}_${index}`"
                 v-if="extended || !header.extended"
               >
-                <template v-if="header.renderFnc">{{ header.renderFnc(item) }}</template>
+                <template v-if="header.renderFnc">{{ header.renderFnc(item) }}
+                  <!-- <div v-if="header.text === 'Großreg.'" onmouseover="alert(mapGrossreg(header.renderFnc(item)))" > {{ mapGrossreg(header.renderFnc(item)) }} </div> -->
+                </template>
                 <template v-else>{{ item[header.value] }}</template>
               </td>
             </template>
@@ -266,11 +268,12 @@ import {
   getCollectionByIds
 } from '../api'
 import { geoStore } from '../store/geo'
+import { regions } from '../regions'
 import * as FileSaver from 'file-saver'
 import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
 import FakeScrollbar from '@components/FakeScrollbar.vue'
-import { log } from 'util'
+import { log, isNull } from 'util'
 import value from '*.wasm'
 
 interface Places {
@@ -292,6 +295,7 @@ export default class Database extends Vue {
 
   c = console
   geoStore = geoStore
+  regions = regions
   items: any[] = []
   searchTerm: string | null = null
   searchItemType = 'fulltext'
@@ -320,7 +324,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Lemma',
-      infoUrl: 'wboe-artikel/lemma-short/',
+      infoUrl: 'wboe-artikel/dbheaderinfo-lemma/',
       renderFnc: (val: any) => (Array.isArray(val.HL) ? val.HL[0] : val.HL),
       value: 'HL'
     },
@@ -330,6 +334,7 @@ export default class Database extends Vue {
       show: false,
       text: 'ID',
       value: 'ID',
+      infoUrl: 'wboe-artikel/dbheaderinfo-id/',
       extended: true
     },
     {
@@ -337,6 +342,7 @@ export default class Database extends Vue {
       inSearch: false,
       show: false,
       text: 'Lemma oS',
+      infoUrl: 'wboe-artikel/dbheaderinfo-lemmaos/',
       renderFnc: (val: any) =>
         Array.isArray(val.HL) && val.HL.length > 1
           ? val.HL[1].replace('≈', '')
@@ -348,6 +354,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
+      infoUrl: 'wboe-artikel/dbheaderinfo-wortart/',
       text: 'Wortart',
       value: 'POS'
     },
@@ -364,6 +371,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Bedeutung',
+      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutung/',
       renderFnc: this.renderBedeutung,
       value: 'BD/LT*',  
       sortable: false     
@@ -373,6 +381,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Fragenummer',
+      infoUrl: 'wboe-artikel/dbheaderinfo-fragenummer/',
       renderFnc: this.renderFragenummer,
       value: 'NR'
     },
@@ -381,6 +390,7 @@ export default class Database extends Vue {
       inSearch: false,
       show: true,
       text: 'Gefragter Ausdruck', 
+      infoUrl: 'wboe-artikel/dbheaderinfo-gefragterausdruck/',
       renderFnc: this.renderGefragterAusdruck, 
       value: 'NR2',
       sortable: false
@@ -390,6 +400,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Belegsätze',
+      infoUrl: 'wboe-artikel/dbheaderinfo-belegsaetze/',
       renderFnc: this.renderBelegsaetze,
       value: 'BD/KT1' //'belegsaetze' 
     },
@@ -397,7 +408,8 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Bedeutung von Belegsätze',
+      text: 'Bedeutung vom Belegsatz', //TODO: passt die Beschreibung?
+      infoUrl: 'wboe-artikel/dbheaderinfo-belegsatz-bedeutung',
       renderFnc: this.renderBedeutungBelegsaetze,
       value: 'BD/KT*'
     },
@@ -406,6 +418,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Lautung',
+      infoUrl: 'wboe-artikel/dbheaderinfo-lautung/',
       renderFnc: this.renderLautung,
       sortable: false,
       value: 'LT1_teuthonista'
@@ -416,6 +429,7 @@ export default class Database extends Vue {
       show: false,
       text: 'Quelle',
       value: 'QU',
+      infoUrl: 'wboe-artikel/dbheaderinfo-quelle/',
       extended: true
     },
     {
@@ -424,6 +438,7 @@ export default class Database extends Vue {
       show: false,
       text: 'Bibliographische Angabe',
       value: 'BIBL',
+      infoUrl: 'wboe-artikel/dbheaderinfo-bibliographischeangabe/',
       extended: true
     },
     {
@@ -432,6 +447,7 @@ export default class Database extends Vue {
       show: true, 
       text: 'Sigle', 
       value: 'Sigle1',
+      infoUrl: 'wboe-artikel/dbheaderinfo-sigle/',
       renderFnc: (val: any) => `${_(val.Sigle1).flatten()}` 
     },
     // { text: 'Belegsätze', value: 'BIBL' },
@@ -445,9 +461,19 @@ export default class Database extends Vue {
       show: true,
       text: 'Ort',
       value: 'Gemeinde1',
+      infoUrl: 'wboe-artikel/dbheaderinfo-ort/',
       renderFnc: (val: any) =>
-        `${_(val.Gemeinde1).flatten()}${val.Ort ? '' : val.Sigle1 ? `${val.Ort}` : ''}`
+        `${_(val.Gemeinde1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')}`
         // ${val.Ort ? ` ${val.Ort}` : ''}`
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: 'Kleinreg.',
+      value: 'Kleinregion1',
+      infoUrl: 'wboe-artikel/dbheaderinfo-kleinregionen',
+      renderFnc: (val: any) => regions.mapKleinreg(_(val.Kleinregion1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]/g,'')) 
     },
     {
       searchable: true,
@@ -455,7 +481,8 @@ export default class Database extends Vue {
       show: true,
       text: 'Großreg.',
       value: 'Großregion1',
-      renderFnc: (val: any) => `${_(val.Großregion1).flatten()}`
+      infoUrl: 'wboe-artikel/dbheaderinfo-grossregion/',
+      renderFnc: (val: any) => regions.mapGrossreg(_(val.Großregion1).flatten().replace(/\d[A-Z]?[\.]\d/g,''))  
     },
     {
       searchable: true,
@@ -463,7 +490,8 @@ export default class Database extends Vue {
       show: true,
       text: 'Bundesl.',
       value: 'Bundesland1',
-      renderFnc: (val: any) => `${_(val.Bundesland1).flatten()}`
+      infoUrl: 'wboe-artikel/dbheaderinfo-bundesland/',
+      renderFnc: (val: any) => regions.mapBundeslaender(_(val.Bundesland1).flatten().replace(/\d[\.]?[\d]?/g, '')) 
     }
   ]
 
@@ -611,31 +639,9 @@ export default class Database extends Vue {
   } else {
     return kt.replace(regexSources, '')
   }
-  }
-
-  // renderBedeutung(val: any) {
-  //  const lt = 'BD/LT*'
-  //  const res: string [] = []
-  //  //const lts = ['›', '≈›', 'LT1', 'LT2', 'LT3', 'LT4', 'LT5', 'LT6', 'LT7', 'LT8']//'≈›LT1', ]
-  //  //console.log('tryyy ' + val['BD/LT*'])
-  //    if(Array.isArray(val[lt] && val[lt].length > 0)) {
-  //      //console.log(val[lt])
-  //      res.push(val[lt])
-  //    } else if (val[lt]) {
-  //      res.push(val[lt])
-  //   }
-
-  //  var regexSources = /[›|≈›]LT\d?/
-
-  //   return _(res).flatten().replace(regexSources, '')
-
-
-  //  //return _(res).flatten().replace(lts[0], '').replace({lts[0], lts[1]}, '')
-  //  //replace(lts[1], '') //replace('›LT1', '').replace('≈›LT1','')
-  //  }
+}
 
   renderBelegsaetze(val: any) {
-   // console.log(val)
     const kts =  ['KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6', 'KT7', 'KT8']
     const res: string[] = []
     kts.forEach(t => {
