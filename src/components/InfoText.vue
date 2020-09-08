@@ -219,5 +219,35 @@ div /deep/ a.button {
     background-color: #3b89a0;
     color: white;
   }
+  .frame-space-before-extra-small {
+    margin-top: 0.5rem;
+  }
+  .frame-space-before-small {
+    margin-top: 1rem;
+  }
+  .frame-space-before-medium {
+    margin-top: 2rem;
+  }
+  .frame-space-before-large {
+    margin-top: 3rem;
+  }
+  .frame-space-before-extra-large {
+    margin-top: 5rem;
+  }
+  .frame-space-after-extra-small {
+    margin-bottom: 0.5rem;
+  }
+  .frame-space-after-small {
+    margin-bottom: 1rem;
+  }
+  .frame-space-after-medium {
+    margin-bottom: 2rem;
+  }
+  .frame-space-after-large {
+    margin-bottom: 3rem;
+  }
+  .frame-space-after-extra-large {
+    margin-bottom: 5rem;
+  }
 }
 </style>
