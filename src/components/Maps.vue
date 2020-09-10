@@ -164,39 +164,7 @@
         </v-btn>
       </v-flex>
 
-      <v-list dense id="legende" v-if="geoCollections.length > 0">
-        <v-list-item dense>
-          <v-list-item-content>
-            <v-btn depressed small @click="title = !title">
-              <span v-if="title">Titel</span>
-              <span v-else>Beschreibung</span>
-              <v-icon style="margin-left:10px;">mdi-swap-horizontal</v-icon>
-            </v-btn>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item dense
-          v-for="gC in geoCollections"
-          :key="gC.collection"
-        >
-          <v-list-item-action>
-            <v-btn class="legendeButtons" icon small @click="removeCollection(gC.collection)">
-              <v-icon>mdi-window-close</v-icon>
-            </v-btn>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-if="title">{{ gC.name }}</v-list-item-title>
-            <v-list-item-title v-else> {{ gC.description }}</v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-menu :close-on-content-click="false" offset-y top>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" :color="gC.color" elevation="1" fab x-small></v-btn>
-              </template>
-               <v-color-picker @input="updateColor" hide-inputs v-model="gC.color"></v-color-picker>
-            </v-menu>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
+      
 
       <v-menu open-on-hover min-width="200" fixed left>
           <template v-slot:activator="{ on }">
@@ -222,7 +190,7 @@
       </v-menu>
     </v-layout>
     <l-map
-      style="z-index: 0; position: absolute; left: 0; right: 0;"
+      style="z-index: 0; position: absolute; left: 0; top:0; right: 0;"
       ref="map"
       :options="mapOptions"
       :zoom.sync="zoom"
@@ -326,6 +294,7 @@ import { LMap, LTileLayer, LMarker, LGeoJson, LIconDefault, LWMSTileLayer as LWm
 import InfoText from '@components/InfoText.vue'
 import InfoBox from '@components/InfoBox.vue'
 import * as geojson from 'geojson'
+import MapLegende from '@components/MapLegende.vue'
 import { geoStore } from '../store/geo'
 import * as FileSaver from 'file-saver'
 import domtoimage from 'dom-to-image'
@@ -357,6 +326,7 @@ interface Places {
   components: {
     InfoText,
     InfoBox,
+    MapLegende,
     LMap,
     LTileLayer,
     LGeoJson,
