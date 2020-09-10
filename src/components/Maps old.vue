@@ -54,6 +54,7 @@
         <v-layout>
           <v-flex xs12>
             <v-autocomplete
+              v-if="searchItemType != 'collection'"
               :loading="isLoading"
               :items="locationsSearchItems"
               :value="selectedLocations"
@@ -75,6 +76,62 @@
                 </v-list-item-content>
               </template>
             </v-autocomplete>
+            <v-autocomplete
+              v-if="searchItemType === 'collection'"
+              :loading="isLoading"
+              :search-input.sync="searchCollection"
+              :items="collectionSearchItems"
+              v-model="selectedCollections"
+              label="Zu tippen beginnen um nach Sammlungen zu suchen"
+              autofocus
+              hide-details
+              text
+              prepend-inner-icon="search"
+              solo
+              clearable
+              multiple>
+              <template v-slot:item="{ item }">
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.text"></v-list-item-title>
+                  <v-list-item-subtitle v-text="item.description"></v-list-item-subtitle>
+                </v-list-item-content>
+              </template>
+              <template v-slot:selection="{ item }">
+                <span v-if="false"> {{ item.text }} </span>
+              </template>
+            </v-autocomplete>
+          </v-flex>
+          <v-flex align-content-center fill-height>
+            <v-select
+              text
+              solo
+              flat
+              hide-details
+              class="divider-left"
+              v-model="searchItemType"
+              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Sammlungen', value: 'collection', disabled: false}, ]" />
+          </v-flex>
+          <v-flex >
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left offset-y>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" large icon>
+                  <v-icon class="toolbar">mdi-format-color-fill</v-icon>
+                </v-btn>
+              </template>
+              <div class="navButton">Füllfarbe</div>
+              <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
+            </v-menu>
+          </v-flex>
+           <v-flex >
+            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left offset-y>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" large icon>
+                  <v-icon class="toolbar">mdi-border-color</v-icon>
+                </v-btn>
+              </template>
+              <div class="navButton">Rahmenfarbe</div>
+              <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
+            </v-menu>
           </v-flex>
           <v-flex>
             <v-menu open-on-hover :offset-y="true">
@@ -211,6 +268,13 @@
         v-if="!updateLayers && showRivers && rivers !== null"
         :geojson="rivers"
       />
+      <l-geo-json
+        v-if="!updateLayers && selectedLocations.length > 0"
+        ref="layerGeoJson"
+        :geojson="displayLocations"
+        :options="options"
+        :optionsStyle="styleFunction"
+      />
       <div v-for="item in geoCollections" :key="item.collection + '-span'">
         <l-geo-json
           v-if="!updateLayers"
@@ -275,7 +339,6 @@ export default class Maps extends Vue {
   @Prop() loc: string|null
   @Prop() collection_ids: string|null
 
-
   tileSets = [
     {
       name: 'Humanitarian Open Tiles',
@@ -317,9 +380,14 @@ export default class Maps extends Vue {
   colorBundesland = '#000'
   colorGrossregionen = '#555'
   colorKleinregionen = '#888'
+  colorSelect = '#044'
+  borderColorSelect = '#000'
   pinned = false;
   fixTooltip = false;
   //searchCollections
+  searchCollection: string|null = null
+  collectionSearchItems: any[] = []
+  selectedCollections: any[] = []
   geoCollections: any[] = []
   title: boolean = true;
 
@@ -373,6 +441,13 @@ export default class Maps extends Vue {
     return this.tileSets[this.selectedTileSet].url
   }
 
+  get selectedLocations(): string[] {
+    if (this.loc) {
+      return this.loc.split(',')
+    } else {
+      return []
+    }
+  }
 
   async fitMap() {
     await this.$nextTick()
@@ -400,6 +475,92 @@ export default class Maps extends Vue {
     }
   }
 
+  selectLocations(locs: string[]) {
+    if (locs.length === 0) {
+      this.$router.replace({ query: {} })
+      if (this.autoFit) {
+        this.resetView()
+      }
+    }else { 
+      this.$router.replace({ query: { loc: locs.join(',') } })
+      if (this.autoFit) {
+        this.fitMap()
+      }
+    }
+  }
+
+  @Watch('selectedCollections')
+  async selectCollections() {
+    this.changeURL(this.selectedCollections)
+    if(this.selectedCollections.length > -1) {
+      await this.getLocationsOfCollections(this.selectedCollections);
+    }
+  }
+
+  async getLocationsOfCollections(colls: any[]) {
+    //Collection got added
+    if(colls.length > this.geoCollections.length) {
+      colls.forEach(async coll => {
+        //Is this a new collection or an old one
+        let shownInGeo = false;
+        this.geoCollections.forEach(CollInGeo => {
+          if(CollInGeo.collection === coll) {
+            shownInGeo = true;
+          }
+        });
+        //It is a new one
+        if(!shownInGeo) {
+          const res:any = await getDocumentsByCollection([coll],1,1000)
+          let CollLocation:any[] = []
+          //@ts-ignore
+          res.documents.forEach(document => {
+            let sigle:string = document.ortsSigle;
+            if(sigle){
+              if(!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
+                CollLocation.push(document.ortsSigle.split(' ')[0])
+              }
+            }
+          });
+          const color:String = '#' + Math.floor(Math.random() * 16777215).toString(16) + '99';
+          const styleElement = {
+            weight: 1,
+            color: '#000',
+            opacity: 1,
+            fillColor: color,
+            fillOpacity: 1
+          }
+          let collName = "";
+          let collDescription = "";
+          this.collectionSearchItems.forEach(iterColl => {
+            if(coll === iterColl.value){
+              collName=iterColl.name;
+              collDescription=iterColl.description;
+            }
+          });
+          this.geoCollections.push({collection: coll, name: collName, description: collDescription , geo: CollLocation, style: styleElement, color: color});
+        }
+      });
+    } else {
+      let i = 0;
+      for (i = this.geoCollections.length - colls.length; i != 0; i--) { 
+        let deletedColl = -1;
+        this.geoCollections.forEach(CollInGeo => {
+            if(!colls.includes(CollInGeo.collection)) {
+              deletedColl = this.geoCollections.indexOf(CollInGeo);
+            }
+        });
+        if(deletedColl > -1){
+          this.geoCollections.splice(deletedColl, 1);
+        }
+      }
+    }
+  }
+
+  updateColor() {
+    this.geoCollections.forEach(coll => {
+      coll.style.fillColor = coll.color;
+    });
+  }
 
   async asyncForEach(array: any[], callback:any) {
   for (let index = 0; index < array.length; index++) {
@@ -489,6 +650,64 @@ export default class Maps extends Vue {
     }
   }
 
+  collDisplayLocations(locations:string[]) {
+    return {
+      ...this.geoStore!.gemeinden,
+      features: this.allFeatures.filter((f: any) => {
+        return locations.indexOf(f.properties.sigle) > -1
+      })
+    }
+  }
+
+  get locationsSearchItems() {
+    if (!this.isLoading) {
+      var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
+        if(f.field === this.searchItemType || this.searchItemType === 'Ort'){
+          return {
+            text: f.name,
+            value: f.sigle,
+            parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
+          }
+        }else {
+          return null
+        }
+      })
+      return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
+        return el != null;
+      });
+    } else {
+      return []
+    }
+  }
+
+  removeCollection(coll : String){
+    //syncToGeoJSON
+    let deletedColl = -1;
+    let deletedCollAuto = -1;
+    this.geoCollections.forEach(CollInGeo => {
+        if(coll === CollInGeo.collection) {
+          deletedColl = this.geoCollections.indexOf(CollInGeo);
+        }
+    });
+    if(deletedColl > -1){
+      this.geoCollections.splice(deletedColl, 1);
+    }
+    //syncToautoCompleter
+    this.selectedCollections.forEach(sel => {
+      if(coll === sel) {
+        deletedCollAuto = this.selectedCollections.indexOf(sel);
+      }
+    });
+    if(deletedCollAuto > -1){
+      this.selectedCollections.splice(deletedCollAuto, 1);
+    }
+    let colls:String[] = []
+    this.geoCollections.forEach(element => {
+      colls.push(element.collection);
+    });
+    this.changeURL(colls);
+  }
+
   changeURL(colls: String[]) {
     if(this.$route.query.loc){
       this.$router.replace({ query: { loc: this.$route.query.loc } })
@@ -497,6 +716,16 @@ export default class Maps extends Vue {
     }
   }
 
+  @Watch('searchCollection')
+  async onSearchCollection(val: string|null) {
+    if (val !== null && val.trim() !== '') {
+      if(this.title) {
+        this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
+      } else {
+        this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.description }))
+      }
+    }
+  }
 
   getPlacesFromSigle(sigle: string): Places {
     const place = _(geoStore.ortsliste).find(o => o.sigle === sigle)
@@ -515,6 +744,19 @@ export default class Maps extends Vue {
         Bundesland: bl ? bl.name : '',
         [ place.field ]: place.name,
       }
+    }
+  }
+
+  get styleFunction() {
+    const aThis: any = this
+    var colour: string = this.colorSelect;
+    var border: string = this.borderColorSelect;
+    return {
+      weight: 1,
+      color: border,
+      opacity: 1,
+      fillColor: colour,
+      fillOpacity: 0.5
     }
   }
 
