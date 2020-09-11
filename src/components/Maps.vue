@@ -56,8 +56,8 @@
             <v-autocomplete
               :loading="isLoading"
               :items="locationsSearchItems"
-              :value="selectedLocations"
-              @input="selectLocations"
+              v-model="selectedLocations"
+              @input="changeLocinCollection"
               label="Suche…"
               autofocus
               item-text="text"
@@ -207,13 +207,15 @@
           weight: 1
         }"
       />
+      
       <l-geo-json
         v-if="!updateLayers && showRivers && rivers !== null"
         :geojson="rivers"
       />
-      <div v-for="item in geoCollections" :key="item.collection + '-span'">
+
+      <div v-for="item in geoCollections" :key="item.collection_name + '-span'">
         <l-geo-json
-          v-if="!updateLayers"
+          v-if="!updateLayers && item.items.length > 0"
           :geojson="collDisplayLocations(item.geo)"
           :options="options"
           :optionsStyle="item.style"
@@ -320,7 +322,18 @@ export default class Maps extends Vue {
   pinned = false;
   fixTooltip = false;
   //searchCollections
-  geoCollections: any[] = []
+  geoCollections: any[] = 
+    [
+      {
+        collection_name: "untitled coll",
+        fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+        borderColor: '#FFF',
+        items: [
+        ]
+      }
+    ]
+  selectedCollection = 0;
+  selectedLocations: any[] = []
   title: boolean = true;
 
   rivers: any = null
@@ -365,7 +378,6 @@ export default class Maps extends Vue {
 		}
   }
   printPlugin: any = null
-  searchItemType = 'Ort'
   layerGeoJson: any = null
   map: any = null
 
@@ -486,6 +498,41 @@ export default class Maps extends Vue {
       }
     } else {
       return this.allFeatures
+    }
+  }
+
+  get locationsSearchItems() {
+    if (!this.isLoading) {
+      var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
+        return {
+          text: f.name,
+          value: f.sigle,
+          parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
+        }
+      })
+      return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
+        return el != null;
+      });
+    } else {
+      return []
+    }
+  }
+
+  changeLocinCollection() {
+    let coll = this.geoCollections[this.selectedCollection]
+    let new_places = this.selectedLocations
+    coll.items.forEach((element: any) => {
+      if(!this.selectedLocations.includes(element.sigle)) {
+      }
+    });
+  }
+
+  collDisplayLocations(locations:string[]) {
+    return {
+      ...this.geoStore!.gemeinden,
+      features: this.allFeatures.filter((f: any) => {
+        return locations.indexOf(f.properties.sigle) > -1
+      })
     }
   }
 
