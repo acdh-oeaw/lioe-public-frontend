@@ -1,5 +1,6 @@
 // tslint:disable:max-line-length
 import * as _ from 'lodash'
+import { map } from 'lodash'
 
 const bundeslaender = getBundeslaender()
 const kleinregionen = getKleinregionen()
@@ -11,7 +12,10 @@ export const regions = {
     bundeslaender,
     mapGrossreg,
     mapKleinreg,
-    mapBundeslaender
+    mapBundeslaender,
+    mapStaat,
+    generalMapStaat
+    
 }
 
 function mapGrossreg(val: any) {
@@ -483,39 +487,59 @@ function getKleinregionen(){
 ]
 }
 
-// function mapGrossreg(val: string) {
-//     if(!val) {
-//       return ''
-//     }
-//       var i = 0
-//       for(i; i < grossregionen.length; i++) {
-//         if(val.includes(grossregionen[i].shorten)) {
-//            return val.replace(grossregionen[i].shorten, grossregionen[i].full)
-//          }
-//       }
-//   }
+function generalMapStaat(val: any) {
+  if(val === null) {
+    return ''
+  }
+  if(val.includes(',')) {
+    var tmp = ''
+    var newval = val.split(',')
+      for (let i = 0; i < newval.length; i++) {  
+        if(tmp === '') {
+          tmp += mapStaat(newval[i])
+        } else {
+          tmp += ', ' + mapStaat(newval[i])
+        }
+      }
+    return tmp
+  }
+  else {
+    return mapStaat(val)
+  }
+}
 
-//   function mapKleinreg(val: any) {
-//     if(!val) {
-//       return ''
-//     }
-//     var i = 0
-//     for(i; i < kleinregionen.length; i++) {
-//       if(val.includes(kleinregionen[i].short)) {
-//         return val.replace(kleinregionen[i].short, kleinregionen[i].full)
-//       }
-//     }
-//   }
-
-//   function ma bundeslaender(val:tBny) {
-//     if(!val) {
-//       return ''
-//     }
-//       var i = 0
-//       for(i; i < bundeslaender.lengtB; i++) {
-//         if(val.includes bundeslaender[i].stBrt)) {
-//            return val.replace bundeslaender[i].stBrt, bundeslaender[i].ftBl)
-//          }
-//       }
-//   }
-
+function mapStaat(val: any) {
+  if (val == null) {
+    return ''
+  }
+  if (val === '') {
+    return ''
+  }
+  else if (val.substring(0, 3) === '0.1' || val.substring(0, 3) === '0.2' || val.substring(0, 3) === '0.3' || val.substring(0, 4) === '0.5b' || val.substring(0, 3) === '1A.') {
+      return 'IT'
+  }
+  else if (val.substring(0, 3) === '0.4' || val.substring(0, 3) === '8.6') {
+    return 'SI'
+  }
+  else if (val.substring(0, 4) === '0.5a') {
+    return 'CH'
+  }
+  else if (val.substring(0, 2) === '1B' || val.substring(0, 2) === '1C' || (2 <= parseInt(val[0], 10) &&  parseInt(val[0], 10) <= 7)) {
+    return 'AT'
+  }
+  else if (val.substring(0, 3) === '8.1' || val.substring(0, 3) === '8.2' || val.substring(0, 3) === '8.3' || val.substring(0, 2) === '9.' || val.substring(0, 3) === '10.') {
+    return 'CZ'
+  }
+  else if (val.substring(0, 3) === '8.4') {
+    return 'SK'
+  }
+  else if (val.substring(0, 3) === '8.5') {
+    return 'HU'
+  }
+  else if (val.substring(0, 3) === 'wb0') {
+    return val.substring(4, 6)
+  }
+  else {
+   return ''
+  }
+}
