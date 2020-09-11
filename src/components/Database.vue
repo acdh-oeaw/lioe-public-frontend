@@ -243,9 +243,16 @@
                 :key="`${header.value}_${index}`"
                 v-if="extended || !header.extended"
               >
-                <i v-if="header.text === 'Kontext'" > {{header.renderFnc(item)}} </i>
+                <!-- <i v-if="header.text === 'Kontext'" > {{header.renderFnc(item)}} </i>
                 <template v-if="header.renderFnc && header.text!== 'Kontext' ">{{ header.renderFnc(item) }}
-                </template>
+                </template> -->
+
+                <template v-if="header.renderFnc">
+                  <template v-if="header.text === 'Lautung' || header.text === 'Kontext'"><i> {{ header.renderFnc(item)}} </i>
+                  </template>
+                  <template v-else> {{header.renderFnc(item)}} </template>
+                  </template>
+
                 <template v-else>{{ item[header.value] }}</template>
               </td>
             </template>
