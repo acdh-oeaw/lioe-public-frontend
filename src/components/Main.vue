@@ -24,7 +24,7 @@
     :loading="loading" 
     :items='searchItems'
     @input="selectItems"
-    label="Suche nach Ort"
+    label="Suche..."
     autofocus
     v-model="searchedItem" 
     text
@@ -42,9 +42,6 @@
          <v-list-item-action>
             <v-btn @click.stop.prevent="$router.replace(`/maps?loc=${item.value}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
          </v-list-item-action>
-        <!-- <template v-if="item.type === 'artikel'"> searchedItem = _.debounce(this.findArticleByTitle, 250) </template>
-        <template v-if="item.type === 'maps'"> TODO ruft router auf fuer belegdatenbank plus query parameters -->
-        <!-- <router-link :to="`/maps`"></router-link> -->
       </v-list-item>
     </template>
     </v-autocomplete>
