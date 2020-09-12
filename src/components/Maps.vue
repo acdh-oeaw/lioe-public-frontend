@@ -67,6 +67,7 @@
               chips
               prepend-inner-icon="search"
               solo
+              elevation="0"
               clearable
               multiple>
               <template v-slot:item="{ item }">
@@ -132,6 +133,9 @@
         </v-list>
       </v-menu>
     </v-layout>
+
+    <map-legende id="legende" :geoCollections="geoCollections" @interface="selectedCollection = $event"></map-legende>
+
     <l-map
       style="z-index: 0; position: absolute; left: 0; top:0; right: 0;"
       ref="map"
@@ -216,9 +220,9 @@
       <div v-for="item in geoCollections" :key="item.collection_name + '-span'">
         <l-geo-json
           v-if="!updateLayers && item.items.length > 0"
-          :geojson="collDisplayLocations(item.geo)"
+          :geojson="collDisplayLocations(item.items)"
           :options="options"
-          :optionsStyle="item.style"
+          :optionsStyle="styleOf(item)"
         />
       </div>
       
@@ -325,9 +329,9 @@ export default class Maps extends Vue {
   geoCollections: any[] = 
     [
       {
-        collection_name: "untitled coll",
+        collection_name: "Neue Sammlung",
         fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-        borderColor: '#FFF',
+        borderColor: '#000',
         items: [
         ]
       }
@@ -519,12 +523,33 @@ export default class Maps extends Vue {
   }
 
   changeLocinCollection() {
-    let coll = this.geoCollections[this.selectedCollection]
-    let new_places = this.selectedLocations
-    coll.items.forEach((element: any) => {
-      if(!this.selectedLocations.includes(element.sigle)) {
+    if(this.geoCollections.length > 0) {
+      this.geoCollections[this.selectedCollection].items = this.selectedLocations;
+    } else {
+      this.geoCollections.push(
+        {
+          collection_name: "Neue Sammlung",
+          fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+          borderColor: '#000',
+          items: [
+          ]
+        }
+      )
+      this.geoCollections[this.selectedCollection].items = this.selectedLocations;
+    }
+  }
+
+  styleOf(collection:Object) {
+    return(
+      {
+        fillOpacity: 1,
+        //@ts-ignore
+        fillColor: collection.fillColor,
+        //@ts-ignore
+        color: collection.borderColor,
+        weight: 1.5
       }
-    });
+    )
   }
 
   collDisplayLocations(locations:string[]) {
@@ -698,8 +723,10 @@ export default class Maps extends Vue {
 
 #legende{
   position: fixed;
-  bottom: 50px;
-  left: 50px;
+  bottom: 25px;
+  left: 25px;
+  z-index: 1;
+  width: auto;
 }
 
 .zoom{
