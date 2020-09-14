@@ -101,18 +101,9 @@
           <span>Ursprungsposition</span>
         </v-tooltip>
         <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
-      </v-flex>
-      <v-flex class="text-xs-right" offset-xs11>
-        <v-btn style="margin-top:5px;" fab @click="sideBar = !sideBar">
-          <v-icon>layers</v-icon>
-        </v-btn>
-      </v-flex>
-
-      
-
-      <v-menu open-on-hover min-width="200" fixed left>
+        <v-menu min-width="200" fixed left>
           <template v-slot:activator="{ on }">
-            <v-btn dark color="ci" fab fixed bottom right v-on="on">
+            <v-btn dark class="zoom" color="ci" fab small v-on="on">
               <v-icon>save_alt</v-icon>
             </v-btn>
           </template>
@@ -132,9 +123,20 @@
           </v-list-item>
         </v-list>
       </v-menu>
-    </v-layout>
+      </v-flex>
+      
+      <v-flex class="text-xs-right" offset-xs11>
+        <v-btn style="margin-top:5px;" fab @click="sideBar = !sideBar">
+          <v-icon>layers</v-icon>
+        </v-btn>
+      </v-flex>
 
-    <map-legende id="legende" :geoCollections="geoCollections" @interface="selectedCollection = $event"></map-legende>
+      
+
+      <router-link to="/"><img class="logo mt-2 logo-container" src="/static/img/logo.svg" /></router-link>
+
+      <map-legende id="legende" :geoCollections="geoCollections" @interface="selectedCollection = $event"></map-legende>
+    </v-layout>
 
     <l-map
       style="z-index: 0; position: absolute; left: 0; top:0; right: 0;"
@@ -330,6 +332,7 @@ export default class Maps extends Vue {
     [
       {
         collection_name: "Neue Sammlung",
+        editing: false,
         fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
         borderColor: '#000',
         items: [
@@ -731,6 +734,20 @@ export default class Maps extends Vue {
 
 .zoom{
   margin: 5px;
+}
+
+.logo-container{
+  transition: .5s;
+  height: 100px;
+  position: absolute;
+  bottom: 140px;
+  right: 25px;
+  opacity: 0.8;
+}
+.logo-container.logo-hidden{
+  overflow: hidden;
+  height: 20px;
+  opacity: 0;
 }
 
 .legendeButtons{

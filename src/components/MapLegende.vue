@@ -19,7 +19,8 @@
             </v-btn>
           </v-list-item-action>
           <v-list-item-content style="margin-right:30px">
-            <v-list-item-title>{{ gC.collection_name }}</v-list-item-title>
+            <v-text-field v-if="gC.editing === true" @blur="gC.editing = false" v-model="gC.collection_name"></v-text-field>
+            <v-list-item-title v-else @click="gC.editing = true">{{ gC.collection_name }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-menu :close-on-content-click="false" offset-y top>
@@ -62,6 +63,7 @@ export default class MapLegende extends Vue {
     this.geoCollections.push(
       {
         collection_name: "Neue Sammlung " + (this.geoCollections.length + 1),
+        editing: false,
         fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
         borderColor: '#000',
         items: [
