@@ -7,7 +7,7 @@
       permanent
       v-if="sideBar"
     >
-      <v-card>
+      <v-card elevation="0">
         <v-card-title>
           Karten
           <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
@@ -200,7 +200,7 @@
 
       <v-menu open-on-hover min-width="200" fixed left>
           <template v-slot:activator="{ on }">
-            <v-btn dark color="ci" fab fixed bottom right v-on="on">
+            <v-btn dark color="ci" fab fixed bottom right :style="{right: sideBar === true ? '265px' : '10px'}" v-on="on">
               <v-icon>save_alt</v-icon>
             </v-btn>
           </template>
@@ -231,7 +231,7 @@
       <l-tile-layer
         v-if="tileSetUrl != ''"
         :url="tileSetUrl"
-        :attribution="tileSets[selectedTileSet].attribution" />
+        :attribution="tileSets[selectedTileSet] && tileSets[selectedTileSet].attribution ? tileSets[selectedTileSet].attribution : ''" />
       <l-tile-layer
         v-if="!updateLayers && showHillshades"
         url="https://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png"
@@ -856,6 +856,7 @@ export default class Maps extends Vue {
     // tslint:disable-next-line:max-line-length
     this.rivers = await (await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_rivers_europe.geojson')).json()
   }
+
   @Watch('showHillshades')
   @Watch('showDialektregionen')
   @Watch('showBundeslaender')

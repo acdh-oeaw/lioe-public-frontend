@@ -280,8 +280,6 @@ import * as FileSaver from 'file-saver'
 import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
 import FakeScrollbar from '@components/FakeScrollbar.vue'
-import { log, isNull } from 'util'
-import value from '*.wasm'
 
 interface Places {
   Ort: string

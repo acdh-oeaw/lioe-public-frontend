@@ -143,9 +143,7 @@ import * as _ from 'lodash'
 import InfoText from '@components/InfoText.vue'
 import { getArticles } from '../api'
 import InfoBox from '@components/InfoBox.vue'
-import { get } from 'http'
 import { geoStore } from '../store/geo'
-
 
 @Component({
   components: {
