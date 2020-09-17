@@ -11,21 +11,25 @@
         </v-list-item>
         <v-list-item dense
           v-for="gC in geoCollections"
-          :key="gC.collection"
+          :key="gC.id"
+          @click="selectedCollLocal = gC.id"
         >
-          <v-list-item-action>
-            <v-btn class="legendeButtons" icon small @click="removeCollection(gC.collection_name)">
-              <v-icon>mdi-window-close</v-icon>
-            </v-btn>
+          <v-list-item-action v-if="gC.id === selectedCollLocal">
+            <span class="mdi mdi-arrow-right">
+            </span>
           </v-list-item-action>
           <v-list-item-content style="margin-right:30px">
-            <v-text-field v-if="gC.editing === true" @blur="gC.editing = false" v-model="gC.collection_name"></v-text-field>
-            <v-list-item-title v-else @click="gC.editing = true">{{ gC.collection_name }}</v-list-item-title>
+            <v-text-field v-if="gC.editing === true" @blur="gC.editing = false" v-model="gC.collection_name" autofocus></v-text-field>
+            <v-list-item-title v-else>
+              {{ gC.collection_name }}
+              <span class="mdi mdi-pencil" id="editLegendEntry" @click="gC.editing = true">
+              </span>
+            </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
             <v-menu :close-on-content-click="false" offset-y top>
               <template v-slot:activator="{ on }">
-                <v-btn v-on="on" :color="gC.fillColor" elevation="1" fab x-small></v-btn>
+                <v-btn v-on="on" class="legendeButtons" :color="gC.fillColor" elevation="1" fab x-small></v-btn>
               </template>
                <v-color-picker hide-inputs v-model="gC.fillColor"></v-color-picker>
             </v-menu>
@@ -33,10 +37,15 @@
           <v-list-item-action>
             <v-menu :close-on-content-click="false" offset-y top>
               <template v-slot:activator="{ on }">
-                <v-btn v-on="on" :color="gC.borderColor" elevation="1" fab x-small></v-btn>
+                <v-btn v-on="on" class="legendeButtons" :color="gC.borderColor" elevation="1" fab x-small></v-btn>
               </template>
                <v-color-picker hide-inputs v-model="gC.borderColor"></v-color-picker>
             </v-menu>
+          </v-list-item-action>
+          <v-list-item-action>
+            <v-btn icon small class="legendeButtons" @click="removeCollection(gC.collection_name)">
+              <v-icon>mdi-window-close</v-icon>
+            </v-btn>
           </v-list-item-action>
         </v-list-item>
       </v-list>
@@ -44,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
 @Component({
   // if you use components add them here
@@ -60,9 +69,11 @@ export default class MapLegende extends Vue {
   selectedCollLocal:Number = 0;
 
   newCollection() {
+    const newID = Math.random()*1000;
     this.geoCollections.push(
       {
-        collection_name: "Neue Sammlung " + (this.geoCollections.length + 1),
+        id: newID,
+        collection_name: "Neue Sammlung",
         editing: false,
         fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
         borderColor: '#000',
@@ -70,7 +81,12 @@ export default class MapLegende extends Vue {
         ]
       }
     )
-    this.selectedCollLocal = this.geoCollections.length - 1;
+    this.selectedCollLocal = newID;
+    this.$emit('interface', this.selectedCollLocal)
+  }
+
+  @Watch('selectedCollLocal')
+  emitNewSelectedColl() {
     this.$emit('interface', this.selectedCollLocal)
   }
 
@@ -85,7 +101,21 @@ export default class MapLegende extends Vue {
     if(deletedColl > -1){
       this.geoCollections.splice(deletedColl, 1);
     }
-    this.selectedCollLocal = this.geoCollections.length - 1;
+    if(this.geoCollections.length < 1) {
+      this.geoCollections.push(
+        {
+          id: 0,
+          collection_name: "Neue Sammlung",
+          editing: false,
+          fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+          borderColor: '#000',
+          items: [
+          ]
+        }
+      )
+    }
+    //@ts-ignore
+    this.selectedCollLocal = this.geoCollections[0].id;
     this.$emit('interface', this.selectedCollLocal)
   }
 }
@@ -109,4 +139,19 @@ li {
 a {
   color: #42b983;
 }
+
+#editLegendEntry {
+  font-size: large; 
+  margin-left:7px
+}
+
+#editLegendEntry:hover {
+  cursor: pointer;
+}
+
+.legendeButtons {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
 </style>

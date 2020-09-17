@@ -56,7 +56,7 @@
             <v-autocomplete
               :loading="isLoading"
               :items="locationsSearchItems"
-              v-model="selectedLocations"
+              v-model="selectedLocations[indexOfSelected]"
               @input="changeLocinCollection"
               label="Suche…"
               autofocus
@@ -65,11 +65,15 @@
               hide-details
               text
               chips
+              deletable-chips
               prepend-inner-icon="search"
               solo
               elevation="0"
               clearable
-              multiple>
+              multiple
+              v-for="gC in geoCollections"
+              :key="gC.id"
+              v-if="gC.id === selectedCollection">
               <template v-slot:item="{ item }">
                 <v-list-item-content>
                   <v-list-item-title v-text="item.text"></v-list-item-title>
@@ -219,7 +223,7 @@
         :geojson="rivers"
       />
 
-      <div v-for="item in geoCollections" :key="item.collection_name + '-span'">
+      <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
           v-if="!updateLayers && item.items.length > 0"
           :geojson="collDisplayLocations(item.items)"
@@ -233,6 +237,7 @@
 </template>
 <script lang="ts">
 
+/* eslint-disable no-use-v-if-with-v-for*/
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { LMap, LTileLayer, LMarker, LGeoJson, LIconDefault, LWMSTileLayer as LWmsTileLayer } from 'vue2-leaflet'
 import InfoText from '@components/InfoText.vue'
@@ -331,6 +336,7 @@ export default class Maps extends Vue {
   geoCollections: any[] = 
     [
       {
+        id: 0,
         collection_name: "Neue Sammlung",
         editing: false,
         fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
@@ -526,19 +532,15 @@ export default class Maps extends Vue {
   }
 
   changeLocinCollection() {
+    let activeCol;
+    this.geoCollections.forEach(coll => {
+      if(coll.id === this.selectedCollection) {
+        activeCol = coll;
+      }
+    });
     if(this.geoCollections.length > 0) {
-      this.geoCollections[this.selectedCollection].items = this.selectedLocations;
-    } else {
-      this.geoCollections.push(
-        {
-          collection_name: "Neue Sammlung",
-          fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-          borderColor: '#000',
-          items: [
-          ]
-        }
-      )
-      this.geoCollections[this.selectedCollection].items = this.selectedLocations;
+      //@ts-ignore
+      activeCol.items = this.selectedLocations[this.indexOfSelected];
     }
   }
 
@@ -618,6 +620,16 @@ export default class Maps extends Vue {
         { permanent: perm, sticky: true }
       )
     }
+  }
+
+  get indexOfSelected() {
+    let returnColl;
+    this.geoCollections.forEach(coll => {
+      if(coll.id === this.selectedCollection){
+        returnColl = coll;
+      }
+    });
+    return this.geoCollections.indexOf(returnColl);
   }
 
   get onEachFeatureFunction() {
@@ -740,8 +752,8 @@ export default class Maps extends Vue {
   transition: .5s;
   height: 100px;
   position: absolute;
-  bottom: 140px;
-  right: 25px;
+  bottom: 130px;
+  right: 10px;
   opacity: 0.8;
 }
 .logo-container.logo-hidden{
