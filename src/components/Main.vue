@@ -35,7 +35,7 @@
     >
     <template v-slot:item="{ item }">
       <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.value}&fields=Sigle1`">
-        <v-list-item-avatar></v-list-item-avatar>
+        <v-list-item-avatar><v-btn v-if="item.type === 'article'"><v-icon>mdi-newspaper</v-icon></v-btn></v-list-item-avatar>
         <v-list-item-content >
           <v-list-item-title>{{item.text}}</v-list-item-title>
       </v-list-item-content>
