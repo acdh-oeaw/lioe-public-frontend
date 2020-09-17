@@ -152,6 +152,7 @@
         :options.sync="pagination"
         :server-items-length="totalItems"
         :headers="shownHeaders"
+        fixed-header height="500px" 
         :loading="loading"
         :items="_items">
         <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
