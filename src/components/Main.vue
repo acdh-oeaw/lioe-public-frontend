@@ -34,7 +34,7 @@
     clearable
     >
     <template v-slot:item="{ item }">
-      <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.text}&fields=HL,Großregion1`">
+      <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.value}&fields=Sigle1`">
         <v-list-item-avatar></v-list-item-avatar>
         <v-list-item-content >
           <v-list-item-title>{{item.text}}</v-list-item-title>
