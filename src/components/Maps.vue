@@ -16,7 +16,7 @@
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
-            <info-text class="elevation-24 pa-4 white" path="quelle-karten/allgemein/" />
+            <info-text style="z-index:10;" class="elevation-24 pa-4 white" path="quelle-karten/allgemein/" />
           </v-menu>
         </v-card-title>
         <v-card-text>
