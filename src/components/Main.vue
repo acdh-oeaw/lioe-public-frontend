@@ -26,6 +26,7 @@
     @input="selectItems"
     label="Suche..."
     autofocus
+    @update:search-input="(e) => searchTerm = e"
     v-model="searchedItem" 
     text
     hide-details
@@ -46,7 +47,7 @@
     </template>
     <template v-slot:no-data>
      Der gesuchte Begriff ist weder Artikel noch Ort. Zum Weitersuchen in der Belegdatenbank:
-     <v-btn @click="$router.replace(`db?query=${this.searchedItem}&fields=HL`)"> {{ this.searchedItem }}</v-btn> 
+     <v-btn @click="$router.replace(`db?query=${searchTerm}&fields=HL`)"> {{ searchTerm }}</v-btn> 
     </template>
     </v-autocomplete>
   </v-col>
@@ -112,10 +113,10 @@
 
       <vue-word-cloud
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
-        :rotation="searchTerm === '' ? .875 : 0"
+        :rotation=".875"
         :words="filteredWords"
-        :animation-overlap="searchTerm === '' ? 10 : 1"
-        :animation-duration="searchTerm === '' ? ((visited) ? 0 : 5000) : 500"
+        :animation-overlap="10"
+        :animation-duration="((visited) ? 0 : 5000)"
         :spacing=".2"
         @update:progress="updateWordProgress"
         font-weight="800"
