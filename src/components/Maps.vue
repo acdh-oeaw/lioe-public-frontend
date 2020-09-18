@@ -731,6 +731,25 @@ export default class Maps extends Vue {
     }
   }
 
+  @Watch("geoCollections.length")
+  changeAutofillsOnDelete() {
+    let indexDelete = -1;
+    this.selectedLocations.forEach(auto => {
+      let stillExists = false;
+      this.geoCollections.forEach(geoColl => {
+        if(geoColl.items === auto) {
+          stillExists = true;
+        }
+      });
+      if(!stillExists) {
+        indexDelete = this.selectedLocations.indexOf(auto);
+      }
+    });
+    if(indexDelete != -1) {
+      this.selectedLocations.splice(indexDelete, 1);
+    }
+  }
+
   @Watch("selectedTileSet")
   darkModeBorderColor() {
     if (this.selectedTileSet === 3) {
