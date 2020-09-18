@@ -35,14 +35,22 @@
     >
     <template v-slot:item="{ item }">
       <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.value}&fields=Sigle1`">
+      <!-- <v-list-item :to="!item ? `/db?query=${item.text}&fiels=Lemma` : `/db?query=${item.text}&fiels=Lemma`"> -->
         <v-list-item-avatar><v-btn v-if="item.type === 'article'"><v-icon>mdi-newspaper</v-icon></v-btn></v-list-item-avatar>
         <v-list-item-content >
-          <v-list-item-title>{{item.text}}</v-list-item-title>
+          <v-list-item-title> {{item.text}}</v-list-item-title>
       </v-list-item-content>
+      <!-- <v-list-item-content v-if="!item">
+        <v-list-item-title> try </v-list-item-title> -->
+      <!-- </v-list-item-content> -->
          <v-list-item-action>
             <v-btn @click.stop.prevent="$router.replace(`/maps?loc=${item.value}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
-         </v-list-item-action>
+         </v-list-item-action>    
       </v-list-item>
+    </template>
+    <template v-slot:no-data>
+     Der Suchwunsch ist weder Artikel noch Ort. Zum Weitersuchen in der Belegdatenbank:
+     <v-btn @click="$router.replace(`db?query=${this.searchedItem}&fields=HL`)"> {{ this.searchedItem }}</v-btn> 
     </template>
     </v-autocomplete>
   </v-col>
