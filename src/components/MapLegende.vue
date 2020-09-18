@@ -33,9 +33,8 @@
           :key="gC.id"
           @click="selectedCollLocal = gC.id"
         >
-          <v-list-item-action v-if="gC.id === selectedCollLocal">
-            <span class="mdi mdi-arrow-right">
-            </span>
+          <v-list-item-action style="width:0px;">
+            <div v-if="gC.id === selectedCollLocal" id="marker">.</div>
           </v-list-item-action>
           <v-list-item-content style="margin-right:30px">
             <v-text-field v-if="gC.editing === true" @blur="gC.editing = false" v-model="gC.collection_name" autofocus></v-text-field>
@@ -245,6 +244,13 @@ a {
 
 #editLegendEntry:hover {
   cursor: pointer;
+}
+
+#marker {
+  width: 5px;
+  height: fit-content;
+  background-color: #3b89a0;
+  color: #3b89a0;
 }
 
 .legendeButtons {
