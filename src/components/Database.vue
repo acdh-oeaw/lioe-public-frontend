@@ -1,7 +1,22 @@
 <template>
   <v-layout column>
     <v-flex>
-      <v-card class="sticky-card" width="100%">
+       <v-row no-gutters>
+          <template v-for="h in shownHeaders">
+           <v-chip
+              v-bind:key="h"
+              v-if="h.inSearch"
+              class="ma-2"
+              close
+              color="lime darken-4"
+              text-color="white"
+              close-icon="mdi-close"
+              @click:close="h.inSearch = false">
+              {{h.text}}
+              </v-chip>
+          </template>
+        </v-row>
+      <v-card class="sticky-card" width="100%">  
         <v-row no-gutters>
           <v-col class="pa-0" cols="8">
             <v-text-field
