@@ -4,7 +4,7 @@
        <v-row no-gutters>
           <template v-for="h in shownHeaders">
            <v-chip
-              v-bind:key="h"
+              v-bind:key="h.text"
               v-if="h.inSearch"
               class="ma-2"
               close
