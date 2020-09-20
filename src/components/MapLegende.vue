@@ -73,6 +73,9 @@
               <v-icon style="margin-left:10px;">mdi-plus-thick</v-icon>
             </v-btn>
           </v-list-item-content>
+          <v-list-item-action>
+            <save-link></save-link>
+          </v-list-item-action>
         </v-list-item>
       </v-list>
   </vContainer>
@@ -81,10 +84,13 @@
 <script lang="ts">
 import { getDocumentsByCollection, searchCollections } from '@src/api';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import SaveLink from "@components/LinkSaveDialog.vue"
 
 @Component({
   // if you use components add them here
-  components: { },
+  components: { 
+    SaveLink,
+  },
   /* name is necessary for recursive components
    * (at least in older versions, might be auto generated through the vue-property-decorator)
    */

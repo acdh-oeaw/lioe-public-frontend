@@ -668,7 +668,6 @@ export default class Maps extends Vue {
     if(this.$route.query.col) {
       //@ts-ignore
       let geoCollectionURL = JSON.parse(this.$route.query.col);
-      console.log(geoCollectionURL);
       this.geoCollections = geoCollectionURL;
     }
   }
