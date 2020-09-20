@@ -37,7 +37,7 @@
             <div v-if="gC.id === selectedCollLocal" id="marker">.</div>
           </v-list-item-action>
           <v-list-item-content style="margin-right:30px">
-            <v-text-field v-if="gC.editing === true" @blur="gC.editing = false" @keypress.enter="gC.editing = false" v-model="gC.collection_name" autofocus></v-text-field>
+            <v-text-field v-if="gC.editing === true" @blur="gC.editing = false; safeCollectionsInURL()" @keypress.enter="gC.editing = false; safeCollectionsInURL()" v-model="gC.collection_name" autofocus></v-text-field>
             <v-list-item-title v-else>
               {{ gC.collection_name }}
               <span class="mdi mdi-pencil" id="editLegendEntry" @click="gC.editing = true">
@@ -164,6 +164,7 @@ export default class MapLegende extends Vue {
             items: CollLocation
           }
         );
+        this.safeCollectionsInURL()
       }
     });
   }
@@ -214,7 +215,17 @@ export default class MapLegende extends Vue {
     //@ts-ignore
     this.selectedCollLocal = this.geoCollections[0].id;
     this.$emit('interface', this.selectedCollLocal)
+    this.safeCollectionsInURL()
   }
+
+  safeCollectionsInURL() {
+    if (this.geoCollections.length === 0) {
+      this.$router.replace({ query: {} })
+    }else { 
+      this.$router.replace({ query: { col: JSON.stringify(this.geoCollections) } })
+    }
+  }
+
 }
 
 

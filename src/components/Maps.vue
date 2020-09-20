@@ -570,6 +570,7 @@ export default class Maps extends Vue {
       //@ts-ignore
       activeCol.items = this.selectedLocations[this.indexOfSelected];
     }
+    this.safeCollectionsInURL();
   }
 
   styleOf(collection: Object) {
@@ -592,11 +593,12 @@ export default class Maps extends Vue {
     };
   }
 
-  changeURL(colls: String[]) {
-    if (this.$route.query.loc) {
-      this.$router.replace({ query: { loc: this.$route.query.loc } });
-    } else {
-      this.$router.replace({ query: {} });
+
+  safeCollectionsInURL() {
+    if (this.geoCollections.length === 0) {
+      this.$router.replace({ query: {} })
+    }else { 
+      this.$router.replace({ query: { col: JSON.stringify(this.geoCollections) } })
     }
   }
 
@@ -660,6 +662,15 @@ export default class Maps extends Vue {
       }
     });
     return this.geoCollections.indexOf(returnColl);
+  }
+
+  getCollectionsOutOfURL() {
+    if(this.$route.query.col) {
+      //@ts-ignore
+      let geoCollectionURL = JSON.parse(this.$route.query.col);
+      console.log(geoCollectionURL);
+      this.geoCollections = geoCollectionURL;
+    }
   }
 
   get onEachFeatureFunction() {
@@ -770,6 +781,7 @@ export default class Maps extends Vue {
 
   async mounted() {
     this.loadRivers();
+    this.getCollectionsOutOfURL();
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson;
       this.map = this.$refs.map;
