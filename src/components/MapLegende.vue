@@ -28,6 +28,8 @@
             </v-autocomplete>
           </v-list-item-content>
         </v-list-item>
+      </v-list>
+      <v-list dense style="overflow-y:scroll" max-height="40vh">
         <v-list-item dense
           v-for="gC in geoCollections"
           :key="gC.id"
@@ -66,6 +68,8 @@
             </v-btn>
           </v-list-item-action>
         </v-list-item>
+      </v-list>
+      <v-list dense>
         <v-list-item>
           <v-list-item-content>
             <v-btn depressed small @click="newCollection">
