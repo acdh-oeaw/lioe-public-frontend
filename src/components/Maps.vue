@@ -1,23 +1,17 @@
 <template>
   <div>
-    <v-navigation-drawer
-      :value="sideBar"
-      right
-      app
-      permanent
-      v-if="sideBar"
-    >
+    <v-navigation-drawer :value="sideBar" right app permanent v-if="sideBar">
       <v-card elevation="0">
         <v-card-title>
           Karten
           <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
             <template v-slot:activator="{ on }">
-              <v-btn style="left:63%" color="accent" small icon text v-on="on">
+              <v-btn style="left: 63%" color="accent" small icon text v-on="on">
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
             <info-text
-              style="z-index:10;"
+              style="z-index: 10"
               class="elevation-24 pa-4 white"
               path="quelle-karten/allgemein/"
             />
@@ -30,7 +24,12 @@
         <v-card-text>
           <v-card-subtitle class="subtitles">Grundkarten</v-card-subtitle>
           <v-radio-group v-model="selectedTileSet">
-            <v-radio v-for="(tileSet, i) in tileSets" :value="i" :key="i" :label="tileSet.name" />
+            <v-radio
+              v-for="(tileSet, i) in tileSets"
+              :value="i"
+              :key="i"
+              :label="tileSet.name"
+            />
           </v-radio-group>
           <v-card-subtitle class="subtitles">Zusatzkarten</v-card-subtitle>
           <v-card-subtitle class="subtitles">
@@ -41,10 +40,22 @@
             hide-details
             label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)"
           />
-          <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
-          <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
-          <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
-          <v-card-subtitle style="margin-top:5px;" class="subtitles">
+          <v-checkbox
+            v-model="showGrossregionen"
+            hide-details
+            label="Großregionen"
+          />
+          <v-checkbox
+            v-model="showKleinregionen"
+            hide-details
+            label="Kleinregionen"
+          />
+          <v-checkbox
+            v-model="showGemeinden"
+            hide-details
+            label="untersuchte Gemeinden"
+          />
+          <v-card-subtitle style="margin-top: 5px" class="subtitles">
             <small>Weitere</small>
           </v-card-subtitle>
           <v-checkbox
@@ -103,7 +114,10 @@
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
-            <info-text class="elevation-24 pa-4 white" path="karten/infokasten-zur-den-karten/" />
+            <info-text
+              class="elevation-24 pa-4 white"
+              path="karten/infokasten-zur-den-karten/"
+            />
           </v-menu>
         </v-flex>
       </v-layout>
@@ -143,7 +157,7 @@
       </v-flex>
 
       <v-flex class="text-xs-right" offset-xs11>
-        <v-btn style="margin-top:5px;" fab @click="sideBar = !sideBar">
+        <v-btn style="margin-top: 5px" fab @click="sideBar = !sideBar">
           <v-icon>layers</v-icon>
         </v-btn>
       </v-flex>
@@ -160,7 +174,7 @@
     </v-layout>
 
     <l-map
-      style="z-index: 0; position: absolute; left: 0; top:0; right: 0;"
+      style="z-index: 0; position: absolute; left: 0; top: 0; right: 0"
       ref="map"
       :options="mapOptions"
       :zoom.sync="zoom"
@@ -169,7 +183,12 @@
       <l-tile-layer
         v-if="tileSetUrl != ''"
         :url="tileSetUrl"
-        :attribution="tileSets[selectedTileSet] && tileSets[selectedTileSet].attribution ? tileSets[selectedTileSet].attribution : ''" />
+        :attribution="
+          tileSets[selectedTileSet] && tileSets[selectedTileSet].attribution
+            ? tileSets[selectedTileSet].attribution
+            : ''
+        "
+      />
       <l-tile-layer
         v-if="!updateLayers && showHillshades"
         url="https://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png"
@@ -178,23 +197,27 @@
       <l-geo-json
         v-if="!updateLayers && showDialektregionenBorder"
         :options="optionsFunction"
-        :optionsStyle="(feature) => ({
-          color: '#000',
-          weight: 1,
-          fillOpacity: 0
-        })"
+        :optionsStyle="
+          (feature) => ({
+            color: '#000',
+            weight: 1,
+            fillOpacity: 0,
+          })
+        "
         :geojson="dialektregionen"
       />
 
       <l-geo-json
         v-if="!updateLayers && showDialektregionenFill"
         :options="{ onEachFeature: bindTooltip(['name']) }"
-        :optionsStyle="(feature) => ({
-          fillColor : dialektColors[feature.properties.id],
-          color: dialektColors[feature.properties.id],
-          weight: 2,
-          fillOpacity: 0.8
-        })"
+        :optionsStyle="
+          (feature) => ({
+            fillColor: dialektColors[feature.properties.id],
+            color: dialektColors[feature.properties.id],
+            weight: 2,
+            fillOpacity: 0.8,
+          })
+        "
         :geojson="dialektregionen"
       />
 
@@ -205,7 +228,7 @@
         :optionsStyle="{
           fillOpacity: 0,
           color: colorBundesland,
-          weight: 2
+          weight: 2,
         }"
       />
       <l-geo-json
@@ -215,7 +238,7 @@
         :optionsStyle="{
           fillOpacity: 0,
           color: colorGrossregionen,
-          weight: 1.5
+          weight: 1.5,
         }"
       />
       <l-geo-json
@@ -231,11 +254,14 @@
         :optionsStyle="{
           fillOpacity: 0,
           color: colorKleinregionen,
-          weight: 1
+          weight: 1,
         }"
       />
 
-      <l-geo-json v-if="!updateLayers && showRivers && rivers !== null" :geojson="rivers" />
+      <l-geo-json
+        v-if="!updateLayers && showRivers && rivers !== null"
+        :geojson="rivers"
+      />
 
       <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
@@ -448,8 +474,8 @@ export default class Maps extends Vue {
   }
 
   disableAuto(collID: Number) {
-    if(collID != -1) {
-      return true
+    if (collID != -1) {
+      return true;
     }
   }
 
@@ -598,12 +624,13 @@ export default class Maps extends Vue {
     };
   }
 
-
   safeCollectionsInURL() {
     if (this.geoCollections.length === 0) {
-      this.$router.replace({ query: {} })
-    }else { 
-      this.$router.replace({ query: { col: JSON.stringify(this.geoCollections) } })
+      this.$router.replace({ query: {} });
+    } else {
+      this.$router.replace({
+        query: { col: JSON.stringify(this.geoCollections) },
+      });
     }
   }
 
@@ -670,12 +697,13 @@ export default class Maps extends Vue {
   }
 
   getCollectionsOutOfURL() {
-    if(this.$route.query.col) {
+    if (this.$route.query.col) {
       //@ts-ignore
       let geoCollectionURL = JSON.parse(this.$route.query.col);
       this.geoCollections = geoCollectionURL;
-      this.geoCollections.forEach(element => {
-          this.selectedLocations[this.geoCollections.indexOf(element)] = element.items;
+      this.geoCollections.forEach((element) => {
+        this.selectedLocations[this.geoCollections.indexOf(element)] =
+          element.items;
       });
     }
   }
@@ -724,11 +752,11 @@ export default class Maps extends Vue {
     ).json();
   }
 
-  @Watch('showHillshades')
-  @Watch('showDialektregionen')
-  @Watch('showBundeslaender')
-  @Watch('showRivers')
-  @Watch('selectedTileSet')
+  @Watch("showHillshades")
+  @Watch("showDialektregionen")
+  @Watch("showBundeslaender")
+  @Watch("showRivers")
+  @Watch("selectedTileSet")
   layerChanged() {
     this.updateLayers = true;
   }
@@ -753,18 +781,18 @@ export default class Maps extends Vue {
   @Watch("geoCollections.length")
   changeAutofillsOnDelete() {
     let indexDelete = -1;
-    this.selectedLocations.forEach(auto => {
+    this.selectedLocations.forEach((auto) => {
       let stillExists = false;
-      this.geoCollections.forEach(geoColl => {
-        if(geoColl.items === auto) {
+      this.geoCollections.forEach((geoColl) => {
+        if (geoColl.items === auto) {
           stillExists = true;
         }
       });
-      if(!stillExists) {
+      if (!stillExists) {
         indexDelete = this.selectedLocations.indexOf(auto);
       }
     });
-    if(indexDelete != -1) {
+    if (indexDelete != -1) {
       this.selectedLocations.splice(indexDelete, 1);
     }
     this.safeCollectionsInURL();
@@ -785,8 +813,21 @@ export default class Maps extends Vue {
       this.showGrossregionen = true;
       this.selectedTileSet = 4;
       this.fixTooltip = true;
-      this.$router.replace({ query: { loc: this.$route.query.loc } });
+      this.geoCollections = [
+          {
+            id: 0,
+            tempColl: -1,
+            collection_name: "Sammlung Neu",
+            editing: false,
+            fillColor:
+              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+            borderColor: "#000",
+            items: [this.$route.query.loc],
+          }
+      ];
     }
+    this.safeCollectionsInURL();
+    this.getCollectionsOutOfURL();
   }
 
   async mounted() {
