@@ -114,7 +114,7 @@ export default class MapLegende extends Vue {
       {
         id: newID,
         tempColl: -1,
-        collection_name: "Neue Sammlung",
+        collection_name: "Sammlung Neu",
         editing: false,
         fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
         borderColor: '#000',
@@ -213,7 +213,7 @@ export default class MapLegende extends Vue {
         {
           id: 0,
           tempColl: -1,
-          collection_name: "Neue Sammlung",
+          collection_name: "Sammlung Neu",
           editing: false,
           fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
           borderColor: '#000',
