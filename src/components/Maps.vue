@@ -12,11 +12,15 @@
           Karten
           <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
             <template v-slot:activator="{ on }">
-              <v-btn  style="left:63%" color="accent" small icon text v-on="on">
+              <v-btn style="left:63%" color="accent" small icon text v-on="on">
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
-            <info-text class="elevation-24 pa-4 white" path="quelle-karten/allgemein/" />
+            <info-text
+              style="z-index:10;"
+              class="elevation-24 pa-4 white"
+              path="quelle-karten/allgemein/"
+            />
           </v-menu>
         </v-card-title>
         <v-card-text>
@@ -24,130 +28,91 @@
         </v-card-text>
         <v-divider />
         <v-card-text>
-          <v-card-subtitle class="subtitles">
-            Grundkarten
-          </v-card-subtitle>
+          <v-card-subtitle class="subtitles">Grundkarten</v-card-subtitle>
           <v-radio-group v-model="selectedTileSet">
             <v-radio v-for="(tileSet, i) in tileSets" :value="i" :key="i" :label="tileSet.name" />
           </v-radio-group>
-          <v-card-subtitle class="subtitles">
-            Zusatzkarten
-          </v-card-subtitle>
+          <v-card-subtitle class="subtitles">Zusatzkarten</v-card-subtitle>
           <v-card-subtitle class="subtitles">
             <small>WBÖ</small>
           </v-card-subtitle>
-          <v-checkbox v-model="showBundeslaender" hide-details label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)" />
+          <v-checkbox
+            v-model="showBundeslaender"
+            hide-details
+            label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)"
+          />
           <v-checkbox v-model="showGrossregionen" hide-details label="Großregionen" />
           <v-checkbox v-model="showKleinregionen" hide-details label="Kleinregionen" />
           <v-checkbox v-model="showGemeinden" hide-details label="untersuchte Gemeinden" />
           <v-card-subtitle style="margin-top:5px;" class="subtitles">
             <small>Weitere</small>
           </v-card-subtitle>
-          <v-checkbox v-model="showDialektregionenFill" hide-details label="Dialektregionen Ö - Flächen (SFB-DiÖ)" />
-          <v-checkbox v-model="showDialektregionenBorder" hide-details label="Dialektregionen Ö - Grenzen (SFB-DiÖ)" />
+          <v-checkbox
+            v-model="showDialektregionenFill"
+            hide-details
+            label="Dialektregionen Ö - Flächen (SFB-DiÖ)"
+          />
+          <v-checkbox
+            v-model="showDialektregionenBorder"
+            hide-details
+            label="Dialektregionen Ö - Grenzen (SFB-DiÖ)"
+          />
           <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
           <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
-      <v-card class="sticky-card" width="100%">
-        <v-layout>
-          <v-flex xs12>
-            <v-autocomplete
-              v-if="searchItemType != 'collection'"
-              :loading="isLoading"
-              :items="locationsSearchItems"
-              :value="selectedLocations"
-              @input="selectLocations"
-              label="Suche…"
-              autofocus
-              item-text="text"
-              item-value="value"
-              hide-details
-              text
-              chips
-              prepend-inner-icon="search"
-              solo
-              clearable
-              multiple>
-              <template v-slot:item="{ item }">
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.text"></v-list-item-title>
-                </v-list-item-content>
-              </template>
-            </v-autocomplete>
-            <v-autocomplete
-              v-if="searchItemType === 'collection'"
-              :loading="isLoading"
-              :search-input.sync="searchCollection"
-              :items="collectionSearchItems"
-              v-model="selectedCollections"
-              label="Zu tippen beginnen um nach Sammlungen zu suchen"
-              autofocus
-              hide-details
-              text
-              prepend-inner-icon="search"
-              solo
-              clearable
-              multiple>
-              <template v-slot:item="{ item }">
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.text"></v-list-item-title>
-                  <v-list-item-subtitle v-text="item.description"></v-list-item-subtitle>
-                </v-list-item-content>
-              </template>
-              <template v-slot:selection="{ item }">
-                <span v-if="false"> {{ item.text }} </span>
-              </template>
-            </v-autocomplete>
-          </v-flex>
-          <v-flex align-content-center fill-height>
-            <v-select
-              text
-              solo
-              flat
-              hide-details
-              class="divider-left"
-              v-model="searchItemType"
-              :items="[{text: 'Ort', value: 'Ort', disabled: false}, {text: 'Bundesland', value: 'Bundesland', disabled: false}, {text: 'Großregion', value: 'Großregion', disabled: false}, {text: 'Kleinregion', value: 'Kleinregion', disabled: false}, {text: 'Gemeinde', value: 'Gemeinde', disabled: false}, {text: 'Sammlungen', value: 'collection', disabled: false}, ]" />
-          </v-flex>
-          <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left offset-y>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" large icon>
-                  <v-icon class="toolbar">mdi-format-color-fill</v-icon>
-                </v-btn>
-              </template>
-              <div class="navButton">Füllfarbe</div>
-              <v-color-picker hide-inputs v-model="colorSelect"></v-color-picker>
-            </v-menu>
-          </v-flex>
-           <v-flex >
-            <v-menu :close-on-click="false" :close-on-content-click="false" open-on-hover left offset-y>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" large icon>
-                  <v-icon class="toolbar">mdi-border-color</v-icon>
-                </v-btn>
-              </template>
-              <div class="navButton">Rahmenfarbe</div>
-              <v-color-picker hide-inputs v-model="borderColorSelect"></v-color-picker>
-            </v-menu>
-          </v-flex>
-          <v-flex>
-            <v-menu open-on-hover :offset-y="true">
-              <template v-slot:activator="{ on }">
-                <v-btn color="accent" large icon text v-on="on">
-                  <v-icon>info</v-icon>
-                </v-btn>
-              </template>
-              <info-text class="elevation-24 pa-4 white" path="karten/infokasten-zur-den-karten/" />
-            </v-menu>
-          </v-flex>
-        </v-layout>
-      </v-card>
+    <v-card class="sticky-card" width="100%">
+      <v-layout>
+        <v-flex xs12>
+          <v-autocomplete
+            :loading="isLoading"
+            :items="locationsSearchItems"
+            v-model="selectedLocations[indexOfSelected]"
+            @input="changeLocinCollection"
+            label="Suche…"
+            autofocus
+            item-text="text"
+            item-value="value"
+            hide-details
+            :disabled="disableAuto(gC.tempColl)"
+            text
+            flat
+            chips
+            deletable-chips
+            prepend-inner-icon="search"
+            solo
+            elevation="0"
+            clearable
+            multiple
+            v-for="gC in geoCollections"
+            :key="gC.id"
+            v-if="gC.id === selectedCollection"
+          >
+            <template v-slot:item="{ item }">
+              <v-list-item-content>
+                <v-list-item-title v-text="item.text"></v-list-item-title>
+              </v-list-item-content>
+            </template>
+          </v-autocomplete>
+        </v-flex>
+        <v-flex>
+          <v-menu open-on-hover :offset-y="true">
+            <template v-slot:activator="{ on }">
+              <v-btn color="accent" large icon text v-on="on">
+                <v-icon>info</v-icon>
+              </v-btn>
+            </template>
+            <info-text class="elevation-24 pa-4 white" path="karten/infokasten-zur-den-karten/" />
+          </v-menu>
+        </v-flex>
+      </v-layout>
+    </v-card>
     <v-layout fill-height class="map-overlay pa-4">
       <v-flex xs1>
-        <v-btn fab small class="zoom" @click="zoom = zoom + 1"><v-icon>add</v-icon></v-btn>
+        <v-btn fab small class="zoom" @click="zoom = zoom + 1">
+          <v-icon>add</v-icon>
+        </v-btn>
         <v-tooltip color="ci" dark right>
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" class="zoom" fab small @click="resetView">
@@ -156,47 +121,32 @@
           </template>
           <span>Ursprungsposition</span>
         </v-tooltip>
-        <v-btn fab small class="zoom" @click="zoom = zoom - 1"><v-icon>remove</v-icon></v-btn>
+        <v-btn fab small class="zoom" @click="zoom = zoom - 1">
+          <v-icon>remove</v-icon>
+        </v-btn>
+        <v-menu min-width="200" fixed left>
+          <template v-slot:activator="{ on }">
+            <v-btn dark class="zoom" color="ci" fab small v-on="on">
+              <v-icon>save_alt</v-icon>
+            </v-btn>
+          </template>
+
+          <v-list class="context-menu-list" dense>
+            <v-subheader>
+              <v-icon class="mr-1" small>save_alt</v-icon>Export/Download
+            </v-subheader>
+            <v-list-item @click="printMap('png')">PNG</v-list-item>
+            <v-list-item disabled @click="printMap('svg')">SVG</v-list-item>
+            <v-list-item @click="printMap('json')">GeoJSON</v-list-item>
+          </v-list>
+        </v-menu>
       </v-flex>
+
       <v-flex class="text-xs-right" offset-xs11>
         <v-btn style="margin-top:5px;" fab @click="sideBar = !sideBar">
           <v-icon>layers</v-icon>
         </v-btn>
       </v-flex>
-
-      <v-list dense id="legende" v-if="geoCollections.length > 0">
-        <v-list-item dense>
-          <v-list-item-content>
-            <v-btn depressed small @click="title = !title">
-              <span v-if="title">Titel</span>
-              <span v-else>Beschreibung</span>
-              <v-icon style="margin-left:10px;">mdi-swap-horizontal</v-icon>
-            </v-btn>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item dense
-          v-for="gC in geoCollections"
-          :key="gC.collection"
-        >
-          <v-list-item-action>
-            <v-btn class="legendeButtons" icon small @click="removeCollection(gC.collection)">
-              <v-icon>mdi-window-close</v-icon>
-            </v-btn>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-if="title">{{ gC.name }}</v-list-item-title>
-            <v-list-item-title v-else> {{ gC.description }}</v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-menu :close-on-content-click="false" offset-y top>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" :color="gC.color" elevation="1" fab x-small></v-btn>
-              </template>
-               <v-color-picker @input="updateColor" hide-inputs v-model="gC.color"></v-color-picker>
-            </v-menu>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
 
       <v-menu open-on-hover min-width="200" fixed left>
           <template v-slot:activator="{ on }">
@@ -220,14 +170,24 @@
           </v-list-item>
         </v-list>
       </v-menu>
+      <router-link to="/">
+        <img class="logo mt-2 logo-container" src="/static/img/logo.svg" />
+      </router-link>
+
+      <map-legende
+        id="legende"
+        :geoCollections="geoCollections"
+        @interface="selectedCollection = $event"
+      ></map-legende>
     </v-layout>
+
     <l-map
-      style="z-index: 0; position: absolute; left: 0; right: 0;"
+      style="z-index: 0; position: absolute; left: 0; top:0; right: 0;"
       ref="map"
       :options="mapOptions"
       :zoom.sync="zoom"
-      :center.sync="center">
-
+      :center.sync="center"
+    >
       <l-tile-layer
         v-if="tileSetUrl != ''"
         :url="tileSetUrl"
@@ -296,548 +256,470 @@
           weight: 1
         }"
       />
-      <l-geo-json
-        v-if="!updateLayers && showRivers && rivers !== null"
-        :geojson="rivers"
-      />
-      <l-geo-json
-        v-if="!updateLayers && selectedLocations.length > 0"
-        ref="layerGeoJson"
-        :geojson="displayLocations"
-        :options="options"
-        :optionsStyle="styleFunction"
-      />
-      <div v-for="item in geoCollections" :key="item.collection + '-span'">
+
+      <l-geo-json v-if="!updateLayers && showRivers && rivers !== null" :geojson="rivers" />
+
+      <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
-          v-if="!updateLayers"
-          :geojson="collDisplayLocations(item.geo)"
+          v-if="!updateLayers && item.items.length > 0"
+          :geojson="collDisplayLocations(item.items)"
           :options="options"
-          :optionsStyle="item.style"
+          :optionsStyle="styleOf(item)"
         />
       </div>
-      
     </l-map>
   </div>
 </template>
 <script lang="ts">
-
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { LMap, LTileLayer, LMarker, LGeoJson, LIconDefault, LWMSTileLayer as LWmsTileLayer } from 'vue2-leaflet'
-import InfoText from '@components/InfoText.vue'
-import InfoBox from '@components/InfoBox.vue'
-import * as geojson from 'geojson'
-import { geoStore } from '../store/geo'
-import * as FileSaver from 'file-saver'
-import domtoimage from 'dom-to-image'
-import * as L from 'leaflet'
-import * as _ from 'lodash'
-import { searchCollections, getDocumentsByCollection, getCollectionByIds } from '../api'
+/* eslint-disable no-use-v-if-with-v-for*/
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import {
+  LMap,
+  LTileLayer,
+  LMarker,
+  LGeoJson,
+  LIconDefault,
+  LWMSTileLayer as LWmsTileLayer,
+} from "vue2-leaflet";
+import InfoText from "@components/InfoText.vue";
+import InfoBox from "@components/InfoBox.vue";
+import * as geojson from "geojson";
+import MapLegende from "@components/MapLegende.vue";
+import { geoStore } from "../store/geo";
+import * as FileSaver from "file-saver";
+import domtoimage from "dom-to-image";
+import * as L from "leaflet";
+import * as _ from "lodash";
+import {
+  searchCollections,
+  getDocumentsByCollection,
+  getCollectionByIds,
+} from "../api";
 
 function base64ToBlob(dataURI: string) {
-  const byteString = atob(dataURI.split(',')[1])
-  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
-  const ab = new ArrayBuffer(byteString.length)
-  const dw = new DataView(ab)
+  const byteString = atob(dataURI.split(",")[1]);
+  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const dw = new DataView(ab);
   for (let i = 0; i < byteString.length; i++) {
-    dw.setUint8(i, byteString.charCodeAt(i))
+    dw.setUint8(i, byteString.charCodeAt(i));
   }
-  return new Blob([ab], {type: mimeString})
+  return new Blob([ab], { type: mimeString });
 }
 
-const defaultCenter = [47.64318610543658, 13.53515625]
-const defaultZoom = 7
+const defaultCenter = [47.64318610543658, 13.53515625];
+const defaultZoom = 7;
 
 interface Places {
-  Ort: string
-  Bundesland: string
-  Großregion: string
+  Ort: string;
+  Bundesland: string;
+  Großregion: string;
 }
 
 @Component({
   components: {
     InfoText,
     InfoBox,
+    MapLegende,
     LMap,
     LTileLayer,
     LGeoJson,
     LMarker,
-    LWmsTileLayer
-  }
+    LWmsTileLayer,
+  },
 })
 export default class Maps extends Vue {
-
-  @Prop() loc: string|null
-  @Prop() collection_ids: string|null
+  @Prop() loc: string | null;
+  @Prop() collection_ids: string | null;
 
   tileSets = [
     {
-      name: 'Humanitarian Open Tiles',
-      url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png '
+      name: "Humanitarian Open Tiles",
+      url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
     },
     {
-      name: 'Wikimedia',
-      url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
+      name: "Wikimedia",
+      url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png",
     },
     {
-      name: 'Minimal Ländergrenzen (hell)',
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', 
-	    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      name: "Minimal Ländergrenzen (hell)",
+      url:
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
     },
     {
-      name: 'Minimal Ländergrenzen (dunkel)',
-      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-	    subdomains: 'abcd',
+      name: "Minimal Ländergrenzen (dunkel)",
+      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: "abcd",
     },
     {
-      name: 'Leer',
-      url: '',
-    }
-  ]
-  selectedTileSet = 0
+      name: "Leer",
+      url: "",
+    },
+  ];
+  selectedTileSet = 0;
 
   sideBar = false;
-  showHillshades = false
-  showRivers = false
-  showDialektregionenBorder = false
-  showDialektregionenFill = false
-  showBundeslaender = false
-  showGrossregionen = false
-  showKleinregionen = false
-  showGemeinden = false
-  updateLayers = false
-  colorGemeinde = '#6f9f58'
-  colorBundesland = '#000'
-  colorGrossregionen = '#555'
-  colorKleinregionen = '#888'
-  colorSelect = '#044'
-  borderColorSelect = '#000'
+  showHillshades = false;
+  showRivers = false;
+  showDialektregionenBorder = false;
+  showDialektregionenFill = false;
+  showBundeslaender = false;
+  showGrossregionen = false;
+  showKleinregionen = false;
+  showGemeinden = false;
+  updateLayers = false;
+  colorGemeinde = "#6f9f58";
+  colorBundesland = "#000";
+  colorGrossregionen = "#555";
+  colorKleinregionen = "#888";
   pinned = false;
   fixTooltip = false;
   //searchCollections
-  searchCollection: string|null = null
-  collectionSearchItems: any[] = []
-  selectedCollections: any[] = []
-  geoCollections: any[] = []
+  geoCollections: any[] = [
+    {
+      id: 0,
+      tempColl: -1,
+      collection_name: "Neue Sammlung",
+      editing: false,
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
+      items: [],
+    },
+  ];
+  selectedCollection = 0;
+  selectedLocations: any[] = [];
   title: boolean = true;
 
-  rivers: any = null
-  autoFit = false
-  zoom: number = defaultZoom
-  center: number[] = defaultCenter
-  geoStore = geoStore
+  rivers: any = null;
+  autoFit = false;
+  zoom: number = defaultZoom;
+  center: number[] = defaultCenter;
+  geoStore = geoStore;
   dialektColors = [
-    'rgba(182, 216, 203, .8)',
-    'rgba(153, 153, 241, .5)',
-    'rgba(153, 153, 241, .8)',
-    'rgba(153, 153, 241, .95)',
-    'rgba(0, 153, 0, .7)'
-  ]
+    "rgba(182, 216, 203, .8)",
+    "rgba(153, 153, 241, .5)",
+    "rgba(153, 153, 241, .8)",
+    "rgba(153, 153, 241, .95)",
+    "rgba(0, 153, 0, .7)",
+  ];
 
   mapOptions = {
-    scrollWheelZoom: true, zoomControl: false,
-    renderer: L.canvas()
-  }
+    scrollWheelZoom: true,
+    zoomControl: false,
+    renderer: L.canvas(),
+  };
   optionsEveryGemeinde = {
-    onEachFeature: this.bindTooltip(['name']),
+    onEachFeature: this.bindTooltip(["name"]),
     pointToLayer: (feature: any, latlng: any) => {
-			return L.circleMarker(latlng, {
-				radius: 5,
-				fillColor: this.colorGemeinde,
-				weight: 1,
-				opacity: 1,
-				fillOpacity: 0.8
-			})
-		}
-  }
+      return L.circleMarker(latlng, {
+        radius: 5,
+        fillColor: this.colorGemeinde,
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8,
+      });
+    },
+  };
 
   options = {
     onEachFeature: this.onEachFeatureFunction,
     pointToLayer: (feature: any, latlng: any) => {
-			return L.circleMarker(latlng, {
-				radius: 5,
-				weight: 1,
-				opacity: 1,
-				fillOpacity: 0.8
-			})
-		}
-  }
-  printPlugin: any = null
-  searchItemType = 'Ort'
-  layerGeoJson: any = null
-  map: any = null
+      return L.circleMarker(latlng, {
+        radius: 5,
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8,
+      });
+    },
+  };
+  printPlugin: any = null;
+  layerGeoJson: any = null;
+  map: any = null;
 
   get tileSetUrl(): string {
-    return this.tileSets[this.selectedTileSet].url
-  }
-
-  get selectedLocations(): string[] {
-    if (this.loc) {
-      return this.loc.split(',')
-    } else {
-      return []
-    }
+    return this.tileSets[this.selectedTileSet].url;
   }
 
   async fitMap() {
-    await this.$nextTick()
+    await this.$nextTick();
     if (this.map && this.layerGeoJson) {
-      this.map.mapObject.fitBounds(this.layerGeoJson.mapObject.getBounds())
+      this.map.mapObject.fitBounds(this.layerGeoJson.mapObject.getBounds());
     }
   }
 
   resetView() {
-    this.zoom = defaultZoom
-    this.center = defaultCenter
+    this.zoom = defaultZoom;
+    this.center = defaultCenter;
   }
 
   async printMap(type?: string) {
-    const el = (this.$refs.map as Vue).$el
-    if (type === 'svg') {
-      const blob = await domtoimage.toSvg(el)
-      FileSaver.saveAs(new Blob([blob]), 'map.svg')
-    } else if (type === 'png') {
-      const uriString = await domtoimage.toPng(el)
-      FileSaver.saveAs(base64ToBlob(uriString), 'map.png')
-    } else if (type === 'json') {
-      const blob = JSON.stringify(this.displayLocations, undefined, 2)
-      FileSaver.saveAs(new Blob([blob]), 'map.json')
+    const el = (this.$refs.map as Vue).$el;
+    if (type === "svg") {
+      const blob = await domtoimage.toSvg(el);
+      FileSaver.saveAs(new Blob([blob]), "map.svg");
+    } else if (type === "png") {
+      const uriString = await domtoimage.toPng(el);
+      FileSaver.saveAs(base64ToBlob(uriString), "map.png");
+    } else if (type === "json") {
+      const blob = JSON.stringify(this.displayLocations, undefined, 2);
+      FileSaver.saveAs(new Blob([blob]), "map.json");
     }
   }
 
-  selectLocations(locs: string[]) {
-    if (locs.length === 0) {
-      this.$router.replace({ query: {} })
-      if (this.autoFit) {
-        this.resetView()
-      }
-    }else { 
-      this.$router.replace({ query: { loc: locs.join(',') } })
-      if (this.autoFit) {
-        this.fitMap()
-      }
+  disableAuto(collID: Number) {
+    if(collID != -1) {
+      return true
     }
   }
 
-  @Watch('selectedCollections')
-  async selectCollections() {
-    this.changeURL(this.selectedCollections)
-    if(this.selectedCollections.length > -1) {
-      await this.getLocationsOfCollections(this.selectedCollections);
+  async asyncForEach(array: any[], callback: any) {
+    for (let index = 0; index < array.length; index++) {
+      await callback(array[index], index, array);
     }
   }
-
-  async getLocationsOfCollections(colls: any[]) {
-    //Collection got added
-    if(colls.length > this.geoCollections.length) {
-      colls.forEach(async coll => {
-        //Is this a new collection or an old one
-        let shownInGeo = false;
-        this.geoCollections.forEach(CollInGeo => {
-          if(CollInGeo.collection === coll) {
-            shownInGeo = true;
-          }
-        });
-        //It is a new one
-        if(!shownInGeo) {
-          const res:any = await getDocumentsByCollection([coll],1,1000)
-          let CollLocation:any[] = []
-          //@ts-ignore
-          res.documents.forEach(document => {
-            let sigle:string = document.ortsSigle;
-            if(sigle){
-              if(!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
-                CollLocation.push(document.ortsSigle.split(' ')[0])
-              }
-            }
-          });
-          const color:String = '#' + Math.floor(Math.random() * 16777215).toString(16) + '99';
-          const styleElement = {
-            weight: 1,
-            color: '#000',
-            opacity: 1,
-            fillColor: color,
-            fillOpacity: 1
-          }
-          let collName = "";
-          let collDescription = "";
-          this.collectionSearchItems.forEach(iterColl => {
-            if(coll === iterColl.value){
-              collName=iterColl.name;
-              collDescription=iterColl.description;
-            }
-          });
-          this.geoCollections.push({collection: coll, name: collName, description: collDescription , geo: CollLocation, style: styleElement, color: color});
-        }
-      });
-    } else {
-      let i = 0;
-      for (i = this.geoCollections.length - colls.length; i != 0; i--) { 
-        let deletedColl = -1;
-        this.geoCollections.forEach(CollInGeo => {
-            if(!colls.includes(CollInGeo.collection)) {
-              deletedColl = this.geoCollections.indexOf(CollInGeo);
-            }
-        });
-        if(deletedColl > -1){
-          this.geoCollections.splice(deletedColl, 1);
-        }
-      }
-    }
-  }
-
-  updateColor() {
-    this.geoCollections.forEach(coll => {
-      coll.style.fillColor = coll.color;
-    });
-  }
-
-  async asyncForEach(array: any[], callback:any) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
 
   get allFeatures(): geojson.Feature[] {
     if (this.isLoading) {
-      return []
+      return [];
     } else {
       return _([
         ...this.geoStore.bundeslaender!.features,
         ...this.geoStore.grossregionen!.features,
         ...this.geoStore.gemeinden!.features,
-        ...this.geoStore.kleinregionen!.features
-      ]).map((f) => {
-        return {
-          ...f,
-          properties: {
-            ...f.properties,
-            name:
-              (f.properties as any).NAME_D ||
-              (f.properties!.name) ||
-              (f.properties as any).Bundesland ||
-              (f.properties as any).Grossreg,
-            sigle:
-              (f.properties as any).sigle ||
-              (f.properties as any).Sigle
-          }
-        }
-      }).value()
+        ...this.geoStore.kleinregionen!.features,
+      ])
+        .map((f) => {
+          return {
+            ...f,
+            properties: {
+              ...f.properties,
+              name:
+                (f.properties as any).NAME_D ||
+                f.properties!.name ||
+                (f.properties as any).Bundesland ||
+                (f.properties as any).Grossreg,
+              sigle: (f.properties as any).sigle || (f.properties as any).Sigle,
+            },
+          };
+        })
+        .value();
     }
   }
 
   get bundeslaender(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.bundeslaender !== null) {
-      return this.geoStore.bundeslaender.features
+      return this.geoStore.bundeslaender.features;
     } else {
-      return []
+      return [];
     }
   }
 
   get grossregionen(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.grossregionen !== null) {
-      return this.geoStore.grossregionen.features
+      return this.geoStore.grossregionen.features;
     } else {
-      return []
+      return [];
     }
   }
 
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
-      return this.geoStore.gemeinden.features
+      return this.geoStore.gemeinden.features;
     } else {
-      return []
+      return [];
     }
   }
 
   get kleinregionen(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.kleinregionen !== null) {
-      return this.geoStore.kleinregionen.features
+      return this.geoStore.kleinregionen.features;
     } else {
-      return []
+      return [];
     }
   }
 
   get dialektregionen(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.dialektregionen !== null) {
-      return this.geoStore.dialektregionen.features
+      return this.geoStore.dialektregionen.features;
     } else {
-      return []
+      return [];
     }
   }
 
   get displayLocations() {
     if (this.loc && !this.isLoading) {
-      const locations = this.loc.split(',')
+      const locations = this.loc.split(",");
       return {
         ...this.geoStore!.gemeinden,
         features: this.allFeatures.filter((f: any) => {
-          return locations.indexOf(f.properties.sigle) > -1
-        })
-      }
+          return locations.indexOf(f.properties.sigle) > -1;
+        }),
+      };
     } else {
-      return this.allFeatures
-    }
-  }
-
-  collDisplayLocations(locations:string[]) {
-    return {
-      ...this.geoStore!.gemeinden,
-      features: this.allFeatures.filter((f: any) => {
-        return locations.indexOf(f.properties.sigle) > -1
-      })
+      return this.allFeatures;
     }
   }
 
   get locationsSearchItems() {
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
-        if(f.field === this.searchItemType || this.searchItemType === 'Ort'){
-          return {
-            text: f.name,
-            value: f.sigle,
-            parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
-          }
-        }else {
-          return null
-        }
-      })
-      return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
-        return el != null;
+        return {
+          text: f.name,
+          value: f.sigle,
+          parents: f.parentsObj
+            ? f.parentsObj
+                .slice()
+                .reverse()
+                .map((o: any) => o.name)
+                .join(", ")
+            : "",
+        };
       });
+      return (lokaleOrtsliste = lokaleOrtsliste.filter((el: any) => {
+        return el != null;
+      }));
     } else {
-      return []
+      return [];
     }
   }
 
-  removeCollection(coll : String){
-    //syncToGeoJSON
-    let deletedColl = -1;
-    let deletedCollAuto = -1;
-    this.geoCollections.forEach(CollInGeo => {
-        if(coll === CollInGeo.collection) {
-          deletedColl = this.geoCollections.indexOf(CollInGeo);
-        }
-    });
-    if(deletedColl > -1){
-      this.geoCollections.splice(deletedColl, 1);
-    }
-    //syncToautoCompleter
-    this.selectedCollections.forEach(sel => {
-      if(coll === sel) {
-        deletedCollAuto = this.selectedCollections.indexOf(sel);
+  changeLocinCollection() {
+    let activeCol;
+    this.geoCollections.forEach((coll) => {
+      if (coll.id === this.selectedCollection) {
+        activeCol = coll;
       }
     });
-    if(deletedCollAuto > -1){
-      this.selectedCollections.splice(deletedCollAuto, 1);
+    if (this.geoCollections.length > 0) {
+      //@ts-ignore
+      activeCol.items = this.selectedLocations[this.indexOfSelected];
     }
-    let colls:String[] = []
-    this.geoCollections.forEach(element => {
-      colls.push(element.collection);
-    });
-    this.changeURL(colls);
+    this.safeCollectionsInURL();
   }
 
-  changeURL(colls: String[]) {
-    if(this.$route.query.loc){
-      this.$router.replace({ query: { loc: this.$route.query.loc } })
-    } else {
+  styleOf(collection: Object) {
+    return {
+      fillOpacity: 1,
+      //@ts-ignore
+      fillColor: collection.fillColor,
+      //@ts-ignore
+      color: collection.borderColor,
+      weight: 1.5,
+    };
+  }
+
+  collDisplayLocations(locations: string[]) {
+    return {
+      ...this.geoStore!.gemeinden,
+      features: this.allFeatures.filter((f: any) => {
+        return locations.indexOf(f.properties.sigle) > -1;
+      }),
+    };
+  }
+
+
+  safeCollectionsInURL() {
+    if (this.geoCollections.length === 0) {
       this.$router.replace({ query: {} })
-    }
-  }
-
-  @Watch('searchCollection')
-  async onSearchCollection(val: string|null) {
-    if (val !== null && val.trim() !== '') {
-      if(this.title) {
-        this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.name }))
-      } else {
-        this.collectionSearchItems = (await searchCollections(val)).map(x => ({ ...x, text: x.description }))
-      }
+    }else { 
+      this.$router.replace({ query: { col: JSON.stringify(this.geoCollections) } })
     }
   }
 
   getPlacesFromSigle(sigle: string): Places {
-    const place = _(geoStore.ortsliste).find(o => o.sigle === sigle)
+    const place = _(geoStore.ortsliste).find((o) => o.sigle === sigle);
     if (place === undefined) {
       return {
-        Ort: '',
-        Großregion: '',
-        Bundesland: ''
-      }
+        Ort: "",
+        Großregion: "",
+        Bundesland: "",
+      };
     } else {
-      const bl = _(place.parentsObj).find(o => o.field === 'Bundesland')
-      const gr = _(place.parentsObj).find(o => o.field === 'Großregion')
+      const bl = _(place.parentsObj).find((o) => o.field === "Bundesland");
+      const gr = _(place.parentsObj).find((o) => o.field === "Großregion");
       return {
         Ort: place.name,
-        Großregion: gr ? gr.name : '',
-        Bundesland: bl ? bl.name : '',
-        [ place.field ]: place.name,
-      }
-    }
-  }
-
-  get styleFunction() {
-    const aThis: any = this
-    var colour: string = this.colorSelect;
-    var border: string = this.borderColorSelect;
-    return {
-      weight: 1,
-      color: border,
-      opacity: 1,
-      fillColor: colour,
-      fillOpacity: 0.5
+        Großregion: gr ? gr.name : "",
+        Bundesland: bl ? bl.name : "",
+        [place.field]: place.name,
+      };
     }
   }
 
   get optionsFunction() {
-    const aThis: any = this
+    const aThis: any = this;
     var tooltip = this.fixTooltip;
     return {
-      onEachFeature: this.bindTooltip(['name'], false, tooltip)
-    }
+      onEachFeature: this.bindTooltip(["name"], false, tooltip),
+    };
   }
 
   get optionsFunctionGross() {
-    const aThis: any = this
+    const aThis: any = this;
     var tooltip = this.fixTooltip;
     return {
-      onEachFeature: this.bindTooltip(['Grossreg'], false, tooltip)
-    }
+      onEachFeature: this.bindTooltip(["Grossreg"], false, tooltip),
+    };
   }
 
-  bindTooltip(properties = ['name'], showLabel = false, perm = false) {
+  bindTooltip(properties = ["name"], showLabel = false, perm = false) {
     return (feature: geojson.Feature, layer: L.Layer) => {
       layer.bindTooltip(
         properties
-          .map(p => `<div>${showLabel ? p + ': ' : ''}${ (feature.properties as any)[p] }</div>`)
-          .join(''),
+          .map(
+            (p) =>
+              `<div>${showLabel ? p + ": " : ""}${
+                (feature.properties as any)[p]
+              }</div>`
+          )
+          .join(""),
         { permanent: perm, sticky: true }
-      )
+      );
+    };
+  }
+
+  get indexOfSelected() {
+    let returnColl;
+    this.geoCollections.forEach((coll) => {
+      if (coll.id === this.selectedCollection) {
+        returnColl = coll;
+      }
+    });
+    return this.geoCollections.indexOf(returnColl);
+  }
+
+  getCollectionsOutOfURL() {
+    if(this.$route.query.col) {
+      //@ts-ignore
+      let geoCollectionURL = JSON.parse(this.$route.query.col);
+      this.geoCollections = geoCollectionURL;
     }
   }
 
   get onEachFeatureFunction() {
-    const aThis: any = this
+    const aThis: any = this;
     return (feature: geojson.Feature, layer: L.Layer) => {
       //@ts-ignore
-      if(feature.properties.fid){
-        this.bindTooltip(['Name', 'sigle'], true)(feature, layer)
+      if (feature.properties.fid) {
+        this.bindTooltip(["Name", "sigle"], true)(feature, layer);
       } else {
-        this.bindTooltip(['name', 'sigle'], true)(feature, layer)
+        this.bindTooltip(["name", "sigle"], true)(feature, layer);
       }
-      layer.on('mouseover', function(this: any) {
+      layer.on("mouseover", function (this: any) {
         this.setStyle({
-          fillOpacity: 1
-        })
-      })
-      layer.on('mouseout', function(this: any) {
-        const aSigleS = (feature.properties as any).sigle
+          fillOpacity: 1,
+        });
+      });
+      layer.on("mouseout", function (this: any) {
+        const aSigleS = (feature.properties as any).sigle;
         this.setStyle({
-          fillOpacity: 0.5
-        })
-      })
-    }
+          fillOpacity: 0.5,
+        });
+      });
+    };
   }
   get isLoading() {
     if (
@@ -847,14 +729,18 @@ export default class Maps extends Vue {
       this.geoStore.ortsliste !== null &&
       this.geoStore.kleinregionen !== null
     ) {
-      return false
+      return false;
     } else {
-      return true
+      return true;
     }
   }
   async loadRivers() {
     // tslint:disable-next-line:max-line-length
-    this.rivers = await (await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_rivers_europe.geojson')).json()
+    this.rivers = await (
+      await fetch(
+        "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_rivers_europe.geojson"
+      )
+    ).json();
   }
 
   @Watch('showHillshades')
@@ -863,54 +749,76 @@ export default class Maps extends Vue {
   @Watch('showRivers')
   @Watch('selectedTileSet')
   layerChanged() {
-    this.updateLayers = true
+    this.updateLayers = true;
   }
-  @Watch('selectedLocations')
+  @Watch("selectedLocations")
   layerChangedSL(nVal: any, oVal: any) {
-    if ((oVal && oVal.length > 0) && (!nVal || nVal.length === 0)
-    || (nVal && nVal.length > 0) && (!oVal || oVal.length === 0)) {
-      this.updateLayers = true
+    if (
+      (oVal && oVal.length > 0 && (!nVal || nVal.length === 0)) ||
+      (nVal && nVal.length > 0 && (!oVal || oVal.length === 0))
+    ) {
+      this.updateLayers = true;
     }
   }
-  @Watch('updateLayers')
+  @Watch("updateLayers")
   layerUpdate(nVal: any) {
     if (nVal) {
       this.$nextTick(() => {
-        this.updateLayers = false
-      })
+        this.updateLayers = false;
+      });
     }
   }
 
-  @Watch('selectedTileSet')
-  darkModeBorderColor() {
-    if(this.selectedTileSet === 3) {
-      this.colorBundesland = '#FFF'
-      this.colorGrossregionen = '#BBB'
-      this.colorKleinregionen = '#888'
+  @Watch("geoCollections.length")
+  changeAutofillsOnDelete() {
+    let indexDelete = -1;
+    this.selectedLocations.forEach(auto => {
+      let stillExists = false;
+      this.geoCollections.forEach(geoColl => {
+        if(geoColl.items === auto) {
+          stillExists = true;
+        }
+      });
+      if(!stillExists) {
+        indexDelete = this.selectedLocations.indexOf(auto);
+      }
+    });
+    if(indexDelete != -1) {
+      this.selectedLocations.splice(indexDelete, 1);
     }
   }
-  @Watch('$route.query')
-  comingFromArticle(){
-    if(this.$route.query.source === 'article'){
+
+  @Watch("selectedTileSet")
+  darkModeBorderColor() {
+    if (this.selectedTileSet === 3) {
+      this.colorBundesland = "#FFF";
+      this.colorGrossregionen = "#BBB";
+      this.colorKleinregionen = "#888";
+    }
+  }
+  @Watch("$route.query")
+  comingFromArticle() {
+    if (this.$route.query.source === "article") {
       this.showGrossregionen = true;
       this.selectedTileSet = 4;
       this.fixTooltip = true;
-      this.$router.replace({ query: { loc: this.$route.query.loc } })
+      this.$router.replace({ query: { loc: this.$route.query.loc } });
     }
   }
 
   async mounted() {
-    this.loadRivers()
+    this.loadRivers();
+    this.getCollectionsOutOfURL();
     this.$nextTick(() => {
-      this.layerGeoJson = this.$refs.layerGeoJson
-      this.map = this.$refs.map
-    })
+      this.layerGeoJson = this.$refs.layerGeoJson;
+      this.map = this.$refs.map;
+    });
   }
 }
 </script>
 <style lang="scss" scoped>
 @import "../../node_modules/leaflet/dist/leaflet.css";
-.map-overlay{
+.map-overlay {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -918,26 +826,42 @@ export default class Maps extends Vue {
   right: 0;
   pointer-events: none;
   * {
-    pointer-events: all
+    pointer-events: all;
   }
 }
 
-#legende{
+#legende {
   position: fixed;
-  bottom: 50px;
-  left: 50px;
+  bottom: 25px;
+  left: 25px;
+  z-index: 1;
+  width: auto;
 }
 
-.zoom{
+.zoom {
   margin: 5px;
 }
 
-.legendeButtons{
+.logo-container {
+  transition: 0.5s;
+  height: 100px;
+  position: absolute;
+  bottom: 130px;
+  right: 10px;
+  opacity: 0.8;
+}
+.logo-container.logo-hidden {
+  overflow: hidden;
+  height: 20px;
+  opacity: 0;
+}
+
+.legendeButtons {
   margin-left: 7px;
   margin-right: 7px;
 }
 
-.navButton{
+.navButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -946,18 +870,18 @@ export default class Maps extends Vue {
   background-color: white;
 }
 
-.subtitles{
+.subtitles {
   margin: -15px;
 }
 
-.pinBtn{
-  float:right;
-  margin:10px;
+.pinBtn {
+  float: right;
+  margin: 10px;
   margin-top: -45px;
 }
 
 .toolbar {
-  margin-top:7px;
+  margin-top: 7px;
 }
 
 .sticky-card {

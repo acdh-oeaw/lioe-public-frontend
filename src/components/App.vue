@@ -9,10 +9,10 @@
               <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
             </v-flex> -->
             <v-layout>
-              <v-flex xs12 class="text-center">
-                <router-link to="/"><img class="logo mt-2" src="/static/img/logo.svg" /></router-link>
-                <div class="project-name">Lexikalisches Informationssystem Österreich</div>
-              </v-flex>
+                <v-flex xs12 :class="['text-center', 'logo-container', $route.name === 'maps' && 'logo-hidden']">
+                  <router-link to="/"><img class="logo mt-2" src="/static/img/logo.svg" /></router-link>
+                  <div class="project-name">Lexikalisches Informationssystem Österreich</div>
+                </v-flex>
             </v-layout>
           </v-flex>
           <v-flex class="pl-3 pr-3 header-navigation">
@@ -92,6 +92,9 @@ export default class App extends Vue {
   .tabs-top .v-slide-group__prev.v-slide-group__prev--disabled {
     display: none!important;
   }
+  .header-navigation {
+    z-index: 9;
+  }
   .header-navigation .v-tab{
     color: #fff!important;
   }
@@ -101,6 +104,15 @@ export default class App extends Vue {
   }
   .active-tab .v-icon{
     color: #3b89a0!important;
+  }
+  .logo-container{
+    transition: .5s;
+    height: 130px;
+  }
+  .logo-container.logo-hidden{
+    overflow: hidden;
+    height: 20px;
+    opacity: 0;
   }
 </style>
 <style>
