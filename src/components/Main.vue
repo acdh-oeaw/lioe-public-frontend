@@ -19,7 +19,7 @@
 <v-layout column>
   <v-flex>
 
- <v-col>
+ <v-col class="pa-0">
    <v-autocomplete
     :loading="loading" 
     :items='searchItems'

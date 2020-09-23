@@ -439,8 +439,8 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Bed./Laut.',
-      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutunglautung/',
       renderFnc: this.renderBedeutung,
+      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutunglautung/',
       value: 'BD/LT*',  
       sortable: false     
     },
