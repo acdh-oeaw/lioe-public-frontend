@@ -148,28 +148,6 @@
         </v-btn>
       </v-flex>
 
-      <v-menu open-on-hover min-width="200" fixed left>
-          <template v-slot:activator="{ on }">
-            <v-btn dark color="ci" fab fixed bottom right :style="{right: sideBar === true ? '265px' : '10px'}" v-on="on">
-              <v-icon>save_alt</v-icon>
-            </v-btn>
-          </template>
-          
-        <v-list class="context-menu-list" dense>
-          <v-subheader>
-            <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
-          </v-subheader>
-          <v-list-item @click="printMap('png')">
-            PNG
-          </v-list-item>
-          <v-list-item disabled @click="printMap('svg')">
-            SVG
-          </v-list-item>
-          <v-list-item @click="printMap('json')">
-            GeoJSON
-          </v-list-item>
-        </v-list>
-      </v-menu>
       <router-link to="/">
         <img class="logo mt-2 logo-container" src="/static/img/logo.svg" />
       </router-link>
