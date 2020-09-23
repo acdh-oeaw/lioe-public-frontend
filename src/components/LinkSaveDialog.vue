@@ -56,7 +56,7 @@ export default class SaveLink extends Vue {
   contentURL:any;
 
   beforeMount() {
-    this.contentURL = "localhost:8080" + this.$route.fullPath
+    this.contentURL = "https://lioe-test.dioe.at" + this.$route.fullPath
   }
   
 
