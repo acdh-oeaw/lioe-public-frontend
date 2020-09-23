@@ -1,21 +1,6 @@
 <template>
   <v-layout column>
     <v-flex>
-       <v-row no-gutters>
-          <template v-for="h in shownHeaders">
-           <v-chip
-              v-bind:key="h.text"
-              v-if="h.inSearch"
-              class="ma-2"
-              close
-              color="lime darken-4"
-              text-color="white"
-              close-icon="mdi-close"
-              @click:close="h.inSearch = false">
-              {{h.text}}
-              </v-chip>
-          </template>
-        </v-row>
       <v-card class="sticky-card" width="100%">  
         <v-row no-gutters>
           <v-col class="pa-0" cols="8">
@@ -150,6 +135,22 @@
           </v-row>
         </v-col>
       </v-row>
+
+       <v-row no-gutters>
+          <template v-for="h in shownHeaders">
+           <v-chip
+              v-bind:key="h.text"
+              v-if="h.inSearch"
+              class="ma-2"
+              close
+              color="#3b89a0"
+              text-color="white"
+              close-icon="mdi-close"
+              @click:close="h.inSearch = false">
+              {{h.text}}
+              </v-chip>
+          </template>
+        </v-row>
       <InfoBox class="mt-2 mb-2">
         <h4 class="headline mb-0">Hinweis</h4>
         <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen sowie Transkriptionszeichen zur Wiedergabe der Dialektlautung angezeigt werden können!</div>
