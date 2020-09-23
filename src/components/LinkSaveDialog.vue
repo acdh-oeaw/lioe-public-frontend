@@ -12,7 +12,7 @@
           v-bind="attrs"
           v-on="on"
         >
-          Copy Url
+          Auswahl teilen
         </v-btn>
       </template>
 
@@ -54,6 +54,12 @@ Vue.use(VueClipboard);
 export default class SaveLink extends Vue {
   dialog: boolean = false
   contentURL:any;
+
+
+  @Watch('$route.fullPath')
+  changeURL() {
+    this.contentURL = "localhost:8080" + this.$route.fullPath
+  }
 
   beforeMount() {
     this.contentURL = "localhost:8080" + this.$route.fullPath

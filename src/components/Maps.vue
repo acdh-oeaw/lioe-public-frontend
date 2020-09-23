@@ -360,7 +360,7 @@ export default class Maps extends Vue {
     {
       id: 0,
       tempColl: -1,
-      collection_name: "Neue Sammlung",
+      collection_name: "Sammlung Neu",
       editing: false,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
@@ -674,6 +674,9 @@ export default class Maps extends Vue {
       //@ts-ignore
       let geoCollectionURL = JSON.parse(this.$route.query.col);
       this.geoCollections = geoCollectionURL;
+      this.geoCollections.forEach(element => {
+          this.selectedLocations[this.geoCollections.indexOf(element)] = element.items;
+      });
     }
   }
 
@@ -764,6 +767,7 @@ export default class Maps extends Vue {
     if(indexDelete != -1) {
       this.selectedLocations.splice(indexDelete, 1);
     }
+    this.safeCollectionsInURL();
   }
 
   @Watch("selectedTileSet")
@@ -774,6 +778,7 @@ export default class Maps extends Vue {
       this.colorKleinregionen = "#888";
     }
   }
+
   @Watch("$route.query")
   comingFromArticle() {
     if (this.$route.query.source === "article") {
