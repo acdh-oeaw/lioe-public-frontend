@@ -9,10 +9,10 @@
               <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
             </v-flex> -->
             <v-layout>
-              <v-flex xs12 class="text-center">
-                <router-link to="/"><img class="logo mt-2" src="/static/img/logo.svg" /></router-link>
-                <div class="project-name">Lexikalisches Informationssystem Österreich</div>
-              </v-flex>
+                <v-flex xs12 :class="['text-center', 'logo-container', $route.name === 'maps' && 'logo-hidden']">
+                  <router-link to="/"><img class="logo mt-2" src="/static/img/logo.svg" /></router-link>
+                  <div class="project-name">Lexikalisches Informationssystem Österreich</div>
+                </v-flex>
             </v-layout>
           </v-flex>
           <v-flex class="pl-3 pr-3 header-navigation">
@@ -52,14 +52,17 @@
               <a target="_blank" href="https://acdh.oeaw.ac.at">
                 <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/acdh-ch-logo-with-text.png" alt="" class="src" />
               </a>
-              <a target="_blank" href="https://dioe.at/">
-                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/logodioe.png" alt="" class="src" />
-              </a>
-              <a target="_blank" href="https://www.oeaw.ac.at/acdh/vawadioe/uebersicht/">
-                <v-img aspect-ratio="1" width="150" max-height="125" contain src="/static/img/logo-vawadioe.png" alt="" class="src" />
-              </a>
               <a target="_blank" href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/">
                 <v-img aspect-ratio="1" width="150" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/wboelogo_230px_transp.png" alt="" class="src" />
+              </a>
+              <a target="_blank" href="https://www.fwf.ac.at">
+                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/fwf-logo.gif" alt="" class="src" />
+              </a>
+              <a target="_blank" href="https://www.univie.ac.at">
+                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/uni-logo.png" alt="" class="src" />
+              </a>
+              <a target="_blank" href="https://dioe.at/">
+                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/logodioe.png" alt="" class="src" />
               </a>
             </v-layout>
           </v-flex>
@@ -89,6 +92,9 @@ export default class App extends Vue {
   .tabs-top .v-slide-group__prev.v-slide-group__prev--disabled {
     display: none!important;
   }
+  .header-navigation {
+    z-index: 9;
+  }
   .header-navigation .v-tab{
     color: #fff!important;
   }
@@ -98,6 +104,15 @@ export default class App extends Vue {
   }
   .active-tab .v-icon{
     color: #3b89a0!important;
+  }
+  .logo-container{
+    transition: .5s;
+    height: 130px;
+  }
+  .logo-container.logo-hidden{
+    overflow: hidden;
+    height: 20px;
+    opacity: 0;
   }
 </style>
 <style>
