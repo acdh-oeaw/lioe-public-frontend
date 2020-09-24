@@ -36,13 +36,15 @@
     >
     <template v-slot:item="{ item }">
       <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.value}&fields=Sigle1`">
-        <v-list-item-avatar><v-btn v-if="item.type === 'article'"><v-icon>mdi-newspaper</v-icon></v-btn></v-list-item-avatar>
+        <v-list-item-avatar><v-btn v-if="item.type === 'article'"><v-icon>mdi-newspaper</v-icon></v-btn>
+        <v-btn v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
+        </v-list-item-avatar>
         <v-list-item-content >
           <v-list-item-title> {{item.text}}</v-list-item-title>
       </v-list-item-content>
-         <v-list-item-action>
-            <v-btn @click.stop.prevent="$router.replace(`/maps?col=${getColStr(item.value)}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
-         </v-list-item-action>    
+           <v-list-item-action>
+            <v-btn @click.stop.prevent="$router.replace(`/maps?col=${getColStr(item.value)}`)" v-if="item.type === 'place'">zur Karte</v-btn>
+         </v-list-item-action>
       </v-list-item>
     </template>
     <template v-slot:no-data>
