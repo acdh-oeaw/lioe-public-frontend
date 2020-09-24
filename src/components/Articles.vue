@@ -19,9 +19,10 @@
         <v-flex>
           <v-menu open-on-hover max-width="700" max-height="95vh" top left>
             <template v-slot:activator="{ on }">
-              <v-btn v-on="on" color="accent" icon text>
+              <v-btn v-on="on" color="accent" icon text class="pt-2">
                 <v-icon>info</v-icon>
               </v-btn>
+              
             </template>
             <info-text class="elevation-24 pa-4 white" path="wboe-artikel/showcases/" />
           </v-menu>

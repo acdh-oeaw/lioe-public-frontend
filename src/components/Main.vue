@@ -19,13 +19,14 @@
 <v-layout column>
   <v-flex>
 
- <v-col>
+ <v-col class="pa-0">
    <v-autocomplete
     :loading="loading" 
     :items='searchItems'
     @input="selectItems"
     label="Suche..."
     autofocus
+    @update:search-input="(e) => searchTerm = e"
     v-model="searchedItem" 
     text
     hide-details
@@ -34,15 +35,19 @@
     clearable
     >
     <template v-slot:item="{ item }">
-      <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.text}&fields=HL,Großregion1`">
-        <v-list-item-avatar></v-list-item-avatar>
+      <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.value}&fields=Sigle1`">
+        <v-list-item-avatar><v-btn v-if="item.type === 'article'"><v-icon>mdi-newspaper</v-icon></v-btn></v-list-item-avatar>
         <v-list-item-content >
-          <v-list-item-title>{{item.text}}</v-list-item-title>
+          <v-list-item-title> {{item.text}}</v-list-item-title>
       </v-list-item-content>
          <v-list-item-action>
-            <v-btn @click.stop.prevent="$router.replace(`/maps?loc=${item.value}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
-         </v-list-item-action>
+            <v-btn @click.stop.prevent="$router.replace(`/maps?col=${getColStr(item.value)}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
+         </v-list-item-action>    
       </v-list-item>
+    </template>
+    <template v-slot:no-data>
+     Der gesuchte Begriff ist weder Artikel noch Ort. Zum Weitersuchen in der Belegdatenbank:
+     <v-btn @click="$router.replace(`db?query=${searchTerm}&fields=HL`)"> {{ searchTerm }}</v-btn> 
     </template>
     </v-autocomplete>
   </v-col>
@@ -108,10 +113,10 @@
 
       <vue-word-cloud
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
-        :rotation="searchTerm === '' ? .875 : 0"
+        :rotation=".875"
         :words="filteredWords"
-        :animation-overlap="searchTerm === '' ? 10 : 1"
-        :animation-duration="searchTerm === '' ? ((visited) ? 0 : 5000) : 500"
+        :animation-overlap="10"
+        :animation-duration="((visited) ? 0 : 5000)"
         :spacing=".2"
         @update:progress="updateWordProgress"
         font-weight="800"
@@ -237,6 +242,18 @@ export default class Main extends Vue {
 
   log(e: any) {
     console.log(e)
+  }
+
+  getColStr(val: any) {
+    return JSON.stringify({
+              id: 0,
+              tempColl: -1,
+              collection_name: "Sammlung Neu",
+              editing: false,
+              fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+              borderColor: "#000",
+              items: [val]})
+
   }
 
 

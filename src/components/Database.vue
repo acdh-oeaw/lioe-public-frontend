@@ -1,7 +1,7 @@
 <template>
   <v-layout column>
     <v-flex>
-      <v-card class="sticky-card" width="100%">
+      <v-card class="sticky-card" width="100%">  
         <v-row no-gutters>
           <v-col class="pa-0" cols="8">
             <v-text-field
@@ -135,6 +135,22 @@
           </v-row>
         </v-col>
       </v-row>
+
+       <v-row no-gutters>
+          <template v-for="h in shownHeaders">
+           <v-chip
+              v-bind:key="h.text"
+              v-if="h.inSearch"
+              class="ma-2"
+              close
+              color="#3b89a0"
+              text-color="white"
+              close-icon="mdi-close"
+              @click:close="h.inSearch = false">
+              {{h.text}}
+              </v-chip>
+          </template>
+        </v-row>
       <InfoBox class="mt-2 mb-2">
         <h4 class="headline mb-0">Hinweis</h4>
         <div>Derzeit handelt es sich noch um eine vorläufige Version, in der noch nicht alle in der Datenbank vorhandenen Gemeinden und Regionen sowie Transkriptionszeichen zur Wiedergabe der Dialektlautung angezeigt werden können!</div>
@@ -152,6 +168,7 @@
         :options.sync="pagination"
         :server-items-length="totalItems"
         :headers="shownHeaders"
+        fixed-header height="500px" 
         :loading="loading"
         :items="_items">
         <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
@@ -349,6 +366,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: false,
       text: 'Nebenl.',
+      infoUrl: 'wboe-artikel/dbheaderinfo-nebenlemma',
       value: 'NL',
       renderFnc: (val: any) => (Array.isArray(val.NL) ? val.NL[0] : val.NL),
       extended: true
@@ -379,6 +397,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: false,
       text: 'Grammatik', 
+      infoUrl: 'wboe-artikel/dbheaderinfo-grammatik/',
       renderFnc: this.renderGrammatikAngabe,
       value: 'BD/KT',
       extended: true
@@ -399,7 +418,7 @@ export default class Database extends Vue {
       inSearch: false,
       show: false,
       text: 'Frage', 
-      infoUrl: 'wboe-artikel/dbheaderinfo-gefragterausdruck/',
+      infoUrl: 'wboe-artikel/dbheaderinfo-frage/',
       renderFnc: this.renderGefragterAusdruck, 
       value: 'NR2',
       sortable: false,
@@ -420,8 +439,8 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Bed./Laut.',
-      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutung/',
       renderFnc: this.renderBedeutung,
+      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutunglautung/',
       value: 'BD/LT*',  
       sortable: false     
     },
@@ -430,6 +449,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: false,
       text: 'Ort/Laut.',
+      infoUrl: 'wboe-artikel/dbheaderinfo-ortlautung/',
       value: 'Ort/LT',
       sortable: false,
       extended: true
@@ -439,7 +459,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Kontext', // Belegsatz
-      infoUrl: 'wboe-artikel/dbheaderinfo-belegsaetze/',
+      infoUrl: 'wboe-artikel/dbheaderinfo-kontext/',
       renderFnc: this.renderBelegsaetze,
       value: 'BD/KT1' //'belegsaetze' 
     },
@@ -448,7 +468,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Bed./Kont.',  //Bedeutung/Belegsatz
-      infoUrl: 'wboe-artikel/dbheaderinfo-belegsatz-bedeutung',
+      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutungkontext',
       renderFnc: this.renderBedeutungBelegsaetze,
       value: 'BD/KT*'
     },
@@ -489,6 +509,7 @@ export default class Database extends Vue {
       inSearch: true,
       show: true,
       text: 'Staat',
+      infoUrl: 'wboe-artikel/dbheaderinfo-staat/',
       value: 'Sigle10',
       renderFnc: (val: any) => regions.generalMapStaat(`${_(val.Sigle1).flatten()}`)
     },
@@ -498,7 +519,7 @@ export default class Database extends Vue {
       show: true,
       text: 'Land',
       value: 'Bundesland1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-bundesland/',
+      infoUrl: 'wboe-artikel/dbheaderinfo-land/',
       renderFnc: (val: any) => regions.mapBundeslaender(_(val.Bundesland1).flatten().replace(/\d[A-Z]?[\.]?[\d]?/g, '')) 
     },
     {
@@ -525,7 +546,7 @@ export default class Database extends Vue {
       show: true,
       text: 'Gemeinde',
       value: 'Gemeinde1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-ort/',
+      infoUrl: 'wboe-artikel/dbheaderinfo-gemeinde/',
       renderFnc: (val: any) =>
         `${_(val.Gemeinde1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')}`
         // ${val.Ort ? ` ${val.Ort}` : ''}`
