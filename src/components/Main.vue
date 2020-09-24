@@ -41,7 +41,7 @@
           <v-list-item-title> {{item.text}}</v-list-item-title>
       </v-list-item-content>
          <v-list-item-action>
-            <v-btn @click.stop.prevent="$router.replace(`/maps?loc=${item.value}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
+            <v-btn @click.stop.prevent="$router.replace(`/maps?col=${getColStr(item.value)}`)" v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
          </v-list-item-action>    
       </v-list-item>
     </template>
@@ -242,6 +242,18 @@ export default class Main extends Vue {
 
   log(e: any) {
     console.log(e)
+  }
+
+  getColStr(val: any) {
+    return JSON.stringify({
+              id: 0,
+              tempColl: -1,
+              collection_name: "Sammlung Neu",
+              editing: false,
+              fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+              borderColor: "#000",
+              items: [val]})
+
   }
 
 
