@@ -1,6 +1,5 @@
 <template>
   <v-layout column fill-height>
-    
     <!-- <v-flex class="text-center">
       <v-text-field
         :loading="loading"
@@ -97,11 +96,10 @@
     </v-col>
 
   </v-row> -->
-  </v-flex>
-  </v-layout>
+      </v-flex>
+    </v-layout>
 
-
-<!-- END TRY -->
+    <!-- END TRY -->
 
     <v-flex style="height: 40vh" xs12>
       <!-- <v-progress-linear
@@ -111,167 +109,197 @@
         indeterminate
       /> -->
 
-
-
       <vue-word-cloud
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
-        :rotation=".875"
+        :rotation="0.875"
         :words="filteredWords"
         :animation-overlap="10"
-        :animation-duration="((visited) ? 0 : 5000)"
-        :spacing=".2"
+        :animation-duration="visited ? 0 : 5000"
+        :spacing="0.2"
         @update:progress="updateWordProgress"
         font-weight="800"
-        font-family="fiduz">
-      <template slot-scope="{text, weight, word}">
-        <router-link class="word-cloud-link" :to="`/articles/${findArticleByTitle(text).filename.replace('.xml', '')}`">
-          {{ text }}
-        </router-link>
-      </template>
+        font-family="fiduz"
+      >
+        <template slot-scope="{ text, weight, word }">
+          <router-link
+            class="word-cloud-link"
+            :to="`/articles/${findArticleByTitle(text).filename.replace(
+              '.xml',
+              ''
+            )}`"
+          >
+            {{ text }}
+          </router-link>
+        </template>
       </vue-word-cloud>
     </v-flex>
+<<<<<<< HEAD
     <div class="text-center mt-5">{{ articles ? articles.length.toLocaleString() : '?' }} WBÖ Artikel</div>
    
+=======
+    <div class="text-center mt-5">
+      {{ articles ? articles.length.toLocaleString() : "?" }} WBÖ Artikel
+    </div>
+    <v-layout row>
+      <v-flex class="xs7 mx-auto">
+        <InfoBox class="mt-5">
+          <h4 class="headline">Sie suchen das WBÖ-Projekt?</h4>
+          <div>
+            Alle Informationen zum „Wörterbuch der bairischen Mundarten in
+            Österreich“ finden Sie
+            <a
+              href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/"
+              target="_blank"
+              >hier</a
+            >.
+          </div>
+        </InfoBox>
+      </v-flex>
+    </v-layout>
+>>>>>>> 92abbec05b5cb0cf6081b3e07a94f25d4e117fbb
     <v-flex class="pt-4">
       <info-text subDialog="true" path="home/einleitungstext/" />
     </v-flex>
   </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import * as _ from 'lodash'
-import InfoText from '@components/InfoText.vue'
-import { getArticles } from '../api'
-import InfoBox from '@components/InfoBox.vue'
-import { geoStore } from '../store/geo'
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import * as _ from "lodash";
+import InfoText from "@components/InfoText.vue";
+import { getArticles } from "../api";
+import InfoBox from "@components/InfoBox.vue";
+import { geoStore } from "../store/geo";
 
 @Component({
   components: {
     InfoText,
-    InfoBox
-  }
+    InfoBox,
+  },
 })
 export default class Main extends Vue {
-
-  wordProgress: number|null = null
-  searchTerm: string = ''
-  searchOrt: string = '' 
-  searchedItem: string = ''
-  searchLemma: string = '' 
-  articles: Array<{title: string, filename: string}> = []
-  articlesPlus: Array<{title: string, filename: string, ort: string}> = []  //extended articles list
-  loading = false
-  visited: boolean = false
-  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250) //TODO RECHECK what to debounce
-  autoFit = false
-  loc: string|null
-  geoStore = geoStore
+  wordProgress: number | null = null;
+  searchTerm: string = "";
+  searchOrt: string = "";
+  searchedItem: string = "";
+  searchLemma: string = "";
+  articles: Array<{ title: string; filename: string }> = [];
+  articlesPlus: Array<{ title: string; filename: string; ort: string }> = []; //extended articles list
+  loading = false;
+  visited: boolean = false;
+  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250); //TODO RECHECK what to debounce
+  autoFit = false;
+  loc: string | null;
+  geoStore = geoStore;
   // items=[{text: 'Lemma', value: 'Lemma', disabled: false},{text: 'Ort', value: 'Ort', disabled: false}]
 
   selectItems(input: string) {
-    console.log(input)
+    console.log(input);
   }
 
-  findArticleByTitle(title: string) { //check also based on ort
-    return this.articles.find(a => a.title === title) 
+  findArticleByTitle(title: string) {
+    //check also based on ort
+    return this.articles.find((a) => a.title === title);
   }
 
- get words(): string[] {
-    return this.articles.map(w => w.title)
+  get words(): string[] {
+    return this.articles.map((w) => w.title);
   }
-
 
   get wordsWithWeights(): Array<[string, number]> {
     return this.words.map((w: string) => {
-      return [w, _.random(1, 5, true)] as [string, number]
-    })
+      return [w, _.random(1, 5, true)] as [string, number];
+    });
   }
 
-
   get filteredWords() {
-
     if (this.searchTerm) {
-      return this.wordsWithWeights.filter(w => {
-        return w[0].toLowerCase().indexOf(this.searchTerm.toLowerCase()) > -1
-      })
-    }
-    else {
-      return _(this.wordsWithWeights).sampleSize(25).value()
+      return this.wordsWithWeights.filter((w) => {
+        return w[0].toLowerCase().indexOf(this.searchTerm.toLowerCase()) > -1;
+      });
+    } else {
+      return _(this.wordsWithWeights).sampleSize(25).value();
     }
   }
 
   updateWordProgress(e: any) {
     if (e !== null) {
-      this.wordProgress = e.completedWords / e.totalWords * 100
+      this.wordProgress = (e.completedWords / e.totalWords) * 100;
     }
   }
 
   get searchItems() {
-    var lokaleOrtsliste = this.articles.map(a => ({type: "article", text: a.title, value: a.filename})).concat(    
-    this.geoStore.ortslisteGeo.map((f: any) => {
-      return {
-          type: "place",
-          text: f.name,
-          value: f.sigle//,
-          // parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
-        }
-    }))
-    
-    return lokaleOrtsliste = lokaleOrtsliste.filter((el:any) => {
+    var lokaleOrtsliste = this.articles
+      .map((a) => ({ type: "article", text: a.title, value: a.filename }))
+      .concat(
+        this.geoStore.ortslisteGeo.map((f: any) => {
+          return {
+            type: "place",
+            text: f.name,
+            value: f.sigle, //,
+            // parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
+          };
+        })
+      );
+
+    return (lokaleOrtsliste = lokaleOrtsliste.filter((el: any) => {
       return el != null;
-    });
+    }));
   }
 
   selectLocations(locs: string[]) {
     if (locs.length === 0) {
-      this.loc = ''
+      this.loc = "";
     } else {
       this.$router.push({
-        path: '/maps',
+        path: "/maps",
         query: {
-          loc : locs
-        }
-      })
+          loc: locs,
+        },
+      });
     }
   }
 
   log(e: any) {
-    console.log(e)
+    console.log(e);
   }
 
   getColStr(val: any) {
-    return JSON.stringify({
-              id: 0,
-              tempColl: -1,
-              collection_name: "Sammlung Neu",
-              editing: false,
-              fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-              borderColor: "#000",
-              items: [val]})
-
+    let output = JSON.stringify([
+      {
+        id: 0,
+        tempColl: -1,
+        collection_name: "Sammlung Neu",
+        editing: false,
+        fillColor:
+          "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+        borderColor: "#000",
+        items: [val],
+      },
+    ]);
+    console.log(output)
+    return output;
   }
 
-
-  @Watch('$route')
+  @Watch("$route")
   siteChanged(to: any, from: any) {
-    if (from.path === '/') {
-      this.visited = true
+    if (from.path === "/") {
+      this.visited = true;
     }
   }
 
   async mounted() {
-    this.loading = true
-    this.articles = await getArticles()
-    this.loading = false
+    this.loading = true;
+    this.articles = await getArticles();
+    this.loading = false;
   }
 }
 </script>
 <style lang="scss" scoped>
-.word-cloud-link{
-  opacity: .6;
-  color: #3B89A0;
+.word-cloud-link {
+  opacity: 0.6;
+  color: #3b89a0;
   text-decoration: none;
-  &:hover{
+  &:hover {
     opacity: 1;
   }
 }

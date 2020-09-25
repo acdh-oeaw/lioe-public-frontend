@@ -65,6 +65,19 @@
                 <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/logodioe.png" alt="" class="src" />
               </a>
             </v-layout>
+            <v-layout style="clear:both; float: right; margin-top: 30px;">
+                <a target="_blank" href="https://lioe-test.dioe.at/resources?link=home%2Fimpressum%2F" style="margin-right: 10px;">
+                  Impressum
+                </a>
+                <span class="lines">|</span>
+                <a target="_blank" href="https://lioe-test.dioe.at/resources?link=home%2Fkontakt%2F" style="margin-left: 10px; margin-right: 10px;">
+                  Kontakt
+                </a>
+                <span class="lines">|</span>
+                <a target="_blank" href="https://lioe-test.dioe.at/resources?link=home%2Fdatenschutz%2F" style="margin-left: 10px;">
+                  Datenschutz
+                </a>
+            </v-layout>
           </v-flex>
         </v-layout>
       </v-container>
@@ -121,6 +134,9 @@ html{
 }
 .application{
   line-height: 1.6;
+}
+.lines{
+  color: #AAA;
 }
 </style>
 

@@ -825,8 +825,10 @@ export default class Maps extends Vue {
             items: [this.$route.query.loc],
           }
       ];
+      this.safeCollectionsInURL();
     }
-    this.safeCollectionsInURL();
+    console.log('AAAAAAAAAAA')
+    console.log(this.$route.query.col);
     this.getCollectionsOutOfURL();
   }
 
