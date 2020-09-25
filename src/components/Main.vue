@@ -131,14 +131,7 @@
       </vue-word-cloud>
     </v-flex>
     <div class="text-center mt-5">{{ articles ? articles.length.toLocaleString() : '?' }} WBÖ Artikel</div>
-    <v-layout row>
-      <v-flex class="xs7 mx-auto">
-        <InfoBox class="mt-5">
-          <h4 class="headline">Sie suchen das WBÖ-Projekt?</h4>
-          <div>Alle Informationen zum „Wörterbuch der bairischen Mundarten in Österreich“ finden Sie <a href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/" target="_blank">hier</a>.</div>
-        </InfoBox>
-      </v-flex>
-    </v-layout>
+   
     <v-flex class="pt-4">
       <info-text subDialog="true" path="home/einleitungstext/" />
     </v-flex>
