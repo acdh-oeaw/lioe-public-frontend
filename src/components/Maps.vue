@@ -807,7 +807,7 @@ export default class Maps extends Vue {
     }
   }
 
-  @Watch("$route.query")
+  @Watch("$route.query.col")
   comingFromArticle() {
     if (this.$route.query.source === "article") {
       this.showGrossregionen = true;
@@ -827,8 +827,6 @@ export default class Maps extends Vue {
       ];
       this.safeCollectionsInURL();
     }
-    console.log('AAAAAAAAAAA')
-    console.log(this.$route.query.col);
     this.getCollectionsOutOfURL();
   }
 

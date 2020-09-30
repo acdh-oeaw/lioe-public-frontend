@@ -13,51 +13,73 @@
       />
     </v-flex> -->
 
-<!-- TRY -->
+    <!-- TRY -->
 
-<v-layout column>
-  <v-flex>
+    <v-layout column>
+      <v-flex>
+        <v-col class="pa-0">
+          <v-autocomplete
+            :loading="loading"
+            :items="searchItems"
+            @input="selectItems"
+            label="Suche..."
+            autofocus
+            @update:search-input="(e) => (searchTerm = e)"
+            v-model="searchedItem"
+            text
+            hide-details
+            prepend-inner-icon="search"
+            solo
+            clearable
+          >
+            <template v-slot:item="{ item }">
+              <v-list-item
+                :to="
+                  item.type === 'article'
+                    ? `/articles/${item.text}`
+                    : `/db?query=${item.value}&fields=Sigle1`
+                "
+              >
+                <v-list-item-avatar
+                  ><v-btn v-if="item.type === 'article'"
+                    ><v-icon>mdi-newspaper</v-icon></v-btn
+                  >
+                  <v-btn v-if="item.type === 'place'"
+                    ><v-icon>map</v-icon></v-btn
+                  >
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title> {{ item.text }}</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    @click.stop.prevent="
+                      $router.push({
+                        path: '/maps',
+                        query: {
+                          col: getColStr(item.value),
+                        },
+                      })
+                    "
+                    v-if="item.type === 'place'"
+                    >zur Karte</v-btn
+                  >
+                </v-list-item-action>
+              </v-list-item>
+            </template>
+            <template v-slot:no-data>
+              Der gesuchte Begriff ist weder Artikel noch Ort. Zum Weitersuchen
+              in der Belegdatenbank:
+              <v-btn
+                @click="$router.replace(`db?query=${searchTerm}&fields=HL`)"
+              >
+                {{ searchTerm }}</v-btn
+              >
+            </template>
+          </v-autocomplete>
+        </v-col>
 
- <v-col class="pa-0">
-   <v-autocomplete
-    :loading="loading" 
-    :items='searchItems'
-    @input="selectItems"
-    label="Suche..."
-    autofocus
-    @update:search-input="(e) => searchTerm = e"
-    v-model="searchedItem" 
-    text
-    hide-details
-    prepend-inner-icon="search"
-    solo
-    clearable
-    >
-    <template v-slot:item="{ item }">
-      <v-list-item :to="item.type === 'article' ? `/articles/${item.text}` : `/db?query=${item.value}&fields=Sigle1`">
-        <v-list-item-avatar><v-btn v-if="item.type === 'article'"><v-icon>mdi-newspaper</v-icon></v-btn>
-        <v-btn v-if="item.type === 'place'"><v-icon>map</v-icon></v-btn>
-        </v-list-item-avatar>
-        <v-list-item-content >
-          <v-list-item-title> {{item.text}}</v-list-item-title>
-      </v-list-item-content>
-           <v-list-item-action>
-            <v-btn @click.stop.prevent="$router.replace(`/maps?col=${getColStr(item.value)}`)" v-if="item.type === 'place'">zur Karte</v-btn>
-         </v-list-item-action>
-      </v-list-item>
-    </template>
-    <template v-slot:no-data>
-     Der gesuchte Begriff ist weder Artikel noch Ort. Zum Weitersuchen in der Belegdatenbank:
-     <v-btn @click="$router.replace(`db?query=${searchTerm}&fields=HL`)"> {{ searchTerm }}</v-btn> 
-    </template>
-    </v-autocomplete>
-  </v-col>
-
-
-
-
-
-    <!-- <v-row no-gutters>
+        <!-- <v-row no-gutters>
     <v-col><v-text-field
       :loading="loading"
         autofocus
@@ -133,8 +155,10 @@
         </template>
       </vue-word-cloud>
     </v-flex>
-    <div class="text-center mt-5">{{ articles ? articles.length.toLocaleString() : '?' }} WBÖ Artikel</div>
-   
+    <div class="text-center mt-5">
+      {{ articles ? articles.length.toLocaleString() : "?" }} WBÖ Artikel
+    </div>
+
     <v-flex class="pt-4">
       <info-text subDialog="true" path="home/einleitungstext/" />
     </v-flex>
@@ -254,7 +278,6 @@ export default class Main extends Vue {
         items: [val],
       },
     ]);
-    console.log(output)
     return output;
   }
 

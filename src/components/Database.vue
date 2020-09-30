@@ -894,10 +894,26 @@ export default class Database extends Vue {
       this.$router.push({
         path: '/maps',
         query: {
-          loc: this.mappableSelectionItems.map(d => d.ortsSigle).join(',')
+          loc: this.getColStr(this.mappableSelectionItems.map(d => d.ortsSigle).join(','))
         }
       })
     }
+  }
+
+  getColStr(val: any) {
+    let output = JSON.stringify([
+      {
+        id: 0,
+        tempColl: -1,
+        collection_name: "Sammlung Neu",
+        editing: false,
+        fillColor:
+          "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+        borderColor: "#000",
+        items: [val],
+      },
+    ]);
+    return output;
   }
 
   @Watch('query', {immediate: true})
