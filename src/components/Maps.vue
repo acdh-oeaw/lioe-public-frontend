@@ -262,6 +262,10 @@
         v-if="!updateLayers && showRivers && rivers !== null"
         :geojson="rivers"
       />
+      <l-geo-json
+        v-if="!updateLayers && showRivers && rivers !== null"
+        :geojson="rivers2"
+      />
 
       <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
@@ -398,6 +402,7 @@ export default class Maps extends Vue {
   title: boolean = true;
 
   rivers: any = null;
+  rivers2: any = null;
   autoFit = false;
   zoom: number = defaultZoom;
   center: number[] = defaultCenter;
@@ -749,6 +754,11 @@ export default class Maps extends Vue {
     this.rivers = await (
       await fetch(
         "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_rivers_europe.geojson"
+      )
+    ).json();
+    this.rivers2 = await (
+      await fetch(
+        'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson'
       )
     ).json();
   }
