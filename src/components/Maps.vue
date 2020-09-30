@@ -338,12 +338,12 @@ export default class Maps extends Vue {
 
   tileSets = [
     {
-      name: "Humanitarian Open Tiles",
-      url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
-    },
-    {
       name: "Wikimedia",
       url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png",
+    },
+    {
+      name: "Humanitarian Open Tiles",
+      url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
     },
     {
       name: "Minimal Ländergrenzen (hell)",
@@ -468,7 +468,7 @@ export default class Maps extends Vue {
       const uriString = await domtoimage.toPng(el);
       FileSaver.saveAs(base64ToBlob(uriString), "map.png");
     } else if (type === "json") {
-      const blob = JSON.stringify(this.displayLocations, undefined, 2);
+      const blob = JSON.stringify(this.geoCollections, undefined, 2);
       FileSaver.saveAs(new Blob([blob]), "map.json");
     }
   }
@@ -531,6 +531,7 @@ export default class Maps extends Vue {
 
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
+      console.log(this.geoStore.gemeinden.features)
       return this.geoStore.gemeinden.features;
     } else {
       return [];

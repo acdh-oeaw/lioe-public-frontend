@@ -890,7 +890,6 @@ export default class Database extends Vue {
 
   showSelectionOnMap() {
     if (this.selected.length > 0) {
-      //  console.debug('what dis', this.mappableSelectionItems.map(d => d.ortsSigle).join(','))
       this.$router.push({
         path: '/maps',
         query: {
