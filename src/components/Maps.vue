@@ -536,6 +536,7 @@ export default class Maps extends Vue {
 
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
+      console.log(this.geoStore.gemeinden.features)
       return this.geoStore.gemeinden.features;
     } else {
       return [];
