@@ -379,7 +379,7 @@ export default class Maps extends Vue {
   showKleinregionen = false;
   showGemeinden = false;
   updateLayers = false;
-  colorGemeinde = "#6f9f58";
+  colorGemeinde = "#333";
   colorBundesland = "#000";
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
@@ -424,7 +424,7 @@ export default class Maps extends Vue {
     onEachFeature: this.bindTooltip(["name"]),
     pointToLayer: (feature: any, latlng: any) => {
       return L.circleMarker(latlng, {
-        radius: 5,
+        radius: 3,
         fillColor: this.colorGemeinde,
         weight: 1,
         opacity: 1,
@@ -437,7 +437,7 @@ export default class Maps extends Vue {
     onEachFeature: this.onEachFeatureFunction,
     pointToLayer: (feature: any, latlng: any) => {
       return L.circleMarker(latlng, {
-        radius: 5,
+        radius: 3,
         weight: 1,
         opacity: 1,
         fillOpacity: 0.8,
@@ -536,7 +536,6 @@ export default class Maps extends Vue {
 
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
-      console.log(this.geoStore.gemeinden.features)
       return this.geoStore.gemeinden.features;
     } else {
       return [];
