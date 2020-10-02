@@ -516,7 +516,7 @@ export default class Database extends Vue {
       text: 'Land',
       value: 'Bundesland1',
       infoUrl: 'wboe-artikel/dbheaderinfo-land/',
-      renderFnc: (val: any) => regions.mapBundeslaender(_(val.Bundesland1).flatten().replace(/\d[A-Z]?[\.]?[\d]?/g, '').replace(/›LT[\d]?/g, '')) 
+      renderFnc: (val: any) => regions.mapBundeslaender(_(val.Bundesland1).flatten().replace(/\d[A-Z]?[\.]?[\d]?/g, '').replace(/›LT[\d]?/g, '').replace(/ ,/g, ',')) 
     },
     {
       searchable: true,
@@ -525,7 +525,7 @@ export default class Database extends Vue {
       text: 'Großr.',
       value: 'Großregion1',
       infoUrl: 'wboe-artikel/dbheaderinfo-grossregion/',
-      renderFnc: (val: any) => regions.mapGrossreg(_(val.Großregion1).flatten().replace(/\d[A-Z]?[\.]\d/g,'').replace(/›LT[\d]?/g, ''))  
+      renderFnc: (val: any) => regions.mapGrossreg(_(val.Großregion1).flatten().replace(/\d[A-Z]?[\.]\d/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ','))  
     },
     {
       searchable: true,
@@ -534,7 +534,7 @@ export default class Database extends Vue {
       text: 'Kleinr.',
       value: 'Kleinregion1',
       infoUrl: 'wboe-artikel/dbheaderinfo-kleinregionen',
-      renderFnc: (val: any) => regions.mapKleinreg(_(val.Kleinregion1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]/g,'').replace(/›LT[\d]?/g, '')) 
+      renderFnc: (val: any) => regions.mapKleinreg(_(val.Kleinregion1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ',')) 
     },
     {
       searchable: true,
