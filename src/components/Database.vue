@@ -208,7 +208,7 @@
                       rounded
                       depressed
                       color="primary">
-                      auf Karte zeigen ({{ mappableSelectionItems.length }})
+                      Auswahl auf Karte anzeigen ({{ mappableSelectionItems.length }})
                     </v-btn>
                   </template>
                   <v-list dense>
@@ -243,6 +243,30 @@
                 <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
               </v-list>
             </v-menu>
+
+            <!-- <template v-slot:activator="{ on: secondMenu }">
+                <v-menu
+                  v-on="on"
+                  :nudge-top="4"
+                  top
+                  offset-y
+                  open-on-hover
+                  :disabled="mappableSelectionItems.length === 0"
+                > -->
+            <template>
+                    <v-btn
+                      @click="showSelectionOnMap"
+                      :disabled="mappableSelectionItems.length === 0"
+                      small
+                      v-on="menu"
+                      class="pl-3 pr-3"
+                      rounded
+                      depressed
+                      color="primary">
+                      Sammlung auf Karte anzeigen ({{ mappableSelectionItems.length }})
+                    </v-btn>
+                  </template>
+
           </div>
         </template>
         <template v-slot:item="{item, index, isSelected}">
