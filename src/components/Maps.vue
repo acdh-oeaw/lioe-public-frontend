@@ -107,10 +107,10 @@
             </template>
           </v-autocomplete>
         </v-flex>
-        <v-flex>
+        <v-flex class="pr-2 pt-1 text-right">
           <v-menu open-on-hover :offset-y="true">
             <template v-slot:activator="{ on }">
-              <v-btn color="accent" large icon text v-on="on">
+              <v-btn color="accent" icon  medium v-on="on">
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
