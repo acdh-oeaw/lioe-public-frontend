@@ -64,7 +64,14 @@
                     v-if="item.type === 'place'"
                     >zur Karte</v-btn
                   >
-                </v-list-item-action>
+                  <v-btn 
+                    @click.stop.prevent="
+                      $router.replace(
+                        `/db?query=${item.text}&type=collection`)" 
+                        v-if="item.type === `article`"
+                        >in Datenbank anzeigen</v-btn
+                      >
+                 </v-list-item-action>
               </v-list-item>
             </template>
             <template v-slot:no-data>

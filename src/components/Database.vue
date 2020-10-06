@@ -208,7 +208,7 @@
                       rounded
                       depressed
                       color="primary">
-                      auf Karte zeigen ({{ mappableSelectionItems.length }})
+                      Auswahl auf Karte anzeigen ({{ mappableSelectionItems.length }})
                     </v-btn>
                   </template>
                   <v-list dense>
@@ -311,6 +311,7 @@ export default class Database extends Vue {
   @Prop() collection_ids: string | null
   @Prop() query: string | null
   @Prop() fields: string | null
+  @Prop() type: string | null
 
   c = console
   geoStore = geoStore
@@ -604,6 +605,18 @@ export default class Database extends Vue {
     })
     }
   }
+
+  @Watch('type', {immediate: true})
+  onUpdateType(newVal: string|null) {
+    console.log(newVal + 'AND: ' + this.searchItemType)
+    
+        if (newVal) {
+          this.searchItemType = newVal
+        } else {
+        }
+    console.log(' and new value let us have a looki : ' + this.searchItemType)
+  }
+
 
   @Watch('extended')
   onExtendedChanged(val: boolean) {
