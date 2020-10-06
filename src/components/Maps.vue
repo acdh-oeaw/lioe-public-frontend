@@ -18,7 +18,7 @@
           </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-checkbox v-model="fixTooltip" hide-details label="Show Names" />
+          <v-checkbox v-model="fixTooltip" hide-details label="Namen anzeigen" />
         </v-card-text>
         <v-divider />
         <v-card-text>
@@ -163,7 +163,7 @@
       </v-flex>
 
       <router-link to="/">
-        <img class="logo mt-2 logo-container" src="/static/img/logo.svg" />
+        <img :style="{right: sideBar === true ? '255px' : '0vw'}" class="logo mt-2 logo-container" src="/static/img/logo.svg" />
       </router-link>
 
       <map-legende
@@ -866,9 +866,9 @@ export default class Maps extends Vue {
 .logo-container {
   transition: 0.5s;
   height: 100px;
-  position: absolute;
-  bottom: 130px;
-  right: 10px;
+  position: fixed;
+  bottom: 0vh;
+  right: 0vw;
   opacity: 0.8;
 }
 .logo-container.logo-hidden {
