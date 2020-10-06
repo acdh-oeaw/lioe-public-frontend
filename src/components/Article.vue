@@ -4,7 +4,7 @@
       <v-autocomplete
         class="article-search"
         label="Suche…"
-        :value="{ text: title, value: filename.replace('.xml', '')}"
+        :value="{ text: title, value: filename.replace('.xml', '') }"
         :loading="loading"
         clearable
         solo
@@ -24,8 +24,11 @@
                 <v-icon>info_outline</v-icon>
               </v-btn>
             </template>
-              <info-text class="elevation-24 pa-4 white" path="wboe-artikel/lemma-short/" />
-              <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
+            <info-text
+              class="elevation-24 pa-4 white"
+              path="wboe-artikel/lemma-short/"
+            />
+            <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
           </v-menu>
         </v-flex>
       </v-layout>
@@ -40,11 +43,14 @@
         :xml="articleXML"
         :filename="filename"
         v-model="expanded"
-        :geo-store="geoStore" />
+        :geo-store="geoStore"
+      />
       <div class="text-xs-right pa-4">
         <v-tooltip top color="ci">
-           <template v-slot:activator="{ on }">
-            <span v-on="on">{{ editor.initials ? editor.initials : editor.fullname }}</span>
+          <template v-slot:activator="{ on }">
+            <span v-on="on">{{
+              editor.initials ? editor.initials : editor.fullname
+            }}</span>
           </template>
           <span>{{ editor.fullname }}</span>
         </v-tooltip>
@@ -80,7 +86,14 @@
         <v-card-title class="pt-1 pb-1">
           <v-flex>{{ filename }}</v-flex>
           <v-flex class="text-xs-right">
-            <v-btn class="pl-3 pr-3" small rounded text @click="downloadEditorXML">download</v-btn>
+            <v-btn
+              class="pl-3 pr-3"
+              small
+              rounded
+              text
+              @click="downloadEditorXML"
+              >download</v-btn
+            >
             <v-btn small rounded text @click="saveEditorXML">view</v-btn>
           </v-flex>
         </v-card-title>
@@ -98,24 +111,24 @@
 </template>
 <script lang="ts">
 // tslint:disable:max-line-length
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { getArticleByFileName, getArticles } from '../api'
-import XmlEditor from '@components/XmlEditor.vue'
-import { geoStore } from '../store/geo'
-import * as _ from 'lodash'
-import InfoText from '@components/InfoText.vue'
-import ArticleViewLegacy from '@components/ArticleViewLegacy.vue'
-import ArticleView from '@components/ArticleView.vue'
-import * as FileSaver from 'file-saver'
-import { userStore } from '../store/user'
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { getArticleByFileName, getArticles } from "../api";
+import XmlEditor from "@components/XmlEditor.vue";
+import { geoStore } from "../store/geo";
+import * as _ from "lodash";
+import InfoText from "@components/InfoText.vue";
+import ArticleViewLegacy from "@components/ArticleViewLegacy.vue";
+import ArticleView from "@components/ArticleView.vue";
+import * as FileSaver from "file-saver";
+import { userStore } from "../store/user";
 
 @Component({
   components: {
     XmlEditor,
     InfoText,
     ArticleViewLegacy,
-    ArticleView
-  }
+    ArticleView,
+  },
 })
 export default class Article extends Vue {
   @Prop() filename: string;
@@ -127,7 +140,7 @@ export default class Article extends Vue {
   editor = {
     id: "",
     initials: "",
-    fullname: ""
+    fullname: "",
   };
   expanded: number[] = [3];
 
@@ -157,7 +170,7 @@ export default class Article extends Vue {
   getGrossregionFromGemeinde(sigle: string): string | null {
     if (geoStore.grossregionen !== null) {
       const s = sigle.split(/([a-z])/)[0];
-      const g = geoStore.grossregionen.features.find(f => {
+      const g = geoStore.grossregionen.features.find((f) => {
         return f.properties!.Sigle === s;
       });
       return g ? g.properties!.Grossreg : null;
@@ -168,7 +181,7 @@ export default class Article extends Vue {
 
   printArticle() {
     // expand all
-    this.expanded = [0,1,2,3,4,5];
+    this.expanded = [0, 1, 2, 3, 4, 5];
     // set pdf title, store old title
     const oldTitle = document.title;
     document.title = "wboe_" + this.title;
@@ -213,8 +226,11 @@ export default class Article extends Vue {
         if (sigle !== null) {
           this.openMapsWithPlaces([sigle]);
         }
-      } else if (e.target instanceof HTMLElement && e.target.dataset.geoSigle !== undefined) {
-        this.openMapsWithPlaces([ e.target.dataset.geoSigle ])
+      } else if (
+        e.target instanceof HTMLElement &&
+        e.target.dataset.geoSigle !== undefined
+      ) {
+        this.openMapsWithPlaces([e.target.dataset.geoSigle]);
       } else if (this.getCollectionLink(e.target) !== null) {
         const id = this.getCollectionLink(e.target)!;
         this.$router.push({ path: "/db", query: { collection_ids: id } });
@@ -223,7 +239,28 @@ export default class Article extends Vue {
   }
 
   openMapsWithPlaces(placeIds: string[]) {
-    this.$router.push({ path: "/maps", query: { loc: placeIds.join(","), source: 'article' } });
+    this.$router.push({
+      path: "/maps",
+      query: { col: this.getColStr(placeIds.join(',')), source: "article" },
+    });
+  }
+
+  getColStr(val: any) {
+    let output;
+    console.log(val.split(','))
+    output = JSON.stringify([
+      {
+        id: 0,
+        tempColl: -1,
+        collection_name: "Sammlung Neu",
+        editing: false,
+        fillColor:
+          "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+        borderColor: "#000",
+        items: val.split(','),
+      },
+    ]);
+    return output;
   }
 
   get isEveryArticleExpanded(): boolean {
@@ -231,7 +268,7 @@ export default class Article extends Vue {
   }
 
   toggleAll() {
-    this.expanded = this.isEveryArticleExpanded ? [] : [0, 1, 2 ,3, 4];
+    this.expanded = this.isEveryArticleExpanded ? [] : [0, 1, 2, 3, 4];
   }
 
   loadArticle(e: string) {
@@ -252,7 +289,7 @@ export default class Article extends Vue {
     const elements = Array.from(this.elementsFromDom(selector, body));
     if (contains !== undefined) {
       return elements
-        .filter(e => e.querySelectorAll(contains).length > 0)
+        .filter((e) => e.querySelectorAll(contains).length > 0)
         .reduce((m, e) => (m = m + e.outerHTML), "");
     } else {
       return elements.reduce((m, e) => (m = m + e.outerHTML), "");
@@ -276,18 +313,18 @@ export default class Article extends Vue {
   }
 
   downloadEditorXML() {
-    const blob = this.articleXML
+    const blob = this.articleXML;
     if (blob !== null) {
-      FileSaver.saveAs(new Blob([blob]), this.filename + '.xml')
+      FileSaver.saveAs(new Blob([blob]), this.filename + ".xml");
     }
   }
 
   async mounted() {
     this.articles = (await getArticles())
-      .filter(a => a.title !== '' && a.title !== undefined)
-      .map(t => ({ text: t.title, value: t.filename.replace('.xml', '') }))
-      .sort((a, b) => a.text.localeCompare(b.text))
-    this.initArticle(this.filename)
+      .filter((a) => a.title !== "" && a.title !== undefined)
+      .map((t) => ({ text: t.title, value: t.filename.replace(".xml", "") }))
+      .sort((a, b) => a.text.localeCompare(b.text));
+    this.initArticle(this.filename);
   }
 
   linkParentsToCollection(selector: string, xml: string) {
@@ -332,20 +369,13 @@ export default class Article extends Vue {
 
   initXML(xml: string) {
     const idInitials: any = { PhS: "PS" };
-    xml = xml
-      .split("<body>")
-      .join("")
-      .split("</body>")
-      .join("");
+    xml = xml.split("<body>").join("").split("</body>").join("");
     xml = this.linkParentsToCollection("ptr[type=collection]", xml);
     xml = this.appendGrossregionViaRef(
       "form[type=dialect] placeName[type=gemeinde], cit placeName[type=gemeinde]",
       xml
     );
-    this.lemmaXML = this.fragementFromSelector(
-      "entry > form[type=lemma]",
-      xml
-    );
+    this.lemmaXML = this.fragementFromSelector("entry > form[type=lemma]", xml);
     this.diminutiveXML = this.fragementFromSelector(
       "entry > form[subtype=diminutive]",
       xml
@@ -380,7 +410,7 @@ export default class Article extends Vue {
     this.editor = {
       id: aInitials,
       initials: idInitials[aInitials] || aInitials,
-      fullname: aEditor.innerHTML
+      fullname: aEditor.innerHTML,
     };
   }
 
@@ -455,12 +485,13 @@ iframe.comment {
     font-size: 2.5em;
   }
   > form[type="lemma"] + form[type="lemma"]::before {
-    content: ','
+    content: ",";
   }
 }
 
-.wortbildung, .redewendungen{
-  re{
+.wortbildung,
+.redewendungen {
+  re {
     display: block;
     margin-bottom: 1em;
     sense {

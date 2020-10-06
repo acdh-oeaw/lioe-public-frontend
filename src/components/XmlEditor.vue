@@ -1,5 +1,5 @@
 <template>
-  <codemirror :value="value" @input="$emit('input', $event)" :options="editorOptions" />
+  <codemirror ref="codemirror" :value="value" @input="$emit('input', $event)" :options="editorOptions" />
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
@@ -44,11 +44,12 @@ export default class  extends Vue {
   }
   @Watch('show')
   update() {
-    CodeMirror.refresh()
+    const editor = (this.$refs.codemirror as any).editor
+    editor.refresh()
   }
   async mounted() {
     await this.$nextTick()
-    // CodeMirror.refresh()
+    this.update()
   }
 }
 </script>

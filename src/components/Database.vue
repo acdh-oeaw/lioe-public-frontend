@@ -914,14 +914,54 @@ export default class Database extends Vue {
 
   showSelectionOnMap() {
     if (this.selected.length > 0) {
-      //  console.debug('what dis', this.mappableSelectionItems.map(d => d.ortsSigle).join(','))
       this.$router.push({
         path: '/maps',
         query: {
-          loc: this.mappableSelectionItems.map(d => d.ortsSigle).join(',')
+          col: this.getColStr(this.mappableSelectionItems.map(d => d.ortsSigle))
         }
       })
     }
+  }
+
+  getColStr(val: any) {
+    let output;
+    if(Array.isArray(val)) {
+      //@ts-ignore
+      let noDuplicates = [];
+      val.forEach((c) => {
+        //@ts-ignore
+        if (!noDuplicates.includes(c)) {
+            noDuplicates.push(c);
+        }
+      });
+      output = JSON.stringify([
+        {
+          id: 0,
+          tempColl: -1,
+          collection_name: "Sammlung Datenbank",
+          editing: false,
+          fillColor:
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
+          //@ts-ignore
+          items: noDuplicates,
+        },
+      ]);
+    } else {
+      output = JSON.stringify([
+        {
+          id: 0,
+          tempColl: -1,
+          collection_name: "Sammlung Datenbank",
+          editing: false,
+          fillColor:
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
+          items: [val],
+        },
+      ]);
+    }
+    return output;
   }
 
   @Watch('query', {immediate: true})

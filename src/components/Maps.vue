@@ -18,9 +18,15 @@
           </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-checkbox v-model="fixTooltip" hide-details label="Show Names" />
-        </v-card-text>
-        <v-divider />
+          <v-checkbox v-model="fixTooltip" hide-details style="float:left;" />
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span style="float:left; margin-top:20px; color: rgba(0,0,0,.6); font-size: 16px;" v-on="on" v-bind="attrs">Namen anzeigen</span>
+            </template>
+            <span>Zeigt die Namen der entsprechenden Regionen bei Auswahl <br> von Untersuchungsgebiet, Großregionen oder Dialektregionen</span>
+          </v-tooltip>
+          </v-card-text>
+        <v-divider style="clear:both; margin-top:50px;" />
         <v-card-text>
           <v-card-subtitle class="subtitles">Grundkarten</v-card-subtitle>
           <v-radio-group v-model="selectedTileSet">
@@ -107,10 +113,10 @@
             </template>
           </v-autocomplete>
         </v-flex>
-        <v-flex>
+        <v-flex class="pr-2 pt-1 text-right">
           <v-menu open-on-hover :offset-y="true">
             <template v-slot:activator="{ on }">
-              <v-btn color="accent" large icon text v-on="on">
+              <v-btn color="accent" icon  medium v-on="on">
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
@@ -122,7 +128,7 @@
         </v-flex>
       </v-layout>
     </v-card>
-    <v-layout fill-height class="map-overlay pa-4">
+    <v-layout class="map-overlay pa-4">
       <v-flex xs1>
         <v-btn fab small class="zoom" @click="zoom = zoom + 1">
           <v-icon>add</v-icon>
@@ -163,7 +169,7 @@
       </v-flex>
 
       <router-link to="/">
-        <img class="logo mt-2 logo-container" src="/static/img/logo.svg" />
+        <img :style="{right: sideBar === true ? '255px' : '0vw'}" class="logo mt-2 logo-container" src="/static/img/logo.svg" />
       </router-link>
 
       <map-legende
@@ -262,6 +268,10 @@
         v-if="!updateLayers && showRivers && rivers !== null"
         :geojson="rivers"
       />
+      <l-geo-json
+        v-if="!updateLayers && showRivers && rivers !== null"
+        :geojson="rivers2"
+      />
 
       <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
@@ -338,12 +348,12 @@ export default class Maps extends Vue {
 
   tileSets = [
     {
-      name: "Humanitarian Open Tiles",
-      url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
-    },
-    {
       name: "Wikimedia",
       url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png",
+    },
+    {
+      name: "Humanitarian Open Tiles",
+      url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
     },
     {
       name: "Minimal Ländergrenzen (hell)",
@@ -375,7 +385,7 @@ export default class Maps extends Vue {
   showKleinregionen = false;
   showGemeinden = false;
   updateLayers = false;
-  colorGemeinde = "#6f9f58";
+  colorGemeinde = "#333";
   colorBundesland = "#000";
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
@@ -398,6 +408,7 @@ export default class Maps extends Vue {
   title: boolean = true;
 
   rivers: any = null;
+  rivers2: any = null;
   autoFit = false;
   zoom: number = defaultZoom;
   center: number[] = defaultCenter;
@@ -419,7 +430,7 @@ export default class Maps extends Vue {
     onEachFeature: this.bindTooltip(["name"]),
     pointToLayer: (feature: any, latlng: any) => {
       return L.circleMarker(latlng, {
-        radius: 5,
+        radius: 3,
         fillColor: this.colorGemeinde,
         weight: 1,
         opacity: 1,
@@ -432,7 +443,7 @@ export default class Maps extends Vue {
     onEachFeature: this.onEachFeatureFunction,
     pointToLayer: (feature: any, latlng: any) => {
       return L.circleMarker(latlng, {
-        radius: 5,
+        radius: 3,
         weight: 1,
         opacity: 1,
         fillOpacity: 0.8,
@@ -468,7 +479,7 @@ export default class Maps extends Vue {
       const uriString = await domtoimage.toPng(el);
       FileSaver.saveAs(base64ToBlob(uriString), "map.png");
     } else if (type === "json") {
-      const blob = JSON.stringify(this.displayLocations, undefined, 2);
+      const blob = JSON.stringify(this.geoCollections, undefined, 2);
       FileSaver.saveAs(new Blob([blob]), "map.json");
     }
   }
@@ -750,6 +761,11 @@ export default class Maps extends Vue {
         "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_rivers_europe.geojson"
       )
     ).json();
+    this.rivers2 = await (
+      await fetch(
+        'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson'
+      )
+    ).json();
   }
 
   @Watch("showHillshades")
@@ -807,28 +823,13 @@ export default class Maps extends Vue {
     }
   }
 
-  @Watch("$route.query")
+  @Watch("$route.query.col")
   comingFromArticle() {
     if (this.$route.query.source === "article") {
       this.showGrossregionen = true;
       this.selectedTileSet = 4;
       this.fixTooltip = true;
-      this.geoCollections = [
-          {
-            id: 0,
-            tempColl: -1,
-            collection_name: "Sammlung Neu",
-            editing: false,
-            fillColor:
-              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-            borderColor: "#000",
-            items: [this.$route.query.loc],
-          }
-      ];
-      this.safeCollectionsInURL();
     }
-    console.log('AAAAAAAAAAA')
-    console.log(this.$route.query.col);
     this.getCollectionsOutOfURL();
   }
 
@@ -871,9 +872,9 @@ export default class Maps extends Vue {
 .logo-container {
   transition: 0.5s;
   height: 100px;
-  position: absolute;
-  bottom: 130px;
-  right: 10px;
+  position: fixed;
+  bottom: 0vh;
+  right: 0vw;
   opacity: 0.8;
 }
 .logo-container.logo-hidden {

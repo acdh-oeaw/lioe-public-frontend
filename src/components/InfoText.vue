@@ -121,6 +121,14 @@ export default class InfoText extends Vue {
       const iLU = isLocalUrl(e.target.href)
       if (iLU) {
         this.$router.push(iLU)
+      } else if (e.target.hash === '#top') {
+        if (this.subDialog) {
+          document.body.scrollTop = 0
+          document.documentElement.scrollTop = 0
+        } else {
+          const el = (this.$parent.$el.parentElement as HTMLElement)
+          el.scrollTop = 0
+        }
       } else if (isExternUrl(e.target.href)) {
         window.open(e.target.href, '_blank')
       } else {

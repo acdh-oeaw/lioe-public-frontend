@@ -17,10 +17,10 @@ export const geoStore = {
 
 async function init() {
   geoStore.kleinregionen = await (await fetch('/static/Kleinregionen.geojson.json')).json() as geojson.FeatureCollection
-  geoStore.gemeinden = await (await fetch('/static/Gemeinden.geojson.json')).json() as geojson.FeatureCollection
+  geoStore.gemeinden = getPointsNotPoly(await (await fetch('/static/Gemeinden.geojson.json')).json() as geojson.FeatureCollection, await( await fetch('/static/sigle-polygone.json')).json() as geojson.FeatureCollection)
   geoStore.grossregionen = await (await fetch('/static/grossregionen-geojson-optimized.json')).json() as geojson.FeatureCollection
   geoStore.bundeslaender = await (await fetch('/static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
-  geoStore.dialektregionen = await (await fetch('/static/WBOE_Dialektregionen.geojson')).json() as geojson.FeatureCollection
+  geoStore.dialektregionen = await (await fetch('/static/SFB_Dialektregionen.geojson')).json() as geojson.FeatureCollection
   geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json')).json() as geojson.FeatureCollection)
   geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || null : null
   geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features, ...geoStore.kleinregionen!.features])
@@ -47,6 +47,15 @@ function filterOrtslisteByGeoJSON (oList: any, gList: any) {
   } else {
     return null
   }
+}
+
+function getPointsNotPoly(DataG: any , DataPoint:any ) {
+  DataG.features.forEach((gemeinde: any) => {
+    if(DataPoint[gemeinde.properties.sigle]) {
+      gemeinde.geometry = {"type":"Point","coordinates": DataPoint[gemeinde.properties.sigle].locationCenter.split(",").reverse()}
+    }
+  });
+  return DataG;
 }
 
 function getOrtslistenDaten (aOlDaten: any): any|null {
