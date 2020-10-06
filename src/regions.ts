@@ -501,7 +501,8 @@ function generalMapStaat(val: any) {
           tmp += ', ' + mapStaat(newval[i])
         }
       }
-    return tmp
+      console.log('voila ' + tmp + ' lastOne ' + tmp.charAt(tmp.length - 2))
+    return tmp.substring(tmp.length - 2, tmp.length) === ', ' ? tmp.substring(0, tmp.length - 2) : tmp
   }
   else {
     return mapStaat(val)
@@ -515,29 +516,57 @@ function mapStaat(val: any) {
   if (val === '') {
     return ''
   }
-  else if (val.substring(0, 3) === '0.1' || val.substring(0, 3) === '0.2' || val.substring(0, 3) === '0.3' || val.substring(0, 4) === '0.5b' || val.substring(0, 3) === '1A.') {
+  else if(val.length === 1 && val === '1') {
+      return 'AT/IT'
+  }
+  else if (val.substring(0, 3) === '0.1' || val.substring(0, 3) === '0.2' || val.substring(0, 3) === '0.3' || val.substring(0, 4) === '0.5b' || val.substring(0, 3) === '1A.' || val.substring(0, 4) === '11.9' || val.substring(0, 3) === '01.') {
       return 'IT'
   }
-  else if (val.substring(0, 3) === '0.4' || val.substring(0, 3) === '8.6') {
+  else if (val.substring(0, 3) === '0.4' || val.substring(0, 3) === '8.6' || val.substring(0, 4) === '11.7') {
     return 'SI'
   }
   else if (val.substring(0, 4) === '0.5a') {
     return 'CH'
   }
-  else if (val.substring(0, 2) === '1B' || val.substring(0, 2) === '1C' || (2 <= parseInt(val[0], 10) &&  parseInt(val[0], 10) <= 7)) {
+  else if (val.substring(0, 2) === '1B' || val.substring(0, 2) === '1C' || (2 <= parseInt(val[0], 10) &&  parseInt(val[0], 10) <= 7) || 
+  val === '{4.3c01' || val === '{4.3d01' || val === 'Gasteinert.:Salzachpong.:Sa.' || val === 'Gr.Arlt.:Salzachpong.:Sa.' || val === 'Öst.') {
     return 'AT'
   }
-  else if (val.substring(0, 3) === '8.1' || val.substring(0, 3) === '8.2' || val.substring(0, 3) === '8.3' || val.substring(0, 2) === '9.' || val.substring(0, 3) === '10.') {
+  else if (val.substring(0, 3) === '8.1' || val.substring(0, 3) === '8.2' || val.substring(0, 3) === '8.3' || val.substring(0, 2) === '9.' || val.substring(0, 3) === '10.' || val.substring(0, 4) === '11.1') {
     return 'CZ'
   }
   else if (val.substring(0, 3) === '8.4') {
     return 'SK'
   }
-  else if (val.substring(0, 3) === '8.5') {
+  else if (val.substring(0, 3) === '8.5' || val.substring(0, 4) === '11.2' || val === 'wb0:11.2a07') {
     return 'HU'
   }
-  else if (val.substring(0, 3) === 'wb0') {
-    return val.substring(4, 6)
+  else if (val.substring(0, 4) === '11.3') {
+    return 'RU'
+  }
+  else if (val.substring(0, 4) === '11.5') {
+    return 'HR'
+  }
+  else if (val.substring(0, 3).toLowerCase() === 'wb0') {
+    if (val.substring(3, 5) === ':B' || val.substring(3, 8) === 'D-Bay' || val.charAt(4) === 'D') { 
+      return 'DE'
+    }
+    else if (val.substring(3, 7) === ':Ö-V') {
+      return 'AT'
+    }
+    else if (val.length === 2  || val.length === 3 || val === 'wb0?') { // TODO - filtering all n/a
+      return 'n/a'
+    }
+    else if (val.substring(4, 6) === 'SL') {
+      return 'SI'
+    }
+    else if (val === 'wb0:CZ+D') {
+      return 'CZ/DE'
+    }
+    else {
+      return val.substring(4, 6)
+    }
+    
   }
   else {
    return ''

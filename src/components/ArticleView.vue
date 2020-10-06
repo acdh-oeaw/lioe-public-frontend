@@ -230,8 +230,13 @@ export default class ArticleView extends Vue {
       // ...editorObj.getAllEditorObjById('variante'),
       ...editorObj.getAllEditorObjById('gramGrp').filter((aGramGrp: any) => aGramGrp.parents[0].parserObj.name === 'entry'),
       ...editorObj.getAllEditorObjById('diminutiv'),
-      // ...editorObj.getAllEditorObjById('movierung'),
-      // ...editorObj.getAllEditorObjById('shortform')
+      ...editorObj.getAllEditorObjById('movierung'),
+      ...editorObj.getAllEditorObjById('shortform'),
+      ...editorObj.getAllEditorObjById('kurzform'),
+      ...editorObj.getAllEditorObjById('diminuierteskurzwort'),
+      ...editorObj.getAllEditorObjById('kurzwort'),
+      ...editorObj.getAllEditorObjById('diminuiertekurzform'),
+      ...editorObj.getAllEditorObjById('nebenform'),
     ]
     this.bedeutung = editorObj.getEditorObjById('senseMain')
     this.verbreitung = editorObj.getAllEditorObjById('usg-geo-verbreitung')
