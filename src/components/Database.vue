@@ -24,7 +24,7 @@
               autofocus
               flat
               @update:search-input="(query) => (searchCollection = query)"
-              :search-input.sync="query"
+              :search-input.sync="searchCollection"
               prepend-inner-icon="search"
               :loading="searching"
               :items="collectionSearchItems"
@@ -777,11 +777,12 @@ export default class Database extends Vue {
 
     const res: string[] = []
     tauts.forEach(t => {
-      if (Array.isArray(val[t] && val[t].length > 0)) {
-        res.push(val[t][0][0])
-      } else if (val[t]) {
+      if (Array.isArray(val[t]) && val[t].length > 0) {
         res.push(val[t][0])
-      }
+      } 
+      else if (val[t]) {
+        res.push(val[t])
+      } 
     })
     return _(res).flatten()
   }
