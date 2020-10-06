@@ -18,9 +18,15 @@
           </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-checkbox v-model="fixTooltip" hide-details label="Namen anzeigen" />
-        </v-card-text>
-        <v-divider />
+          <v-checkbox v-model="fixTooltip" hide-details style="float:left;" />
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span style="float:left; margin-top:20px; color: rgba(0,0,0,.6); font-size: 16px;" v-on="on" v-bind="attrs">Namen anzeigen</span>
+            </template>
+            <span>Zeigt die Namen der entsprechenden Regionen bei Auswahl <br> von Untersuchungsgebiet, Großregionen oder Dialektregionen</span>
+          </v-tooltip>
+          </v-card-text>
+        <v-divider style="clear:both; margin-top:50px;" />
         <v-card-text>
           <v-card-subtitle class="subtitles">Grundkarten</v-card-subtitle>
           <v-radio-group v-model="selectedTileSet">
