@@ -37,7 +37,7 @@
                 :to="
                   item.type === 'article'
                     ? `/articles/${item.text}`
-                    : `/db?query=${item.value}&fields=Sigle1`
+                    : `/db?query=${item.value}&fields=Sigle1&type=fulltext`
                 "
               >
                 <v-list-item-avatar
@@ -78,7 +78,7 @@
               Der gesuchte Begriff ist weder Artikel noch Ort. Zum Weitersuchen
               in der Belegdatenbank:
               <v-btn
-                @click="$router.replace(`db?query=${searchTerm}&fields=HL`)"
+                @click="$router.replace(`db?query=${searchTerm}&fields=HL&type=fulltext`)"
               >
                 {{ searchTerm }}</v-btn
               >
