@@ -823,19 +823,6 @@ export default class Maps extends Vue {
       this.showGrossregionen = true;
       this.selectedTileSet = 4;
       this.fixTooltip = true;
-      this.geoCollections = [
-          {
-            id: 0,
-            tempColl: -1,
-            collection_name: "Sammlung Neu",
-            editing: false,
-            fillColor:
-              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-            borderColor: "#000",
-            items: [this.$route.query.loc],
-          }
-      ];
-      this.safeCollectionsInURL();
     }
     this.getCollectionsOutOfURL();
   }
