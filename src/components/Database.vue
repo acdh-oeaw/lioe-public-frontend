@@ -20,7 +20,28 @@
               clearable
             />
             <v-autocomplete
-              v-if="searchItemType === 'collection'"
+              v-if="searchItemType === 'collection' && type === 'collection'"
+              autofocus
+              flat
+              @update:search-input="(query) => (searchCollection = query)"
+              :search-input.sync="query"
+              prepend-inner-icon="search"
+              :loading="searching"
+              :items="collectionSearchItems"
+              item-text="text"
+              :value="selectedCollections"
+              @input="selectCollections"
+              chips
+              deletable-chips
+              cache-items
+              return-object
+              hide-details
+              multiple
+              solo
+              clearable
+            ></v-autocomplete>
+            <v-autocomplete
+              v-else-if="searchItemType === 'collection'"
               autofocus
               flat
               label="Sammlungen suchen…"
