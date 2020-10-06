@@ -122,7 +122,7 @@
         </v-flex>
       </v-layout>
     </v-card>
-    <v-layout fill-height class="map-overlay pa-4">
+    <v-layout class="map-overlay pa-4">
       <v-flex xs1>
         <v-btn fab small class="zoom" @click="zoom = zoom + 1">
           <v-icon>add</v-icon>
