@@ -217,14 +217,13 @@
                   top
                   offset-y
                   open-on-hover
-                  :disabled="mappableSelectionItems.length === 0"
-                >
-                  <template v-slot:activator="{ on: menu }">
+                  :disabled="mappableSelectionItems.length === 0">
+                  <template v-slot:activator="{ on }">
                     <v-btn
                       @click="showSelectionOnMap"
                       :disabled="mappableSelectionItems.length === 0"
                       small
-                      v-on="menu"
+                      v-on="on"
                       class="pl-3 pr-3"
                       rounded
                       depressed
@@ -275,18 +274,17 @@
                   :disabled="mappableSelectionItems.length === 0"
                 > -->
             <template>
-                    <v-btn
-                      @click="showSelectionOnMap"
-                      :disabled="mappableSelectionItems.length === 0"
-                      small
-                      v-on="menu"
-                      class="pl-3 pr-3"
-                      rounded
-                      depressed
-                      color="primary">
-                      Sammlung auf Karte anzeigen ({{ mappableSelectionItems.length }})
-                    </v-btn>
-                  </template>
+              <v-btn
+                @click="showSelectionOnMap"
+                :disabled="mappableSelectionItems.length === 0"
+                small
+                class="pl-3 pr-3"
+                rounded
+                depressed
+                color="primary">
+                Sammlung auf Karte anzeigen ({{ mappableSelectionItems.length }})
+              </v-btn>
+            </template>
 
           </div>
         </template>
@@ -638,9 +636,8 @@ export default class Database extends Vue {
   }
 
   @Watch('fields', {immediate: true})
-  onUpdateFields(newVal: string|null) {
-    if (newVal !== null) {
-
+  onUpdateFields(newVal?: string|null) {
+    if (newVal !== null && newVal !== undefined) {
       this.headers = this.headers.map(h => {
         if (newVal.split(",").includes(h.value)) {
           return { ...h, inSearch: true }
