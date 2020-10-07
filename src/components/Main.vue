@@ -37,7 +37,7 @@
                 :to="
                   item.type === 'article'
                     ? `/articles/${item.text}`
-                    : `/db?query=${item.value}&fields=Sigle1`
+                    : `/db?query=${item.value}&fields=Sigle1&type=fulltext`
                 "
               >
                 <v-list-item-avatar
@@ -64,14 +64,21 @@
                     v-if="item.type === 'place'"
                     >zur Karte</v-btn
                   >
-                </v-list-item-action>
+                  <v-btn 
+                    @click.stop.prevent="
+                      $router.replace(
+                        `/db?query=${item.text}&type=collection`)" 
+                        v-if="item.type === `article`"
+                        >in Datenbank anzeigen</v-btn
+                      >
+                 </v-list-item-action>
               </v-list-item>
             </template>
             <template v-slot:no-data>
               Der gesuchte Begriff ist weder Artikel noch Ort. Zum Weitersuchen
               in der Belegdatenbank:
               <v-btn
-                @click="$router.replace(`db?query=${searchTerm}&fields=HL`)"
+                @click="$router.replace(`db?query=${searchTerm}&fields=HL&type=fulltext`)"
               >
                 {{ searchTerm }}</v-btn
               >

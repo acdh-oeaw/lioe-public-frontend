@@ -20,7 +20,28 @@
               clearable
             />
             <v-autocomplete
-              v-if="searchItemType === 'collection'"
+              v-if="searchItemType === 'collection' && type === 'collection'"
+              autofocus
+              flat
+              @update:search-input="(query) => (searchCollection = query)"
+              :search-input.sync="searchCollection"
+              prepend-inner-icon="search"
+              :loading="searching"
+              :items="collectionSearchItems"
+              item-text="text"
+              :value="selectedCollections"
+              @input="selectCollections"
+              chips
+              deletable-chips
+              cache-items
+              return-object
+              hide-details
+              multiple
+              solo
+              clearable
+            ></v-autocomplete>
+            <v-autocomplete
+              v-else-if="searchItemType === 'collection'"
               autofocus
               flat
               label="Sammlungen suchen…"
@@ -335,6 +356,7 @@ export default class Database extends Vue {
   @Prop() collection_ids: string | null
   @Prop() query: string | null
   @Prop() fields: string | null
+  @Prop() type: string | null
 
   c = console
   geoStore = geoStore
@@ -629,6 +651,18 @@ export default class Database extends Vue {
     }
   }
 
+  @Watch('type', {immediate: true})
+  onUpdateType(newVal: string|null) {
+    console.log(newVal + 'AND: ' + this.searchItemType)
+    
+        if (newVal) {
+          this.searchItemType = newVal
+        } else {
+        }
+    console.log(' and new value let us have a looki : ' + this.searchItemType)
+  }
+
+
   @Watch('extended')
   onExtendedChanged(val: boolean) {
     this.headers.forEach((h: any) => {
@@ -767,11 +801,12 @@ export default class Database extends Vue {
 
     const res: string[] = []
     tauts.forEach(t => {
-      if (Array.isArray(val[t] && val[t].length > 0)) {
-        res.push(val[t][0][0])
-      } else if (val[t]) {
+      if (Array.isArray(val[t]) && val[t].length > 0) {
         res.push(val[t][0])
-      }
+      } 
+      else if (val[t]) {
+        res.push(val[t])
+      } 
     })
     return _(res).flatten()
   }
