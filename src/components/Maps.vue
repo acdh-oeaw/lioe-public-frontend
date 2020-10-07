@@ -59,7 +59,12 @@
           <v-checkbox
             v-model="showGemeinden"
             hide-details
-            label="untersuchte Gemeinden"
+            label="untersuchte Gemeinden (Punkte)"
+          />
+          <v-checkbox
+            v-model="showGemeindenArea"
+            hide-details
+            label="untersuchte Gemeinden (Flächen)"
           />
           <v-card-subtitle style="margin-top: 5px" class="subtitles">
             <small>Weitere</small>
@@ -252,7 +257,11 @@
         :options="optionsEveryGemeinde"
         :geojson="gemeinden"
       />
-
+      <l-geo-json
+        v-if="!updateLayers && showGemeindenArea"
+        :options="optionsEveryGemeinde"
+        :geojson="gemeindenArea"
+      />
       <l-geo-json
         v-if="!updateLayers && showKleinregionen"
         :options="{ onEachFeature: bindTooltip(['name']) }"
@@ -384,6 +393,7 @@ export default class Maps extends Vue {
   showGrossregionen = false;
   showKleinregionen = false;
   showGemeinden = false;
+  showGemeindenArea = false;
   updateLayers = false;
   colorGemeinde = "#333";
   colorBundesland = "#000";
@@ -543,6 +553,14 @@ export default class Maps extends Vue {
   get gemeinden(): geojson.Feature[] {
     if (!this.isLoading && this.geoStore.gemeinden !== null) {
       return this.geoStore.gemeinden.features;
+    } else {
+      return [];
+    }
+  }
+
+  get gemeindenArea(): geojson.Feature[] {
+    if (!this.isLoading && this.geoStore.gemeindenArea !== null) {
+      return this.geoStore.gemeindenArea.features;
     } else {
       return [];
     }
