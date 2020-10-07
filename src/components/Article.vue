@@ -264,11 +264,11 @@ export default class Article extends Vue {
   }
 
   get isEveryArticleExpanded(): boolean {
-    return this.expanded.length === 5;
+    return this.expanded.length === 6;
   }
 
   toggleAll() {
-    this.expanded = this.isEveryArticleExpanded ? [] : [0, 1, 2, 3, 4];
+    this.expanded = this.isEveryArticleExpanded ? [] : [0, 1, 2, 3, 4, 5];
   }
 
   loadArticle(e: string) {
