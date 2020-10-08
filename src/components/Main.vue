@@ -37,7 +37,7 @@
                 :to="
                   item.type === 'article'
                     ? `/articles/${item.text}`
-                    : `/db?query=${item.value}&fields=Sigle1&type=fulltext`
+                    : item.type !== 'collection' ? `/db?query=${item.value}&fields=Sigle1&type=fulltext` : `/db?collection_ids=${item.value}&type=collection`
                 "
               >
                 <v-list-item-avatar>
@@ -66,6 +66,13 @@
                       $router.replace(
                         `/db?query=${item.text}&type=collection`)" 
                         v-if="item.type === `article`"
+                        >in Datenbank anzeigen</v-btn
+                      >
+                  <v-btn 
+                    @click.stop.prevent="
+                      $router.replace(
+                        `/db??collection_ids=${item.text}&type=collection`)" 
+                        v-if="item.type === `collection`"
                         >in Datenbank anzeigen</v-btn
                       >
                  </v-list-item-action>
