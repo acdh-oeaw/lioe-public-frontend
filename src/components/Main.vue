@@ -71,7 +71,7 @@
                   <v-btn 
                     @click.stop.prevent="
                       $router.replace(
-                        `/db??collection_ids=${item.text}&type=collection`)" 
+                        `/db??collection_ids=${item.value}&type=collection`)" 
                         v-if="item.type === `collection`"
                         >in Datenbank anzeigen</v-btn
                       >
