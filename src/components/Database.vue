@@ -774,10 +774,10 @@ export default class Database extends Vue {
     const kts =  ['KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6', 'KT7', 'KT8']
     const res: string[] = []
     kts.forEach(t => {
-      if (Array.isArray(val[t] && val[t].length > 0)) {
-        res.push(val[t][0][0])
-      } else if (val[t]) {
+      if (Array.isArray(val[t]) && val[t].length > 0) {
         res.push(val[t][0])
+      } else if (val[t]) {
+        res.push(val[t])
       }
     })
       return _(res).flatten()
