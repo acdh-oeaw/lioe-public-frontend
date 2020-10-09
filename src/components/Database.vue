@@ -238,11 +238,43 @@
               </template>
               <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
             </v-tooltip>
+
             <v-menu top open-on-hover>
               <template v-slot:activator="{ on: secondMenu }">
+                <!-- <v-menu
+                  v-on="thirdMenu"
+                  :nudge-top="4"
+                  top
+                  offset-y
+                  open-on-hover
+                  :disabled="mappableSelectionItems.length === 0"
+                > -->
+          
+              <v-btn
+                @click="
+                   $router.push({
+                        path: '/maps',
+                        query: {
+                          col: getSamStr(collection_ids),
+                        },
+                      })"
+                 v-if="searchItemType === 'collection' && collection_ids !== ''"
+                v-on="secondMenu"
+                small
+                class="pl-3 pr-3"
+                rounded
+                depressed
+                color="default">
+                Sammlung auf Karte anzeigen 
+              </v-btn>
+            </template>
+                </v-menu>
+
+            <v-menu top open-on-hover>
+              <template v-slot:activator="{ on: thirdMenu }">
                 <v-btn
                   slot="activator"
-                  v-on="secondMenu"
+                  v-on="thirdMenu"
                   :disabled="items.length === 0"
                   small
                   text
@@ -263,28 +295,7 @@
                 <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
               </v-list>
             </v-menu>
-
-            <!-- <template v-slot:activator="{ on: secondMenu }">
-                <v-menu
-                  v-on="on"
-                  :nudge-top="4"
-                  top
-                  offset-y
-                  open-on-hover
-                  :disabled="mappableSelectionItems.length === 0"
-                > -->
-            <template>
-              <v-btn
-                @click="showSelectionOnMap"
-                :disabled="mappableSelectionItems.length === 0"
-                small
-                class="pl-3 pr-3"
-                rounded
-                depressed
-                color="primary">
-                Sammlung auf Karte anzeigen ({{ mappableSelectionItems.length }})
-              </v-btn>
-            </template>
+          
 
           </div>
         </template>
@@ -995,6 +1006,108 @@ export default class Database extends Vue {
     }
     return output;
   }
+
+  getSamStr (val: any) {
+    let output;
+    // if(Array.isArray(val)) {
+    //  let noDuplicates = [];
+    //   val.forEach((c) => {
+    //     //@ts-ignore
+    //     if (!noDuplicates.includes(c)) {
+    //         noDuplicates.push(c);
+    //     }
+    //   });
+    //   output = JSON.stringify([
+    //     {
+    //       id: 0,
+    //       tempColl: noDuplicates,
+    //       collection_name: "Sammlung Datenbank",
+    //       editing: false,
+    //       fillColor:
+    //         "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+    //       borderColor: "#000",
+    //       //@ts-ignore
+    //       items: [],
+    //     },
+    //   ]);
+
+    // }  else {
+      output = JSON.stringify([
+        {
+          id: 0,
+          tempColl: val,
+          collection_name: "Sammlung Datenbank",
+          editing: false,
+          fillColor:
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
+          items: [],
+        },
+      ]);
+    // }
+    return output;
+  }
+
+
+  //    geoCollections: any[] = [
+  //   {
+  //     id: 0,
+  //     tempColl: -1,
+  //     collection_name: "Sammlung Neu",
+  //     editing: false,
+  //     fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+  //     borderColor: "#000",
+  //     items: [],
+  //   },
+  // ];
+  // }
+
+/*******
+ * getSamStr(val: any) {
+    let output;
+    if(Array.isArray(val)) {
+      //@ts-ignore
+      let noDuplicates = [];
+      val.forEach((c) => {
+        //@ts-ignore
+        if (!noDuplicates.includes(c)) {
+            noDuplicates.push(c);
+        }
+      });
+      output = JSON.stringify([
+        {
+          id: 0,
+          tempColl: -1,
+          collection_name: "Sammlung Datenbank",
+          editing: false,
+          fillColor:
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
+          //@ts-ignore
+          items: noDuplicates,
+        },
+      ]);
+    } else {
+      output = JSON.stringify([
+        {
+          id: 0,
+          tempColl: noDuplicates,
+          collection_name: "Sammlung Datenbank",
+          editing: false,
+          fillColor:
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
+          items: [val],
+        },
+      ]);
+    }
+    return output;
+  }
+ * 
+ * 
+ * 
+ */
+
 
   @Watch('query', {immediate: true})
   async onChangeQuery(search: string | null) {
