@@ -405,7 +405,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Nebenl.',
+      text: 'Nebenlemma',
       infoUrl: 'wboe-artikel/dbheaderinfo-nebenlemma',
       value: 'NL',
       renderFnc: (val: any) => (Array.isArray(val.NL) ? val.NL[0] : val.NL),
@@ -447,7 +447,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Fragenum.', 
+      text: 'Fragenummer', 
       infoUrl: 'wboe-artikel/dbheaderinfo-fragenummer/',
       renderFnc: this.renderFragenummer,
       value: 'NR',
@@ -478,7 +478,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Bed./Laut.',
+      text: 'Bedeutung/Lautung',
       renderFnc: this.renderBedeutung,
       infoUrl: 'wboe-artikel/dbheaderinfo-bedeutunglautung/',
       value: 'BD/LT*',  
@@ -488,7 +488,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Ort/Laut.',
+      text: 'Ort/Lautung',
       infoUrl: 'wboe-artikel/dbheaderinfo-ortlautung/',
       value: 'Ort/LT',
       sortable: false,
@@ -507,7 +507,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Bed./Kont.',  //Bedeutung/Belegsatz
+      text: 'Bedeutung/Kontext',  //Bedeutung/Belegsatz
       infoUrl: 'wboe-artikel/dbheaderinfo-bedeutungkontext',
       renderFnc: this.renderBedeutungBelegsaetze,
       value: 'BD/KT*'
@@ -566,7 +566,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Großr.',
+      text: 'Großregion',
       value: 'Großregion1',
       infoUrl: 'wboe-artikel/dbheaderinfo-grossregion/',
       renderFnc: (val: any) => regions.mapGrossreg(_(val.Großregion1).flatten().replace(/\d[A-Z]?[\.]\d/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ','))  
@@ -575,7 +575,7 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Kleinr.',
+      text: 'Kleinregion',
       value: 'Kleinregion1',
       infoUrl: 'wboe-artikel/dbheaderinfo-kleinregionen',
       renderFnc: (val: any) => regions.mapKleinreg(_(val.Kleinregion1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ',')) 
