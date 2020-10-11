@@ -106,7 +106,7 @@ export default class App extends Vue {
     display: none!important;
   }
   .header-navigation {
-    z-index: 9;
+    z-index: 8;
   }
   .header-navigation .v-tab{
     color: #fff!important;
