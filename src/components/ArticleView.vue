@@ -96,11 +96,20 @@
         </template>
       </article-fragment-panel>
     </v-expansion-panels>
+    <v-tooltip
+      top
+      color="ci"
+      :activator="noteAuthor.el"
+      v-if="noteAuthor && noteAuthor.el"
+    >
+      <span>{{ noteAuthor.name }}</span>
+    </v-tooltip>
   </div>
 </template>
 <script lang="ts">
 
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import * as _ from "lodash";
 import InfoText from '@components/InfoText.vue'
 import ViewPreview from '@components/ViewPreview/ViewPreview.vue'
 import XmlObject from '../service/parser-functions/xml/Xml'
@@ -171,6 +180,12 @@ export default class ArticleView extends Vue {
   lautung: any = null
   userStore = userStore;
 
+  noteAuthor: any = {
+    id: null as any,
+    name: null as any,
+    el: null as any
+  }
+
   allDefinitionPaths = [
     'Literaturliste_Belegsätze_und_Sekundärliteratur_WBÖ_gesamt.xlsx',
     'Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Großregionen-Bundesländer_nur+Ö+STir.xlsx'
@@ -226,6 +241,19 @@ export default class ArticleView extends Vue {
   showArticle() {
     const xmlObj = new XmlObject.XmlBase(this.xml, () => void(0))
     const editorObj = new EditorObject.EditorBase(this.parser, xmlObj, () => void(0)) as any
+    let noteObj = editorObj.getAllEditorObjById('note')[0]
+    let aNotePersons = {} as any
+    (noteObj.parserObj.options.get('attributes.resp.possibleValues') as any).forEach((a: any) => {
+      aNotePersons[a.value] = a.title
+    })
+    if (noteObj.uId) {
+      this.noteAuthor = {
+        id: 'po' + noteObj.uId,
+        name: aNotePersons[noteObj.orgXmlObj.attributes.resp],
+        el: null
+      }
+    }
+    // console.log('getNote', noteObj.uId, this.noteAuthor, noteObj)
     this.topDatas = [
       // ...editorObj.getAllEditorObjById('variante'),
       ...editorObj.getAllEditorObjById('gramGrp').filter((aGramGrp: any) => aGramGrp.parents[0].parserObj.name === 'entry'),
@@ -251,6 +279,20 @@ export default class ArticleView extends Vue {
         && e.orgXmlObj.childs.length > 0
     })
     this.editorObj = editorObj
+  }
+
+  updated() {
+    this.$nextTick(() => {
+      if (this.noteAuthor) {
+        let aElement:any = document.getElementById(this.noteAuthor.id)
+        if (aElement) {
+          aElement = aElement.getElementsByClassName('layout-right') as any
+          if (aElement && aElement[0]) {
+            this.noteAuthor.el = aElement[0]
+          }
+        }
+      }
+    })
   }
 
   async mounted() {
