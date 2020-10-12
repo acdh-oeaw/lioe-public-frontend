@@ -252,12 +252,8 @@
           
               <v-btn
                 @click="
-                   $router.push({
-                        path: '/maps',
-                        query: {
-                          col: getSamStr(collection_ids),
-                        },
-                      })"
+                getLocationsOfCollections(collection_ids)
+                  "
                  v-if="searchItemType === 'collection' && collection_ids !== ''"
                 v-on="secondMenu"
                 small
@@ -347,6 +343,7 @@ import * as FileSaver from 'file-saver'
 import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
 import FakeScrollbar from '@components/FakeScrollbar.vue'
+import { log } from 'util'
 
 interface Places {
   Ort: string
@@ -1007,46 +1004,115 @@ export default class Database extends Vue {
     return output;
   }
 
-  getSamStr (val: any) {
-    let output;
-    // if(Array.isArray(val)) {
-    //  let noDuplicates = [];
-    //   val.forEach((c) => {
-    //     //@ts-ignore
-    //     if (!noDuplicates.includes(c)) {
-    //         noDuplicates.push(c);
-    //     }
-    //   });
-    //   output = JSON.stringify([
-    //     {
-    //       id: 0,
-    //       tempColl: noDuplicates,
-    //       collection_name: "Sammlung Datenbank",
-    //       editing: false,
-    //       fillColor:
-    //         "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-    //       borderColor: "#000",
-    //       //@ts-ignore
-    //       items: [],
-    //     },
-    //   ]);
 
-    // }  else {
-      output = JSON.stringify([
-        {
-          id: 0,
-          tempColl: val,
-          collection_name: "Sammlung Datenbank",
+  getLocationsOfCollections(colls: any[]) {
+    console.log(Array.isArray(colls))
+    if(!Array.isArray(colls)) {
+      var tmp = new Array()
+      tmp.push(colls)
+      colls = tmp
+      
+    }
+    let output;
+    console.log('first time : ' + output)
+    
+    colls.forEach(async (coll) => {
+      let shownInGeo;
+      this.selectedCollections.forEach((CollInGeo) => {
+        //@ts-ignore
+        if (CollInGeo.tempColl === coll) {
+          shownInGeo = true;
+        }
+      });
+      //It is a new one
+      if (!shownInGeo) {
+        const res: any = await getDocumentsByCollection([coll], 1, 1000);
+        let CollLocation: any[] = [];
+        //@ts-ignore
+        res.documents.forEach((document) => {
+          let sigle: string = document.ortsSigle;
+          if (sigle) {
+            if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
+              CollLocation.push(document.ortsSigle.split(" ")[0]);
+            }
+          }
+        });
+        let collName = "";
+        let collDescription = "";
+        this.collectionSearchItems.forEach((iterColl) => {
+          if (coll === iterColl.value) {
+            collName = iterColl.name;
+            collDescription = iterColl.description;
+          }
+        });
+        
+        output = JSON.stringify([
+          {
+          id: Math.random() * 1000,
+          tempColl: coll,
+          collection_name: collName,
           editing: false,
           fillColor:
             "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
           borderColor: "#000",
-          items: [],
-        },
-      ]);
-    // }
-    return output;
+          items: CollLocation,
+        }]);
+        console.log('output: ' + output)
+
+         this.$router.push({
+                        path: '/maps',
+                        query: {
+                          col: output
+                        },
+                      })
+        // return output;
+      }
+      // return output
+    });
+    console.log('second time ' + output)
+        //  return output;
   }
+
+  // getSamStr (val: any) {
+  //   let output;
+  //   // if(Array.isArray(val)) {
+  //   //  let noDuplicates = [];
+  //   //   val.forEach((c) => {
+  //   //     //@ts-ignore
+  //   //     if (!noDuplicates.includes(c)) {
+  //   //         noDuplicates.push(c);
+  //   //     }
+  //   //   });
+  //   //   output = JSON.stringify([
+  //   //     {
+  //   //       id: 0,
+  //   //       tempColl: noDuplicates,
+  //   //       collection_name: "Sammlung Datenbank",
+  //   //       editing: false,
+  //   //       fillColor:
+  //   //         "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+  //   //       borderColor: "#000",
+  //   //       //@ts-ignore
+  //   //       items: [],
+  //   //     },
+  //   //   ]);
+
+  //   // }  else {
+  //     output = JSON.stringify([
+  //       {
+  //         id: 0,
+  //         tempColl: val,
+  //         collection_name: "Sammlung Datenbank",
+  //         editing: false,
+  //         fillColor:
+  //           "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+  //         borderColor: "#000",
+  //         items: [],
+  //       },
+  //     ]);
+  //   // }
+  //   return output;
+  // }
 
 
   //    geoCollections: any[] = [
