@@ -24,7 +24,7 @@
             @input="selectItems"
             label="Suche..."
             autofocus
-            @update:search-input="(e) => (searchTerm = e)"
+            @update:search-input="debouncedPerformSearch"
             v-model="searchedItem"
             text
             hide-details
@@ -37,16 +37,13 @@
                 :to="
                   item.type === 'article'
                     ? `/articles/${item.text}`
-                    : `/db?query=${item.value}&fields=Sigle1&type=fulltext`
+                    : item.type !== 'collection' ? `/db?query=${item.value}&fields=Sigle1&type=fulltext` : `/db?collection_ids=${item.value}&type=collection`
                 "
               >
-                <v-list-item-avatar
-                  ><v-btn v-if="item.type === 'article'"
-                    ><v-icon>mdi-newspaper</v-icon></v-btn
-                  >
-                  <v-btn v-if="item.type === 'place'"
-                    ><v-icon>map</v-icon></v-btn
-                  >
+                <v-list-item-avatar>
+                  <v-icon v-if="item.type === 'article'">mdi-newspaper</v-icon>
+                  <v-icon v-if="item.type === 'place'">map</v-icon>
+                  <v-icon v-if="item.type === 'collection'">mdi-folder-outline</v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title> {{ item.text }}</v-list-item-title>
@@ -67,8 +64,15 @@
                   <v-btn 
                     @click.stop.prevent="
                       $router.replace(
-                        `/db?query=${item.text}&type=collection`)" 
+                        `/db?query=${item.text}&fields=HL&type=fulltext`)" 
                         v-if="item.type === `article`"
+                        >in Datenbank anzeigen</v-btn
+                      >
+                  <v-btn 
+                    @click.stop.prevent="
+                      $router.replace(
+                        `/db??collection_ids=${item.value}&type=collection`)" 
+                        v-if="item.type === `collection`"
                         >in Datenbank anzeigen</v-btn
                       >
                  </v-list-item-action>
@@ -175,7 +179,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import * as _ from "lodash";
 import InfoText from "@components/InfoText.vue";
-import { getArticles } from "../api";
+import { getArticles, searchCollections } from "../api";
 import InfoBox from "@components/InfoBox.vue";
 import { geoStore } from "../store/geo";
 
@@ -199,7 +203,22 @@ export default class Main extends Vue {
   autoFit = false;
   loc: string | null;
   geoStore = geoStore;
+  isSearching = false
+  searchItems: Array<{ type: string, text: string, value: string }> = []
   // items=[{text: 'Lemma', value: 'Lemma', disabled: false},{text: 'Ort', value: 'Ort', disabled: false}]
+
+  debouncedPerformSearch = _.debounce(this.performSearch, 300)
+
+  async performSearch(s: string) {
+    this.searchTerm = s
+    this.isSearching = true
+    const collections = (await searchCollections(s)).map((c) => ({ type: 'collection', text: c.name, value: c.value }))
+    const articles = this.articles.map((a) => ({ type: "article", text: a.title, value: a.filename }))
+    const places = this.geoStore.ortslisteGeo.map((f: any) => ({type: "place", text: f.name, value: f.sigle}))
+    const results = [...articles, ...places, ...collections].filter(i => i !== null)
+    this.searchItems = results
+    this.isSearching = false
+  }
 
   selectItems(input: string) {
     console.log(input);
@@ -221,38 +240,13 @@ export default class Main extends Vue {
   }
 
   get filteredWords() {
-    if (this.searchTerm) {
-      return this.wordsWithWeights.filter((w) => {
-        return w[0].toLowerCase().indexOf(this.searchTerm.toLowerCase()) > -1;
-      });
-    } else {
-      return _(this.wordsWithWeights).sampleSize(25).value();
-    }
+    return _(this.wordsWithWeights).sampleSize(25).value();
   }
 
   updateWordProgress(e: any) {
     if (e !== null) {
       this.wordProgress = (e.completedWords / e.totalWords) * 100;
     }
-  }
-
-  get searchItems() {
-    var lokaleOrtsliste = this.articles
-      .map((a) => ({ type: "article", text: a.title, value: a.filename }))
-      .concat(
-        this.geoStore.ortslisteGeo.map((f: any) => {
-          return {
-            type: "place",
-            text: f.name,
-            value: f.sigle, //,
-            // parents: (f.parentsObj ? f.parentsObj.slice().reverse().map((o: any) => o.name).join(', ') : '')
-          };
-        })
-      );
-
-    return (lokaleOrtsliste = lokaleOrtsliste.filter((el: any) => {
-      return el != null;
-    }));
   }
 
   selectLocations(locs: string[]) {
@@ -288,7 +282,7 @@ export default class Main extends Vue {
     return output;
   }
 
-  @Watch("$route")
+  @Watch('$route')
   siteChanged(to: any, from: any) {
     if (from.path === "/") {
       this.visited = true;
