@@ -435,7 +435,7 @@ export default class Maps extends Vue {
     {
       id: 0,
       tempColl: -1,
-      collection_name: "Sammlung Neu",
+      collection_name: "Unbenannte Sammlung",
       editing: false,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
@@ -453,16 +453,11 @@ export default class Maps extends Vue {
   center: number[] = defaultCenter;
   geoStore = geoStore;
   dialektColors = [
-    //grün
     "rgba(182, 236, 157, .8)",
     "rgba(88, 119, 104, .8)",
-    //dunkelblau
     "rgba(153, 153, 241, .8)",
-    //hellblau
     "rgba(204, 205, 250, .8)",
-    //blau
     "rgba(181, 178, 245, .8)",
-    //dunkel
     "rgba(153, 153, 241, .8)",
   ];
 
