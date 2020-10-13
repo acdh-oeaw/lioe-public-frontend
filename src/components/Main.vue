@@ -59,7 +59,7 @@
                       })
                     "
                     v-if="item.type === 'place'"
-                    >zur Karte</v-btn
+                    >auf Karte anzeigen</v-btn
                   >
                   <v-btn 
                     @click.stop.prevent="
@@ -71,7 +71,7 @@
                   <v-btn 
                     @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
                         v-if="item.type === `collection`"
-                        >zur Karte</v-btn
+                        >auf Karte anzeigen</v-btn
                       >
                  </v-list-item-action>
               </v-list-item>
