@@ -22,7 +22,7 @@
             :loading="loading"
             :items="searchItems"
             @input="selectItems"
-            label="Suche..."
+            label="Alle Ressourcen durchsuchen..."
             autofocus
             @update:search-input="debouncedPerformSearch"
             v-model="searchedItem"
@@ -69,11 +69,9 @@
                         >in Datenbank anzeigen</v-btn
                       >
                   <v-btn 
-                    @click.stop.prevent="
-                      $router.replace(
-                        `/db??collection_ids=${item.value}&type=collection`)" 
+                    @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
                         v-if="item.type === `collection`"
-                        >in Datenbank anzeigen</v-btn
+                        >zur Karte</v-btn
                       >
                  </v-list-item-action>
               </v-list-item>
@@ -179,7 +177,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import * as _ from "lodash";
 import InfoText from "@components/InfoText.vue";
-import { getArticles, searchCollections } from "../api";
+import { getArticles, searchCollections, getDocumentsByCollection } from "../api";
 import InfoBox from "@components/InfoBox.vue";
 import { geoStore } from "../store/geo";
 
@@ -281,6 +279,56 @@ export default class Main extends Vue {
     ]);
     return output;
   }
+
+  async getLocationsOfCollections(colls: string[], collName: string) {
+    console.log(Array.isArray(colls))
+    console.log(colls)
+      if(!Array.isArray(colls)) {
+       var tmp = new Array()
+       tmp.push(colls)
+       colls = tmp
+     }
+
+    if(colls.length === 0) {
+      return
+    }
+    let output;
+
+    const res: any = await getDocumentsByCollection([colls[0]], 1, 1000);
+        let CollLocation: any[] = [];
+        //@ts-ignore
+        res.documents.forEach((document) => {
+          let sigle: string = document.ortsSigle;
+          if (sigle) {
+            if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
+              CollLocation.push(document.ortsSigle.split(" ")[0]);
+            }
+          }
+        });
+        
+        output = JSON.stringify([
+          {
+          id: Math.random() * 1000,
+          tempColl: colls[0],
+          collection_name: collName,
+          editing: false,
+          fillColor:
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
+          items: CollLocation,
+        }]);
+        console.log('output: ' + output)
+
+         this.$router.push({
+                        path: '/maps',
+                        query: {
+                          col: output
+                        },
+                      })
+      }
+
+
+
 
   @Watch('$route')
   siteChanged(to: any, from: any) {

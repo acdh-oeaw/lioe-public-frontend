@@ -1006,16 +1006,7 @@ export default class Database extends Vue {
 
   arrangeToArr(val: string) {
     var tmp = val.toString()
-    // console.log('first tmp: ' + tmp)
-     //var colls;
-    //if(tmp.length > 0) {
       const colls = tmp.split(',')
-    //}
-
-    // if(colls === '') {
-    //   return
-    // }
-    // else {
       this.getLocationsOfCollections(colls)
     
   }
