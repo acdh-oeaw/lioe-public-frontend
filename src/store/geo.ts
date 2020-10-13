@@ -22,10 +22,23 @@ async function init() {
   geoStore.gemeindenArea = await (await fetch('/static/Gemeinden.geojson.json')).json() as geojson.FeatureCollection
   geoStore.grossregionen = await (await fetch('/static/grossregionen-geojson-optimized.json')).json() as geojson.FeatureCollection
   geoStore.bundeslaender = await (await fetch('/static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
-  geoStore.dialektregionen = await (await fetch('/static/SFB_Dialektregionen.geojson')).json() as geojson.FeatureCollection
+  geoStore.dialektregionen = addIDToDialekt(await (await fetch('/static/SFB_Dialektregionen.geojson')).json() as geojson.FeatureCollection)
   geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json')).json() as geojson.FeatureCollection)
   geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || null : null
-  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features, ...geoStore.kleinregionen!.features])
+  geoStore.ortslisteGeo = orderByName(filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features, ...geoStore.kleinregionen!.features]))
+}
+
+function addIDToDialekt(dialekt: any) {
+  let i = 0;
+  dialekt.features.forEach((feature:any) => {
+    feature.properties.id = i;
+    i++
+  });
+  return dialekt
+}
+
+function orderByName(geoList: any) {
+  return geoList;
 }
 
 function filterOrtslisteByGeoJSON (oList: any, gList: any) {

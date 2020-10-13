@@ -17,6 +17,13 @@
             hide-selected
             multiple
           >
+            <template v-slot:no-data>
+              <v-list-item>
+                <v-list-item-title>
+                  Zu tippen beginnen um nach Sammlungen zu suchen
+                </v-list-item-title>
+              </v-list-item>
+            </template>
             <template v-slot:item="{ item }">
               <v-list-item-content>
                 <v-list-item-title v-text="item.text"></v-list-item-title>
@@ -155,7 +162,7 @@ export default class MapLegende extends Vue {
     this.geoCollections.push({
       id: newID,
       tempColl: -1,
-      collection_name: "Sammlung Neu",
+      collection_name: "Unbenannte Sammlung",
       editing: false,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
@@ -253,7 +260,7 @@ export default class MapLegende extends Vue {
       this.geoCollections.push({
         id: 0,
         tempColl: -1,
-        collection_name: "Sammlung Neu",
+        collection_name: "Unbenannte Sammlung",
         editing: false,
         fillColor:
           "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",

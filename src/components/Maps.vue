@@ -18,15 +18,28 @@
           </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-checkbox v-model="fixTooltip" hide-details style="float:left;" />
+          <v-checkbox v-model="fixTooltip" hide-details style="float: left" />
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <span style="float:left; margin-top:20px; color: rgba(0,0,0,.6); font-size: 16px;" v-on="on" v-bind="attrs">Namen anzeigen</span>
+              <span
+                style="
+                  float: left;
+                  margin-top: 20px;
+                  color: rgba(0, 0, 0, 0.6);
+                  font-size: 16px;
+                "
+                v-on="on"
+                v-bind="attrs"
+                >Namen anzeigen</span
+              >
             </template>
-            <span>Zeigt die Namen der entsprechenden Regionen bei Auswahl <br> von Untersuchungsgebiet, Großregionen oder Dialektregionen</span>
+            <span
+              >Zeigt die Namen der entsprechenden Regionen bei Auswahl <br />
+              von Untersuchungsgebiet, Großregionen oder Dialektregionen</span
+            >
           </v-tooltip>
-          </v-card-text>
-        <v-divider style="clear:both; margin-top:50px;" />
+        </v-card-text>
+        <v-divider style="clear: both; margin-top: 50px" />
         <v-card-text>
           <v-card-subtitle class="subtitles">Grundkarten</v-card-subtitle>
           <v-radio-group v-model="selectedTileSet">
@@ -97,11 +110,11 @@
             item-text="text"
             item-value="value"
             hide-details
+            hide-selected
             :disabled="disableAuto(gC.tempColl)"
             text
             flat
             chips
-            deletable-chips
             prepend-inner-icon="search"
             solo
             elevation="0"
@@ -111,6 +124,18 @@
             :key="gC.id"
             v-if="gC.id === selectedCollection"
           >
+            <template v-slot:selection="{ attr, on, item, selected }">
+              <v-chip
+                v-bind="attr"
+                :input-value="selected"
+                v-on="on"
+              >
+                <v-icon left>
+                  map
+                </v-icon>
+                <span v-text="item.text"></span>
+              </v-chip>
+            </template>
             <template v-slot:item="{ item }">
               <v-list-item-content>
                 <v-list-item-title v-text="item.text"></v-list-item-title>
@@ -121,7 +146,7 @@
         <v-flex class="pr-2 pt-1 text-right">
           <v-menu open-on-hover :offset-y="true">
             <template v-slot:activator="{ on }">
-              <v-btn color="accent" icon  medium v-on="on">
+              <v-btn color="accent" icon medium v-on="on">
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
@@ -174,7 +199,11 @@
       </v-flex>
 
       <router-link to="/">
-        <img :style="{right: sideBar === true ? '255px' : '0vw'}" class="logo mt-2 logo-container" src="/static/img/logo.svg" />
+        <img
+          :style="{ right: sideBar === true ? '255px' : '0vw' }"
+          class="logo mt-2 logo-container"
+          src="/static/img/logo.svg"
+        />
       </router-link>
 
       <map-legende
@@ -406,7 +435,7 @@ export default class Maps extends Vue {
     {
       id: 0,
       tempColl: -1,
-      collection_name: "Sammlung Neu",
+      collection_name: "Unbenannte Sammlung",
       editing: false,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
@@ -424,11 +453,12 @@ export default class Maps extends Vue {
   center: number[] = defaultCenter;
   geoStore = geoStore;
   dialektColors = [
-    "rgba(182, 216, 203, .8)",
-    "rgba(153, 153, 241, .5)",
+    "rgba(182, 236, 157, .8)",
+    "rgba(88, 119, 104, .8)",
     "rgba(153, 153, 241, .8)",
-    "rgba(153, 153, 241, .95)",
-    "rgba(0, 153, 0, .7)",
+    "rgba(204, 205, 250, .8)",
+    "rgba(181, 178, 245, .8)",
+    "rgba(153, 153, 241, .8)",
   ];
 
   mapOptions = {
@@ -781,7 +811,7 @@ export default class Maps extends Vue {
     ).json();
     this.rivers2 = await (
       await fetch(
-        'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson'
+        "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
       )
     ).json();
   }
