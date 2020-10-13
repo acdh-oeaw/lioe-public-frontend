@@ -501,7 +501,7 @@ function generalMapStaat(val: any) {
           tmp += ', ' + mapStaat(newval[i])
         }
       }
-      console.log('voila ' + tmp + ' lastOne ' + tmp.charAt(tmp.length - 2))
+     // console.log('voila ' + tmp + ' lastOne ' + tmp.charAt(tmp.length - 2))
     return tmp.substring(tmp.length - 2, tmp.length) === ', ' ? tmp.substring(0, tmp.length - 2) : tmp
   }
   else {

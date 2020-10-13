@@ -252,7 +252,7 @@
           
               <v-btn
                 @click="
-                getLocationsOfCollections(collection_ids)
+                arrangeToArr(collection_ids)
                   "
                  v-if="searchItemType === 'collection' && collection_ids !== ''"
                 v-on="secondMenu"
@@ -658,13 +658,13 @@ export default class Database extends Vue {
 
   @Watch('type', {immediate: true})
   onUpdateType(newVal: string|null) {
-    console.log(newVal + 'AND: ' + this.searchItemType)
+    // console.log(newVal + 'AND: ' + this.searchItemType)
     
         if (newVal) {
           this.searchItemType = newVal
         } else {
         }
-    console.log(' and new value let us have a looki : ' + this.searchItemType)
+    // console.log(' and new value let us have a looki : ' + this.searchItemType)
   }
 
 
@@ -1004,18 +1004,38 @@ export default class Database extends Vue {
     return output;
   }
 
+  arrangeToArr(val: string) {
+    var tmp = val.toString()
+    // console.log('first tmp: ' + tmp)
+     //var colls;
+    //if(tmp.length > 0) {
+      const colls = tmp.split(',')
+    //}
 
-  getLocationsOfCollections(colls: any[]) {
+    // if(colls === '') {
+    //   return
+    // }
+    // else {
+      this.getLocationsOfCollections(colls)
+    
+  }
+
+
+  getLocationsOfCollections(colls: string[]) {
     console.log(Array.isArray(colls))
-    if(!Array.isArray(colls)) {
-      var tmp = new Array()
-      tmp.push(colls)
-      colls = tmp
-      
+    console.log(colls)
+     if(!Array.isArray(colls)) {
+       var tmp = new Array()
+       tmp.push(colls)
+       colls = tmp
+       }
+
+    if(colls.length === 0) {
+      return
     }
     let output;
-    console.log('first time : ' + output)
-    
+    let end_output; 
+
     colls.forEach(async (coll) => {
       let shownInGeo;
       this.selectedCollections.forEach((CollInGeo) => {
@@ -1065,114 +1085,9 @@ export default class Database extends Vue {
                           col: output
                         },
                       })
-        // return output;
       }
-      // return output
     });
-    console.log('second time ' + output)
-        //  return output;
   }
-
-  // getSamStr (val: any) {
-  //   let output;
-  //   // if(Array.isArray(val)) {
-  //   //  let noDuplicates = [];
-  //   //   val.forEach((c) => {
-  //   //     //@ts-ignore
-  //   //     if (!noDuplicates.includes(c)) {
-  //   //         noDuplicates.push(c);
-  //   //     }
-  //   //   });
-  //   //   output = JSON.stringify([
-  //   //     {
-  //   //       id: 0,
-  //   //       tempColl: noDuplicates,
-  //   //       collection_name: "Sammlung Datenbank",
-  //   //       editing: false,
-  //   //       fillColor:
-  //   //         "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-  //   //       borderColor: "#000",
-  //   //       //@ts-ignore
-  //   //       items: [],
-  //   //     },
-  //   //   ]);
-
-  //   // }  else {
-  //     output = JSON.stringify([
-  //       {
-  //         id: 0,
-  //         tempColl: val,
-  //         collection_name: "Sammlung Datenbank",
-  //         editing: false,
-  //         fillColor:
-  //           "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-  //         borderColor: "#000",
-  //         items: [],
-  //       },
-  //     ]);
-  //   // }
-  //   return output;
-  // }
-
-
-  //    geoCollections: any[] = [
-  //   {
-  //     id: 0,
-  //     tempColl: -1,
-  //     collection_name: "Sammlung Neu",
-  //     editing: false,
-  //     fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-  //     borderColor: "#000",
-  //     items: [],
-  //   },
-  // ];
-  // }
-
-/*******
- * getSamStr(val: any) {
-    let output;
-    if(Array.isArray(val)) {
-      //@ts-ignore
-      let noDuplicates = [];
-      val.forEach((c) => {
-        //@ts-ignore
-        if (!noDuplicates.includes(c)) {
-            noDuplicates.push(c);
-        }
-      });
-      output = JSON.stringify([
-        {
-          id: 0,
-          tempColl: -1,
-          collection_name: "Sammlung Datenbank",
-          editing: false,
-          fillColor:
-            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-          borderColor: "#000",
-          //@ts-ignore
-          items: noDuplicates,
-        },
-      ]);
-    } else {
-      output = JSON.stringify([
-        {
-          id: 0,
-          tempColl: noDuplicates,
-          collection_name: "Sammlung Datenbank",
-          editing: false,
-          fillColor:
-            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-          borderColor: "#000",
-          items: [val],
-        },
-      ]);
-    }
-    return output;
-  }
- * 
- * 
- * 
- */
 
 
   @Watch('query', {immediate: true})
