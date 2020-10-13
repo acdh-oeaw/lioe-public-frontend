@@ -47,6 +47,9 @@
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title> {{ item.text }}</v-list-item-title>
+                  <v-list-item-subtitle v-if="item.type === 'article'">  Beleg zum Artikel anzeigen </v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.type === 'collection'">  Sammlung in Belegdatenbank anzeigen </v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.type === 'place'">  Ort in Belegdatenbank anzeigen </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-btn
