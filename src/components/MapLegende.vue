@@ -17,6 +17,13 @@
             hide-selected
             multiple
           >
+            <template v-slot:no-data>
+              <v-list-item>
+                <v-list-item-title>
+                  Zu tippen beginnen um nach Sammlungen zu suchen
+                </v-list-item-title>
+              </v-list-item>
+            </template>
             <template v-slot:item="{ item }">
               <v-list-item-content>
                 <v-list-item-title v-text="item.text"></v-list-item-title>
