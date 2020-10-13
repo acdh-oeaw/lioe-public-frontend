@@ -202,6 +202,10 @@ div /deep/ a.button {
   padding: 10px 15px;
 }
 .info-content /deep/ {
+  img {
+    max-width: 100%;
+    height: auto;
+  }
   .fx-table-1, .fx-table-2 {
     border-collapse: collapse;
     width: 100%;
