@@ -542,7 +542,7 @@ function mapStaat(val: any) {
     return 'HU'
   }
   else if (val.substring(0, 4) === '11.3') {
-    return 'RU'
+    return 'RO'
   }
   else if (val.substring(0, 4) === '11.5') {
     return 'HR'
@@ -559,6 +559,12 @@ function mapStaat(val: any) {
     }
     else if (val.substring(4, 6) === 'SL') {
       return 'SI'
+    }
+    else if(val.substring(4, 6) === 'YU') {
+      return 'RS'
+    }
+    else if(val.substring(4, 6) === 'RU') {
+      return 'RO'
     }
     else if (val === 'wb0:CZ+D') {
       return 'CZ/DE'
