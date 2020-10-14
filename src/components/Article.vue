@@ -480,6 +480,9 @@ iframe.comment {
   min-height: 500px;
 }
 .lemma {
+  form[type="lemma"] {
+    display: inline-block;
+  }
   form[type="lemma"] > orth {
     display: inline-block;
     font-size: 2.5em;
