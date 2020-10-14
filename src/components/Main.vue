@@ -47,12 +47,12 @@
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title> {{ item.text }}</v-list-item-title>
-                  <v-list-item-subtitle v-if="item.type === 'article'">  Beleg zum Artikel anzeigen </v-list-item-subtitle>
-                  <v-list-item-subtitle v-if="item.type === 'collection'">  Sammlung in Belegdatenbank anzeigen </v-list-item-subtitle>
-                  <v-list-item-subtitle v-if="item.type === 'place'">  Ort in Belegdatenbank anzeigen </v-list-item-subtitle>
+                  <!-- <v-list-item-subtitle v-if="item.type === 'article'">  Beleg zum Artikel anzeigen </v-list-item-subtitle> -->
+                  <v-list-item-subtitle v-if="item.type === 'collection'">  {{ item.description }} </v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.type === 'place'">  {{item.value}} </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-btn
+                  <v-btn text
                     @click.stop.prevent="
                       $router.push({
                         path: '/maps',
@@ -62,19 +62,19 @@
                       })
                     "
                     v-if="item.type === 'place'"
-                    >auf Karte anzeigen</v-btn
+                    >&#8594 Ort auf Karte anzeigen</v-btn
                   >
-                  <v-btn 
+                  <v-btn text
                     @click.stop.prevent="
                       $router.replace(
                         `/db?query=${item.text}&fields=HL&type=fulltext`)" 
                         v-if="item.type === `article`"
-                        >in Datenbank anzeigen</v-btn
+                        >&#8594 Belege in Datenbank anzeigen</v-btn
                       >
-                  <v-btn 
+                  <v-btn text
                     @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
                         v-if="item.type === `collection`"
-                        >auf Karte anzeigen</v-btn
+                        >&#8594 Sammlung auf Karte anzeigen</v-btn
                       >
                  </v-list-item-action>
               </v-list-item>
@@ -205,7 +205,7 @@ export default class Main extends Vue {
   loc: string | null;
   geoStore = geoStore;
   isSearching = false
-  searchItems: Array<{ type: string, text: string, value: string }> = []
+  searchItems: Array<{ type: string, text: string, value: string, description: string }> = []
   // items=[{text: 'Lemma', value: 'Lemma', disabled: false},{text: 'Ort', value: 'Ort', disabled: false}]
 
   debouncedPerformSearch = _.debounce(this.performSearch, 300)
@@ -213,9 +213,9 @@ export default class Main extends Vue {
   async performSearch(s: string) {
     this.searchTerm = s
     this.isSearching = true
-    const collections = (await searchCollections(s)).map((c) => ({ type: 'collection', text: c.name, value: c.value }))
-    const articles = this.articles.map((a) => ({ type: "article", text: a.title, value: a.filename }))
-    const places = this.geoStore.ortslisteGeo.map((f: any) => ({type: "place", text: f.name, value: f.sigle}))
+    const collections = (await searchCollections(s)).map((c) => ({ type: 'collection', text: c.name, value: c.value, description: c.description }))
+    const articles = this.articles.map((a) => ({ type: "article", text: a.title, value: a.filename, description: '' }))
+    const places = this.geoStore.ortslisteGeo.map((f: any) => ({type: "place", text: f.name, value: f.sigle, description: ''}))
     const results = [...articles, ...places, ...collections].filter(i => i !== null)
     this.searchItems = results
     this.isSearching = false
