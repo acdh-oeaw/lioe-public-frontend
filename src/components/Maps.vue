@@ -110,7 +110,6 @@
             item-text="text"
             item-value="value"
             hide-details
-            hide-selected
             :disabled="disableAuto(gC.tempColl)"
             text
             flat
@@ -128,11 +127,10 @@
               <v-chip
                 v-bind="attr"
                 :input-value="selected"
+                v-if="collectionPlaces.includes(item.value)"
                 v-on="on"
               >
-                <v-icon left>
-                  map
-                </v-icon>
+                <v-icon left> map </v-icon>
                 <span v-text="item.text"></span>
               </v-chip>
             </template>
@@ -142,6 +140,16 @@
               </v-list-item-content>
             </template>
           </v-autocomplete>
+        </v-flex>
+        <v-flex class="pr-2 pt-1 text-right">
+          <v-chip
+            v-if="amountOfTooManyItems >= 1"
+            color="accent"
+            style="margin: 3px"
+            @click="dialogPlaces = true"
+          >
+            <span v-text="'+ ' + amountOfTooManyItems + ' weitere'"></span>
+          </v-chip>
         </v-flex>
         <v-flex class="pr-2 pt-1 text-right">
           <v-menu open-on-hover :offset-y="true">
@@ -158,6 +166,27 @@
         </v-flex>
       </v-layout>
     </v-card>
+
+    <v-dialog v-model="dialogPlaces" width="500">
+      <v-card>
+        <v-card-title class="headline grey lighten-2">
+          Orte in {{ geoCollections[selectedCollection].collection_name }}
+        </v-card-title>
+        <v-card-text>
+          <v-chip
+            close
+            close-icon="mdi-delete"
+            v-for="place in selectedLocations[indexOfSelected]"
+            :key="place"
+            style="margin: 4px"
+            @click:close="removePlaceFromCollection(place)"
+          >
+            <span v-text="place"></span>
+          </v-chip>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-layout class="map-overlay pa-4">
       <v-flex xs1>
         <v-btn fab small class="zoom" @click="zoom = zoom + 1">
@@ -430,6 +459,8 @@ export default class Maps extends Vue {
   colorKleinregionen = "#888";
   pinned = false;
   fixTooltip = false;
+  maxVisibleItems = 10;
+  dialogPlaces = false;
   //searchCollections
   geoCollections: any[] = [
     {
@@ -505,9 +536,28 @@ export default class Maps extends Vue {
     }
   }
 
+  get collectionPlaces() {
+    let stuff = this.selectedLocations[this.indexOfSelected];
+    return _.takeRight(stuff, this.maxVisibleItems);
+  }
+
+  get amountOfTooManyItems() {
+    let allthePlaces = this.selectedLocations[this.indexOfSelected].length;
+    let amount = allthePlaces - this.collectionPlaces.length;
+    console.log(amount);
+    return amount;
+  }
+
   resetView() {
     this.zoom = defaultZoom;
     this.center = defaultCenter;
+  }
+
+  removePlaceFromCollection(sigle: String) {
+    const index = this.selectedLocations[this.indexOfSelected].indexOf(sigle);
+    if (index > -1) {
+      this.selectedLocations[this.indexOfSelected].splice(index, 1);
+    }
   }
 
   async printMap(type?: string) {
