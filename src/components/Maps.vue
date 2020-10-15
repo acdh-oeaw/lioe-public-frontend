@@ -107,6 +107,7 @@
             v-model="selectedLocations[indexOfSelected]"
             @input="changeLocinCollection"
             label="Suche…"
+            :search-input.sync="autocompleteSearch"
             autofocus
             item-text="text"
             item-value="value"
@@ -367,7 +368,7 @@ import InfoText from "@components/InfoText.vue";
 import InfoBox from "@components/InfoBox.vue";
 import * as geojson from "geojson";
 import MapLegende from "@components/MapLegende.vue";
-import { regions } from '../regions'
+import { regions } from "../regions";
 import { geoStore } from "../store/geo";
 import * as FileSaver from "file-saver";
 import domtoimage from "dom-to-image";
@@ -456,6 +457,7 @@ export default class Maps extends Vue {
   showGemeindenArea = false;
   updateLayers = false;
   colorGemeinde = "#333";
+  autocompleteSearch = ""
   colorBundesland = "#000";
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
@@ -513,13 +515,13 @@ export default class Maps extends Vue {
   };
 
   get currentCollectionName() {
-    let name = ""; 
-    this.geoCollections.forEach(geoColl => {
-      if(geoColl.id === this.selectedCollection) {
+    let name = "";
+    this.geoCollections.forEach((geoColl) => {
+      if (geoColl.id === this.selectedCollection) {
         name = geoColl.collection_name;
       }
     });
-    return name
+    return name;
   }
 
   options = {
@@ -584,17 +586,21 @@ export default class Maps extends Vue {
       const uriString = await domtoimage.toPng(el);
       FileSaver.saveAs(base64ToBlob(uriString), "map.png");
     } else if (type === "json") {
-      let geoStuff:any[] = [];
+      let geoStuff: any[] = [];
       this.geoCollections.forEach((geoColl) => {
-        if(Array.isArray(geoColl.items)) {
-          geoColl.items.forEach((item:any) => {
-            geoStuff.push(item)
+        if (Array.isArray(geoColl.items)) {
+          geoColl.items.forEach((item: any) => {
+            geoStuff.push(item);
           });
         } else {
-          geoStuff.push(geoColl)
+          geoStuff.push(geoColl);
         }
       });
-      const blob = JSON.stringify(this.collDisplayLocations(geoStuff), undefined, 2);
+      const blob = JSON.stringify(
+        this.collDisplayLocations(geoStuff),
+        undefined,
+        2
+      );
       FileSaver.saveAs(new Blob([blob]), "map.json");
     }
   }
@@ -704,13 +710,15 @@ export default class Maps extends Vue {
   get locationsSearchItems() {
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
-        let name:String = "";
-        if(f.field === "Kleinregion") {
-          name = regions.mapKleinreg(f.name)
-        } else if(f.field === "Großregion") {
-          name = regions.mapGrossreg(f.name)
-        }else if(f.field === "Bundesland") {
-          name = regions.mapBundeslaender(f.name)
+        let name: String = "";
+        if (f.field === "Kleinregion") {
+          name = regions.mapKleinreg(f.name);
+        } else if (f.field === "Großregion") {
+          name = regions.mapGrossreg(f.name);
+        } else if (f.field === "Bundesland") {
+          name = regions.mapBundeslaender(f.name);
+        } else {
+          name = f.name;
         }
         return {
           text: name,
@@ -732,17 +740,17 @@ export default class Maps extends Vue {
     }
   }
 
-  getNameOfSigle(sigle:String[]) {
-    if(sigle !== undefined) {
-      let returnObject:any = []
-      sigle.forEach((sigleSingular:any) => {
-        this.locationsSearchItems.forEach((place:any) => {
-          if(sigleSingular === place.value) {
-            returnObject.push({sigle: sigleSingular, name: place.text})
+  getNameOfSigle(sigle: String[]) {
+    if (sigle !== undefined) {
+      let returnObject: any = [];
+      sigle.forEach((sigleSingular: any) => {
+        this.locationsSearchItems.forEach((place: any) => {
+          if (sigleSingular === place.value) {
+            returnObject.push({ sigle: sigleSingular, name: place.text });
           }
         });
       });
-      return returnObject
+      return returnObject;
     }
   }
 
@@ -757,6 +765,7 @@ export default class Maps extends Vue {
       //@ts-ignore
       activeCol.items = this.selectedLocations[this.indexOfSelected];
     }
+    this.autocompleteSearch = "";
     this.safeCollectionsInURL();
   }
 
