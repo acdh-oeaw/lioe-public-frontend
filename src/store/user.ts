@@ -21,5 +21,5 @@ export const userStore: UserStore = {
   showPdfPrintButton: false,
   isLoggedIn: false,
   showComment: false,
-  articleStatus: [ 'proofed' ]
+  articleStatus: [ 'proofed', 'finished' ]
 }

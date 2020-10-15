@@ -7,9 +7,6 @@ import Article from '@components/Article.vue'
 import Database from '@components/Database.vue'
 import Resources from '@components/Resources.vue'
 import Password from '@components/Password.vue'
-import { userStore } from './store/user'
-
-const process: any = {}
 
 const r = new Router({
   mode : 'history',
@@ -57,14 +54,6 @@ const r = new Router({
       component: NotFound
     }
   ]
-})
-
-r.beforeEach((to, from, next) => {
-  if (userStore.isLoggedIn || to.path === '/password') {
-    next()
-  } else {
-    r.replace({ path: '/password', query: { initial_url: to.fullPath } })
-  }
 })
 
 export default r

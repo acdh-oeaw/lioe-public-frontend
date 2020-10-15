@@ -1,15 +1,19 @@
 <template>
-  <div class="pa-5 text-center">
-    <h1 class="text-light">Zugriffsgeschützter Bereich</h1>
-    <p class="grey--text">
-      Bitte geben Sie das Ihnen zugewiesene Passwort an.<br>
-      Hinweise zu unserem Forschungsdatenmanagement finden Sie <a href="https://vawadioe.acdh.oeaw.ac.at/lioetxt/wboe-artikel/hinweise-zum-forschungsdatenmanagement/" target="_blank" @click.prevent="subDialog = true">hier</a>.<br>
-      Bei Fragen wenden sie sich bitte an <a href="mailto:philipp.stoeckle@oeaw.ac.at">Dr. Philipp Stöckle</a>.
-    </p>
+  <div class="pa-5 text-center fill-height">
+    <h1 class="text-light mt-5 mb-5">Zugriffsgeschützter Bereich</h1>
     <v-form @submit.prevent="submit">
       <v-layout>
         <v-flex xs12>
-          <v-text-field :error-messages="wrong ? 'Passwort falsch.' : []" autofocus v-model="entered" placeholder="Password" type="password" required solo>
+          <v-text-field
+            class="mx-auto"
+            style="max-width: 550px"
+            :error-messages="wrong ? 'Passwort falsch.' : []"
+            autofocus
+            v-model="entered"
+            placeholder="Password"
+            type="password"
+            required
+            solo>
             <v-btn @click="submit" depressed color="accent" dark slot="append">ok</v-btn>
           </v-text-field>
         </v-flex>
@@ -17,6 +21,11 @@
         </v-flex>
       </v-layout>
     </v-form>
+    <p class="grey--text">
+      Bitte geben Sie das Ihnen zugewiesene Passwort an.<br>
+      Hinweise zu unserem Forschungsdatenmanagement finden Sie <a href="https://vawadioe.acdh.oeaw.ac.at/lioetxt/wboe-artikel/hinweise-zum-forschungsdatenmanagement/" target="_blank" @click.prevent="subDialog = true">hier</a>.<br>
+      Bei Fragen wenden sie sich bitte an <a href="mailto:philipp.stoeckle@oeaw.ac.at">Dr. Philipp Stöckle</a>.
+    </p>
     <v-dialog v-model="subDialog" max-width="1000" color="#2b2735" scrollable>
       <v-card text class="fill-height pl-4 pt-4 pr-4 pb-3">
         <div class="close-btn">
