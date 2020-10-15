@@ -25,7 +25,7 @@ async function init() {
   geoStore.dialektregionen = addIDToDialekt(await (await fetch('/static/SFB_Dialektregionen.geojson')).json() as geojson.FeatureCollection)
   geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json')).json() as geojson.FeatureCollection)
   geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || null : null
-  geoStore.ortslisteGeo = orderByName(filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features, ...geoStore.kleinregionen!.features]))
+  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features, ...geoStore.kleinregionen!.features])?.sort(orderByName("name"))
 }
 
 function addIDToDialekt(dialekt: any) {
@@ -37,9 +37,16 @@ function addIDToDialekt(dialekt: any) {
   return dialekt
 }
 
-function orderByName(geoList: any) {
-  return geoList;
-}
+function orderByName(prop:any) {    
+  return function(a:any, b:any) {    
+      if (a[prop] > b[prop]) {    
+          return 1;    
+      } else if (a[prop] < b[prop]) {    
+          return -1;    
+      }    
+      return 0;    
+  }    
+} 
 
 function filterOrtslisteByGeoJSON (oList: any, gList: any) {
   if (oList !== null && gList !== null) {
