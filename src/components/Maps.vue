@@ -22,6 +22,7 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <span
+                @click="fixTooltip = !fixTooltip"
                 style="
                   float: left;
                   margin-top: 20px;
