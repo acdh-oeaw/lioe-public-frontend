@@ -415,12 +415,12 @@ export default class Maps extends Vue {
 
   tileSets = [
     {
-      name: "Wikimedia",
-      url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png",
-    },
-    {
       name: "Humanitarian Open Tiles",
       url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
+    },
+    {
+      name: "Wikimedia",
+      url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png",
     },
     {
       name: "Minimal Ländergrenzen (hell)",
