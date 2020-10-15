@@ -173,8 +173,6 @@
           </template>
         </v-row>
     </v-flex>
-    <fake-scrollbar
-      for-element=".v-data-table__wrapper" />
     <v-flex>
       <v-data-table
         v-model="selected"
@@ -342,7 +340,6 @@ import { regions } from '../regions'
 import * as FileSaver from 'file-saver'
 import * as xlsx from 'xlsx'
 import * as _ from 'lodash'
-import FakeScrollbar from '@components/FakeScrollbar.vue'
 import { log } from 'util'
 
 interface Places {
@@ -354,8 +351,7 @@ interface Places {
 @Component({
   components: {
     InfoText,
-    InfoBox,
-    FakeScrollbar
+    InfoBox
   }
 })
 export default class Database extends Vue {
