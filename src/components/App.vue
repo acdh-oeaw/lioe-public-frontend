@@ -42,43 +42,7 @@
               <router-view />
             </keep-alive>
           </v-flex>
-          <v-flex class="pl-5 pr-5 xmt-5 pb-5 text-center footer-navigation" v-if="$route.name !== 'maps'">
-            <v-divider class="ma-5" />
-            <h4 class="mb-2 mt-2 grey--text">Ein Projekt von</h4>
-            <v-layout align-center justify-space-around wrap>
-              <a target="_blank" href="https://www.oeaw.ac.at">
-                <v-img aspect-ratio="1" width="170" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/oeaw_logo_446x192.png" alt="" class="src" />
-              </a>
-              <a target="_blank" href="https://acdh.oeaw.ac.at">
-                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/acdh-ch-logo-with-text.png" alt="" class="src" />
-              </a>
-              <a target="_blank" href="https://www.oeaw.ac.at/acdh/vawadioe/projekte/wboe/">
-                <v-img aspect-ratio="1" width="150" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/wboelogo_230px_transp.png" alt="" class="src" />
-              </a>
-              <a target="_blank" href="https://www.fwf.ac.at">
-                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/fwf-logo.gif" alt="" class="src" />
-              </a>
-              <a target="_blank" href="https://www.univie.ac.at">
-                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/uni-logo.png" alt="" class="src" />
-              </a>
-              <a target="_blank" href="https://dioe.at/">
-                <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/logodioe.png" alt="" class="src" />
-              </a>
-            </v-layout>
-            <v-layout style="clear:both; float: right; margin-top: 30px;">
-                <a target="_blank" href="https://lioe-test.dioe.at/resources?link=home%2Fimpressum%2F" style="margin-right: 10px;">
-                  Impressum
-                </a>
-                <span class="lines">|</span>
-                <a target="_blank" href="https://lioe-test.dioe.at/resources?link=home%2Fkontakt%2F" style="margin-left: 10px; margin-right: 10px;">
-                  Kontakt
-                </a>
-                <span class="lines">|</span>
-                <a target="_blank" href="https://lioe-test.dioe.at/resources?link=home%2Fdatenschutz%2F" style="margin-left: 10px;">
-                  Datenschutz
-                </a>
-            </v-layout>
-          </v-flex>
+          <lioe-footer v-if="$route.name !== 'maps'" />
         </v-layout>
       </v-container>
     </v-content>
@@ -87,8 +51,13 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { initialize as initGeo } from '../store/geo'
+import LioeFooter from './LioeFooter.vue'
 
-@Component
+@Component({
+  components: {
+    LioeFooter
+  }
+})
 export default class App extends Vue {
   mounted() {
     initGeo()
