@@ -945,6 +945,10 @@ export default class Maps extends Vue {
       this.colorBundesland = "#FFF";
       this.colorGrossregionen = "#BBB";
       this.colorKleinregionen = "#888";
+    } else {
+      this.colorBundesland = "#000";
+      this.colorGrossregionen = "#555";
+      this.colorKleinregionen = "#888";
     }
   }
 
