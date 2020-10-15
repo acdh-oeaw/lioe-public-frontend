@@ -54,7 +54,8 @@
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-btn
-                    class="text-capitalize"
+                    color="ci"
+                    class="result-btn"
                     text
                     @click.stop.prevent="
                       $router.push({
@@ -67,8 +68,10 @@
                     v-if="item.type === 'place'"
                     >&#8594 Ort auf Karte anzeigen</v-btn
                   >
-                  <v-btn text
-                    class="text-capitalize"
+                  <v-btn
+                    text
+                    color="ci"
+                    class="result-btn"
                     @click.stop.prevent="
                       $router.replace(
                         `/db?query=${item.text}&fields=HL&type=fulltext`)" 
@@ -76,7 +79,8 @@
                         >&#8594 Belege in Datenbank anzeigen</v-btn
                       >
                   <v-btn text
-                    class="text-capitalize"
+                    class="result-btn"
+                    color="ci"
                     @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
                         v-if="item.type === `collection`"
                         >&#8594 Sammlung auf Karte anzeigen</v-btn
@@ -157,16 +161,11 @@
         :spacing="0.2"
         @update:progress="updateWordProgress"
         font-weight="800"
-        font-family="fiduz"
-      >
+        font-family="fiduz">
         <template slot-scope="{ text, weight, word }">
           <router-link
             class="word-cloud-link"
-            :to="`/articles/${findArticleByTitle(text).filename.replace(
-              '.xml',
-              ''
-            )}`"
-          >
+            :to="`/articles/${findArticleByTitle(text).filename.replace('.xml', '')}`">
             {{ text }}
           </router-link>
         </template>
@@ -356,6 +355,9 @@ export default class Main extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.result-btn{
+  text-transform: none;
+}
 .word-cloud-link {
   opacity: 0.6;
   color: #3b89a0;
