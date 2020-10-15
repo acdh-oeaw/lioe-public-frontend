@@ -216,7 +216,7 @@
               <v-icon class="mr-1" small>save_alt</v-icon>Export/Download
             </v-subheader>
             <v-list-item @click="printMap('png')">PNG</v-list-item>
-            <v-list-item disabled @click="printMap('svg')">SVG</v-list-item>
+            <!--<v-list-item disabled @click="printMap('svg')">SVG</v-list-item>-->
             <v-list-item @click="printMap('json')">GeoJSON</v-list-item>
           </v-list>
         </v-menu>
@@ -583,7 +583,17 @@ export default class Maps extends Vue {
       const uriString = await domtoimage.toPng(el);
       FileSaver.saveAs(base64ToBlob(uriString), "map.png");
     } else if (type === "json") {
-      const blob = JSON.stringify(this.geoCollections, undefined, 2);
+      let geoStuff:any[] = [];
+      this.geoCollections.forEach((geoColl) => {
+        if(Array.isArray(geoColl.items)) {
+          geoColl.items.forEach((item:any) => {
+            geoStuff.push(item)
+          });
+        } else {
+          geoStuff.push(geoColl)
+        }
+      });
+      const blob = JSON.stringify(this.collDisplayLocations(geoStuff), undefined, 2);
       FileSaver.saveAs(new Blob([blob]), "map.json");
     }
   }
