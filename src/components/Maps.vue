@@ -22,6 +22,7 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <span
+                @click="fixTooltip = !fixTooltip"
                 style="
                   float: left;
                   margin-top: 20px;
@@ -106,6 +107,7 @@
             v-model="selectedLocations[indexOfSelected]"
             @input="changeLocinCollection"
             label="Suche…"
+            :search-input.sync="autocompleteSearch"
             autofocus
             item-text="text"
             item-value="value"
@@ -215,7 +217,7 @@
               <v-icon class="mr-1" small>save_alt</v-icon>Export/Download
             </v-subheader>
             <v-list-item @click="printMap('png')">PNG</v-list-item>
-            <v-list-item disabled @click="printMap('svg')">SVG</v-list-item>
+            <!--<v-list-item disabled @click="printMap('svg')">SVG</v-list-item>-->
             <v-list-item @click="printMap('json')">GeoJSON</v-list-item>
           </v-list>
         </v-menu>
@@ -366,6 +368,7 @@ import InfoText from "@components/InfoText.vue";
 import InfoBox from "@components/InfoBox.vue";
 import * as geojson from "geojson";
 import MapLegende from "@components/MapLegende.vue";
+import { regions } from "../regions";
 import { geoStore } from "../store/geo";
 import * as FileSaver from "file-saver";
 import domtoimage from "dom-to-image";
@@ -454,6 +457,7 @@ export default class Maps extends Vue {
   showGemeindenArea = false;
   updateLayers = false;
   colorGemeinde = "#333";
+  autocompleteSearch = ""
   colorBundesland = "#000";
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
@@ -511,13 +515,13 @@ export default class Maps extends Vue {
   };
 
   get currentCollectionName() {
-    let name = ""; 
-    this.geoCollections.forEach(geoColl => {
-      if(geoColl.id === this.selectedCollection) {
+    let name = "";
+    this.geoCollections.forEach((geoColl) => {
+      if (geoColl.id === this.selectedCollection) {
         name = geoColl.collection_name;
       }
     });
-    return name
+    return name;
   }
 
   options = {
@@ -582,7 +586,21 @@ export default class Maps extends Vue {
       const uriString = await domtoimage.toPng(el);
       FileSaver.saveAs(base64ToBlob(uriString), "map.png");
     } else if (type === "json") {
-      const blob = JSON.stringify(this.geoCollections, undefined, 2);
+      let geoStuff: any[] = [];
+      this.geoCollections.forEach((geoColl) => {
+        if (Array.isArray(geoColl.items)) {
+          geoColl.items.forEach((item: any) => {
+            geoStuff.push(item);
+          });
+        } else {
+          geoStuff.push(geoColl);
+        }
+      });
+      const blob = JSON.stringify(
+        this.collDisplayLocations(geoStuff),
+        undefined,
+        2
+      );
       FileSaver.saveAs(new Blob([blob]), "map.json");
     }
   }
@@ -692,8 +710,18 @@ export default class Maps extends Vue {
   get locationsSearchItems() {
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
+        let name: String = "";
+        if (f.field === "Kleinregion") {
+          name = regions.mapKleinreg(f.name);
+        } else if (f.field === "Großregion") {
+          name = regions.mapGrossreg(f.name);
+        } else if (f.field === "Bundesland") {
+          name = regions.mapBundeslaender(f.name);
+        } else {
+          name = f.name;
+        }
         return {
-          text: f.name,
+          text: name,
           value: f.sigle,
           parents: f.parentsObj
             ? f.parentsObj
@@ -712,17 +740,17 @@ export default class Maps extends Vue {
     }
   }
 
-  getNameOfSigle(sigle:String[]) {
-    if(sigle !== undefined) {
-      let returnObject:any = []
-      sigle.forEach((sigleSingular:any) => {
-        this.locationsSearchItems.forEach((place:any) => {
-          if(sigleSingular === place.value) {
-            returnObject.push({sigle: sigleSingular, name: place.text})
+  getNameOfSigle(sigle: String[]) {
+    if (sigle !== undefined) {
+      let returnObject: any = [];
+      sigle.forEach((sigleSingular: any) => {
+        this.locationsSearchItems.forEach((place: any) => {
+          if (sigleSingular === place.value) {
+            returnObject.push({ sigle: sigleSingular, name: place.text });
           }
         });
       });
-      return returnObject
+      return returnObject;
     }
   }
 
@@ -737,6 +765,7 @@ export default class Maps extends Vue {
       //@ts-ignore
       activeCol.items = this.selectedLocations[this.indexOfSelected];
     }
+    this.autocompleteSearch = "";
     this.safeCollectionsInURL();
   }
 
@@ -944,6 +973,10 @@ export default class Maps extends Vue {
     if (this.selectedTileSet === 3) {
       this.colorBundesland = "#FFF";
       this.colorGrossregionen = "#BBB";
+      this.colorKleinregionen = "#888";
+    } else {
+      this.colorBundesland = "#000";
+      this.colorGrossregionen = "#555";
       this.colorKleinregionen = "#888";
     }
   }
