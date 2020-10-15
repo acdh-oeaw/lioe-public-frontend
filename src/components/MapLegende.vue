@@ -7,7 +7,7 @@
             :items="collectionSearchItems"
             v-model="selectedCollections"
             :search-input.sync="searchCollection"
-            label="Zu tippen beginnen um nach Sammlungen zu suchen"
+            label="Zu tippen beginnen, um nach Sammlungen zu suchen"
             hide-details
             text
             dense
@@ -20,7 +20,7 @@
             <template v-slot:no-data>
               <v-list-item>
                 <v-list-item-title>
-                  Zu tippen beginnen um nach Sammlungen zu suchen
+                  Zu tippen beginnen, um nach Sammlungen zu suchen
                 </v-list-item-title>
               </v-list-item>
             </template>
