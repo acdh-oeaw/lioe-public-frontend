@@ -54,6 +54,7 @@
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-btn
+                    v-if="item.type === 'place'"
                     color="ci"
                     class="result-btn"
                     text
@@ -65,37 +66,53 @@
                         },
                       })
                     "
-                    v-if="item.type === 'place'"
-                    >&#8594 Ort auf Karte anzeigen</v-btn
-                  >
+                    >&rarr; Ort auf Karte anzeigen</v-btn>
                   <v-btn
+                    v-if="item.type === `article`"
                     text
                     color="ci"
                     class="result-btn"
                     @click.stop.prevent="
                       $router.replace(
                         `/db?query=${item.text}&fields=HL&type=fulltext`)" 
-                        v-if="item.type === `article`"
-                        >&#8594 Belege in Datenbank anzeigen</v-btn
-                      >
+                    >&rarr; Belege in Datenbank anzeigen</v-btn>
                   <v-btn text
+                    v-if="item.type === `collection`"
                     class="result-btn"
                     color="ci"
                     @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
-                        v-if="item.type === `collection`"
-                        >&#8594 Sammlung auf Karte anzeigen</v-btn
+                        >&rarr; Sammlung auf Karte anzeigen</v-btn
                       >
                  </v-list-item-action>
               </v-list-item>
             </template>
             <template v-slot:no-data>
-              Der gesuchte Begriff ist weder Artikel noch Ort. Zum Weitersuchen
-              in der Belegdatenbank:
-              <v-btn
-                @click="$router.replace(`db?query=${searchTerm}&fields=HL&type=fulltext`)"
-              >
-                {{ searchTerm }}</v-btn
-              >
+              <v-list-item v-if="isSearching">
+                <v-list-item-title class="text-center caption">
+                  Lade…
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                v-else-if="searchTerm !== null && searchTerm.trim() !== ''"
+                :to="`db?query=${searchTerm}&fields=HL&type=fulltext`">
+                <v-list-item-title class="caption">
+                  Der gesuchte Begriff konnte nicht gefunden werden. Zum Weitersuchen
+                  in der Belegdatenbank:
+                </v-list-item-title>
+                <v-list-item-action>
+                  <v-btn
+                    text
+                    color="ci"
+                    :to="`db?query=${searchTerm}&fields=HL&type=fulltext`">
+                    &rarr; {{ searchTerm }}
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item v-else>
+                <v-list-item-title class="caption">
+                  Suchen Sie nach Artikeln, Belegen oder Orten.
+                </v-list-item-title>
+              </v-list-item>
             </template>
           </v-autocomplete>
         </v-col>
@@ -217,15 +234,17 @@ export default class Main extends Vue {
 
   debouncedPerformSearch = _.debounce(this.performSearch, 300)
 
-  async performSearch(s: string) {
-    this.searchTerm = s
-    this.isSearching = true
-    const collections = (await searchCollections(s)).map((c) => ({ type: 'collection', text: c.name, value: c.value, description: c.description }))
-    const articles = this.articles.map((a) => ({ type: "article", text: a.title, value: a.filename, description: '' }))
-    const places = this.geoStore.ortslisteGeo.map((f: any) => ({type: "place", text: f.name, value: f.sigle, description: ''}))
-    const results = [...articles, ...places, ...collections].filter(i => i !== null)
-    this.searchItems = results
-    this.isSearching = false
+  async performSearch(s: string|null) {
+    if (s !== null && s.trim() !== '') {
+      this.searchTerm = s
+      this.isSearching = true
+      const collections = (await searchCollections(s)).map((c) => ({ type: 'collection', text: c.name, value: c.value, description: c.description }))
+      const articles = this.articles.map((a) => ({ type: "article", text: a.title, value: a.filename, description: '' }))
+      const places = this.geoStore.ortslisteGeo.map((f: any) => ({type: "place", text: f.name, value: f.sigle, description: ''}))
+      const results = [...articles, ...places, ...collections].filter(i => i !== null)
+      this.searchItems = results
+      this.isSearching = false
+    }
   }
 
   selectItems(input: string) {
