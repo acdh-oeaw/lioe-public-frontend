@@ -170,7 +170,7 @@
     <v-dialog v-model="dialogPlaces" width="500">
       <v-card>
         <v-card-title class="headline grey lighten-2">
-          Orte in "{{ geoCollections[selectedCollection].collection_name }}"
+          Orte in {{ currentCollectionName }}
         </v-card-title>
         <v-card-text>
           <v-chip
@@ -509,6 +509,16 @@ export default class Maps extends Vue {
       });
     },
   };
+
+  get currentCollectionName() {
+    let name = ""; 
+    this.geoCollections.forEach(geoColl => {
+      if(geoColl.id === this.selectedCollection) {
+        name = geoColl.collection_name;
+      }
+    });
+    return name
+  }
 
   options = {
     onEachFeature: this.onEachFeatureFunction,
