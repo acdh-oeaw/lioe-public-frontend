@@ -85,7 +85,7 @@
       <v-card color="#342f40" dark text class="fill-height">
         <v-card-title class="pt-1 pb-1">
           <v-flex>{{ filename }}</v-flex>
-          <v-flex class="text-xs-right">
+          <v-flex class="text-right">
             <v-btn
               class="pl-3 pr-3"
               small
