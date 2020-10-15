@@ -143,7 +143,7 @@
         </v-flex>
         <v-flex class="pr-2 pt-1 text-right">
           <v-chip
-            v-if="amountOfTooManyItems >= 1"
+            v-if="amountOfTooManyItems > 0"
             color="accent"
             style="margin: 3px"
             @click="dialogPlaces = true"
@@ -170,18 +170,18 @@
     <v-dialog v-model="dialogPlaces" width="500">
       <v-card>
         <v-card-title class="headline grey lighten-2">
-          Orte in {{ geoCollections[selectedCollection].collection_name }}
+          Orte in "{{ geoCollections[selectedCollection].collection_name }}"
         </v-card-title>
         <v-card-text>
           <v-chip
             close
             close-icon="mdi-delete"
-            v-for="place in selectedLocations[indexOfSelected]"
-            :key="place"
+            v-for="place in getNameOfSigle(selectedLocations[indexOfSelected])"
+            :key="place.sigle"
             style="margin: 4px"
-            @click:close="removePlaceFromCollection(place)"
+            @click:close="removePlaceFromCollection(place.sigle)"
           >
-            <span v-text="place"></span>
+            <span v-text="place.name"></span>
           </v-chip>
         </v-card-text>
       </v-card>
@@ -459,7 +459,7 @@ export default class Maps extends Vue {
   colorKleinregionen = "#888";
   pinned = false;
   fixTooltip = false;
-  maxVisibleItems = 10;
+  maxVisibleItems = 8;
   dialogPlaces = false;
   //searchCollections
   geoCollections: any[] = [
@@ -542,9 +542,12 @@ export default class Maps extends Vue {
   }
 
   get amountOfTooManyItems() {
-    let allthePlaces = this.selectedLocations[this.indexOfSelected].length;
-    let amount = allthePlaces - this.collectionPlaces.length;
-    console.log(amount);
+    let amount = 0;
+    if (this.selectedLocations[this.indexOfSelected]) {
+      amount =
+        this.selectedLocations[this.indexOfSelected].length -
+        this.collectionPlaces.length;
+    }
     return amount;
   }
 
@@ -696,6 +699,20 @@ export default class Maps extends Vue {
       }));
     } else {
       return [];
+    }
+  }
+
+  getNameOfSigle(sigle:String[]) {
+    if(sigle !== undefined) {
+      let returnObject:any = []
+      sigle.forEach((sigleSingular:any) => {
+        this.locationsSearchItems.forEach((place:any) => {
+          if(sigleSingular === place.value) {
+            returnObject.push({sigle: sigleSingular, name: place.text})
+          }
+        });
+      });
+      return returnObject
     }
   }
 
