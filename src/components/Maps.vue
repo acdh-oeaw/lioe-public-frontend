@@ -367,6 +367,7 @@ import InfoText from "@components/InfoText.vue";
 import InfoBox from "@components/InfoBox.vue";
 import * as geojson from "geojson";
 import MapLegende from "@components/MapLegende.vue";
+import { regions } from '../regions'
 import { geoStore } from "../store/geo";
 import * as FileSaver from "file-saver";
 import domtoimage from "dom-to-image";
@@ -703,8 +704,16 @@ export default class Maps extends Vue {
   get locationsSearchItems() {
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
+        let name:String = "";
+        if(f.field === "Kleinregion") {
+          name = regions.mapKleinreg(f.name)
+        } else if(f.field === "Großregion") {
+          name = regions.mapGrossreg(f.name)
+        }else if(f.field === "Bundesland") {
+          name = regions.mapBundeslaender(f.name)
+        }
         return {
-          text: f.name,
+          text: name,
           value: f.sigle,
           parents: f.parentsObj
             ? f.parentsObj
