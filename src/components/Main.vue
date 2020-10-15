@@ -27,6 +27,7 @@
             @update:search-input="debouncedPerformSearch"
             v-model="searchedItem"
             text
+            class="mb-4"
             hide-details
             prepend-inner-icon="search"
             solo
@@ -52,7 +53,9 @@
                   <v-list-item-subtitle v-if="item.type === 'place'">  {{item.value}} </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-btn text
+                  <v-btn
+                    class="text-capitalize"
+                    text
                     @click.stop.prevent="
                       $router.push({
                         path: '/maps',
@@ -65,6 +68,7 @@
                     >&#8594 Ort auf Karte anzeigen</v-btn
                   >
                   <v-btn text
+                    class="text-capitalize"
                     @click.stop.prevent="
                       $router.replace(
                         `/db?query=${item.text}&fields=HL&type=fulltext`)" 
@@ -72,6 +76,7 @@
                         >&#8594 Belege in Datenbank anzeigen</v-btn
                       >
                   <v-btn text
+                    class="text-capitalize"
                     @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
                         v-if="item.type === `collection`"
                         >&#8594 Sammlung auf Karte anzeigen</v-btn
@@ -167,7 +172,10 @@
         </template>
       </vue-word-cloud>
     </v-flex>
-    <div class="text-center mt-5">
+    <div v-if="loading" class="text-center grey--text mt-5">
+      Laden…
+    </div>
+    <div v-else class="text-center grey--text mt-5">
       {{ articles ? articles.length.toLocaleString() : "?" }} WBÖ Artikel
     </div>
 
