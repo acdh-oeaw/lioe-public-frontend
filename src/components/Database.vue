@@ -3,7 +3,7 @@
     <v-flex>
       <v-card class="sticky-card" width="100%">  
         <v-row no-gutters>
-          <v-col class="pa-0" cols="8">
+          <v-col class="pa-0" cols="7">
             <v-text-field
               @click.stop=""
               v-if="type === 'fulltext'"
@@ -29,6 +29,7 @@
               item-text="text"
               :value="selectedCollections"
               @input="selectCollections"
+              placeholder="Sammlungen suchen…"
               chips
               deletable-chips
               cache-items
@@ -38,40 +39,118 @@
               solo
               clearable
             ></v-autocomplete>
-            <!-- <v-autocomplete
-              v-else-if="type === 'collection'"
-              autofocus
-              flat
-              label="Sammlungen suchen…"
-              :search-input.sync="searchCollection"
-              prepend-inner-icon="search"
-              :loading="searching"
-              :items="collectionSearchItems"
-              item-text="text"
-              :value="selectedCollections"
-              @input="selectCollections"
-              chips
-              deletable-chips
-              cache-items
-              return-object
-              hide-details
-              multiple
-              solo
-              clearable
-            ></v-autocomplete> -->
           </v-col>
-          <v-col cols="2" class="pa-0">
-            <v-select
-              class="divider-left"
-              flat
-              solo
-              hide-details
-              :value="type"
-              @change="changeQueryParam({ type: $event })"
-              :items="[{text: 'Volltext', value: 'fulltext'}, { text: 'Sammlung', value: 'collection' }]"
-            />
+          <v-col cols="auto" class="pa-0 divider-left">
+            <v-menu
+              offset-y
+              :close-on-content-click="false">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn style="margin-top: 6px" class="mx-1 text-no-transform" text v-on="on" v-bind="attrs">
+                  <template v-if="type === 'fulltext'">
+                    Volltext
+                  </template>
+                  <template v-if="type === 'collection'">
+                    Sammlung
+                  </template>
+                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+              <v-list dense>
+                <v-list-item dense @click="changeQueryParam({ type: 'fulltext' })">
+                  <v-list-item-avatar>
+                    <v-icon v-if="type === 'fulltext'">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Volltext
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item dense @click="changeQueryParam({ type: 'collection' })">
+                  <v-list-item-avatar>
+                    <v-icon v-if="type === 'collection'">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Sammlung
+                  </v-list-item-title>
+                </v-list-item>
+                <v-divider />
+                <v-list-item dense :disabled="type === 'collection'" @click="toggleFuzziness">
+                  <v-list-item-avatar>
+                    <v-icon v-if="fuzziness && type === 'fulltext'">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Fehlertolerante Suche
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </v-col>
-          <v-col class="pr-2 pt-1 text-right">
+          <v-col cols="auto" class="pa-0 divider-left">
+            <v-menu
+              offset-y
+              :close-on-content-click="false">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn style="margin-top: 6px" class="mx-1 text-no-transform" text v-on="on" v-bind="attrs">
+                  <template v-if="areAllSearchColumsSelected">
+                    In allen Spalten
+                  </template>
+                  <template v-else>
+                    In {{ fields ? fields.split(',').length : 0 }} Spalte{{ fields && fields.split(',').length === 1 ? '' : 'n' }}
+                  </template>
+                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+              <v-list dense>
+                <v-list-item dense @click="extended = !extended">
+                  <v-list-item-avatar>
+                    <v-icon v-if="extended">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Alle Spalten anzeigen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-divider />
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectNoColumnsAndSearch"
+                  v-if="areAllSearchColumsSelected">
+                  <v-list-item-avatar />
+                  <v-list-item-title>
+                    Nichts auswählen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectAllColumnsAndSearch"
+                  v-if="!areAllSearchColumsSelected">
+                  <v-list-item-avatar />
+                  <v-list-item-title>
+                    In allen Spalten suchen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-divider />
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  v-for="h in shownHeaders.filter(h => h.searchable)"
+                  :key="h.value"
+                  @click="toggleSearchInColumn(h)">
+                  <v-list-item-avatar>
+                    <v-icon
+                      :color="type === 'collection' ? 'grey' : undefined"
+                      v-if="shouldSearchInColumn(h)">
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ h.text }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-dialog max-width="1000" color="#2b2735" scrollable>
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" color="accent" icon text>
@@ -87,75 +166,9 @@
                 </v-card-text>
               </v-card>
             </v-dialog>
-            <v-tooltip color="ci" top>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" icon @click="showFilterOptions = !showFilterOptions">
-                  <v-icon :color="showFilterOptions ? 'ci': undefined">
-                    {{showFilterOptions ? 'mdi-cog' : 'mdi-cog-outline'}}
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Such- und Darstellungsoptionen</span>
-            </v-tooltip>
           </v-col>
         </v-row>
       </v-card>
-      <v-row class="px-5" v-show="showFilterOptions === true">
-        <v-col>
-          <v-row>
-            <v-col>
-              <h4>Suchoptionen</h4>
-            </v-col>
-          </v-row>
-          <v-switch label="Alle Spalten zeigen" v-model="extended" hide-details />
-          <v-switch
-            @change="onChangeQuery(query)"
-            label="Fehlertolerante Suche (fuzzy search)"
-            v-model="fuzziness"
-            hide-details
-          />
-        </v-col>
-        <v-col>
-          <v-row>
-            <v-col class="pl-0">
-              <h4>Spalten durchsuchen</h4>
-            </v-col>
-            <v-col class="text-right">
-              <v-btn
-                v-if="areAllSearchColumsSelected"
-                color="ci"
-                @click="selectNoColumnsAndSearch"
-                small
-                text
-                rounded
-              >keine</v-btn>
-              <v-btn
-                v-else
-                color="ci"
-                @click="selectAllSearchColumnsAndSearch"
-                small
-                text
-                rounded
-              >alle</v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-      <v-row no-gutters>
-        <template v-for="h in shownHeaders">
-          <v-chip
-            color="ci"
-            text-color="white"
-            v-bind:key="h.text"
-            v-if="shouldSearchInField(h)"
-            class="ma-2"
-            close
-            close-icon="mdi-close"
-            @click:close="h.inSearch = false">
-            {{h.text}}
-          </v-chip>
-        </template>
-      </v-row>
     </v-flex>
     <v-flex>
       <v-data-table
@@ -341,7 +354,7 @@ export default class Database extends Vue {
 
   @Prop({ default: '' }) collection_ids: string | null
   @Prop({ default: '' }) query: string | null
-  @Prop({ default: '' }) fields: string | null
+  @Prop({ default: null }) fields: string | null
   @Prop({ default: 'fulltext' }) type: string | null
 
   c = console
@@ -578,6 +591,11 @@ export default class Database extends Vue {
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
 
+  toggleFuzziness() {
+    this.fuzziness = !this.fuzziness
+    this.onChangeQuery(this.query)
+  }
+
   changeQueryParam(p: any) {
     this.$router.replace({
       path: this.$router.currentRoute.path,
@@ -585,34 +603,48 @@ export default class Database extends Vue {
     })
   }
 
-  shouldSearchInField(h: TableHeader): boolean {
-    if (this.fields !== null && this.fields !== undefined) {
-      return this.fields.split(',').includes(h.value) && h.searchable
+  toggleSearchInColumn(h: TableHeader): void {
+    if (this.fields === null) {
+      // include all but self
+      this.changeQueryParam({ fields: this.headers.filter(h1 => h1.value !== h.value && h.searchable).map(h => h.value).join(',') })
+    } else if (this.fields === '') {
+      // include only self
+      this.changeQueryParam({ fields: h.value })
     } else {
-      return h.searchable
+      if (this.shouldSearchInColumn(h)) {
+        // remove self
+        this.changeQueryParam({ fields: this.fields.split(',').filter(f => f !== h.value).join(',') })
+      } else {
+        // add self
+        this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
+      }
+    }
+  }
+
+  shouldSearchInColumn(h: TableHeader): boolean {
+    if (this.fields === '') {
+      return false
+    } else if (this.fields === null) {
+      return true
+    } else {
+      return this.fields.split(',').includes(h.value) && h.searchable
     }
   }
 
   get areAllSearchColumsSelected(): boolean {
     // all columns are either selected, or not searchable
-    return this.headers.every(
-      h => this.shouldSearchInField(h) || h.searchable === false
-    )
+    return this.headers.every(h => this.shouldSearchInColumn(h) || h.searchable === false)
   }
 
-  selectAllSearchColumnsAndSearch() {
+  selectAllColumnsAndSearch() {
     // allow search in all columns that are searchable
-    this.changeQueryParam({
-      fields: this.headers.filter(h => h.searchable).map(h => h.value).join(',')
-    })
+    this.changeQueryParam({fields: null})
     // this.onChangeQuery(this.query)
   }
 
   selectNoColumnsAndSearch() {
     // allow search in no columns
-    this.changeQueryParam({
-      fields: ''
-    })
+    this.changeQueryParam({fields: ''})
   }
 
   customSelect(item: any) {
@@ -628,20 +660,6 @@ export default class Database extends Vue {
     return this.headers.filter((h: any) => h.show)
   }
 
-  // @Watch('fields')
-  // onUpdateFields(newVal?: string|null) {
-  //   if (newVal !== null && newVal !== undefined) {
-  //     this.headers = this.headers.map(h => {
-  //       if (newVal.split(",").includes(h.value)) {
-  //         return { ...h, inSearch: true }
-  //     } else {
-  //       return { ...h, inSearch: false }
-  //     }
-  //   })
-  //   }
-  // }
-
-
   @Watch('extended')
   onExtendedChanged(val: boolean) {
     this.headers.forEach((h: any) => {
@@ -653,7 +671,7 @@ export default class Database extends Vue {
 
 // the changed function - was before under the renderBedeutung function
   renderGrammatikAngabe(val: any) {
-  const bd: string[] = []
+    const bd: string[] = []
     for (let i = 1; i < 10; i += 1) {
       const at = `GRAM/LT${i}`
       const b = val[`GRAM/LT${i}`]
@@ -661,7 +679,6 @@ export default class Database extends Vue {
         continue
       }
       bd.push(b)
-      console.log(bd)
     }
     const bdnew: string[] = []
     for(let i = 0; i < bd.length; i+=1) {
@@ -801,7 +818,7 @@ export default class Database extends Vue {
 
   @Watch('searchCollection')
   async onSearchCollection(val: string | null) {
-    if (val !== null && val.trim() !== '') {
+    if (val !== null && val !== undefined && val.trim() !== '') {
       this.collectionSearchItems = (await searchCollections(val)).map(x => ({
         ...x,
         text: x.name
@@ -1070,7 +1087,8 @@ export default class Database extends Vue {
   }
 
   async searchDatabase(search: string) {
-    this.$router.replace({ query: { query: search } })
+    // this.$router.replace({ query: { query: search } })
+    this.changeQueryParam({ query: search })
   }
 
   saveXLSX() {
