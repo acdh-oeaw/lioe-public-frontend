@@ -8,7 +8,7 @@
             autofocus
             flat
             hide-details
-            label="Suche…"
+            label="Suche Artikel…"
             prepend-inner-icon="search"
             @input="debouncedSearchArticle"
             append-inner-icon="info"
