@@ -3,7 +3,7 @@
     <v-flex>
       <v-card class="sticky-card" width="100%">  
         <v-row no-gutters>
-          <v-col class="pa-0" cols="7">
+          <v-col class="pa-0 flex-grow-1">
             <v-text-field
               @click.stop=""
               v-if="type === 'fulltext'"
@@ -55,8 +55,8 @@
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
-              <v-list dense>
-                <v-list-item dense @click="changeQueryParam({ type: 'fulltext' })">
+              <v-list class="context-menu-list" dense>
+                <v-list-item dense @click="changeQueryParam({ type: 'fulltext', collection_ids: null })">
                   <v-list-item-avatar>
                     <v-icon v-if="type === 'fulltext'">mdi-check</v-icon>
                   </v-list-item-avatar>
@@ -86,20 +86,24 @@
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu
+              max-height="80vh"
               offset-y
               :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn style="margin-top: 6px" class="mx-1 text-no-transform" text v-on="on" v-bind="attrs">
-                  <template v-if="areAllSearchColumsSelected">
+                  <template v-if="type === 'fulltext' && areAllSearchColumsSelected">
                     In allen Spalten
                   </template>
-                  <template v-else>
+                  <template v-if="type === 'fulltext' && !areAllSearchColumsSelected">
                     In {{ fields ? fields.split(',').length : 0 }} Spalte{{ fields && fields.split(',').length === 1 ? '' : 'n' }}
+                  </template>
+                  <template v-if="type === 'collection'">
+                    Nach Namen
                   </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
-              <v-list dense>
+              <v-list dense class="context-menu-list">
                 <v-list-item dense @click="extended = !extended">
                   <v-list-item-avatar>
                     <v-icon v-if="extended">mdi-check</v-icon>
@@ -598,7 +602,7 @@ export default class Database extends Vue {
 
   changeQueryParam(p: any) {
     this.$router.replace({
-      path: this.$router.currentRoute.path,
+      // path: this.$router.currentRoute.path,
       query: { ...this.$router.currentRoute.query, ...p}
     })
   }
@@ -618,6 +622,9 @@ export default class Database extends Vue {
         // add self
         this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
       }
+    }
+    if (this.query !== null) {
+      this.onChangeQuery(this.query)
     }
   }
 
@@ -639,12 +646,17 @@ export default class Database extends Vue {
   selectAllColumnsAndSearch() {
     // allow search in all columns that are searchable
     this.changeQueryParam({fields: null})
-    // this.onChangeQuery(this.query)
+    if (this.query !== null) {
+      this.onChangeQuery(this.query)
+    }
   }
 
   selectNoColumnsAndSearch() {
     // allow search in no columns
     this.changeQueryParam({fields: ''})
+    if (this.query !== null) {
+      this.onChangeQuery(this.query)
+    }
   }
 
   customSelect(item: any) {
@@ -805,7 +817,7 @@ export default class Database extends Vue {
   }
 
   async mounted() {
-    if (this.collection_ids) {
+    if (this.type === 'collection' && this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList)
     }
   }
@@ -897,8 +909,6 @@ export default class Database extends Vue {
         .uniqBy(d => d.id)
         .map(d => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
         .value()
-      // console.log({res})
-      // console.log('950', res.total)
       this.totalItems = typeof res.total === 'number' ? res.total : 0
       const cs = await getCollectionByIds(ids)
       this.selectedCollections = cs.map(x => ({ ...x, text: x.name }))
@@ -1060,6 +1070,16 @@ export default class Database extends Vue {
     })
   }
 
+  get searchInFields() {
+    if (this.fields === '') {
+      return []
+    } else if (this.fields === null) {
+      return this.headers.filter(h => h.searchable && h.show).map(h => h.value)
+    } else {
+      return this.fields.split(',')
+    }
+  }
+
   @Watch('query', {immediate: true})
   async onChangeQuery(search: string | null) {
     if (search !== null) {
@@ -1070,7 +1090,7 @@ export default class Database extends Vue {
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
         this.pagination.sortBy,
-        this.headersInSearch,
+        this.searchInFields,
         this.fuzziness
       )
       this.items = res.documents.map(d => ({
