@@ -56,7 +56,7 @@
                   <v-btn
                     v-if="item.type === 'place'"
                     color="ci"
-                    class="result-btn"
+                    class="text-no-transform"
                     text
                     @click.stop.prevent="
                       $router.push({
@@ -71,14 +71,14 @@
                     v-if="item.type === `article`"
                     text
                     color="ci"
-                    class="result-btn"
+                    class="text-no-transform"
                     @click.stop.prevent="
                       $router.replace(
                         `/db?query=${item.text}&fields=HL&type=fulltext`)" 
                     >&rarr; Belege in Datenbank anzeigen</v-btn>
                   <v-btn text
                     v-if="item.type === `collection`"
-                    class="result-btn"
+                    class="text-no-transform"
                     color="ci"
                     @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
                         >&rarr; Sammlung auf Karte anzeigen</v-btn
@@ -374,9 +374,6 @@ export default class Main extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.result-btn{
-  text-transform: none;
-}
 .word-cloud-link {
   opacity: 0.6;
   color: #3b89a0;
