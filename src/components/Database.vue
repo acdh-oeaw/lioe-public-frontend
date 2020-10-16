@@ -75,7 +75,7 @@
                 <v-divider />
                 <v-list-item dense :disabled="type === 'collection'" @click="toggleFuzziness">
                   <v-list-item-avatar>
-                    <v-icon v-if="fuzziness && type === 'fulltext'">mdi-check</v-icon>
+                    <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'">mdi-check</v-icon>
                   </v-list-item-avatar>
                   <v-list-item-title>
                     Fehlertolerante Suche
@@ -137,7 +137,7 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  v-for="h in shownHeaders.filter(h => h.searchable)"
+                  v-for="h in visibleHeaders.filter(h => h.searchable)"
                   :key="h.value"
                   @click="toggleSearchInColumn(h)">
                   <v-list-item-avatar>
@@ -184,7 +184,7 @@
         :footer-props="footerProps"
         :options.sync="pagination"
         :server-items-length="totalItems"
-        :headers="shownHeaders"
+        :headers="visibleHeaders"
         fixed-header
         hide-default-footer
         height="500px" 
@@ -288,7 +288,7 @@
             <td>
               <v-checkbox :value="isSelected" @change="customSelect(item)"></v-checkbox>
             </td>
-            <template v-for="header in shownHeaders">
+            <template v-for="header in visibleHeaders">
               <td
                 class="line-clamp"
                 :key="`${header.value}_${index}`"
@@ -360,8 +360,8 @@ export default class Database extends Vue {
   @Prop({ default: '' }) query: string | null
   @Prop({ default: null }) fields: string | null
   @Prop({ default: 'fulltext' }) type: string | null
+  @Prop({ default: 'true' }) fuzzy: 'true'|'false'
 
-  c = console
   geoStore = geoStore
   items: any[] = []
   searchCollection: string | null = null
@@ -379,7 +379,6 @@ export default class Database extends Vue {
     multiSort: false
   }
   extended = false
-  fuzziness = true
   totalItems = 100
 
   headers: TableHeader[] = [
@@ -590,13 +589,13 @@ export default class Database extends Vue {
 
   footerProps = {
     'items-per-page-text': 'Pro Seite',
-    'items-per-page-options': [10, 25, 50, 100]
+    'items-per-page-options': [10, 25, 50, 100, 500]
   }
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
 
   toggleFuzziness() {
-    this.fuzziness = !this.fuzziness
+    this.changeQueryParam({ fuzzy: this.fuzzy === 'true' ? 'false' : 'true' })
     this.onChangeQuery(this.query)
   }
 
@@ -604,7 +603,7 @@ export default class Database extends Vue {
     this.$router.replace({
       // path: this.$router.currentRoute.path,
       query: { ...this.$router.currentRoute.query, ...p}
-    })
+    }).catch(() => console.log('route duplicated.'))
   }
 
   toggleSearchInColumn(h: TableHeader): void {
@@ -668,7 +667,7 @@ export default class Database extends Vue {
     }
   }
 
-  get shownHeaders() {
+  get visibleHeaders() {
     return this.headers.filter((h: any) => h.show)
   }
 
@@ -869,16 +868,6 @@ export default class Database extends Vue {
         Bundesland: bl ? bl.name : '',
         [place.field]: place.name
       }
-    }
-  }
-
-  get headersInSearch() {
-    if (!this.fields) {
-      return this.shownHeaders
-        .filter(h => h.searchable)
-        .map(h => h.value)
-    } else {
-      this.fields.split(',')
     }
   }
 
@@ -1091,7 +1080,7 @@ export default class Database extends Vue {
         this.pagination.sortDesc,
         this.pagination.sortBy,
         this.searchInFields,
-        this.fuzziness
+        this.fuzzy === 'true'
       )
       this.items = res.documents.map(d => ({
         ...d,
