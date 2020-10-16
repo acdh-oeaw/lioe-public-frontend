@@ -35,7 +35,7 @@
         <h3>Weiterführend</h3>
         <ul class="mt-3 pl-4">
           <li v-for="link in links" :key="link.link">
-            <a @click.prevent="interalLink(link.link)" :href="link.link">{{ link.text }}</a>
+            <a @click.prevent="maybeInternalLink(link.link)" :href="link.link">{{ link.text }}</a>
           </li>
         </ul>
       </div>
@@ -74,9 +74,13 @@ export default class InfoText extends Vue {
   error = false
   prefix = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
 
-  interalLink(l: string) {
-    const link = l.replace(this.prefix, '')
-    this.$router.push({ path: '/resources', query: { link } })
+  maybeInternalLink(l: string) {
+    if (l.indexOf(this.prefix) > -1) {
+      const link = l.replace(this.prefix, '')
+      this.$router.push({ path: '/resources', query: { link } })
+    } else {
+      window.open(l)
+    }
   }
 
   get showLinkList() {
@@ -87,10 +91,8 @@ export default class InfoText extends Vue {
     if (this.html !== null) {
       const e = document.createElement('div')
       e.innerHTML = this.html
-      // console.log(e)
-      return Array.from(e.querySelectorAll(`a[href^="${ this.prefix }"]`))
+      return Array.from(e.querySelectorAll(`a[href]`))
         .map((v) => {
-          // console.log(v)
           return {
             text: v.textContent,
             link: v.getAttribute('href') as string
