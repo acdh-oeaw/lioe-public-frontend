@@ -980,8 +980,6 @@ export default class Database extends Vue {
 
 
   getLocationsOfCollections(colls: string[]) {
-    console.log(Array.isArray(colls))
-    console.log(colls)
      if(!Array.isArray(colls)) {
        var tmp = new Array()
        tmp.push(colls)
@@ -991,7 +989,7 @@ export default class Database extends Vue {
     if(colls.length === 0) {
       return
     }
-    let output;
+    let output:any[] = [];
     let end_output; 
 
     colls.forEach(async (coll) => {
@@ -1024,7 +1022,7 @@ export default class Database extends Vue {
           }
         });
         
-        output = JSON.stringify([
+        output.push(JSON.stringify(
           {
           id: Math.random() * 1000,
           tempColl: coll,
@@ -1033,13 +1031,12 @@ export default class Database extends Vue {
           fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
           borderColor: "#000",
           items: CollLocation,
-        }])
-        console.log('output: ' + output)
+        }));
 
         this.$router.push({
           path: '/maps',
           query: {
-            col: output
+            col: '[' + output + ']'
           },
         })
       }
