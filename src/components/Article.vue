@@ -217,23 +217,33 @@ export default class Article extends Vue {
     );
   }
 
+  getLemmaLinkElement(el: HTMLElement): string|false|null {
+    // this is awful.
+    return el.getAttribute('data-target') ||
+      el.parentElement !== null && el.parentElement.getAttribute('data-target') ||
+      el.parentElement !== null && el.parentElement.parentElement !== null && el.parentElement.parentElement.getAttribute('data-target')
+  }
+
   handleArticleClick(e: MouseEvent) {
-    if (e) {
+    if (e.target instanceof HTMLElement) {
       if (this.isPlaceNameElement(e.target)) {
-        const sigle = this.getPlacenameSigleFromRef(
-          (e.target as HTMLElement).getAttribute("ref")
-        );
+        const sigle = this.getPlacenameSigleFromRef(e.target.getAttribute("ref"))
         if (sigle !== null) {
           this.openMapsWithPlaces([sigle]);
         }
-      } else if (
-        e.target instanceof HTMLElement &&
-        e.target.dataset.geoSigle !== undefined
-      ) {
+      } else if (e.target.dataset.geoSigle !== undefined) {
         this.openMapsWithPlaces([e.target.dataset.geoSigle]);
       } else if (this.getCollectionLink(e.target) !== null) {
         const id = this.getCollectionLink(e.target)!;
         this.$router.push({ path: "/db", query: { collection_ids: id } });
+      // Verweis auf anderes Lemma
+      } else if (typeof this.getLemmaLinkElement(e.target as HTMLElement) === 'string') {
+        const s = this.getLemmaLinkElement(e.target as HTMLElement) as string
+        const t = /(.+)\.xml/g.exec(s)
+        console.log(t)
+        if (t !== null && t[1] !== null) {
+          this.$router.push({ path: '/articles/' + t[1] })
+        }
       }
     }
   }
@@ -535,5 +545,12 @@ iframe.comment {
 }
 *[collection-href]:hover:after {
   color: #666;
+}
+
+*[data-target] {
+  cursor: pointer;
+  &:hover{
+    text-decoration: underline;
+  }
 }
 </style>
