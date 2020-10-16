@@ -3,7 +3,7 @@
     <v-flex xs12>
       <v-autocomplete
         class="article-search"
-        label="Suche…"
+        label="Suche Artikel…"
         :value="{ text: title, value: filename.replace('.xml', '') }"
         :loading="loading"
         clearable
