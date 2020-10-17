@@ -1,7 +1,7 @@
 <template>
   <v-layout column>
     <v-flex>
-      <v-card class="sticky-card" width="100%">  
+      <v-card class="sticky-card" width="100%">
         <v-row no-gutters>
           <v-col class="pa-0" cols="8">
             <v-text-field
@@ -70,7 +70,10 @@
               solo
               hide-details
               v-model="searchItemType"
-              :items="[{text: 'Volltext', value: 'fulltext'}, { text: 'Sammlung', value: 'collection' }]"
+              :items="[
+                { text: 'Volltext', value: 'fulltext' },
+                { text: 'Sammlung', value: 'collection' },
+              ]"
             />
           </v-col>
           <v-col class="pr-2 pt-1 text-right">
@@ -91,9 +94,13 @@
             </v-dialog>
             <v-tooltip color="ci" top>
               <template v-slot:activator="{ on }">
-                <v-btn v-on="on" icon @click="showFilterOptions = !showFilterOptions">
-                  <v-icon :color="showFilterOptions ? 'ci': undefined">
-                    {{showFilterOptions ? 'mdi-cog' : 'mdi-cog-outline'}}
+                <v-btn
+                  v-on="on"
+                  icon
+                  @click="showFilterOptions = !showFilterOptions"
+                >
+                  <v-icon :color="showFilterOptions ? 'ci' : undefined">
+                    {{ showFilterOptions ? "mdi-cog" : "mdi-cog-outline" }}
                   </v-icon>
                 </v-btn>
               </template>
@@ -109,7 +116,11 @@
               <h4>Suchoptionen</h4>
             </v-col>
           </v-row>
-          <v-switch label="Alle Spalten zeigen" v-model="extended" hide-details />
+          <v-switch
+            label="Alle Spalten zeigen"
+            v-model="extended"
+            hide-details
+          />
           <v-switch
             @change="onChangeQuery(searchTerm)"
             label="Fehlertolerante Suche (fuzzy search)"
@@ -130,7 +141,8 @@
                 small
                 text
                 rounded
-              >keine</v-btn>
+                >keine</v-btn
+              >
               <v-btn
                 v-else
                 color="ci"
@@ -138,7 +150,8 @@
                 small
                 text
                 rounded
-              >alle</v-btn>
+                >alle</v-btn
+              >
             </v-col>
           </v-row>
           <v-row>
@@ -157,21 +170,22 @@
         </v-col>
       </v-row>
 
-       <v-row no-gutters>
-          <template v-for="h in shownHeaders">
-           <v-chip
-              v-bind:key="h.text"
-              v-if="h.inSearch"
-              class="ma-2"
-              close
-              color="#3b89a0"
-              text-color="white"
-              close-icon="mdi-close"
-              @click:close="h.inSearch = false">
-              {{h.text}}
-              </v-chip>
-          </template>
-        </v-row>
+      <v-row no-gutters>
+        <template v-for="h in shownHeaders">
+          <v-chip
+            v-bind:key="h.text"
+            v-if="h.inSearch"
+            class="ma-2"
+            close
+            color="#3b89a0"
+            text-color="white"
+            close-icon="mdi-close"
+            @click:close="h.inSearch = false"
+          >
+            {{ h.text }}
+          </v-chip>
+        </template>
+      </v-row>
     </v-flex>
     <v-flex>
       <v-data-table
@@ -183,10 +197,15 @@
         :options.sync="pagination"
         :server-items-length="totalItems"
         :headers="shownHeaders"
-        fixed-header height="500px" 
+        fixed-header
+        height="500px"
         :loading="loading"
-        :items="_items">
-        <template v-for="h in headers" v-slot:[`header.${h.value}`]="{ header }">
+        :items="_items"
+      >
+        <template
+          v-for="h in headers"
+          v-slot:[`header.${h.value}`]="{ header }"
+        >
           <v-menu
             :disabled="h.infoUrl === undefined"
             :key="h.value"
@@ -194,9 +213,10 @@
             max-width="400"
             max-height="95vh"
             offset-y
-            bottom>
+            bottom
+          >
             <template v-slot:activator="{ on }">
-              <span v-on="on">{{h.text}}</span>
+              <span v-on="on">{{ h.text }}</span>
             </template>
             <v-card>
               <v-card-text>
@@ -207,7 +227,11 @@
         </template>
         <template v-slot:footer>
           <div>
-            <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
+            <v-tooltip
+              color="ci"
+              top
+              :disabled="mappableSelectionItems.length > 0"
+            >
               <template v-slot:activator="{ on }">
                 <v-menu
                   v-on="on"
@@ -215,7 +239,8 @@
                   top
                   offset-y
                   open-on-hover
-                  :disabled="mappableSelectionItems.length === 0">
+                  :disabled="mappableSelectionItems.length === 0"
+                >
                   <template v-slot:activator="{ on }">
                     <v-btn
                       @click="showSelectionOnMap"
@@ -225,12 +250,17 @@
                       class="pl-3 pr-3"
                       rounded
                       depressed
-                      color="primary">
-                      Auswahl auf Karte anzeigen ({{ mappableSelectionItems.length }})
+                      color="primary"
+                    >
+                      Auswahl auf Karte anzeigen ({{
+                        mappableSelectionItems.length
+                      }})
                     </v-btn>
                   </template>
                   <v-list dense>
-                    <v-list-item @click="selected = []">Auswahl leeren</v-list-item>
+                    <v-list-item @click="selected = []"
+                      >Auswahl leeren</v-list-item
+                    >
                   </v-list>
                 </v-menu>
               </template>
@@ -247,22 +277,23 @@
                   open-on-hover
                   :disabled="mappableSelectionItems.length === 0"
                 > -->
-          
-              <v-btn
-                @click="
-                arrangeToArr(collection_ids)
+
+                <v-btn
+                  @click="arrangeToArr(collection_ids)"
+                  v-if="
+                    searchItemType === 'collection' && collection_ids !== ''
                   "
-                 v-if="searchItemType === 'collection' && collection_ids !== ''"
-                v-on="secondMenu"
-                small
-                class="pl-3 pr-3"
-                rounded
-                depressed
-                color="default">
-                Sammlung auf Karte anzeigen 
-              </v-btn>
-            </template>
-                </v-menu>
+                  v-on="secondMenu"
+                  small
+                  class="pl-3 pr-3"
+                  rounded
+                  depressed
+                  color="default"
+                >
+                  Sammlung auf Karte anzeigen
+                </v-btn>
+              </template>
+            </v-menu>
 
             <v-menu top open-on-hover>
               <template v-slot:activator="{ on: thirdMenu }">
@@ -274,8 +305,9 @@
                   text
                   class="pl-3 pr-3"
                   rounded
-                  color="ci">
-                  Export {{ selected.length > 0 ? `(${selected.length})` : ''}}
+                  color="ci"
+                >
+                  Export {{ selected.length > 0 ? `(${selected.length})` : "" }}
                 </v-btn>
               </template>
               <v-list class="context-menu-list" dense>
@@ -286,17 +318,22 @@
                 <v-list-item @click="saveJSON">JSON</v-list-item>
                 <v-list-item @click="saveCSV">CSV</v-list-item>
                 <v-divider />
-                <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
+                <v-list-item
+                  :disabled="selected.length === 0"
+                  @click="selected = []"
+                  >Auswahl leeren</v-list-item
+                >
               </v-list>
             </v-menu>
-          
-
           </div>
         </template>
-        <template v-slot:item="{item, index, isSelected}">
+        <template v-slot:item="{ item, index, isSelected }">
           <tr>
             <td>
-              <v-checkbox :value="isSelected" @change="customSelect(item)"></v-checkbox>
+              <v-checkbox
+                :value="isSelected"
+                @change="customSelect(item)"
+              ></v-checkbox>
             </td>
             <template v-for="header in shownHeaders">
               <td
@@ -309,10 +346,14 @@
                 </template> -->
 
                 <template v-if="header.renderFnc">
-                  <template v-if="header.text === 'Lautung' || header.text === 'Kontext'"><i> {{ header.renderFnc(item)}} </i>
+                  <template
+                    v-if="
+                      header.text === 'Lautung' || header.text === 'Kontext'
+                    "
+                    ><i> {{ header.renderFnc(item) }} </i>
                   </template>
-                  <template v-else> {{header.renderFnc(item)}} </template>
-                  </template>
+                  <template v-else> {{ header.renderFnc(item) }} </template>
+                </template>
 
                 <template v-else>{{ item[header.value] }}</template>
               </td>
@@ -324,66 +365,66 @@
   </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import InfoText from '@components/InfoText.vue'
-import InfoBox from '@components/InfoBox.vue'
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import InfoText from "@components/InfoText.vue";
+import InfoBox from "@components/InfoBox.vue";
 import {
   getDocuments,
   searchDocuments,
   getDocumentTotalCount,
   getDocumentsByCollection,
   searchCollections,
-  getCollectionByIds
-} from '../api'
-import { geoStore } from '../store/geo'
-import { regions } from '../regions'
-import * as FileSaver from 'file-saver'
-import * as xlsx from 'xlsx'
-import * as _ from 'lodash'
-import { log } from 'util'
+  getCollectionByIds,
+} from "../api";
+import { geoStore } from "../store/geo";
+import { regions } from "../regions";
+import * as FileSaver from "file-saver";
+import * as xlsx from "xlsx";
+import * as _ from "lodash";
+import { log } from "util";
 
 interface Places {
-  Ort: string
-  Bundesland: string
-  Großregion: string
+  Ort: string;
+  Bundesland: string;
+  Großregion: string;
 }
 
 @Component({
   components: {
     InfoText,
-    InfoBox
-  }
+    InfoBox,
+  },
 })
 export default class Database extends Vue {
-  @Prop() collection_ids: string | null
-  @Prop() query: string | null
-  @Prop() fields: string | null
-  @Prop() type: string | null
+  @Prop() collection_ids: string | null;
+  @Prop() query: string | null;
+  @Prop() fields: string | null;
+  @Prop() type: string | null;
 
-  c = console
-  geoStore = geoStore
-  regions = regions
-  items: any[] = []
-  searchInFields: string | null
-  searchTerm: string | null = null
-  searchItemType = 'fulltext'
-  searchCollection: string | null = null
-  collectionSearchItems: any[] = []
-  selectedCollections: any[] = []
-  selected: any[] = []
-  loading = false
-  searching = false
-  showFilterOptions = false
+  c = console;
+  geoStore = geoStore;
+  regions = regions;
+  items: any[] = [];
+  searchInFields: string | null;
+  searchTerm: string | null = null;
+  searchItemType = "fulltext";
+  searchCollection: string | null = null;
+  collectionSearchItems: any[] = [];
+  selectedCollections: any[] = [];
+  selected: any[] = [];
+  loading = false;
+  searching = false;
+  showFilterOptions = false;
   pagination = {
     page: 1,
     itemsPerPage: 10,
     sortBy: [],
     sortDesc: [],
-    multiSort: false
-  }
-  extended = false
-  fuzziness = true
-  totalItems = 100
+    multiSort: false,
+  };
+  extended = false;
+  fuzziness = true;
+  totalItems = 100;
 
   headers = [
     // tslint:disable-next-line:max-line-length
@@ -391,314 +432,338 @@ export default class Database extends Vue {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'ID',
-      value: 'ID',
-      infoUrl: 'wboe-artikel/dbheaderinfo-id/',
-      extended: true
+      text: "ID",
+      value: "ID",
+      infoUrl: "wboe-artikel/dbheaderinfo-id/",
+      extended: true,
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Lemma',
-      infoUrl: 'wboe-artikel/dbheaderinfo-lemma/',
+      text: "Lemma",
+      infoUrl: "wboe-artikel/dbheaderinfo-lemma/",
       renderFnc: (val: any) => (Array.isArray(val.HL) ? val.HL[0] : val.HL),
-      value: 'HL'
+      value: "HL",
     },
     {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Nebenlemma',
-      infoUrl: 'wboe-artikel/dbheaderinfo-nebenlemma',
-      value: 'NL',
+      text: "Nebenlemma",
+      infoUrl: "wboe-artikel/dbheaderinfo-nebenlemma",
+      value: "NL",
       renderFnc: (val: any) => (Array.isArray(val.NL) ? val.NL[0] : val.NL),
-      extended: true
+      extended: true,
     },
     {
       searchable: false,
       inSearch: false,
       show: false,
-      text: 'Lemma oS',
-      infoUrl: 'wboe-artikel/dbheaderinfo-lemmaos/',
+      text: "Lemma oS",
+      infoUrl: "wboe-artikel/dbheaderinfo-lemmaos/",
       renderFnc: (val: any) =>
         Array.isArray(val.HL) && val.HL.length > 1
-          ? val.HL[1].replace('≈', '')
+          ? val.HL[1].replace("≈", "")
           : val.HL,
       sortable: false,
-      value: 'HL2'
+      value: "HL2",
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      infoUrl: 'wboe-artikel/dbheaderinfo-wortart/',
-      text: 'Wortart',
-      value: 'POS'
+      infoUrl: "wboe-artikel/dbheaderinfo-wortart/",
+      text: "Wortart",
+      value: "POS",
     },
     {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Grammatik', 
-      infoUrl: 'wboe-artikel/dbheaderinfo-grammatik/',
+      text: "Grammatik",
+      infoUrl: "wboe-artikel/dbheaderinfo-grammatik/",
       renderFnc: this.renderGrammatikAngabe,
-      value: 'BD/KT',
-      extended: true
-
+      value: "BD/KT",
+      extended: true,
     },
     {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Fragenummer', 
-      infoUrl: 'wboe-artikel/dbheaderinfo-fragenummer/',
+      text: "Fragenummer",
+      infoUrl: "wboe-artikel/dbheaderinfo-fragenummer/",
       renderFnc: this.renderFragenummer,
-      value: 'NR',
-      extended: true
+      value: "NR",
+      extended: true,
     },
     {
       searchable: false,
       inSearch: false,
       show: false,
-      text: 'Frage', 
-      infoUrl: 'wboe-artikel/dbheaderinfo-frage/',
-      renderFnc: this.renderGefragterAusdruck, 
-      value: 'NR2',
+      text: "Frage",
+      infoUrl: "wboe-artikel/dbheaderinfo-frage/",
+      renderFnc: this.renderGefragterAusdruck,
+      value: "NR2",
       sortable: false,
-      extended: true
+      extended: true,
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Lautung',
-      infoUrl: 'wboe-artikel/dbheaderinfo-lautung/',
+      text: "Lautung",
+      infoUrl: "wboe-artikel/dbheaderinfo-lautung/",
       renderFnc: this.renderLautung,
       sortable: false,
-      value: 'LT1_teuthonista'
+      value: "LT1_teuthonista",
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Bedeutung/Lautung',
+      text: "Bedeutung/Lautung",
       renderFnc: this.renderBedeutung,
-      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutunglautung/',
-      value: 'BD/LT*',  
-      sortable: false     
-    },
-    {
-      searchable: true,
-      inSearch: true,
-      show: false,
-      text: 'Ort/Lautung',
-      infoUrl: 'wboe-artikel/dbheaderinfo-ortlautung/',
-      value: 'Ort/LT',
+      infoUrl: "wboe-artikel/dbheaderinfo-bedeutunglautung/",
+      value: "BD/LT*",
       sortable: false,
-      extended: true
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: false,
+      text: "Ort/Lautung",
+      infoUrl: "wboe-artikel/dbheaderinfo-ortlautung/",
+      value: "Ort/LT",
+      sortable: false,
+      extended: true,
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Kontext', // Belegsatz
-      infoUrl: 'wboe-artikel/dbheaderinfo-kontext/',
+      text: "Kontext", // Belegsatz
+      infoUrl: "wboe-artikel/dbheaderinfo-kontext/",
       renderFnc: this.renderBelegsaetze,
-      value: 'BD/KT1' //'belegsaetze' 
+      value: "BD/KT1", //'belegsaetze'
     },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Bedeutung/Kontext',  //Bedeutung/Belegsatz
-      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutungkontext',
+      text: "Bedeutung/Kontext", //Bedeutung/Belegsatz
+      infoUrl: "wboe-artikel/dbheaderinfo-bedeutungkontext",
       renderFnc: this.renderBedeutungBelegsaetze,
-      value: 'BD/KT*'
+      value: "BD/KT*",
     },
     {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Quelle',
-      value: 'QU',
-      infoUrl: 'wboe-artikel/dbheaderinfo-quelle/',
-      extended: true
+      text: "Quelle",
+      value: "QU",
+      infoUrl: "wboe-artikel/dbheaderinfo-quelle/",
+      extended: true,
     },
     {
       searchable: true,
       inSearch: true,
       show: false,
-      text: 'Bibliographische Angabe',
-      value: 'BIBL',
-      infoUrl: 'wboe-artikel/dbheaderinfo-bibliographischeangabe/',
-      extended: true
+      text: "Bibliographische Angabe",
+      value: "BIBL",
+      infoUrl: "wboe-artikel/dbheaderinfo-bibliographischeangabe/",
+      extended: true,
     },
     {
       searchable: true,
       inSearch: true,
-      show: true, 
-      text: 'Sigle', 
-      value: 'Sigle1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-sigle/',
-      renderFnc: (val: any) => `${_(val.Sigle1).flatten().replace(/[›]?[L|K]T[\d]?/g, '')}` 
+      show: true,
+      text: "Sigle",
+      value: "Sigle1",
+      infoUrl: "wboe-artikel/dbheaderinfo-sigle/",
+      renderFnc: (val: any) =>
+        `${_(val.Sigle1)
+          .flatten()
+          .replace(/[›]?[L|K]T[\d]?/g, "")}`,
     },
     // { text: 'Belegsätze', value: 'BIBL' },
     // { text: 'Bedeutung', value: 'BD/KT*' },
     // { text: 'Kontext', value: 'BD/KT*' },
     // { text: 'FB-Nr.', value: 'Fragebogennummer' },
     // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
-       {
-      searchable: true,
-      inSearch: true,
-      show: true,
-      text: 'Staat',
-      infoUrl: 'wboe-artikel/dbheaderinfo-staat/',
-      value: 'Sigle10',
-      renderFnc: (val: any) => regions.generalMapStaat(`${_(val.Sigle1).flatten()}`)
-    },
-     {
-      searchable: true,
-      inSearch: true,
-      show: true,
-      text: 'Land',
-      value: 'Bundesland1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-land/',
-      renderFnc: (val: any) => regions.mapBundeslaender(_(val.Bundesland1).flatten().replace(/\d[A-Z]?[\.]?[\d]?/g, '').replace(/›LT[\d]?/g, '').replace(/ ,/g, ',')) 
-    },
     {
       searchable: true,
       inSearch: true,
       show: true,
-      text: 'Großregion',
-      value: 'Großregion1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-grossregion/',
-      renderFnc: (val: any) => regions.mapGrossreg(_(val.Großregion1).flatten().replace(/\d[A-Z]?[\.]\d/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ','))  
-    },
-    {
-      searchable: true,
-      inSearch: true,
-      show: true,
-      text: 'Kleinregion',
-      value: 'Kleinregion1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-kleinregionen',
-      renderFnc: (val: any) => regions.mapKleinreg(_(val.Kleinregion1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ',')) 
-    },
-    {
-      searchable: true,
-      inSearch: true,
-      show: true,
-      text: 'Gemeinde',
-      value: 'Gemeinde1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-gemeinde/',
+      text: "Staat",
+      infoUrl: "wboe-artikel/dbheaderinfo-staat/",
+      value: "Sigle10",
       renderFnc: (val: any) =>
-        `${_(val.Gemeinde1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')}`
-        // ${val.Ort ? ` ${val.Ort}` : ''}`
-    }
-  ]
+        regions.generalMapStaat(`${_(val.Sigle1).flatten()}`),
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: "Land",
+      value: "Bundesland1",
+      infoUrl: "wboe-artikel/dbheaderinfo-land/",
+      renderFnc: (val: any) =>
+        regions.mapBundeslaender(
+          _(val.Bundesland1)
+            .flatten()
+            .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
+            .replace(/›LT[\d]?/g, "")
+            .replace(/ ,/g, ",")
+        ),
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: "Großregion",
+      value: "Großregion1",
+      infoUrl: "wboe-artikel/dbheaderinfo-grossregion/",
+      renderFnc: (val: any) =>
+        regions.mapGrossreg(
+          _(val.Großregion1)
+            .flatten()
+            .replace(/\d[A-Z]?[\.]\d/g, "")
+            .replace(/›LT[\d]?/g, "")
+            .replace(/ ,/g, ",")
+        ),
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: "Kleinregion",
+      value: "Kleinregion1",
+      infoUrl: "wboe-artikel/dbheaderinfo-kleinregionen",
+      renderFnc: (val: any) =>
+        regions.mapKleinreg(
+          _(val.Kleinregion1)
+            .flatten()
+            .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
+            .replace(/›LT[\d]?/g, "")
+            .replace(/ ,/g, ",")
+        ),
+    },
+    {
+      searchable: true,
+      inSearch: true,
+      show: true,
+      text: "Gemeinde",
+      value: "Gemeinde1",
+      infoUrl: "wboe-artikel/dbheaderinfo-gemeinde/",
+      renderFnc: (val: any) =>
+        `${_(val.Gemeinde1)
+          .flatten()
+          .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")}`,
+      // ${val.Ort ? ` ${val.Ort}` : ''}`
+    },
+  ];
 
   footerProps = {
-    'items-per-page-text': 'Pro Seite',
-    'items-per-page-options': [10, 25, 50, 100]
-  }
+    "items-per-page-text": "Pro Seite",
+    "items-per-page-options": [10, 25, 50, 100],
+  };
 
-  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500)
+  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
 
   get areAllSearchColumsSelected() {
     // all columns are either selected, or not searchable
     return this.headers.every(
-      h => h.inSearch === true || h.searchable === false
-    )
+      (h) => h.inSearch === true || h.searchable === false
+    );
   }
 
   selectAllSearchColumnsAndSearch() {
     // allow search in all columns that are searchable
-    this.headers = this.headers.map(h => ({
+    this.headers = this.headers.map((h) => ({
       ...h,
-      inSearch: h.searchable === true
-    }))
-    this.onChangeQuery(this.searchTerm)
+      inSearch: h.searchable === true,
+    }));
+    this.onChangeQuery(this.searchTerm);
   }
 
   selectNoColumnsAndSearch() {
     // allow search in no columns
-    this.headers = this.headers.map(h => ({ ...h, inSearch: false }))
-    this.onChangeQuery(this.searchTerm)
+    this.headers = this.headers.map((h) => ({ ...h, inSearch: false }));
+    this.onChangeQuery(this.searchTerm);
   }
 
   customSelect(item: any) {
     // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id)
-    if (this.selected.find(i => item.id === i.id)) {
-      this.selected = this.selected.filter(i => i.id !== item.id)
+    if (this.selected.find((i) => item.id === i.id)) {
+      this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
-      this.selected.push(item)
+      this.selected.push(item);
     }
   }
 
   get shownHeaders() {
-    return this.headers.filter((h: any) => h.show)
+    return this.headers.filter((h: any) => h.show);
   }
 
-  @Watch('fields', {immediate: true})
-  onUpdateFields(newVal?: string|null) {
+  @Watch("fields", { immediate: true })
+  onUpdateFields(newVal?: string | null) {
     if (newVal !== null && newVal !== undefined) {
-      this.headers = this.headers.map(h => {
+      this.headers = this.headers.map((h) => {
         if (newVal.split(",").includes(h.value)) {
-          return { ...h, inSearch: true }
-      } else {
-        return { ...h, inSearch: false }
-      }
-    })
+          return { ...h, inSearch: true };
+        } else {
+          return { ...h, inSearch: false };
+        }
+      });
     }
   }
 
-  @Watch('type', {immediate: true})
-  onUpdateType(newVal: string|null) {
+  @Watch("type", { immediate: true })
+  onUpdateType(newVal: string | null) {
     // console.log(newVal + 'AND: ' + this.searchItemType)
-    
-        if (newVal) {
-          this.searchItemType = newVal
-        } else {
-        }
+
+    if (newVal) {
+      this.searchItemType = newVal;
+    } else {
+    }
     // console.log(' and new value let us have a looki : ' + this.searchItemType)
   }
 
-
-  @Watch('extended')
+  @Watch("extended")
   onExtendedChanged(val: boolean) {
     this.headers.forEach((h: any) => {
       if (h.extended) {
-        h.show = val
+        h.show = val;
       }
-    })
-  }  
+    });
+  }
 
-// the changed function - was before under the renderBedeutung function
+  // the changed function - was before under the renderBedeutung function
   renderGrammatikAngabe(val: any) {
-  const bd: string[] = []
+    const bd: string[] = [];
     for (let i = 1; i < 10; i += 1) {
-      const at = `GRAM/LT${i}`
-      const b = val[`GRAM/LT${i}`]
+      const at = `GRAM/LT${i}`;
+      const b = val[`GRAM/LT${i}`];
       if (!b) {
-        continue
+        continue;
       }
-      bd.push(b)
-      console.log(bd)
+      bd.push(b);
+      console.log(bd);
     }
-    const bdnew: string[] = []
-    for(let i = 0; i < bd.length; i+=1) {
-        bdnew.push(bd[i][0])
+    const bdnew: string[] = [];
+    for (let i = 0; i < bd.length; i += 1) {
+      bdnew.push(bd[i][0]);
     }
 
-    return _(bdnew)
-      .flatten()
-//      .replace('≈', '')
+    return _(bdnew).flatten();
+    //      .replace('≈', '')
   }
 
   renderFragenummer(val: any) {
-    let nr = val['NR']
+    let nr = val["NR"];
     if (!nr) {
-      return ''
+      return "";
     }
     const replacer = (
       match: string,
@@ -707,229 +772,224 @@ export default class Database extends Vue {
       offset: any,
       what: any
     ) => {
-      console.log(match, p1, p2, offset, what) 
-      return match
-    }
-    const fragenummerRegex = /.* (\(.*\)){0,1}:/
+      console.log(match, p1, p2, offset, what);
+      return match;
+    };
+    const fragenummerRegex = /.* (\(.*\)){0,1}:/;
     if (Array.isArray(nr)) {
-      nr = nr.map(n => {
-        const m = n.match(fragenummerRegex)
-        return m ? m[0] : null
-      })
+      nr = nr.map((n) => {
+        const m = n.match(fragenummerRegex);
+        return m ? m[0] : null;
+      });
     } else {
-      const m = nr.match(fragenummerRegex)
-      return m ? m[0] : ''
+      const m = nr.match(fragenummerRegex);
+      return m ? m[0] : "";
     }
-    nr = nr.filter((n: any) => n)
-    return _(nr).flatten()
+    nr = nr.filter((n: any) => n);
+    return _(nr).flatten();
   }
 
   renderGefragterAusdruck(val: any) {
-    let nr = val['NR']
+    let nr = val["NR"];
     if (!nr) {
-      return ''
+      return "";
     }
 
-    const fragenummerRegex = /.*(\(.*\)){0,1}:/
+    const fragenummerRegex = /.*(\(.*\)){0,1}:/;
     if (Array.isArray(nr)) {
-      nr = nr[0].replace(fragenummerRegex, '')
+      nr = nr[0].replace(fragenummerRegex, "");
     } else {
-      return nr.replace(fragenummerRegex, '')
+      return nr.replace(fragenummerRegex, "");
     }
-    return nr
+    return nr;
   }
 
   renderBedeutung(val: any) {
-    let lt = val['BD/LT*']
-    if(!lt) {
-      return ''
+    let lt = val["BD/LT*"];
+    if (!lt) {
+      return "";
     }
 
-    const regexSources = /[≈›|›|≈]?LT\d?/
+    const regexSources = /[≈›|›|≈]?LT\d?/;
     if (Array.isArray(lt)) {
-      return lt[0].replace(regexSources, '')
+      return lt[0].replace(regexSources, "");
     } else {
-      return lt.replace(regexSources, '')
+      return lt.replace(regexSources, "");
     }
-    return lt
-
-
+    return lt;
   }
 
   renderBedeutungBelegsaetze(val: any) {
-    let kt = val['BD/KT*']
-    if(!kt) {
-      return ''
+    let kt = val["BD/KT*"];
+    if (!kt) {
+      return "";
     }
 
-    const regexSources = /›KT\d/
-    if(Array.isArray(kt)) {
+    const regexSources = /›KT\d/;
+    if (Array.isArray(kt)) {
       var i;
-      for(i = 0; i < kt.length; i++) {
-        kt[i] = kt[i].replace(regexSources, '')
-    } 
-    return _(kt).flatten()//replace(regexSources, '')
-  } else {
-    return kt.replace(regexSources, '')
+      for (i = 0; i < kt.length; i++) {
+        kt[i] = kt[i].replace(regexSources, "");
+      }
+      return _(kt).flatten(); //replace(regexSources, '')
+    } else {
+      return kt.replace(regexSources, "");
+    }
   }
-}
 
   renderBelegsaetze(val: any) {
-    const kts =  ['KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6', 'KT7', 'KT8']
-    const res: string[] = []
-    kts.forEach(t => {
+    const kts = ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8"];
+    const res: string[] = [];
+    kts.forEach((t) => {
       if (Array.isArray(val[t]) && val[t].length > 0) {
-        res.push(val[t][0])
+        res.push(val[t][0]);
       } else if (val[t]) {
-        res.push(val[t])
+        res.push(val[t]);
       }
-    })
-      return _(res).flatten()
+    });
+    return _(res).flatten();
   }
 
   renderLautung(val: any) {
     const tauts = [
-      'LT1_teuthonista',
-      'LT2_theutonista',
-      'LT3_theutonista',
-      'LT4_theutonista',
-      'LT5_theutonista',
-      'LT6_theutonista',
-      'LT7_theutonista',
-      'LT8_theutonista',
-      'LT9_theutonista'
-    ]
+      "LT1_teuthonista",
+      "LT2_theutonista",
+      "LT3_theutonista",
+      "LT4_theutonista",
+      "LT5_theutonista",
+      "LT6_theutonista",
+      "LT7_theutonista",
+      "LT8_theutonista",
+      "LT9_theutonista",
+    ];
 
-    const res: string[] = []
-    tauts.forEach(t => {
+    const res: string[] = [];
+    tauts.forEach((t) => {
       if (Array.isArray(val[t]) && val[t].length > 0) {
-        res.push(val[t][0])
-      } 
-      else if (val[t]) {
-        res.push(val[t])
-      } 
-    })
-    return _(res).flatten()
+        res.push(val[t][0]);
+      } else if (val[t]) {
+        res.push(val[t]);
+      }
+    });
+    return _(res).flatten();
   }
 
   async mounted() {
     if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList)
+      this.loadCollectionIds(this.collectionIdList);
     } else {
-      this.init()
+      this.init();
     }
   }
 
   get _items() {
     return this.items.filter(
       (i, index) => !!i && this.items.indexOf(i) === index
-    )
+    );
   }
 
-  @Watch('searchCollection')
+  @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
-    if (val !== null && val.trim() !== '') {
-      this.collectionSearchItems = (await searchCollections(val)).map(x => ({
+    if (val !== null && val.trim() !== "") {
+      this.collectionSearchItems = (await searchCollections(val)).map((x) => ({
         ...x,
-        text: x.name
-      }))
+        text: x.name,
+      }));
     }
   }
 
   selectCollections(colls: any[]) {
     this.$router.replace({
-      query: { collection_ids: colls.map(x => x.value).join() }
-    })
+      query: { collection_ids: colls.map((x) => x.value).join() },
+    });
   }
 
   get collectionIdList() {
     if (this.collection_ids) {
-      return this.collection_ids.split(',')
+      return this.collection_ids.split(",");
     } else {
-      return []
+      return [];
     }
   }
 
- 
-
   getPlacesFromSigle(sigle: string): Places {
-    const place = _(geoStore.ortsliste).find(o => o.sigle === sigle)
+    const place = _(geoStore.ortsliste).find((o) => o.sigle === sigle);
     if (place === undefined) {
       return {
-        Ort: '',
-        Großregion: '',
-        Bundesland: ''
-      }
+        Ort: "",
+        Großregion: "",
+        Bundesland: "",
+      };
     } else {
-      const bl = _(place.parentsObj).find(o => o.field === 'Bundesland')
-      const gr = _(place.parentsObj).find(o => o.field === 'Großregion')
+      const bl = _(place.parentsObj).find((o) => o.field === "Bundesland");
+      const gr = _(place.parentsObj).find((o) => o.field === "Großregion");
       return {
         Ort: place.name,
-        Großregion: gr ? gr.name : '',
-        Bundesland: bl ? bl.name : '',
-        [place.field]: place.name
-      }
+        Großregion: gr ? gr.name : "",
+        Bundesland: bl ? bl.name : "",
+        [place.field]: place.name,
+      };
     }
   }
 
   get headerInSearch() {
     return this.shownHeaders
-      .filter(h => h.searchable && h.inSearch)
-      .map(h => h.value)
+      .filter((h) => h.searchable && h.inSearch)
+      .map((h) => h.value);
   }
 
   async init() {
-    this.loading = true
+    this.loading = true;
 
-    const countDocument = await getDocumentTotalCount()
+    const countDocument = await getDocumentTotalCount();
     // console.log('lel', countDocument)
-    this.totalItems = countDocument || 0
+    this.totalItems = countDocument || 0;
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
       this.pagination.sortBy,
       this.pagination.sortDesc
-    )
-    this.items = res.documents.map(d => ({
+    );
+    this.items = res.documents.map((d) => ({
       ...d,
-      ...this.getPlacesFromSigle(d.ortsSigle)
-    }))
-    this.loading = false
+      ...this.getPlacesFromSigle(d.ortsSigle),
+    }));
+    this.loading = false;
   }
 
-  @Watch('collectionIdList')
+  @Watch("collectionIdList")
   async loadCollectionIds(ids: string[]) {
     if (ids.length > 0) {
-      this.searchItemType = 'collection'
-      this.searching = true
-      const res = await getDocumentsByCollection(ids, this.pagination.page)
+      this.searchItemType = "collection";
+      this.searching = true;
+      const res = await getDocumentsByCollection(ids, this.pagination.page);
       this.items = _(res.documents)
-        .uniqBy(d => d.id)
-        .map(d => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
-        .value()
+        .uniqBy((d) => d.id)
+        .map((d) => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
+        .value();
       // console.log({res})
       // console.log('950', res.total)
-      this.totalItems = typeof res.total === 'number' ? res.total : 0
-      const cs = await getCollectionByIds(ids)
-      this.selectedCollections = cs.map(x => ({ ...x, text: x.name }))
-      this.collectionSearchItems = cs.map(x => ({ ...x, text: x.name }))
-      this.searching = false
+      this.totalItems = typeof res.total === "number" ? res.total : 0;
+      const cs = await getCollectionByIds(ids);
+      this.selectedCollections = cs.map((x) => ({ ...x, text: x.name }));
+      this.collectionSearchItems = cs.map((x) => ({ ...x, text: x.name }));
+      this.searching = false;
     } else {
-      this.selectedCollections = []
+      this.selectedCollections = [];
     }
   }
 
-  @Watch('pagination', { deep: true })
+  @Watch("pagination", { deep: true })
   updateResults(newVal: any, oldVal: any) {
     if (newVal.page !== oldVal.page) {
-      window.scroll({ top: 0, behavior: 'smooth' })
+      window.scroll({ top: 0, behavior: "smooth" });
     }
     if (this.query) {
-      this.onChangeQuery(this.query)
+      this.onChangeQuery(this.query);
     } else if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList)
+      this.loadCollectionIds(this.collectionIdList);
     } else {
-      this.init()
+      this.init();
     }
   }
 
@@ -938,35 +998,37 @@ export default class Database extends Vue {
       this._items.filter(
         (i, index) =>
           !!i &&
-          this.selected.find(item => item.id === i.id) &&
-          (i.Bundesland !== '' ||
-            i.Bundesland1 !== '' ||
-            i.Großregion !== '' ||
-            i.Ort !== '')
+          this.selected.find((item) => item.id === i.id) &&
+          (i.Bundesland !== "" ||
+            i.Bundesland1 !== "" ||
+            i.Großregion !== "" ||
+            i.Ort !== "")
       )
-    ).value()
+    ).value();
   }
 
   showSelectionOnMap() {
     if (this.selected.length > 0) {
       this.$router.push({
-        path: '/maps',
+        path: "/maps",
         query: {
-          col: this.getColStr(this.mappableSelectionItems.map(d => d.ortsSigle))
-        }
-      })
+          col: this.getColStr(
+            this.mappableSelectionItems.map((d) => d.ortsSigle)
+          ),
+        },
+      });
     }
   }
 
   getColStr(val: any) {
     let output;
-    if(Array.isArray(val)) {
+    if (Array.isArray(val)) {
       //@ts-ignore
       let noDuplicates = [];
       val.forEach((c) => {
         //@ts-ignore
         if (!noDuplicates.includes(c)) {
-            noDuplicates.push(c);
+          noDuplicates.push(c);
         }
       });
       output = JSON.stringify([
@@ -1000,25 +1062,23 @@ export default class Database extends Vue {
   }
 
   arrangeToArr(val: string) {
-    var tmp = val.toString()
-      const colls = tmp.split(',')
-      this.getLocationsOfCollections(colls)
-    
+    var tmp = val.toString();
+    const colls = tmp.split(",");
+    this.getLocationsOfCollections(colls);
   }
 
-
   getLocationsOfCollections(colls: string[]) {
-     if(!Array.isArray(colls)) {
-       var tmp = new Array()
-       tmp.push(colls)
-       colls = tmp
-       }
-
-    if(colls.length === 0) {
-      return
+    if (!Array.isArray(colls)) {
+      var tmp = new Array();
+      tmp.push(colls);
+      colls = tmp;
     }
-    let output:any[] = [];
-    let end_output; 
+
+    if (colls.length === 0) {
+      return;
+    }
+    let output: any[] = [];
+    let end_output;
 
     colls.forEach(async (coll) => {
       let shownInGeo;
@@ -1049,34 +1109,34 @@ export default class Database extends Vue {
             collDescription = iterColl.description;
           }
         });
-        
-        output.push(JSON.stringify(
-          {
-          id: Math.random() * 1000,
-          tempColl: coll,
-          collection_name: collName,
-          editing: false,
-          fillColor:
-            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-          borderColor: "#000",
-          items: CollLocation,
-        }));
 
-         this.$router.push({
-                        path: '/maps',
-                        query: {
-                          col: '[' + output + ']'
-                        },
-                      })
+        output.push(
+          JSON.stringify({
+            id: Math.random() * 1000,
+            tempColl: coll,
+            collection_name: collName,
+            editing: false,
+            fillColor:
+              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+            borderColor: "#000",
+            items: CollLocation,
+          })
+        );
+
+        this.$router.push({
+          path: "/maps",
+          query: {
+            col: "[" + output + "]",
+          },
+        }).catch(err => {});
       }
     });
   }
 
-
-  @Watch('query', {immediate: true})
+  @Watch("query", { immediate: true })
   async onChangeQuery(search: string | null) {
     if (search) {
-      this.searching = true
+      this.searching = true;
       const res = await searchDocuments(
         search,
         this.pagination.page,
@@ -1085,49 +1145,49 @@ export default class Database extends Vue {
         this.pagination.sortBy,
         this.headerInSearch,
         this.fuzziness
-      )
-      this.items = res.documents.map(d => ({
+      );
+      this.items = res.documents.map((d) => ({
         ...d,
-        ...this.getPlacesFromSigle(d.ortsSigle)
-      }))
+        ...this.getPlacesFromSigle(d.ortsSigle),
+      }));
 
       // console.log('fluss', res.total)
-      this.totalItems = res.total.value || 0
-      this.searching = false
+      this.totalItems = res.total.value || 0;
+      this.searching = false;
     } else {
-      this.init()
+      this.init();
     }
   }
 
   async searchDatabase(search: string) {
-    this.$router.replace({ query: { query: search } })
+    this.$router.replace({ query: { query: search } });
   }
 
   saveXLSX() {
-    const x = xlsx.utils.json_to_sheet(this.selected || this.items)
+    const x = xlsx.utils.json_to_sheet(this.selected || this.items);
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
-        SheetNames: ['sheet']
+        SheetNames: ["sheet"],
       },
-      'wboe-lioe-export.xlsx'
-    )
+      "wboe-lioe-export.xlsx"
+    );
   }
 
   saveCSV() {
-    const x = xlsx.utils.json_to_sheet(this.selected || this.items)
+    const x = xlsx.utils.json_to_sheet(this.selected || this.items);
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
-        SheetNames: ['sheet']
+        SheetNames: ["sheet"],
       },
-      'wboe-lioe-export.csv'
-    )
+      "wboe-lioe-export.csv"
+    );
   }
 
   saveJSON() {
-    const blob = JSON.stringify(this.selected || this.items, undefined, 2)
-    FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json')
+    const blob = JSON.stringify(this.selected || this.items, undefined, 2);
+    FileSaver.saveAs(new Blob([blob]), "wboe-lioe-export.json");
   }
 }
 </script>

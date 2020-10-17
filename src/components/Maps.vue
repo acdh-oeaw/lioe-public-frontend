@@ -871,6 +871,7 @@ export default class Maps extends Vue {
           element.items;
       });
     }
+    this.selectedCollection = this.geoCollections.length-1
   }
 
   get onEachFeatureFunction() {
@@ -988,7 +989,9 @@ export default class Maps extends Vue {
       this.selectedTileSet = 4;
       this.fixTooltip = true;
     }
-    this.getCollectionsOutOfURL();
+    if (this.$route.query.col) {
+      this.getCollectionsOutOfURL();
+    }
   }
 
   async mounted() {
