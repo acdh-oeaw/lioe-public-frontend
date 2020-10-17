@@ -3,55 +3,33 @@
     <v-flex>
       <v-card class="sticky-card" width="100%">
         <v-row no-gutters>
-          <v-col class="pa-0" cols="8">
+          <v-col class="pa-0 flex-grow-1">
             <v-text-field
               @click.stop=""
-              v-if="searchItemType === 'fulltext'"
+              v-if="type === 'fulltext'"
               autofocus
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              v-model="searchTerm"
+              :value="query"
               @input="debouncedSearchDatabase"
-              @change="debouncedSearchDatabase"
               :loading="searching"
               hide-details
               solo
               clearable
             />
             <v-autocomplete
-              v-if="searchItemType === 'collection' && type === 'collection'"
+              v-if="type === 'collection'"
               autofocus
               flat
               @update:search-input="(query) => (searchCollection = query)"
-              :search-input.sync="searchCollection"
               prepend-inner-icon="search"
               :loading="searching"
               :items="collectionSearchItems"
               item-text="text"
               :value="selectedCollections"
               @input="selectCollections"
-              chips
-              deletable-chips
-              cache-items
-              return-object
-              hide-details
-              multiple
-              solo
-              clearable
-            ></v-autocomplete>
-            <v-autocomplete
-              v-else-if="searchItemType === 'collection'"
-              autofocus
-              flat
-              label="Sammlungen suchen…"
-              :search-input.sync="searchCollection"
-              prepend-inner-icon="search"
-              :loading="searching"
-              :items="collectionSearchItems"
-              item-text="text"
-              :value="selectedCollections"
-              @input="selectCollections"
+              placeholder="Sammlungen suchen…"
               chips
               deletable-chips
               cache-items
@@ -62,21 +40,121 @@
               clearable
             ></v-autocomplete>
           </v-col>
-          <v-col cols="2" class="pa-0">
-            <v-select
-              @click.stop=""
-              class="divider-left"
-              flat
-              solo
-              hide-details
-              v-model="searchItemType"
-              :items="[
-                { text: 'Volltext', value: 'fulltext' },
-                { text: 'Sammlung', value: 'collection' },
-              ]"
-            />
+          <v-col cols="auto" class="pa-0 divider-left">
+            <v-menu
+              offset-y
+              :close-on-content-click="false">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn style="margin-top: 6px" class="mx-1 text-no-transform" text v-on="on" v-bind="attrs">
+                  <template v-if="type === 'fulltext'">
+                    Volltext
+                  </template>
+                  <template v-if="type === 'collection'">
+                    Sammlung
+                  </template>
+                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+              <v-list class="context-menu-list" dense>
+                <v-list-item dense @click="changeQueryParam({ type: 'fulltext', collection_ids: null })">
+                  <v-list-item-avatar>
+                    <v-icon v-if="type === 'fulltext'">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Volltext
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item dense @click="changeQueryParam({ type: 'collection' })">
+                  <v-list-item-avatar>
+                    <v-icon v-if="type === 'collection'">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Sammlung
+                  </v-list-item-title>
+                </v-list-item>
+                <v-divider />
+                <v-list-item dense :disabled="type === 'collection'" @click="toggleFuzziness">
+                  <v-list-item-avatar>
+                    <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Fehlertolerante Suche
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </v-col>
-          <v-col class="pr-2 pt-1 text-right">
+          <v-col cols="auto" class="pa-0 divider-left">
+            <v-menu
+              max-height="80vh"
+              offset-y
+              :close-on-content-click="false">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn style="margin-top: 6px" class="mx-1 text-no-transform" text v-on="on" v-bind="attrs">
+                  <template v-if="type === 'fulltext' && areAllSearchColumsSelected">
+                    In allen Spalten
+                  </template>
+                  <template v-if="type === 'fulltext' && !areAllSearchColumsSelected">
+                    In {{ fields ? fields.split(',').length : 0 }} Spalte{{ fields && fields.split(',').length === 1 ? '' : 'n' }}
+                  </template>
+                  <template v-if="type === 'collection'">
+                    Nach Namen
+                  </template>
+                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+              <v-list dense class="context-menu-list">
+                <v-list-item dense @click="extended = !extended">
+                  <v-list-item-avatar>
+                    <v-icon v-if="extended">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    Alle Spalten anzeigen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-divider />
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectNoColumnsAndSearch"
+                  v-if="areAllSearchColumsSelected">
+                  <v-list-item-avatar />
+                  <v-list-item-title>
+                    Nichts auswählen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectAllColumnsAndSearch"
+                  v-if="!areAllSearchColumsSelected">
+                  <v-list-item-avatar />
+                  <v-list-item-title>
+                    In allen Spalten suchen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-divider />
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  v-for="h in visibleHeaders.filter(h => h.searchable)"
+                  :key="h.value"
+                  @click="toggleSearchInColumn(h)">
+                  <v-list-item-avatar>
+                    <v-icon
+                      :color="type === 'collection' ? 'grey' : undefined"
+                      v-if="shouldSearchInColumn(h)">
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ h.text }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-dialog max-width="1000" color="#2b2735" scrollable>
               <template v-slot:activator="{ on }">
                 <v-btn v-on="on" color="accent" icon text>
@@ -92,103 +170,13 @@
                 </v-card-text>
               </v-card>
             </v-dialog>
-            <v-tooltip color="ci" top>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  v-on="on"
-                  icon
-                  @click="showFilterOptions = !showFilterOptions"
-                >
-                  <v-icon :color="showFilterOptions ? 'ci' : undefined">
-                    {{ showFilterOptions ? "mdi-cog" : "mdi-cog-outline" }}
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Such- und Darstellungsoptionen</span>
-            </v-tooltip>
           </v-col>
         </v-row>
       </v-card>
-      <v-row class="px-5" v-show="showFilterOptions === true">
-        <v-col>
-          <v-row>
-            <v-col>
-              <h4>Suchoptionen</h4>
-            </v-col>
-          </v-row>
-          <v-switch
-            label="Alle Spalten zeigen"
-            v-model="extended"
-            hide-details
-          />
-          <v-switch
-            @change="onChangeQuery(searchTerm)"
-            label="Fehlertolerante Suche (fuzzy search)"
-            v-model="fuzziness"
-            hide-details
-          />
-        </v-col>
-        <v-col>
-          <v-row>
-            <v-col class="pl-0">
-              <h4>Spalten durchsuchen</h4>
-            </v-col>
-            <v-col class="text-right">
-              <v-btn
-                v-if="areAllSearchColumsSelected"
-                color="ci"
-                @click="selectNoColumnsAndSearch"
-                small
-                text
-                rounded
-                >keine</v-btn
-              >
-              <v-btn
-                v-else
-                color="ci"
-                @click="selectAllSearchColumnsAndSearch"
-                small
-                text
-                rounded
-                >alle</v-btn
-              >
-            </v-col>
-          </v-row>
-          <v-row>
-            <template v-for="h in shownHeaders">
-              <v-checkbox
-                class="mr-3"
-                :key="h.value"
-                :label="h.text"
-                hide-details
-                @change="onChangeQuery(searchTerm)"
-                v-model="h.inSearch"
-                v-if="h.searchable"
-              ></v-checkbox>
-            </template>
-          </v-row>
-        </v-col>
-      </v-row>
-
-      <v-row no-gutters>
-        <template v-for="h in shownHeaders">
-          <v-chip
-            v-bind:key="h.text"
-            v-if="h.inSearch"
-            class="ma-2"
-            close
-            color="#3b89a0"
-            text-color="white"
-            close-icon="mdi-close"
-            @click:close="h.inSearch = false"
-          >
-            {{ h.text }}
-          </v-chip>
-        </template>
-      </v-row>
     </v-flex>
     <v-flex>
       <v-data-table
+        class="mt-2"
         v-model="selected"
         dense
         show-select
@@ -196,9 +184,10 @@
         :footer-props="footerProps"
         :options.sync="pagination"
         :server-items-length="totalItems"
-        :headers="shownHeaders"
+        :headers="visibleHeaders"
         fixed-header
-        height="500px"
+        hide-default-footer
+        height="500px" 
         :loading="loading"
         :items="_items"
       >
@@ -225,107 +214,79 @@
             </v-card>
           </v-menu>
         </template>
-        <template v-slot:footer>
-          <div>
-            <v-tooltip
-              color="ci"
-              top
-              :disabled="mappableSelectionItems.length > 0"
-            >
-              <template v-slot:activator="{ on }">
-                <v-menu
-                  v-on="on"
-                  :nudge-top="4"
-                  top
-                  offset-y
-                  open-on-hover
-                  :disabled="mappableSelectionItems.length === 0"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn
-                      @click="showSelectionOnMap"
-                      :disabled="mappableSelectionItems.length === 0"
-                      small
-                      v-on="on"
-                      class="pl-3 pr-3"
-                      rounded
-                      depressed
-                      color="primary"
-                    >
-                      Auswahl auf Karte anzeigen ({{
-                        mappableSelectionItems.length
-                      }})
-                    </v-btn>
-                  </template>
-                  <v-list dense>
-                    <v-list-item @click="selected = []"
-                      >Auswahl leeren</v-list-item
-                    >
-                  </v-list>
-                </v-menu>
-              </template>
-              <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
-            </v-tooltip>
+        <template v-slot:footer="{props, on, headers}">
+          <v-divider />
+          <v-row>
+            <v-col class="pb-0">
+              <v-tooltip color="ci" top :disabled="mappableSelectionItems.length > 0">
+                <template v-slot:activator="{ on }">
+                  <v-menu
+                    v-on="on"
+                    :nudge-top="4"
+                    top
+                    offset-y
+                    open-on-hover
+                    :disabled="mappableSelectionItems.length === 0">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        @click="showSelectionOnMap"
+                        :disabled="mappableSelectionItems.length === 0"
+                        small
+                        v-on="on"
+                        class="pl-3 pr-3"
+                        rounded
+                        depressed
+                        color="primary">
+                        auf Karte anzeigen ({{ mappableSelectionItems.length }})
+                      </v-btn>
+                    </template>
+                  </v-menu>
+                </template>
+                <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
+              </v-tooltip>
 
-            <v-menu top open-on-hover>
-              <template v-slot:activator="{ on: secondMenu }">
-                <!-- <v-menu
-                  v-on="thirdMenu"
-                  :nudge-top="4"
-                  top
-                  offset-y
-                  open-on-hover
-                  :disabled="mappableSelectionItems.length === 0"
-                > -->
-
-                <v-btn
-                  @click="arrangeToArr(collection_ids)"
-                  v-if="
-                    searchItemType === 'collection' && collection_ids !== ''
-                  "
-                  v-on="secondMenu"
-                  small
-                  class="pl-3 pr-3"
-                  rounded
-                  depressed
-                  color="default"
-                >
-                  Sammlung auf Karte anzeigen
-                </v-btn>
-              </template>
-            </v-menu>
-
-            <v-menu top open-on-hover>
-              <template v-slot:activator="{ on: thirdMenu }">
-                <v-btn
-                  slot="activator"
-                  v-on="thirdMenu"
-                  :disabled="items.length === 0"
-                  small
-                  text
-                  class="pl-3 pr-3"
-                  rounded
-                  color="ci"
-                >
-                  Export {{ selected.length > 0 ? `(${selected.length})` : "" }}
-                </v-btn>
-              </template>
-              <v-list class="context-menu-list" dense>
-                <v-subheader>
-                  <v-icon class="mr-1" small>save_alt</v-icon> Export/Download
-                </v-subheader>
-                <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
-                <v-list-item @click="saveJSON">JSON</v-list-item>
-                <v-list-item @click="saveCSV">CSV</v-list-item>
-                <v-divider />
-                <v-list-item
-                  :disabled="selected.length === 0"
-                  @click="selected = []"
-                  >Auswahl leeren</v-list-item
-                >
-              </v-list>
-            </v-menu>
-          </div>
+              <v-menu top open-on-hover>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    @click="arrangeToArr(collection_ids)"
+                    v-if="type === 'collection' && collection_ids !== ''"
+                    v-on="on"
+                    small
+                    class="pl-3 pr-3"
+                    rounded
+                    text
+                    color="ci">
+                    Sammlung auf Karte anzeigen 
+                  </v-btn>
+                </template>
+              </v-menu>
+              <v-menu top open-on-hover>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    slot="activator"
+                    v-on="on"
+                    :disabled="items.length === 0"
+                    small
+                    text
+                    class="pl-3 pr-3"
+                    rounded
+                    color="ci">
+                    Exportieren {{ selected.length > 0 ? `(${selected.length})` : ''}}
+                  </v-btn>
+                </template>
+                <v-list class="context-menu-list" dense>
+                  <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
+                  <v-list-item @click="saveJSON">JSON</v-list-item>
+                  <v-list-item @click="saveCSV">CSV</v-list-item>
+                  <v-divider />
+                  <v-list-item :disabled="selected.length === 0" @click="selected = []">Auswahl leeren</v-list-item>
+                </v-list>
+              </v-menu>
+            </v-col>
+            <v-col class="py-0">
+              <v-data-footer style="border-top:0;" v-bind="props" v-on="on" />
+            </v-col>
+          </v-row>
         </template>
         <template v-slot:item="{ item, index, isSelected }">
           <tr>
@@ -335,7 +296,7 @@
                 @change="customSelect(item)"
               ></v-checkbox>
             </td>
-            <template v-for="header in shownHeaders">
+            <template v-for="header in visibleHeaders">
               <td
                 class="line-clamp"
                 :key="`${header.value}_${index}`"
@@ -352,9 +313,6 @@
                     "
                     ><i> {{ header.renderFnc(item) }} </i>
                   </template>
-                  <template v-else> {{ header.renderFnc(item) }} </template>
-                </template>
-
                 <template v-else>{{ item[header.value] }}</template>
               </td>
             </template>
@@ -389,6 +347,17 @@ interface Places {
   Großregion: string;
 }
 
+interface TableHeader {
+  searchable: boolean
+  show: boolean
+  text: string
+  infoUrl: string
+  renderFnc?: (v: any) => string
+  value: string
+  sortable: boolean
+  extended?: boolean
+}
+
 @Component({
   components: {
     InfoText,
@@ -396,69 +365,64 @@ interface Places {
   },
 })
 export default class Database extends Vue {
-  @Prop() collection_ids: string | null;
-  @Prop() query: string | null;
-  @Prop() fields: string | null;
-  @Prop() type: string | null;
 
-  c = console;
-  geoStore = geoStore;
-  regions = regions;
-  items: any[] = [];
-  searchInFields: string | null;
-  searchTerm: string | null = null;
-  searchItemType = "fulltext";
-  searchCollection: string | null = null;
-  collectionSearchItems: any[] = [];
-  selectedCollections: any[] = [];
-  selected: any[] = [];
-  loading = false;
-  searching = false;
-  showFilterOptions = false;
+  @Prop({ default: '' }) collection_ids: string | null
+  @Prop({ default: '' }) query: string | null
+  @Prop({ default: null }) fields: string | null
+  @Prop({ default: 'fulltext' }) type: string | null
+  @Prop({ default: 'true' }) fuzzy: 'true'|'false'
+
+  geoStore = geoStore
+  items: any[] = []
+  searchCollection: string | null = null
+  collectionSearchItems: any[] = []
+  selectedCollections: any[] = []
+  selected: any[] = []
+  loading = false
+  searching = false
+  showFilterOptions = false
   pagination = {
     page: 1,
     itemsPerPage: 10,
     sortBy: [],
     sortDesc: [],
-    multiSort: false,
-  };
-  extended = false;
-  fuzziness = true;
-  totalItems = 100;
+    multiSort: false
+  }
+  extended = false
+  totalItems = 100
 
-  headers = [
+  headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
     {
       searchable: true,
-      inSearch: true,
       show: false,
-      text: "ID",
-      value: "ID",
-      infoUrl: "wboe-artikel/dbheaderinfo-id/",
+      text: 'ID',
+      value: 'ID',
+      infoUrl: 'wboe-artikel/dbheaderinfo-id/',
       extended: true,
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
       text: "Lemma",
       infoUrl: "wboe-artikel/dbheaderinfo-lemma/",
       renderFnc: (val: any) => (Array.isArray(val.HL) ? val.HL[0] : val.HL),
-      value: "HL",
+      value: 'HL',
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: false,
       text: "Nebenlemma",
       infoUrl: "wboe-artikel/dbheaderinfo-nebenlemma",
       value: "NL",
       renderFnc: (val: any) => (Array.isArray(val.NL) ? val.NL[0] : val.NL),
       extended: true,
+      sortable: true
     },
     {
       searchable: false,
-      inSearch: false,
       show: false,
       text: "Lemma oS",
       infoUrl: "wboe-artikel/dbheaderinfo-lemmaos/",
@@ -471,35 +435,34 @@ export default class Database extends Vue {
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
-      infoUrl: "wboe-artikel/dbheaderinfo-wortart/",
-      text: "Wortart",
-      value: "POS",
+      infoUrl: 'wboe-artikel/dbheaderinfo-wortart/',
+      text: 'Wortart',
+      value: 'POS',
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: false,
       text: "Grammatik",
       infoUrl: "wboe-artikel/dbheaderinfo-grammatik/",
       renderFnc: this.renderGrammatikAngabe,
-      value: "BD/KT",
+      value: 'BD/KT',
       extended: true,
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: false,
       text: "Fragenummer",
       infoUrl: "wboe-artikel/dbheaderinfo-fragenummer/",
       renderFnc: this.renderFragenummer,
-      value: "NR",
+      value: 'NR',
       extended: true,
+      sortable: true
     },
     {
       searchable: false,
-      inSearch: false,
       show: false,
       text: "Frage",
       infoUrl: "wboe-artikel/dbheaderinfo-frage/",
@@ -510,7 +473,6 @@ export default class Database extends Vue {
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
       text: "Lautung",
       infoUrl: "wboe-artikel/dbheaderinfo-lautung/",
@@ -520,7 +482,6 @@ export default class Database extends Vue {
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
       text: "Bedeutung/Lautung",
       renderFnc: this.renderBedeutung,
@@ -530,7 +491,6 @@ export default class Database extends Vue {
     },
     {
       searchable: true,
-      inSearch: true,
       show: false,
       text: "Ort/Lautung",
       infoUrl: "wboe-artikel/dbheaderinfo-ortlautung/",
@@ -540,51 +500,48 @@ export default class Database extends Vue {
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
       text: "Kontext", // Belegsatz
       infoUrl: "wboe-artikel/dbheaderinfo-kontext/",
       renderFnc: this.renderBelegsaetze,
-      value: "BD/KT1", //'belegsaetze'
+      value: 'BD/KT1', //'belegsaetze',
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
       text: "Bedeutung/Kontext", //Bedeutung/Belegsatz
       infoUrl: "wboe-artikel/dbheaderinfo-bedeutungkontext",
       renderFnc: this.renderBedeutungBelegsaetze,
-      value: "BD/KT*",
+      value: 'BD/KT*',
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: false,
-      text: "Quelle",
-      value: "QU",
-      infoUrl: "wboe-artikel/dbheaderinfo-quelle/",
+      text: 'Quelle',
+      value: 'QU',
+      infoUrl: 'wboe-artikel/dbheaderinfo-quelle/',
       extended: true,
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: false,
-      text: "Bibliographische Angabe",
-      value: "BIBL",
-      infoUrl: "wboe-artikel/dbheaderinfo-bibliographischeangabe/",
+      text: 'Bibliographische Angabe',
+      value: 'BIBL',
+      infoUrl: 'wboe-artikel/dbheaderinfo-bibliographischeangabe/',
       extended: true,
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
-      show: true,
-      text: "Sigle",
-      value: "Sigle1",
-      infoUrl: "wboe-artikel/dbheaderinfo-sigle/",
-      renderFnc: (val: any) =>
-        `${_(val.Sigle1)
-          .flatten()
-          .replace(/[›]?[L|K]T[\d]?/g, "")}`,
+      show: true, 
+      text: 'Sigle', 
+      value: 'Sigle1',
+      infoUrl: 'wboe-artikel/dbheaderinfo-sigle/',
+      renderFnc: (val: any) => `${_(val.Sigle1).flatten().replace(/[›]?[L|K]T[\d]?/g, '')}`,
+      sortable: true
     },
     // { text: 'Belegsätze', value: 'BIBL' },
     // { text: 'Bedeutung', value: 'BD/KT*' },
@@ -593,104 +550,122 @@ export default class Database extends Vue {
     // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
     {
       searchable: true,
-      inSearch: true,
       show: true,
-      text: "Staat",
-      infoUrl: "wboe-artikel/dbheaderinfo-staat/",
-      value: "Sigle10",
-      renderFnc: (val: any) =>
-        regions.generalMapStaat(`${_(val.Sigle1).flatten()}`),
+      text: 'Staat',
+      infoUrl: 'wboe-artikel/dbheaderinfo-staat/',
+      value: 'Sigle10',
+      renderFnc: (val: any) => regions.generalMapStaat(`${_(val.Sigle1).flatten()}`),
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
-      text: "Land",
-      value: "Bundesland1",
-      infoUrl: "wboe-artikel/dbheaderinfo-land/",
-      renderFnc: (val: any) =>
-        regions.mapBundeslaender(
-          _(val.Bundesland1)
-            .flatten()
-            .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
-            .replace(/›LT[\d]?/g, "")
-            .replace(/ ,/g, ",")
-        ),
+      text: 'Land',
+      value: 'Bundesland1',
+      infoUrl: 'wboe-artikel/dbheaderinfo-land/',
+      renderFnc: (val: any) => regions.mapBundeslaender(_(val.Bundesland1).flatten().replace(/\d[A-Z]?[\.]?[\d]?/g, '').replace(/›LT[\d]?/g, '').replace(/ ,/g, ',')) ,
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
-      text: "Großregion",
-      value: "Großregion1",
-      infoUrl: "wboe-artikel/dbheaderinfo-grossregion/",
-      renderFnc: (val: any) =>
-        regions.mapGrossreg(
-          _(val.Großregion1)
-            .flatten()
-            .replace(/\d[A-Z]?[\.]\d/g, "")
-            .replace(/›LT[\d]?/g, "")
-            .replace(/ ,/g, ",")
-        ),
+      text: 'Großregion',
+      value: 'Großregion1',
+      infoUrl: 'wboe-artikel/dbheaderinfo-grossregion/',
+      renderFnc: (val: any) => regions.mapGrossreg(_(val.Großregion1).flatten().replace(/\d[A-Z]?[\.]\d/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ','))  ,
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
-      text: "Kleinregion",
-      value: "Kleinregion1",
-      infoUrl: "wboe-artikel/dbheaderinfo-kleinregionen",
-      renderFnc: (val: any) =>
-        regions.mapKleinreg(
-          _(val.Kleinregion1)
-            .flatten()
-            .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
-            .replace(/›LT[\d]?/g, "")
-            .replace(/ ,/g, ",")
-        ),
+      text: 'Kleinregion',
+      value: 'Kleinregion1',
+      infoUrl: 'wboe-artikel/dbheaderinfo-kleinregionen',
+      renderFnc: (val: any) => regions.mapKleinreg(_(val.Kleinregion1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]/g,'').replace(/›LT[\d]?/g, '').replace(/ ,/g, ',')),
+      sortable: true
     },
     {
       searchable: true,
-      inSearch: true,
       show: true,
       text: "Gemeinde",
       value: "Gemeinde1",
       infoUrl: "wboe-artikel/dbheaderinfo-gemeinde/",
       renderFnc: (val: any) =>
-        `${_(val.Gemeinde1)
-          .flatten()
-          .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")}`,
-      // ${val.Ort ? ` ${val.Ort}` : ''}`
-    },
-  ];
+        `${_(val.Gemeinde1).flatten().replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')}`,
+        // ${val.Ort ? ` ${val.Ort}` : ''}`
+      sortable: true
+    }
+  ]
 
   footerProps = {
-    "items-per-page-text": "Pro Seite",
-    "items-per-page-options": [10, 25, 50, 100],
-  };
+    'items-per-page-text': 'Pro Seite',
+    'items-per-page-options': [10, 25, 50, 100, 500]
+  }
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
 
-  get areAllSearchColumsSelected() {
-    // all columns are either selected, or not searchable
-    return this.headers.every(
-      (h) => h.inSearch === true || h.searchable === false
-    );
+  toggleFuzziness() {
+    this.changeQueryParam({ fuzzy: this.fuzzy === 'true' ? 'false' : 'true' })
+    this.onChangeQuery(this.query)
   }
 
-  selectAllSearchColumnsAndSearch() {
+  changeQueryParam(p: any) {
+    this.$router.replace({
+      // path: this.$router.currentRoute.path,
+      query: { ...this.$router.currentRoute.query, ...p}
+    }).catch(() => console.log('route duplicated.'))
+  }
+
+  toggleSearchInColumn(h: TableHeader): void {
+    if (this.fields === null) {
+      // include all but self
+      this.changeQueryParam({ fields: this.headers.filter(h1 => h1.value !== h.value && h.searchable).map(h => h.value).join(',') })
+    } else if (this.fields === '') {
+      // include only self
+      this.changeQueryParam({ fields: h.value })
+    } else {
+      if (this.shouldSearchInColumn(h)) {
+        // remove self
+        this.changeQueryParam({ fields: this.fields.split(',').filter(f => f !== h.value).join(',') })
+      } else {
+        // add self
+        this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
+      }
+    }
+    if (this.query !== null) {
+      this.onChangeQuery(this.query)
+    }
+  }
+
+  shouldSearchInColumn(h: TableHeader): boolean {
+    if (this.fields === '') {
+      return false
+    } else if (this.fields === null) {
+      return true
+    } else {
+      return this.fields.split(',').includes(h.value) && h.searchable
+    }
+  }
+
+  get areAllSearchColumsSelected(): boolean {
+    // all columns are either selected, or not searchable
+    return this.headers.every(h => this.shouldSearchInColumn(h) || h.searchable === false)
+  }
+
+  selectAllColumnsAndSearch() {
     // allow search in all columns that are searchable
-    this.headers = this.headers.map((h) => ({
-      ...h,
-      inSearch: h.searchable === true,
-    }));
-    this.onChangeQuery(this.searchTerm);
+    this.changeQueryParam({fields: null})
+    if (this.query !== null) {
+      this.onChangeQuery(this.query)
+    }
   }
 
   selectNoColumnsAndSearch() {
     // allow search in no columns
-    this.headers = this.headers.map((h) => ({ ...h, inSearch: false }));
-    this.onChangeQuery(this.searchTerm);
+    this.changeQueryParam({fields: ''})
+    if (this.query !== null) {
+      this.onChangeQuery(this.query)
+    }
   }
 
   customSelect(item: any) {
@@ -702,35 +677,11 @@ export default class Database extends Vue {
     }
   }
 
-  get shownHeaders() {
-    return this.headers.filter((h: any) => h.show);
+  get visibleHeaders() {
+    return this.headers.filter((h: any) => h.show)
   }
 
-  @Watch("fields", { immediate: true })
-  onUpdateFields(newVal?: string | null) {
-    if (newVal !== null && newVal !== undefined) {
-      this.headers = this.headers.map((h) => {
-        if (newVal.split(",").includes(h.value)) {
-          return { ...h, inSearch: true };
-        } else {
-          return { ...h, inSearch: false };
-        }
-      });
-    }
-  }
-
-  @Watch("type", { immediate: true })
-  onUpdateType(newVal: string | null) {
-    // console.log(newVal + 'AND: ' + this.searchItemType)
-
-    if (newVal) {
-      this.searchItemType = newVal;
-    } else {
-    }
-    // console.log(' and new value let us have a looki : ' + this.searchItemType)
-  }
-
-  @Watch("extended")
+  @Watch('extended')
   onExtendedChanged(val: boolean) {
     this.headers.forEach((h: any) => {
       if (h.extended) {
@@ -741,23 +692,20 @@ export default class Database extends Vue {
 
   // the changed function - was before under the renderBedeutung function
   renderGrammatikAngabe(val: any) {
-    const bd: string[] = [];
+    const bd: string[] = []
     for (let i = 1; i < 10; i += 1) {
       const at = `GRAM/LT${i}`;
       const b = val[`GRAM/LT${i}`];
       if (!b) {
         continue;
       }
-      bd.push(b);
-      console.log(bd);
+      bd.push(b)
     }
     const bdnew: string[] = [];
     for (let i = 0; i < bd.length; i += 1) {
       bdnew.push(bd[i][0]);
     }
-
-    return _(bdnew).flatten();
-    //      .replace('≈', '')
+    return _(bdnew).flatten().join(', ')
   }
 
   renderFragenummer(val: any) {
@@ -846,8 +794,8 @@ export default class Database extends Vue {
       } else if (val[t]) {
         res.push(val[t]);
       }
-    });
-    return _(res).flatten();
+    })
+    return _(res).flatten().join(', ')
   }
 
   renderLautung(val: any) {
@@ -866,19 +814,18 @@ export default class Database extends Vue {
     const res: string[] = [];
     tauts.forEach((t) => {
       if (Array.isArray(val[t]) && val[t].length > 0) {
-        res.push(val[t][0]);
-      } else if (val[t]) {
-        res.push(val[t]);
-      }
-    });
-    return _(res).flatten();
+        res.push(val[t][0])
+      } 
+      else if (val[t]) {
+        res.push(val[t])
+      } 
+    })
+    return _(res).flatten().join(', ')
   }
 
   async mounted() {
-    if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList);
-    } else {
-      this.init();
+    if (this.type === 'collection' && this.collection_ids) {
+      this.loadCollectionIds(this.collectionIdList)
     }
   }
 
@@ -890,8 +837,8 @@ export default class Database extends Vue {
 
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
-    if (val !== null && val.trim() !== "") {
-      this.collectionSearchItems = (await searchCollections(val)).map((x) => ({
+    if (val !== null && val !== undefined && val.trim() !== '') {
+      this.collectionSearchItems = (await searchCollections(val)).map(x => ({
         ...x,
         text: x.name,
       }));
@@ -899,9 +846,9 @@ export default class Database extends Vue {
   }
 
   selectCollections(colls: any[]) {
-    this.$router.replace({
-      query: { collection_ids: colls.map((x) => x.value).join() },
-    });
+    this.changeQueryParam({
+      collection_ids: colls.map(x => x.value).join()
+    })
   }
 
   get collectionIdList() {
@@ -932,18 +879,10 @@ export default class Database extends Vue {
     }
   }
 
-  get headerInSearch() {
-    return this.shownHeaders
-      .filter((h) => h.searchable && h.inSearch)
-      .map((h) => h.value);
-  }
-
   async init() {
-    this.loading = true;
-
-    const countDocument = await getDocumentTotalCount();
-    // console.log('lel', countDocument)
-    this.totalItems = countDocument || 0;
+    this.loading = true
+    const countDocument = await getDocumentTotalCount()
+    this.totalItems = countDocument || 0
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
@@ -960,20 +899,18 @@ export default class Database extends Vue {
   @Watch("collectionIdList")
   async loadCollectionIds(ids: string[]) {
     if (ids.length > 0) {
-      this.searchItemType = "collection";
-      this.searching = true;
-      const res = await getDocumentsByCollection(ids, this.pagination.page);
+      this.changeQueryParam({ type: 'collection' })
+      this.searching = true
+      const res = await getDocumentsByCollection(ids, this.pagination.page)
       this.items = _(res.documents)
-        .uniqBy((d) => d.id)
-        .map((d) => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
-        .value();
-      // console.log({res})
-      // console.log('950', res.total)
-      this.totalItems = typeof res.total === "number" ? res.total : 0;
-      const cs = await getCollectionByIds(ids);
-      this.selectedCollections = cs.map((x) => ({ ...x, text: x.name }));
-      this.collectionSearchItems = cs.map((x) => ({ ...x, text: x.name }));
-      this.searching = false;
+        .uniqBy(d => d.id)
+        .map(d => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
+        .value()
+      this.totalItems = typeof res.total === 'number' ? res.total : 0
+      const cs = await getCollectionByIds(ids)
+      this.selectedCollections = cs.map(x => ({ ...x, text: x.name }))
+      this.collectionSearchItems = cs.map(x => ({ ...x, text: x.name }))
+      this.searching = false
     } else {
       this.selectedCollections = [];
     }
@@ -1062,9 +999,9 @@ export default class Database extends Vue {
   }
 
   arrangeToArr(val: string) {
-    var tmp = val.toString();
-    const colls = tmp.split(",");
-    this.getLocationsOfCollections(colls);
+    var tmp = val.toString()
+    const colls = tmp.split(',')
+    this.getLocationsOfCollections(colls)
   }
 
   getLocationsOfCollections(colls: string[]) {
@@ -1109,44 +1046,52 @@ export default class Database extends Vue {
             collDescription = iterColl.description;
           }
         });
-
-        output.push(
-          JSON.stringify({
-            id: Math.random() * 1000,
-            tempColl: coll,
-            collection_name: collName,
-            editing: false,
-            fillColor:
-              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-            borderColor: "#000",
-            items: CollLocation,
-          })
-        );
+        
+        output.push(JSON.stringify(
+          {
+          id: Math.random() * 1000,
+          tempColl: coll,
+          collection_name: collName,
+          editing: false,
+          fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
+          items: CollLocation,
+        }));
 
         this.$router.push({
-          path: "/maps",
+          path: '/maps',
           query: {
-            col: "[" + output + "]",
+            col: '[' + output + ']'
           },
-        }).catch(err => {});
+        })
       }
-    });
+    })
   }
 
-  @Watch("query", { immediate: true })
+  get searchInFields() {
+    if (this.fields === '') {
+      return []
+    } else if (this.fields === null) {
+      return this.headers.filter(h => h.searchable && h.show).map(h => h.value)
+    } else {
+      return this.fields.split(',')
+    }
+  }
+
+  @Watch('query', {immediate: true})
   async onChangeQuery(search: string | null) {
-    if (search) {
-      this.searching = true;
+    if (search !== null) {
+      this.searching = true
       const res = await searchDocuments(
         search,
         this.pagination.page,
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
         this.pagination.sortBy,
-        this.headerInSearch,
-        this.fuzziness
-      );
-      this.items = res.documents.map((d) => ({
+        this.searchInFields,
+        this.fuzzy === 'true'
+      )
+      this.items = res.documents.map(d => ({
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
@@ -1160,7 +1105,8 @@ export default class Database extends Vue {
   }
 
   async searchDatabase(search: string) {
-    this.$router.replace({ query: { query: search } });
+    // this.$router.replace({ query: { query: search } })
+    this.changeQueryParam({ query: search })
   }
 
   saveXLSX() {
