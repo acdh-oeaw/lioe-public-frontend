@@ -15,6 +15,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import * as _ from "lodash";
 import { userStore } from "../store/user";
 import { format } from "date-fns";
+import { log } from "util";
 
 @Component({
   components: {},
@@ -65,8 +66,18 @@ ${this.autName} (${this.pubDatePfusch}): ${
 
   get title() {
     if (!this.xml) return "";
-    const a = this.xml.match(/<orth>(.*)<\/orth>/);
-    return (a || [])[1] || "";
+    const w = this.xml
+      .replace(/\n/g, "")
+      .match(/<form type="lemma"(\n|.)*?<\/form>/gm);
+    console.log("w", w);
+
+    const names: any = [];
+    (w || []).forEach((a: string) => {
+      console.log("arigato", a);
+      names.push((a.match(/<orth>(.*)<\/orth>/) || [])[1]);
+    });
+
+    return names.join(", ");
   }
 
   get noteName() {
