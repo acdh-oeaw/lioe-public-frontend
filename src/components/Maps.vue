@@ -422,10 +422,6 @@ export default class Maps extends Vue {
       url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png ",
     },
     {
-      name: "Wikimedia",
-      url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png",
-    },
-    {
       name: "Minimal Ländergrenzen (hell)",
       url:
         "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
@@ -971,7 +967,7 @@ export default class Maps extends Vue {
 
   @Watch("selectedTileSet")
   darkModeBorderColor() {
-    if (this.selectedTileSet === 3) {
+    if (this.selectedTileSet === 2) {
       this.colorBundesland = "#FFF";
       this.colorGrossregionen = "#BBB";
       this.colorKleinregionen = "#888";
@@ -986,7 +982,7 @@ export default class Maps extends Vue {
   comingFromArticle() {
     if (this.$route.query.source === "article") {
       this.showGrossregionen = true;
-      this.selectedTileSet = 4;
+      this.selectedTileSet = 3;
       this.fixTooltip = true;
     }
     if (this.$route.query.col) {
