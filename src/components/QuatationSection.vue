@@ -43,7 +43,7 @@ Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische
 Informationssystem Österreich (LIÖ).
 URL: <a href="https://lioe.dioe.at/articles/${
       this.filename || this.title
-    }">https://lioe.dioe.at/articles/${this.title}</a>
+    }">https://lioe.dioe.at/articles/${this.filename || this.title}</a>
 [Zugriff: ${this.date}].`;
   }
 
@@ -65,7 +65,7 @@ ${this.autName} (${this.pubDatePfusch}): ${
 
   get title() {
     if (!this.xml) return "";
-    const a = this.xml.match(/<title>(.*)<\/title>/);
+    const a = this.xml.match(/<orth>(.*)<\/orth>/);
     return (a || [])[1] || "";
   }
 
