@@ -238,11 +238,11 @@ export default class MapLegende extends Vue {
     this.$emit("interface", this.selectedCollLocal);
   }
 
-  //@Watch("geoCollections.length")
-  /*setCurrentCollectionToTheCorrectOne() {
+  @Watch("geoCollections.length")
+  setCurrentCollectionToTheCorrectOne() {
     //@ts-ignore
     this.selectedCollLocal = this.geoCollections[this.geoCollections.length-1].id;
-  }*/
+  }
 
   removeCollection(coll: String) {
     let deletedColl = -1;
