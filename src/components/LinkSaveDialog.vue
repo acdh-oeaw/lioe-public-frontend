@@ -54,7 +54,7 @@ Vue.use(VueClipboard);
 export default class SaveLink extends Vue {
   dialog: boolean = false
   contentURL:any;
-  baseURL:String = "https://lioe-test.dioe.at";
+  baseURL:String = "https://lioe.dioe.at";
 
 
   @Watch('$route.fullPath')
