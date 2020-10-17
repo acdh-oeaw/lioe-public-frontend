@@ -67,12 +67,11 @@ export default class SaveLink extends Vue {
   }
   
   doCopy() {
-    console.log(this.contentURL)
     // @ts-ignore
     navigator.clipboard.writeText(this.baseURL + this.$route.fullPath);
   }
-
 }
+
 </script>
 <style lang="scss" scoped>
 </style>
