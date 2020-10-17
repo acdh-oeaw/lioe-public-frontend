@@ -38,6 +38,7 @@
         @toggleAll="toggleAll"
         @printArticle="printArticle"
         @showEditor="showEditor = true"
+        :autor="editor"
         :isEveryArticleExpanded="isEveryArticleExpanded"
         v-if="articleXML !== null"
         :xml="articleXML"
@@ -217,17 +218,24 @@ export default class Article extends Vue {
     );
   }
 
-  getLemmaLinkElement(el: HTMLElement): string|false|null {
+  getLemmaLinkElement(el: HTMLElement): string | false | null {
     // this is awful.
-    return el.getAttribute('data-target') ||
-      el.parentElement !== null && el.parentElement.getAttribute('data-target') ||
-      el.parentElement !== null && el.parentElement.parentElement !== null && el.parentElement.parentElement.getAttribute('data-target')
+    return (
+      el.getAttribute("data-target") ||
+      (el.parentElement !== null &&
+        el.parentElement.getAttribute("data-target")) ||
+      (el.parentElement !== null &&
+        el.parentElement.parentElement !== null &&
+        el.parentElement.parentElement.getAttribute("data-target"))
+    );
   }
 
   handleArticleClick(e: MouseEvent) {
     if (e.target instanceof HTMLElement) {
       if (this.isPlaceNameElement(e.target)) {
-        const sigle = this.getPlacenameSigleFromRef(e.target.getAttribute("ref"))
+        const sigle = this.getPlacenameSigleFromRef(
+          e.target.getAttribute("ref")
+        );
         if (sigle !== null) {
           this.openMapsWithPlaces([sigle]);
         }
@@ -236,13 +244,15 @@ export default class Article extends Vue {
       } else if (this.getCollectionLink(e.target) !== null) {
         const id = this.getCollectionLink(e.target)!;
         this.$router.push({ path: "/db", query: { collection_ids: id } });
-      // Verweis auf anderes Lemma
-      } else if (typeof this.getLemmaLinkElement(e.target as HTMLElement) === 'string') {
-        const s = this.getLemmaLinkElement(e.target as HTMLElement) as string
-        const t = /(.+)\.xml/g.exec(s)
-        console.log(t)
+        // Verweis auf anderes Lemma
+      } else if (
+        typeof this.getLemmaLinkElement(e.target as HTMLElement) === "string"
+      ) {
+        const s = this.getLemmaLinkElement(e.target as HTMLElement) as string;
+        const t = /(.+)\.xml/g.exec(s);
+        console.log(t);
         if (t !== null && t[1] !== null) {
-          this.$router.push({ path: '/articles/' + t[1] })
+          this.$router.push({ path: "/articles/" + t[1] });
         }
       }
     }
@@ -251,13 +261,13 @@ export default class Article extends Vue {
   openMapsWithPlaces(placeIds: string[]) {
     this.$router.push({
       path: "/maps",
-      query: { col: this.getColStr(placeIds.join(',')), source: "article" },
+      query: { col: this.getColStr(placeIds.join(",")), source: "article" },
     });
   }
 
   getColStr(val: any) {
     let output;
-    console.log(val.split(','))
+    console.log(val.split(","));
     output = JSON.stringify([
       {
         id: 0,
@@ -267,7 +277,7 @@ export default class Article extends Vue {
         fillColor:
           "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
         borderColor: "#000",
-        items: val.split(','),
+        items: val.split(","),
       },
     ]);
     return output;
@@ -549,7 +559,7 @@ iframe.comment {
 
 *[data-target] {
   cursor: pointer;
-  &:hover{
+  &:hover {
     text-decoration: underline;
   }
 }
