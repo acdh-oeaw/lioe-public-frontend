@@ -6,7 +6,7 @@
         <v-icon @click="copyContent">mdi mdi-content-copy</v-icon>
       </v-btn>
     </h4>
-    <span v-html="content"> </span>
+    <span v-html="content"></span>
   </v-col>
 </template>
 <script lang="ts">
@@ -43,16 +43,23 @@ Informationssystem Österreich (LIÖ). URL: <a href="https://lioe.dioe.at/articl
 [Zugriff: ${this.date}]`;
   }
 
+  get quote() {
+    return `
+${this.autName} (${this.pubDatePfusch}): <i>${this.title}</i>.
+Mit einem Lautungsüberblick von ${this.noteName}. In: Wörterbuch der bairischen
+Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische
+Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${this.title}
+[Zugriff: ${this.date}]`;
+  }
+
   copyContent() {
     // @ts-ignore
-    navigator.clipboard.writeText(this.content);
+    navigator.clipboard.writeText(this.quote);
   }
 
   get title() {
     if (!this.xml) return "";
     const a = this.xml.match(/<title>(.*)<\/title>/);
-    console.log("title regexinger", a);
-
     return (a || [])[1] || "";
   }
 
@@ -76,8 +83,7 @@ Informationssystem Österreich (LIÖ). URL: <a href="https://lioe.dioe.at/articl
       .map((a) => new Date(a))
       .sort((a, b) => b.getTime() - a.getTime())[0];
 
-    if (d) d = format(new Date(d), "DD.MM.YYYY");
-    return !!new Date(d).getTime() ? d : " ";
+    return !!new Date(d).getTime() ? format(new Date(d), "DD.MM.YYYY") : "";
   }
 }
 </script>
