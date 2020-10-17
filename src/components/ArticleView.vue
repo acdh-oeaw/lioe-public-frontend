@@ -140,7 +140,6 @@
         </template>
       </article-fragment-panel>
     </v-expansion-panels>
-    <QuatationSection :noteAutor="noteAuthor" :autor="autor" :xml="xml" />
     <v-tooltip
       top
       color="ci"
@@ -149,6 +148,22 @@
     >
       <span>{{ noteAuthor.name }}</span>
     </v-tooltip>
+    <div class="text-xs-right pa-4">
+      <v-tooltip top color="ci">
+        <template v-slot:activator="{ on }">
+          <span v-on="on">{{
+            autor.initials ? autor.initials : autor.fullname || ""
+          }}</span>
+        </template>
+        <span>{{ autor.fullname || "" }}</span>
+      </v-tooltip>
+    </div>
+    <QuatationSection
+      :noteAutor="noteAuthor"
+      :filename="filename"
+      :autor="autor"
+      :xml="xml"
+    />
   </div>
 </template>
 <script lang="ts">

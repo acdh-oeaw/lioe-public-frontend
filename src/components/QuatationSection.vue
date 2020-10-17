@@ -1,7 +1,7 @@
 <template>
-  <v-col v-if="pubDatePfusch && title && autName && noteName">
+  <v-col class="cgrey" v-if="pubDatePfusch && title && autName && noteName">
     <h4>
-      Zitieren
+      Zitation
       <v-btn fab icon>
         <v-icon @click="copyContent">mdi mdi-content-copy</v-icon>
       </v-btn>
@@ -24,6 +24,7 @@ export default class QuatationSection extends Vue {
   @Prop() noteAutor: any;
   @Prop() publicationDate: any;
   @Prop({ default: "" }) xml: string;
+  @Prop({ default: "" }) filename: string;
   @Prop() article: any;
   get autName() {
     if (!this.autor) return "";
@@ -39,17 +40,22 @@ export default class QuatationSection extends Vue {
 ${this.autName} (${this.pubDatePfusch}): <i>${this.title}</i>.
 Mit einem Lautungsüberblick von ${this.noteName}. In: Wörterbuch der bairischen
 Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische
-Informationssystem Österreich (LIÖ). URL: <a href="https://lioe.dioe.at/articles/${this.title}">https://lioe.dioe.at/articles/${this.title}</a>
-[Zugriff: ${this.date}]`;
+Informationssystem Österreich (LIÖ).
+URL: <a href="https://lioe.dioe.at/articles/${
+      this.filename || this.title
+    }">https://lioe.dioe.at/articles/${this.title}</a>
+[Zugriff: ${this.date}].`;
   }
 
   get quote() {
     return `
-${this.autName} (${this.pubDatePfusch}): <i>${this.title}</i>.
-Mit einem Lautungsüberblick von ${this.noteName}. In: Wörterbuch der bairischen
-Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische
-Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${this.title}
-[Zugriff: ${this.date}]`;
+${this.autName} (${this.pubDatePfusch}): ${
+      this.title
+    }. Mit einem Lautungsüberblick von ${
+      this.noteName
+    }. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
+      this.filename || this.title
+    } [Zugriff: ${this.date}].`;
   }
 
   copyContent() {
@@ -65,11 +71,8 @@ Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${this
 
   get noteName() {
     if (!this.noteAutor || !this.noteAutor.name) return "";
-    const ns = this.noteAutor.name.split(" ");
-    ns.unshift(",");
-    ns.unshift(ns[ns.length - 1]);
-    ns.pop();
-    return ns.join(" ").replace(/ , /, ", ");
+
+    return this.noteAutor.name;
   }
 
   get date() {
@@ -88,4 +91,13 @@ Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${this
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.cgrey {
+  padding-top: 0%;
+  background-color: #e1eff4;
+  top: 100px;
+  width: 80%;
+  margin: auto;
+  border-radius: 5px;
+}
+</style>

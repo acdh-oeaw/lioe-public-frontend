@@ -46,16 +46,7 @@
         v-model="expanded"
         :geo-store="geoStore"
       />
-      <div class="text-xs-right pa-4">
-        <v-tooltip top color="ci">
-          <template v-slot:activator="{ on }">
-            <span v-on="on">{{
-              editor.initials ? editor.initials : editor.fullname
-            }}</span>
-          </template>
-          <span>{{ editor.fullname }}</span>
-        </v-tooltip>
-      </div>
+
       <v-flex
         class="comment-box"
         xs12
