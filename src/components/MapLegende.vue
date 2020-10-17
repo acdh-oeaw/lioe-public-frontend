@@ -169,7 +169,6 @@ export default class MapLegende extends Vue {
       items: [],
     });
     this.selectedCollLocal = newID;
-    this.$emit("interface", this.selectedCollLocal);
   }
 
   @Watch("selectedCollections")
@@ -239,11 +238,11 @@ export default class MapLegende extends Vue {
     this.$emit("interface", this.selectedCollLocal);
   }
 
-  @Watch("geoCollections")
-  setCurrentCollectionToTheCorrectOne() {
+  //@Watch("geoCollections.length")
+  /*setCurrentCollectionToTheCorrectOne() {
     //@ts-ignore
     this.selectedCollLocal = this.geoCollections[this.geoCollections.length-1].id;
-  }
+  }*/
 
   removeCollection(coll: String) {
     let deletedColl = -1;
@@ -275,7 +274,7 @@ export default class MapLegende extends Vue {
       });
     }
     //@ts-ignore
-    this.selectedCollLocal = this.geoCollections[0].id;
+    this.selectedCollLocal = this.geoCollections[this.geoCollections.length-1].id;
     this.$emit("interface", this.selectedCollLocal);
     this.safeCollectionsInURL();
   }

@@ -761,6 +761,8 @@ export default class Maps extends Vue {
       //@ts-ignore
       activeCol.items = this.selectedLocations[this.indexOfSelected];
     }
+    console.log('AAAAAAA')
+    console.log(this.selectedCollection)
     this.autocompleteSearch = "";
     this.safeCollectionsInURL();
   }
@@ -867,7 +869,6 @@ export default class Maps extends Vue {
           element.items;
       });
     }
-    this.selectedCollection = this.geoCollections.length-1
   }
 
   get onEachFeatureFunction() {
