@@ -73,7 +73,6 @@ ${this.autName} (${this.pubDatePfusch}): ${
 
     const names: any = [];
     (w || []).forEach((a: string) => {
-      console.log("arigato", a);
       names.push((a.match(/<orth>(.*)<\/orth>/) || [])[1]);
     });
 
