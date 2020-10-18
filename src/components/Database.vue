@@ -599,27 +599,27 @@ export default class Database extends Vue {
     this.onChangeQuery(this.query)
   }
 
-  changeQueryParam(p: any) {
-    this.$router.replace({
+  changeQueryParam(p: any): Promise<any> {
+    return this.$router.replace({
       // path: this.$router.currentRoute.path,
       query: { ...this.$router.currentRoute.query, ...p}
     }).catch(() => console.log('route duplicated.'))
   }
 
-  toggleSearchInColumn(h: TableHeader): void {
+  async toggleSearchInColumn(h: TableHeader): Promise<void> {
     if (this.fields === null) {
       // include all but self
-      this.changeQueryParam({ fields: this.headers.filter(h1 => h1.value !== h.value && h.searchable).map(h => h.value).join(',') })
+      await this.changeQueryParam({ fields: this.headers.filter(h1 => h1.value !== h.value && h.searchable).map(h => h.value).join(',') })
     } else if (this.fields === '') {
       // include only self
-      this.changeQueryParam({ fields: h.value })
+      await this.changeQueryParam({ fields: h.value })
     } else {
       if (this.shouldSearchInColumn(h)) {
         // remove self
-        this.changeQueryParam({ fields: this.fields.split(',').filter(f => f !== h.value).join(',') })
+        await this.changeQueryParam({ fields: this.fields.split(',').filter(f => f !== h.value).join(',') })
       } else {
         // add self
-        this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
+        await this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
       }
     }
     if (this.query !== null) {
@@ -1072,6 +1072,7 @@ export default class Database extends Vue {
   @Watch('query', {immediate: true})
   async onChangeQuery(search: string | null) {
     if (search !== null) {
+      console.log('this.fields', this.searchInFields)
       this.searching = true
       const res = await searchDocuments(
         search,
