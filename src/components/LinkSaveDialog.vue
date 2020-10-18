@@ -28,7 +28,7 @@
             label="URL"
             v-model="contentURL"
           ></v-text-field>
-          <v-btn style="margin-left:15px;" icon small v-clipboard:copy="contentURL">
+          <v-btn style="margin-left:15px;" icon small @click="doCopy()">
             <v-icon>mdi-content-copy</v-icon>
           </v-btn>
         </v-card-actions>
@@ -54,19 +54,24 @@ Vue.use(VueClipboard);
 export default class SaveLink extends Vue {
   dialog: boolean = false
   contentURL:any;
+  baseURL:String = "https://lioe-test.dioe.at";
 
 
   @Watch('$route.fullPath')
   changeURL() {
-    this.contentURL = "https://lioe-test.dioe.at" + this.$route.fullPath
+    this.contentURL = this.baseURL + this.$route.fullPath
   }
 
   beforeMount() {
-    this.contentURL = "https://lioe-test.dioe.at" + this.$route.fullPath
+    this.contentURL = this.baseURL + this.$route.fullPath
   }
   
-
+  doCopy() {
+    // @ts-ignore
+    navigator.clipboard.writeText(this.baseURL + this.$route.fullPath);
+  }
 }
+
 </script>
 <style lang="scss" scoped>
 </style>
