@@ -13,58 +13,62 @@
         :items="articles"
         prepend-inner-icon="search"
       />
-      <v-layout align-end>
-        <v-flex @click="handleArticleClick" xs12>
-          <div v-html="lemmaXML" class="lemma" />
+      <template v-if="articleAvailable">
+        <v-layout align-end>
+          <v-flex @click="handleArticleClick" xs12>
+            <div v-html="lemmaXML" class="lemma" />
+          </v-flex>
+          <v-flex class="text-xs-right">
+            <v-menu open-on-hover max-width="400" max-height="95vh" top left>
+              <template v-slot:activator="{ on }">
+                <v-btn color="grey" class="mr-3" small v-on="on" icon text>
+                  <v-icon>info_outline</v-icon>
+                </v-btn>
+              </template>
+              <info-text
+                class="elevation-24 pa-4 white"
+                path="wboe-artikel/lemma-short/"
+              />
+              <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
+            </v-menu>
+          </v-flex>
+        </v-layout>
+        <article-view
+          @article-click="handleArticleClick"
+          @handleArticleClick="handleArticleClick"
+          @toggleAll="toggleAll"
+          @printArticle="printArticle"
+          @showEditor="showEditor = true"
+          :autor="editor"
+          :isEveryArticleExpanded="isEveryArticleExpanded"
+          v-if="articleXML !== null"
+          :xml="articleXML"
+          :filename="filename"
+          v-model="expanded"
+          :geo-store="geoStore"
+        />
+        <v-flex
+          class="comment-box"
+          xs12
+          sm12
+          md10
+          lg8
+          xl6
+          offset-md1
+          offset-lg2
+          offset-xl3
+          v-if="userStore.showComment"
+        >
+          <v-card>
+            <v-card-text class="pa-0">
+              <iframe :src="commentUrl" class="comment" />
+            </v-card-text>
+          </v-card>
         </v-flex>
-        <v-flex class="text-xs-right">
-          <v-menu open-on-hover max-width="400" max-height="95vh" top left>
-            <template v-slot:activator="{ on }">
-              <v-btn color="grey" class="mr-3" small v-on="on" icon text>
-                <v-icon>info_outline</v-icon>
-              </v-btn>
-            </template>
-            <info-text
-              class="elevation-24 pa-4 white"
-              path="wboe-artikel/lemma-short/"
-            />
-            <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
-          </v-menu>
-        </v-flex>
-      </v-layout>
-      <article-view
-        @article-click="handleArticleClick"
-        @handleArticleClick="handleArticleClick"
-        @toggleAll="toggleAll"
-        @printArticle="printArticle"
-        @showEditor="showEditor = true"
-        :autor="editor"
-        :isEveryArticleExpanded="isEveryArticleExpanded"
-        v-if="articleXML !== null"
-        :xml="articleXML"
-        :filename="filename"
-        v-model="expanded"
-        :geo-store="geoStore"
-      />
-
-      <v-flex
-        class="comment-box"
-        xs12
-        sm12
-        md10
-        lg8
-        xl6
-        offset-md1
-        offset-lg2
-        offset-xl3
-        v-if="userStore.showComment"
-      >
-        <v-card>
-          <v-card-text class="pa-0">
-            <iframe :src="commentUrl" class="comment" />
-          </v-card-text>
-        </v-card>
-      </v-flex>
+      </template>
+      <template v-else>
+        <h3 class="pt-5 mt-5 text-center grey--text">Der Artikel zu ”{{ filename }}” befindet sich derzeit in Bearbeitung.</h3>
+      </template>
     </v-flex>
     <v-dialog
       transition="none"
@@ -103,16 +107,16 @@
 </template>
 <script lang="ts">
 // tslint:disable:max-line-length
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { getArticleByFileName, getArticles } from "../api";
-import XmlEditor from "@components/XmlEditor.vue";
-import { geoStore } from "../store/geo";
-import * as _ from "lodash";
-import InfoText from "@components/InfoText.vue";
-import ArticleViewLegacy from "@components/ArticleViewLegacy.vue";
-import ArticleView from "@components/ArticleView.vue";
-import * as FileSaver from "file-saver";
-import { userStore } from "../store/user";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator"
+import { getArticleByFileName, getArticles } from "../api"
+import XmlEditor from "@components/XmlEditor.vue"
+import { geoStore } from "../store/geo"
+import * as _ from "lodash"
+import InfoText from "@components/InfoText.vue"
+import ArticleViewLegacy from "@components/ArticleViewLegacy.vue"
+import ArticleView from "@components/ArticleView.vue"
+import * as FileSaver from "file-saver"
+import { userStore, ArticleStatus } from "../store/user"
 
 @Component({
   components: {
@@ -123,30 +127,32 @@ import { userStore } from "../store/user";
   },
 })
 export default class Article extends Vue {
-  @Prop() filename: string;
 
-  showEditor = false;
-  articles: Array<{ text: string; value: string }> = [];
-  geoStore = geoStore;
-  loading = false;
+  @Prop() filename: string
+
+  showEditor = false
+  articles: Array<{ text: string; value: string }> = []
+  geoStore = geoStore
+  loading = false
+  articleAvailable = true
   editor = {
     id: "",
     initials: "",
     fullname: "",
-  };
-  expanded: number[] = [3];
+  }
+  expanded: number[] = [3]
 
-  articleXML: string | null = "";
-  title: string | null = null;
-  bedeutungXML: string | null = null;
-  verbreitungXML: string | null = null;
-  belegauswahlXML: string | null = null;
-  etymologieXML: string | null = null;
-  wortbildungXML: string | null = null;
-  redewendungenXML: string | null = null;
-  lemmaXML: string | null = null;
-  diminutiveXML: string | null = null;
-  userStore = userStore;
+  articleXML: string | null = ""
+  title: string | null = null
+  bedeutungXML: string | null = null
+  verbreitungXML: string | null = null
+  belegauswahlXML: string | null = null
+  etymologieXML: string | null = null
+  wortbildungXML: string | null = null
+  redewendungenXML: string | null = null
+  lemmaXML: string | null = null
+  diminutiveXML: string | null = null
+  userStore = userStore
 
   get commentUrl(): string {
     return (
@@ -378,51 +384,62 @@ export default class Article extends Vue {
     return s.serializeToString(xmlDoc);
   }
 
+  articleContainsStatuses(xml: string, statuses: ArticleStatus[]): boolean {
+    const f = this.fragementFromSelector('teiHeader listChange change', xml)
+    return statuses.some(s => f.includes(s))
+  }
+
   initXML(xml: string) {
-    const idInitials: any = { PhS: "PS" };
-    xml = xml.split("<body>").join("").split("</body>").join("");
-    xml = this.linkParentsToCollection("ptr[type=collection]", xml);
-    xml = this.appendGrossregionViaRef(
-      "form[type=dialect] placeName[type=gemeinde], cit placeName[type=gemeinde]",
-      xml
-    );
-    this.lemmaXML = this.fragementFromSelector("entry > form[type=lemma]", xml);
-    this.diminutiveXML = this.fragementFromSelector(
-      "entry > form[subtype=diminutive]",
-      xml
-    );
-    this.bedeutungXML = this.fragementFromSelector("entry > sense", xml);
-    this.verbreitungXML = this.fragementFromSelector(
-      "entry > usg[type=geo]",
-      xml
-    );
-    this.belegauswahlXML = this.fragementFromSelector(
-      "entry > form[type=dialect]:not([subtype])",
-      xml
-    );
-    this.etymologieXML = this.fragementFromSelector("entry > etym", xml);
-    this.wortbildungXML = this.fragementFromSelector(
-      "entry > re",
-      xml,
-      "[subtype=compound]"
-    );
-    this.redewendungenXML = this.fragementFromSelector(
-      "entry > re",
-      xml,
-      "[subtype=MWE]"
-    );
-    this.title = this.elementsFromDom("title", xml)[0].innerHTML;
-    const aEditor = this.elementsFromDom(
-      "teiHeader > fileDesc > titleStmt > respStmt > name[ref]",
-      xml
-    )[0];
-    let aInitials = aEditor.getAttribute("ref");
-    aInitials = typeof aInitials === "string" ? aInitials.substr(1) : "";
-    this.editor = {
-      id: aInitials,
-      initials: idInitials[aInitials] || aInitials,
-      fullname: aEditor.innerHTML,
-    };
+    const shouldAllowViewing = this.articleContainsStatuses(xml, userStore.articleStatus)
+    if (!shouldAllowViewing) {
+      this.articleAvailable = false
+    } else {
+      this.articleAvailable = true
+      const idInitials: any = { PhS: "PS" };
+      xml = xml.split("<body>").join("").split("</body>").join("");
+      xml = this.linkParentsToCollection("ptr[type=collection]", xml);
+      xml = this.appendGrossregionViaRef(
+        "form[type=dialect] placeName[type=gemeinde], cit placeName[type=gemeinde]",
+        xml
+      );
+      this.lemmaXML = this.fragementFromSelector("entry > form[type=lemma]", xml);
+      this.diminutiveXML = this.fragementFromSelector(
+        "entry > form[subtype=diminutive]",
+        xml
+      );
+      this.bedeutungXML = this.fragementFromSelector("entry > sense", xml);
+      this.verbreitungXML = this.fragementFromSelector(
+        "entry > usg[type=geo]",
+        xml
+      );
+      this.belegauswahlXML = this.fragementFromSelector(
+        "entry > form[type=dialect]:not([subtype])",
+        xml
+      );
+      this.etymologieXML = this.fragementFromSelector("entry > etym", xml);
+      this.wortbildungXML = this.fragementFromSelector(
+        "entry > re",
+        xml,
+        "[subtype=compound]"
+      );
+      this.redewendungenXML = this.fragementFromSelector(
+        "entry > re",
+        xml,
+        "[subtype=MWE]"
+      );
+      this.title = this.elementsFromDom("title", xml)[0].innerHTML;
+      const aEditor = this.elementsFromDom(
+        "teiHeader > fileDesc > titleStmt > respStmt > name[ref]",
+        xml
+      )[0];
+      let aInitials = aEditor.getAttribute("ref");
+      aInitials = typeof aInitials === "string" ? aInitials.substr(1) : "";
+      this.editor = {
+        id: aInitials,
+        initials: idInitials[aInitials] || aInitials,
+        fullname: aEditor.innerHTML,
+      };
+    }
   }
 
   async initArticle(fileName: string) {
