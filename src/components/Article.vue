@@ -336,7 +336,7 @@ export default class Article extends Vue {
     }
   }
 
-  async mounted() {
+  async activated() {
     this.articles = (await getArticles())
       .filter((a) => a.title !== "" && a.title !== undefined)
       .map((t) => ({ text: t.title, value: t.filename.replace(".xml", "") }))
@@ -386,14 +386,13 @@ export default class Article extends Vue {
 
   articleContainsStatuses(xml: string, statuses: ArticleStatus[]): boolean {
     const f = this.fragementFromSelector('teiHeader listChange change', xml)
+    console.log({f}, {statuses}, statuses.some(s => f.includes(s)))
     return statuses.some(s => f.includes(s))
   }
 
   initXML(xml: string) {
-    const shouldAllowViewing = this.articleContainsStatuses(xml, userStore.articleStatus)
-    if (!shouldAllowViewing) {
-      this.articleAvailable = false
-    } else {
+    this.articleAvailable = this.articleContainsStatuses(xml, userStore.articleStatus)
+    if (this.articleAvailable) {
       this.articleAvailable = true
       const idInitials: any = { PhS: "PS" };
       xml = xml.split("<body>").join("").split("</body>").join("");

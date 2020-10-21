@@ -26,7 +26,7 @@
       <v-btn exact to="/resources?link=home%2Fimpressum%2F" small rounded text>Impressum</v-btn>
       <v-btn exact to="/resources?link=home%2Fkontakt%2F" small rounded text>Kontakt</v-btn>
       <v-btn exact to="/resources?link=home%2Fdatenschutz%2F" small rounded text>Datenschutz</v-btn>
-      <v-btn to="/password" small rounded text>Login</v-btn>
+      <v-btn :to="'/password?initial_url=' + $route.fullPath" small rounded text>Login</v-btn>
     </div>
     </v-flex>
 </template>
@@ -35,7 +35,11 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 @Component
 export default class LioeFooter extends Vue {
+  // path = this.$router.currentRoute.fullPath
+  // @Watch('$route')
+  // onChangeRoute(newRoute: string) {
 
+  // }
 }
 </script>
 <style lang="scss" scoped>
