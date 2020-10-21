@@ -20,7 +20,7 @@ import { log } from "util";
 @Component({
   components: {},
 })
-export default class QuatationSection extends Vue {
+export default class QuotationSection extends Vue {
   @Prop() autor: any;
   @Prop() noteAutor: any;
   @Prop() publicationDate: any;
