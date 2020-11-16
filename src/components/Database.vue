@@ -576,7 +576,7 @@ export default class Database extends Vue {
     // { text: 'FB-Nr.', value: 'Fragebogennummer' },
     // { text: 'Sigle1', value: 'Sigle1', renderFnc: renderSigle}
     {
-      searchable: true,
+      searchable: false,
       show: true,
       text: "Staat",
       infoUrl: "wboe-artikel/dbheaderinfo-staat/",
