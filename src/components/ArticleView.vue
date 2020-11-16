@@ -158,7 +158,7 @@
         <span>{{ autor.fullname || "" }}</span>
       </v-tooltip>
     </div>
-    <QuatationSection
+    <QuotationSection
       :noteAutor="noteAuthor"
       :filename="filename"
       :autor="autor"
@@ -177,7 +177,7 @@ import ParserObject from "../service/parser-functions/parser/Parser";
 import PreviewContent from "@components/ViewPreview/PreviewContent.vue";
 import ArticleFragmentHeader from "@components/ArticleFragmentHeader.vue";
 import ArticleFragmentPanel from "@components/ArticleFragmentPanel.vue";
-import QuatationSection from "@components/QuatationSection.vue";
+import QuotationSection from "@components/QuotationSection.vue";
 
 import { localEndpoint } from "../api";
 import * as xlsx from "xlsx";
@@ -218,7 +218,7 @@ interface ParserFile {
     PreviewContent,
     ArticleFragmentHeader,
     ArticleFragmentPanel,
-    QuatationSection,
+    QuotationSection,
   },
 })
 export default class ArticleView extends Vue {

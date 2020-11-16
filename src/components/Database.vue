@@ -655,46 +655,32 @@ export default class Database extends Vue {
 
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
 
-  toggleFuzziness() {
-    this.changeQueryParam({ fuzzy: this.fuzzy === "true" ? "false" : "true" });
+  async toggleFuzziness() {
+    await this.changeQueryParam({ fuzzy: this.fuzzy === "true" ? "false" : "true" });
     this.onChangeQuery(this.query);
   }
 
-  changeQueryParam(p: any) {
-    this.$router
-      .replace({
-        // path: this.$router.currentRoute.path,
-        query: { ...this.$router.currentRoute.query, ...p },
-      })
-      .catch(() => console.log("route duplicated."));
+  changeQueryParam(p: any): Promise<any> {
+    return this.$router.replace({
+      // path: this.$router.currentRoute.path,
+      query: { ...this.$router.currentRoute.query, ...p}
+    }).catch(() => console.log('route duplicated.'))
   }
 
-  toggleSearchInColumn(h: TableHeader): void {
+  async toggleSearchInColumn(h: TableHeader): Promise<void> {
     if (this.fields === null) {
       // include all but self
-      this.changeQueryParam({
-        fields: this.headers
-          .filter((h1) => h1.value !== h.value && h.searchable)
-          .map((h) => h.value)
-          .join(","),
-      });
-    } else if (this.fields === "") {
+      await this.changeQueryParam({ fields: this.headers.filter(h1 => h1.value !== h.value && h.searchable).map(h => h.value).join(',') })
+    } else if (this.fields === '') {
       // include only self
-      this.changeQueryParam({ fields: h.value });
+      await this.changeQueryParam({ fields: h.value })
     } else {
       if (this.shouldSearchInColumn(h)) {
         // remove self
-        this.changeQueryParam({
-          fields: this.fields
-            .split(",")
-            .filter((f) => f !== h.value)
-            .join(","),
-        });
+        await this.changeQueryParam({ fields: this.fields.split(',').filter(f => f !== h.value).join(',') })
       } else {
         // add self
-        this.changeQueryParam({
-          fields: this.fields.split(",").concat(h.value).join(","),
-        });
+        await this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
       }
     }
     if (this.query !== null) {
@@ -719,17 +705,17 @@ export default class Database extends Vue {
     );
   }
 
-  selectAllColumnsAndSearch() {
+  async selectAllColumnsAndSearch() {
     // allow search in all columns that are searchable
-    this.changeQueryParam({ fields: null });
+    await this.changeQueryParam({ fields: null });
     if (this.query !== null) {
       this.onChangeQuery(this.query);
     }
   }
 
-  selectNoColumnsAndSearch() {
+  async selectNoColumnsAndSearch() {
     // allow search in no columns
-    this.changeQueryParam({ fields: "" });
+    await this.changeQueryParam({ fields: "" });
     if (this.query !== null) {
       this.onChangeQuery(this.query);
     }
@@ -965,7 +951,7 @@ export default class Database extends Vue {
   @Watch("collectionIdList")
   async loadCollectionIds(ids: string[]) {
     if (ids.length > 0) {
-      this.changeQueryParam({ type: "collection" });
+      await this.changeQueryParam({ type: "collection" });
       this.searching = true;
       const res = await getDocumentsByCollection(ids, this.pagination.page);
       this.items = _(res.documents)
@@ -1177,7 +1163,7 @@ export default class Database extends Vue {
 
   async searchDatabase(search: string) {
     // this.$router.replace({ query: { query: search } })
-    this.changeQueryParam({ query: search });
+    await this.changeQueryParam({ query: search });
   }
 
   saveXLSX() {

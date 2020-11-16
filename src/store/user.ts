@@ -1,5 +1,5 @@
 
-type ArticleStatus = 'unfinished'|
+export type ArticleStatus = 'unfinished'|
   'draft'|
   'proofed'|
   'cleared'|
@@ -10,7 +10,7 @@ type ArticleStatus = 'unfinished'|
   'finished'|
   ''
 
-interface UserStore {
+export interface UserStore {
   showPdfPrintButton: boolean
   isLoggedIn: boolean
   showComment: boolean
