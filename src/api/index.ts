@@ -222,7 +222,6 @@ export async function searchDocuments(
   }
 }
 
-// The problem is here with items = NUM - this number stays the same !
 export async function getDocumentsByCollection(ids: string[], page = 1, items = 100): Promise<Documents> {
   const r = await (await fetch(apiEndpoint + `/documents/?${
     ids.map(id => 'in_collections=' + id).join('&')
