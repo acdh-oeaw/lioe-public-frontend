@@ -953,7 +953,7 @@ export default class Database extends Vue {
     if (ids.length > 0) {
       await this.changeQueryParam({ type: "collection" });
       this.searching = true;
-      const res = await getDocumentsByCollection(ids, this.pagination.page);
+      const res = await getDocumentsByCollection(ids, this.pagination.page, this.pagination.itemsPerPage);
       this.items = _(res.documents)
         .uniqBy((d) => d.id)
         .map((d) => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
