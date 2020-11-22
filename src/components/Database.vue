@@ -29,7 +29,7 @@
               item-text="text"
               :value="selectedCollections"
               @input="selectCollections"
-              placeholder="Sammlungen suchen…"
+              label="Sammlungen suchen…"
               chips
               deletable-chips
               cache-items
@@ -38,7 +38,24 @@
               multiple
               solo
               clearable
-            ></v-autocomplete>
+            >
+            <template v-slot:no-data>
+              <v-list-item>
+                <v-list-item-title class="text-center">
+                  <v-progress-circular
+                    indeterminate
+                    color="grey"
+              ></v-progress-circular>
+ 
+                </v-list-item-title>
+              </v-list-item>
+              <!-- <v-list-item v-else> THE FIRST condition was: v-if="lodaing" or "searching" 
+                <v-list-item-title class="caption">
+                  Suchen Sie nach einer bestimmten Sammlung.
+                </v-list-item-title>
+              </v-list-item> -->
+            </template>
+            </v-autocomplete>
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu offset-y :close-on-content-click="false">
