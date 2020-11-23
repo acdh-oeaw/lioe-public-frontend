@@ -22,7 +22,7 @@
               v-if="type === 'collection'"
               autofocus
               flat
-              @update:search-input="(query) => (searchCollection = query)"
+              @update:search-input="searchCollection = $event"
               prepend-inner-icon="search"
               :loading="searching"
               :items="collectionSearchItems"
@@ -40,20 +40,21 @@
               clearable
             >
             <template v-slot:no-data>
-              <v-list-item>
+              <v-list-item v-if="searching">
                 <v-list-item-title class="text-center">
-                  <v-progress-circular
-                    indeterminate
-                    color="grey"
-              ></v-progress-circular>
- 
+                  <v-progress-circular indeterminate color="grey" />
                 </v-list-item-title>
               </v-list-item>
-              <!-- <v-list-item v-else> THE FIRST condition was: v-if="lodaing" or "searching" 
+              <v-list-item v-else-if="searchCollection === null || searchCollection.trim() === ''">
                 <v-list-item-title class="caption">
                   Suchen Sie nach einer bestimmten Sammlung.
                 </v-list-item-title>
-              </v-list-item> -->
+              </v-list-item>
+              <v-list-item v-else>
+                <v-list-item-title class="caption">
+                  Keine Sammlung gefunden.
+                </v-list-item-title>
+              </v-list-item>
             </template>
             </v-autocomplete>
           </v-col>
@@ -907,10 +908,12 @@ export default class Database extends Vue {
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val !== undefined && val.trim() !== "") {
+      this.searching = true
       this.collectionSearchItems = (await searchCollections(val)).map((x) => ({
         ...x,
         text: x.name,
       }));
+      this.searching = false
     }
   }
 
