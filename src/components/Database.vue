@@ -295,7 +295,7 @@
               >
                 Sammlung auf Karte anzeigen
               </v-btn>
-              <v-menu top open-on-hover>
+              <v-menu top open-on-hover offset-y>
                 <template v-slot:activator="{ on }">
                   <v-btn
                     slot="activator"
