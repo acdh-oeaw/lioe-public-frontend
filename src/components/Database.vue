@@ -1,8 +1,23 @@
 <template>
   <v-layout column>
+    <v-navigation-drawer
+      :value="sideBar"
+      left
+      app
+      permanent
+      v-if="sideBar"
+    >
+      <playlist>
+      </playlist>
+    </v-navigation-drawer>
     <v-flex>
       <v-card class="sticky-card" width="100%">
         <v-row no-gutters>
+          <v-col class="pa-0 divider-right">
+            <v-btn @click="sideBar = !sideBar" depressed style="margin-left:5px; margin-top:5px;">
+              Sammlungen
+            </v-btn>
+          </v-col>
           <v-col class="pa-0 flex-grow-1">
             <v-text-field
               @click.stop=""
@@ -18,27 +33,6 @@
               solo
               clearable
             />
-            <v-autocomplete
-              v-if="type === 'collection'"
-              autofocus
-              flat
-              @update:search-input="(query) => (searchCollection = query)"
-              prepend-inner-icon="search"
-              :loading="searching"
-              :items="collectionSearchItems"
-              item-text="text"
-              :value="selectedCollections"
-              @input="selectCollections"
-              placeholder="Sammlungen suchen…"
-              chips
-              deletable-chips
-              cache-items
-              return-object
-              hide-details
-              multiple
-              solo
-              clearable
-            ></v-autocomplete>
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu offset-y :close-on-content-click="false">
@@ -351,6 +345,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import InfoText from "@components/InfoText.vue";
 import InfoBox from "@components/InfoBox.vue";
+import Playlist from '@components/playlist.vue';
 import {
   getDocuments,
   searchDocuments,
@@ -387,6 +382,7 @@ interface TableHeader {
   components: {
     InfoText,
     InfoBox,
+    Playlist
   },
 })
 export default class Database extends Vue {
@@ -397,6 +393,7 @@ export default class Database extends Vue {
   @Prop({ default: "true" }) fuzzy: "true" | "false";
 
   geoStore = geoStore;
+  sideBar:Boolean = false
   items: any[] = [];
   searchCollection: string | null = null;
   collectionSearchItems: any[] = [];

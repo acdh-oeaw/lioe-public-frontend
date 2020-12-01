@@ -1,5 +1,15 @@
 <template>
-  <div>
+  <div>    
+    <v-navigation-drawer
+      :value="playlistBar"
+      left
+      app
+      permanent
+      v-if="playlistBar"
+    >
+      <playlist>
+      </playlist>
+    </v-navigation-drawer>
     <v-navigation-drawer :value="sideBar" right app permanent v-if="sideBar">
       <v-card elevation="0">
         <v-card-title>
@@ -100,6 +110,11 @@
     </v-navigation-drawer>
     <v-card class="sticky-card" width="100%">
       <v-layout>
+        <v-flex>
+          <v-btn @click="playlistBar = !playlistBar" depressed style="margin-left:5px; margin-top:5px;">
+            Sammlungen
+          </v-btn>
+        </v-flex>
         <v-flex xs12>
           <v-autocomplete
             :loading="isLoading"
@@ -374,6 +389,7 @@ import * as FileSaver from "file-saver";
 import domtoimage from "dom-to-image";
 import * as L from "leaflet";
 import * as _ from "lodash";
+import Playlist from '@components/playlist.vue'
 import {
   searchCollections,
   getDocumentsByCollection,
@@ -403,6 +419,7 @@ interface Places {
 @Component({
   components: {
     InfoText,
+    Playlist,
     InfoBox,
     MapLegende,
     LMap,
@@ -441,6 +458,7 @@ export default class Maps extends Vue {
   ];
   selectedTileSet = 0;
 
+  playlistBar = false;
   sideBar = false;
   showHillshades = false;
   showRivers = false;
