@@ -1,4 +1,7 @@
-import { createModule, mutation, action, extractVuexModule } from "vuex-class-component";
+import { createModule, mutation, action, extractVuexModule, Module, createProxy, } from "vuex-class-component";
+import Vuex from 'vuex'
+import Vue from 'vue'
+Vue.use(Vuex)
 
 const VuexModule = createModule({
     namespaced: "user",
@@ -17,9 +20,10 @@ export interface Collection {
     items: Array<any>
 }
 
-class Collections extends VuexModule{
-    private temp_collections:Array<Collection>;
-    private wboe_collections:Array<Collection>;
+class CollectionModule extends VuexModule{
+
+    private temp_collections:Array<Collection> = []
+    private wboe_collections:Array<Collection> = []
 
     get temp_coll() {
         return this.temp_collections;
@@ -30,7 +34,7 @@ class Collections extends VuexModule{
     }
 
     @mutation
-    addTemp_coll(coll:{changedColl:Collection, add: boolean}) {
+    addTemp_coll(coll:{changedColl: Collection, add: boolean}) {
         if(coll.add) {
             this.temp_collections.push(coll.changedColl);
         } else {
@@ -57,4 +61,15 @@ class Collections extends VuexModule{
     
 }
 
-export let collections:Collections = {temp_collections: [], wboe_collections: []};
+// export let collections = new Collections()
+// {temp_collections: [], wboe_collections: []};
+
+export const store = new Vuex.Store({
+  modules: {
+    ...extractVuexModule(CollectionModule)
+  }
+})
+
+export const stateProxy = {
+  collections: createProxy(store, CollectionModule)
+}
