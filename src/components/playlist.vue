@@ -54,23 +54,26 @@
 <script lang="ts">
 
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { collections, Collection } from "../store/collections";
+import { stateProxy, Collection } from "../store/collections";
 
 
 @Component
 export default class Playlist extends Vue {
+
   get temp_coll() {
-    if(collections.temp_coll === undefined) {
-      return []
-    }
-    return collections.temp_coll;
+    return stateProxy.collections.temp_coll
+    // if(collections.temp_coll === undefined) {
+    //   return []
+    // }
+    // return collections.temp_coll;
   }
 
   get wboe_coll() {
-    if(collections.wboe_coll === undefined) {
-      return [];
-    }
-    return collections.wboe_coll;
+    return stateProxy.collections.temp_coll
+    // if(collections.wboe_coll === undefined) {
+    //   return [];
+    // }
+    // return collections.wboe_coll;
   }
 
   addCollection(){
@@ -84,7 +87,7 @@ export default class Playlist extends Vue {
       selected: true,
       items: []
     }
-    collections.addTemp_coll({changedColl:newColl, add:true})
+    stateProxy.collections.addTemp_coll({changedColl:newColl, add:true})
   }
   
 }
