@@ -38,6 +38,7 @@
           @handleArticleClick="handleArticleClick"
           @toggleAll="toggleAll"
           @printArticle="printArticle"
+          @downloadPdfArticle="downloadPdfArticle"
           @showEditor="showEditor = true"
           :autor="editor"
           :isEveryArticleExpanded="isEveryArticleExpanded"
@@ -84,13 +85,13 @@
           <v-flex class="text-right">
             <v-btn
               class="pl-3 pr-3"
-              small
+              medium
               rounded
               text
               @click="downloadEditorXML"
               >download</v-btn
             >
-            <v-btn small rounded text @click="saveEditorXML">view</v-btn>
+            <v-btn class="pl-3 pr-3" small rounded text @click="saveEditorXML"><v-icon>close</v-icon></v-btn>
           </v-flex>
         </v-card-title>
         <v-card-text class="pa-0 fill-height">
@@ -187,14 +188,43 @@ export default class Article extends Vue {
     this.$nextTick(() => {
       setTimeout(() => {
         requestAnimationFrame(() => {
-          // open print dialog
-          window.print();
-          // reset title
+
+      // open print dialog
+         window.print();
+    
+      // reset title
           document.title = oldTitle;
         });
       }, 500);
     });
   }
+
+downloadPdfArticle() {
+    
+    // expand all
+    this.expanded = [0, 1, 2, 3, 4, 5];
+    // set pdf title, store old title
+    const oldTitle = document.title;
+    document.title = "wboe_" + this.title;
+
+   // const blob = this.articleXML
+    // document.URL || document.contentType
+
+    const blob = this.commentUrl; // TODO create an articleView:string attribute or instance
+    if (blob !== null) {
+      FileSaver.saveAs(new Blob([blob]), this.filename + ".pdf");
+    }
+
+    // var doc = new jsPDF(); - or either import the jsPDF library -> allows integration of download button in the print page
+    // doc.fromHTML(document, 15, 15, {'width' :  170});
+    // doc.save(document.title + '.pdf')
+
+    document.title = oldTitle // needed?
+
+}
+
+
+
 
   isPlaceNameElement(el: HTMLElement | any) {
     return el.nodeName === "PLACENAME" && el.hasAttribute("ref");
