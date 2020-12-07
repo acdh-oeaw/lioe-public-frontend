@@ -49,11 +49,11 @@ class CollectionModule extends VuexModule{
     @mutation
     addWBOE_coll(coll:{changedColl:Collection, add: boolean}) {
         if(coll.add) {
-            this.temp_collections.push(coll.changedColl);
+            this.wboe_collections.push(coll.changedColl);
         } else {
-            this.temp_collections.forEach(collLoop => {
+            this.wboe_collections.forEach(collLoop => {
                 if(coll.changedColl == collLoop) {
-                    this.temp_collections.splice(this.temp_collections.indexOf(collLoop),1)
+                    this.wboe_collections.splice(this.wboe_collections.indexOf(collLoop), 1)
                 }
             });
         }
