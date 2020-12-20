@@ -58,6 +58,9 @@
             </template>
             </v-autocomplete>
           </v-col>
+             <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon  @click="searchCounter++"><v-icon>add_circle_outline</v-icon></v-btn>
+             </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
@@ -110,6 +113,21 @@
               </v-list>
             </v-menu>
           </v-col>
+          
+          <v-col cols="auto" class="pa-0 divider-left">
+            <v-btn
+              style="margin-top: 6px"
+              class="mx-1 text-no-transform"
+              text
+              @click="extended = !extended"
+              v-model="extended"> 
+              <!-- <v-list-item dense @click="extended = !extended"> -->
+                  <!-- <v-list-item-avatar> -->
+                    <v-icon v-if="extended" color="grey">mdi-check</v-icon> 
+              Alle Spalten anzeigen
+            </v-btn>
+
+          </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
@@ -128,6 +146,7 @@
                   <template
                     v-if="type === 'fulltext' && !areAllSearchColumsSelected"
                   >
+                  <!-- In {{ fields ? fields.split(",") : "keiner" }} Spalte -->
                     In {{ fields ? fields.split(",").length : 0 }} Spalte{{
                       fields && fields.split(",").length === 1 ? "" : "n"
                     }}
@@ -137,13 +156,13 @@
                 </v-btn>
               </template>
               <v-list dense class="context-menu-list">
-                <v-list-item dense @click="extended = !extended">
+                <!-- <v-list-item dense @click="extended = !extended">
                   <v-list-item-avatar>
                     <v-icon v-if="extended">mdi-check</v-icon>
                   </v-list-item-avatar>
                   <v-list-item-title> Alle Spalten anzeigen </v-list-item-title>
                 </v-list-item>
-                <v-divider />
+                <v-divider /> -->
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
@@ -151,26 +170,31 @@
                   v-if="areAllSearchColumsSelected"
                 >
                   <v-list-item-avatar />
-                  <v-list-item-title> Nichts auswählen </v-list-item-title>
+                  <v-list-item-title> Einzelne Suche </v-list-item-title>
                 </v-list-item>
+
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
                   @click="selectAllColumnsAndSearch"
                   v-if="!areAllSearchColumsSelected"
+                                   
                 >
                   <v-list-item-avatar />
                   <v-list-item-title>
                     In allen Spalten suchen
                   </v-list-item-title>
-                </v-list-item>
+                </v-list-item> 
                 <v-divider />
+
+                <!-- HERE THE SINGLE CHOICE -->
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
                   v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
                   @click="toggleSearchInColumn(h)"
+
                 >
                   <v-list-item-avatar>
                     <v-icon
@@ -203,6 +227,183 @@
                 </v-card-text>
               </v-card>
             </v-dialog>
+          </v-col>
+        </v-row>
+
+      </v-card>
+    </v-flex>
+    <!-- STARTING HERE THE MULTIPLE SEARCH FIELDS -->
+    <v-flex v-if="searchCounter > 1">
+      <v-card class="sticky-card mt-2" v-for="counter in searchCounter - 1" :key="counter" width="100%">
+        <v-row v-if = "searchCounter > 1" no-gutters>
+          <v-col class="pa-0 flex-grow-1">
+            <v-text-field
+              @click.stop=""
+              v-if="type === 'fulltext'"
+              autofocus
+              flat
+              label="Datenbank durchsuchen…"
+              prepend-inner-icon="search"
+              :value="query"
+              @input="debouncedSearchDatabase"
+              :loading="searching"
+              hide-details
+              solo
+              clearable
+            />
+            <v-autocomplete
+              v-if="type === 'collection'"
+              autofocus
+              flat
+              @update:search-input="searchCollection = $event"
+              prepend-inner-icon="search"
+              :loading="searching"
+              :items="collectionSearchItems"
+              item-text="text"
+              :value="selectedCollections"
+              @input="selectCollections"
+              label="Sammlungen suchen…"
+              chips
+              deletable-chips
+              cache-items
+              return-object
+              hide-details
+              multiple
+              solo
+              clearable
+            >
+            <template v-slot:no-data>
+              <v-list-item v-if="searching">
+                <v-list-item-title class="text-center">
+                  <v-progress-circular indeterminate color="grey" />
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else-if="searchCollection === null || searchCollection.trim() === ''">
+                <v-list-item-title class="caption">
+                  Suchen Sie nach einer bestimmten Sammlung.
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else>
+                <v-list-item-title class="caption">
+                  Keine Sammlung gefunden.
+                </v-list-item-title>
+              </v-list-item>
+            </template>
+            </v-autocomplete>
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon  @click="searchCounter++"><v-icon>add_circle_outline</v-icon></v-btn>
+             </v-col>
+             <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon  @click="searchCounter--"><v-icon>remove_circle_outline</v-icon></v-btn>
+             </v-col>
+
+                       <v-col cols="auto" class="pa-0 divider-left">
+            <v-menu max-height="80vh" offset-y :close-on-content-click="false">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  style="margin-top: 6px"
+                  class="mx-1 text-no-transform"
+                  text
+                  v-on="on"
+                  v-bind="attrs"
+                >
+                  <template
+                    v-if="type === 'fulltext' && areAllSearchColumsSelected"
+                  >
+                    In allen Spalten
+                  </template>
+                  <template
+                    v-if="type === 'fulltext' && !areAllSearchColumsSelected"
+                  >
+                  <!-- In {{ fields ? fields.split(","): "keiner" }} Spalte -->
+                    In {{ fields ? fields.split(",").length : 0 }} Spalte{{
+                      fields && fields.split(",").length === 1 ? "" : "n"
+                    }}
+                  </template>
+                  <template v-if="type === 'collection'"> Nach Namen </template>
+                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+              <v-list dense class="context-menu-list">
+                <!-- <v-list-item dense @click="extended = !extended">
+                  <v-list-item-avatar>
+                    <v-icon v-if="extended">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title> Alle Spalten anzeigen </v-list-item-title>
+                </v-list-item>
+                <v-divider /> -->
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectNoColumnsAndSearch"
+                  v-if="areAllSearchColumsSelected"
+                >
+                  <v-list-item-avatar />
+                  <v-list-item-title> Einzelne Suche </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectAllColumnsAndSearch"
+                  v-if="!areAllSearchColumsSelected"
+                >
+                  <v-list-item-avatar />
+                  <v-list-item-title>
+                    In allen Spalten suchen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-divider />
+
+            <!-- TRY -->
+                <!-- <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  v-for="h in visibleHeaders.filter((h) => h.searchable)"
+                  :key="h.value"
+                  @click="toggleSearchInColumn(h)"
+                  
+                >
+                  <v-list-item-avatar>
+                    <v-icon
+                      :color="type === 'collection' ? 'grey' : undefined"
+                      v-if="shouldSearchInColumn(h)"
+                    >
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ h.text }}
+                  </v-list-item-title>
+                </v-list-item> -->
+          <!-- END -->
+
+          <!-- grrrr -->
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  v-for="h in visibleHeaders.filter((h) => h.searchable)"
+                  :key="h.value"
+                  @click="toggleSearchInColumn(h)"
+                  
+                  
+                >
+                  <v-list-item-avatar>
+                    <v-icon
+                      :color="type === 'collection' ? 'grey' : undefined"
+                      v-if="shouldSearchInColumn(h)"
+                    >
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ h.text }}
+                  </v-list-item-title>
+                </v-list-item>
+                <!-- grrrr -->
+
+              </v-list>
+            </v-menu>
           </v-col>
         </v-row>
       </v-card>
@@ -432,6 +633,9 @@ export default class Database extends Vue {
   };
   extended = false;
   totalItems = 100;
+
+  searchCounter = 1;
+  // multipleSearch = false;
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -891,6 +1095,11 @@ export default class Database extends Vue {
       }
     });
     return _(res).flatten().join(", ");
+  }
+
+   isMultiple() {
+    if (this.searchCounter > 1) { true; }
+    else false;
   }
 
   async mounted() {
