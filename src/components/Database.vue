@@ -161,10 +161,12 @@
                   <template
                     v-if="type === 'fulltext' && !areAllSearchColumsSelected"
                   >
-                  <!-- In {{ fields ? fields.split(",") : "keiner" }} Spalte -->
-                    In {{ fields ? fields.split(",").length : 0 }} Spalte{{
+
+                  In {{ fields ? visibleHeaders.map((h) => shouldSearchInColumn(h) ? h.text : '') : "keiner" }} Spalte
+
+                    <!-- In {{ fields ? fields.split(",").length : 0 }} Spalte{{
                       fields && fields.split(",").length === 1 ? "" : "n"
-                    }}
+                    }} -->
                   </template>
                   <template v-if="type === 'collection'"> Nach Namen </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
@@ -331,10 +333,10 @@
                   <template
                     v-if="type === 'fulltext' && !areAllSearchColumsSelected"
                   >
-                  <!-- In {{ fields ? fields.split(","): "keiner" }} Spalte -->
-                    In {{ fields ? fields.split(",").length : 0 }} Spalte{{
+                  In {{ fields ? fields.split(",") : "keiner" }} Spalte
+                    <!-- In {{ fields ? fields.split(",").length : 0 }} Spalte{{
                       fields && fields.split(",").length === 1 ? "" : "n"
-                    }}
+                    }} -->
                   </template>
                   <template v-if="type === 'collection'"> Nach Namen </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
