@@ -11,7 +11,7 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="query"
+              :value="searchFields[0]"
               @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
@@ -100,16 +100,31 @@
                 <v-divider />
                 <v-list-item
                   dense
-                  :disabled="type === 'collection'"
+                  :disabled="type === 'collection' || this.fuzzy !== 'true'"
                   @click="toggleFuzziness"
                 >
                   <v-list-item-avatar>
-                    <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'"
+                    <v-icon v-if="this.fuzzy !== 'true' && type === 'fulltext'"
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
-                  <v-list-item-title> Fehlertolerante Suche </v-list-item-title>
+                  <v-list-item-title style="color:black"> Exakte Suche </v-list-item-title>
                 </v-list-item>
+                <v-list-item
+                  dense 
+                  :disabled="type === 'collection' || this.fuzzy === 'true'"
+                  @click="toggleFuzziness"
+                  >
+                  <v-list-item-avatar>
+                
+                  <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'"
+                      >mdi-check</v-icon
+                    >
+                  </v-list-item-avatar>
+                  <v-list-item-title style="color:black"> Fehlertolerante Suche </v-list-item-title>
+
+                </v-list-item>
+
               </v-list>
             </v-menu>
           </v-col>
@@ -244,7 +259,7 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="query"
+              :value="searchFields[searchCounter - 1]"
               @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
@@ -614,6 +629,8 @@ export default class Database extends Vue {
   @Prop({ default: null }) fields: string | null;
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
+
+  @Prop({ default: "" }) searchFields: string[] | null;
 
   geoStore = geoStore;
   items: any[] = [];
