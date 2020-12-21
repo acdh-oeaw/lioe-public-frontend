@@ -39,28 +39,34 @@
               solo
               clearable
             >
-            <template v-slot:no-data>
-              <v-list-item v-if="searching">
-                <v-list-item-title class="text-center">
-                  <v-progress-circular indeterminate color="grey" />
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-else-if="searchCollection === null || searchCollection.trim() === ''">
-                <v-list-item-title class="caption">
-                  Suchen Sie nach einer bestimmten Sammlung.
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-else>
-                <v-list-item-title class="caption">
-                  Keine Sammlung gefunden.
-                </v-list-item-title>
-              </v-list-item>
-            </template>
+              <template v-slot:no-data>
+                <v-list-item v-if="searching">
+                  <v-list-item-title class="text-center">
+                    <v-progress-circular indeterminate color="grey" />
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  v-else-if="
+                    searchCollection === null || searchCollection.trim() === ''
+                  "
+                >
+                  <v-list-item-title class="caption">
+                    Suchen Sie nach einer bestimmten Sammlung.
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item v-else>
+                  <v-list-item-title class="caption">
+                    Keine Sammlung gefunden.
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
             </v-autocomplete>
           </v-col>
-             <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon  @click="searchCounter++"><v-icon>add_circle_outline</v-icon></v-btn>
-             </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon @click="searchCounter++"
+              ><v-icon>add_circle_outline</v-icon></v-btn
+            >
+          </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
@@ -108,40 +114,41 @@
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
-                  <v-list-item-title style="color:black"> Exakte Suche </v-list-item-title>
+                  <v-list-item-title style="color: black">
+                    Exakte Suche
+                  </v-list-item-title>
                 </v-list-item>
                 <v-list-item
-                  dense 
+                  dense
                   :disabled="type === 'collection' || this.fuzzy === 'true'"
                   @click="toggleFuzziness"
-                  >
+                >
                   <v-list-item-avatar>
-                
-                  <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'"
+                    <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'"
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
-                  <v-list-item-title style="color:black"> Fehlertolerante Suche </v-list-item-title>
-
+                  <v-list-item-title style="color: black">
+                    Fehlertolerante Suche
+                  </v-list-item-title>
                 </v-list-item>
-
               </v-list>
             </v-menu>
           </v-col>
-          
+
           <v-col cols="auto" class="pa-0 divider-left">
             <v-btn
               style="margin-top: 6px"
               class="mx-1 text-no-transform"
               text
               @click="extended = !extended"
-              v-model="extended"> 
+              v-model="extended"
+            >
               <!-- <v-list-item dense @click="extended = !extended"> -->
-                  <!-- <v-list-item-avatar> -->
-                    <v-icon v-if="extended" color="grey">mdi-check</v-icon> 
+              <!-- <v-list-item-avatar> -->
+              <v-icon v-if="extended" color="grey">mdi-check</v-icon>
               Alle Spalten anzeigen
             </v-btn>
-
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
@@ -161,8 +168,15 @@
                   <template
                     v-if="type === 'fulltext' && !areAllSearchColumsSelected"
                   >
-
-                  In {{ fields ? visibleHeaders.map((h) => shouldSearchInColumn(h) ? h.text : '') : "keiner" }} Spalte
+                    In
+                    {{
+                      fields
+                        ? visibleHeaders.map((h) =>
+                            shouldSearchInColumn(h) ? h.text : ""
+                          )
+                        : "keiner"
+                    }}
+                    Spalte
 
                     <!-- In {{ fields ? fields.split(",").length : 0 }} Spalte{{
                       fields && fields.split(",").length === 1 ? "" : "n"
@@ -195,36 +209,42 @@
                   :disabled="type === 'collection'"
                   @click="selectAllColumnsAndSearch"
                   v-if="!areAllSearchColumsSelected"
-                                   
                 >
                   <v-list-item-avatar />
                   <v-list-item-title>
                     In allen Spalten suchen
                   </v-list-item-title>
-                </v-list-item> 
+                </v-list-item>
                 <v-divider />
 
                 <!-- HERE THE SINGLE CHOICE -->
-                <v-list-item
+                <v-radio-group                                  
+                v-if="!areAllSearchColumsSelected"
+                > 
+                <v-radio
                   dense
                   :disabled="type === 'collection'"
                   v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
-                  @click="toggleSearchInColumn(h)"
-
+                  :label="h.text"
+                  @change="toggleOneCol(h)"
                 >
-                  <v-list-item-avatar>
+                  <!-- @click="toggleOneCol(h)" -->
+                  <!-- @click="toggleSearchInColumn(h)" -->
+                </v-radio>
+                  <!-- <v-list-item-avatar>
                     <v-icon
                       :color="type === 'collection' ? 'grey' : undefined"
                       v-if="shouldSearchInColumn(h)"
                     >
                       mdi-check
                     </v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title>
+                  </v-list-item-avatar> -->
+
+                  <!-- <v-list-item-title>
                     {{ h.text }}
-                  </v-list-item-title>
-                </v-list-item>
+                  </v-list-item-title> -->
+                </v-radio-group>
               </v-list>
             </v-menu>
           </v-col>
@@ -246,13 +266,17 @@
             </v-dialog>
           </v-col>
         </v-row>
-
       </v-card>
     </v-flex>
     <!-- STARTING HERE THE MULTIPLE SEARCH FIELDS -->
     <v-flex v-if="searchCounter > 1">
-      <v-card class="sticky-card mt-2" v-for="counter in searchCounter - 1" :key="counter" width="100%">
-        <v-row v-if = "searchCounter > 1" no-gutters>
+      <v-card
+        class="sticky-card mt-2"
+        v-for="counter in searchCounter - 1"
+        :key="counter"
+        width="100%"
+      >
+        <v-row v-if="searchCounter > 1" no-gutters>
           <v-col class="pa-0 flex-grow-1">
             <v-text-field
               @click.stop=""
@@ -289,33 +313,41 @@
               solo
               clearable
             >
-            <template v-slot:no-data>
-              <v-list-item v-if="searching">
-                <v-list-item-title class="text-center">
-                  <v-progress-circular indeterminate color="grey" />
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-else-if="searchCollection === null || searchCollection.trim() === ''">
-                <v-list-item-title class="caption">
-                  Suchen Sie nach einer bestimmten Sammlung.
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-else>
-                <v-list-item-title class="caption">
-                  Keine Sammlung gefunden.
-                </v-list-item-title>
-              </v-list-item>
-            </template>
+              <template v-slot:no-data>
+                <v-list-item v-if="searching">
+                  <v-list-item-title class="text-center">
+                    <v-progress-circular indeterminate color="grey" />
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  v-else-if="
+                    searchCollection === null || searchCollection.trim() === ''
+                  "
+                >
+                  <v-list-item-title class="caption">
+                    Suchen Sie nach einer bestimmten Sammlung.
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item v-else>
+                  <v-list-item-title class="caption">
+                    Keine Sammlung gefunden.
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
             </v-autocomplete>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon  @click="searchCounter++"><v-icon>add_circle_outline</v-icon></v-btn>
-             </v-col>
-             <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon  @click="searchCounter--"><v-icon>remove_circle_outline</v-icon></v-btn>
-             </v-col>
+            <v-btn icon @click="searchCounter++"
+              ><v-icon>add_circle_outline</v-icon></v-btn
+            >
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon @click="searchCounter--"
+              ><v-icon>remove_circle_outline</v-icon></v-btn
+            >
+          </v-col>
 
-                       <v-col cols="auto" class="pa-0 divider-left">
+          <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -333,7 +365,7 @@
                   <template
                     v-if="type === 'fulltext' && !areAllSearchColumsSelected"
                   >
-                  In {{ fields ? fields.split(",") : "keiner" }} Spalte
+                    In {{ fields ? fields.split(",") : "keiner" }} Spalte
                     <!-- In {{ fields ? fields.split(",").length : 0 }} Spalte{{
                       fields && fields.split(",").length === 1 ? "" : "n"
                     }} -->
@@ -372,7 +404,7 @@
                 </v-list-item>
                 <v-divider />
 
-            <!-- TRY -->
+                <!-- TRY -->
                 <!-- <v-list-item
                   dense
                   :disabled="type === 'collection'"
@@ -393,17 +425,15 @@
                     {{ h.text }}
                   </v-list-item-title>
                 </v-list-item> -->
-          <!-- END -->
+                <!-- END -->
 
-          <!-- grrrr -->
+                <!-- grrrr -->
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
                   v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
                   @click="toggleSearchInColumn(h)"
-                  
-                  
                 >
                   <v-list-item-avatar>
                     <v-icon
@@ -418,7 +448,6 @@
                   </v-list-item-title>
                 </v-list-item>
                 <!-- grrrr -->
-
               </v-list>
             </v-menu>
           </v-col>
@@ -503,7 +532,11 @@
               </v-tooltip>
               <v-btn
                 @click="arrangeToArr(collection_ids)"
-                v-if="type === 'collection' && collection_ids !== '' && collection_ids !== null"
+                v-if="
+                  type === 'collection' &&
+                  collection_ids !== '' &&
+                  collection_ids !== null
+                "
                 v-on="on"
                 small
                 class="pl-3 pr-3"
@@ -897,31 +930,47 @@ export default class Database extends Vue {
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
 
   async toggleFuzziness() {
-    await this.changeQueryParam({ fuzzy: this.fuzzy === "true" ? "false" : "true" });
+    await this.changeQueryParam({
+      fuzzy: this.fuzzy === "true" ? "false" : "true",
+    });
     this.onChangeQuery(this.query);
   }
 
   changeQueryParam(p: any): Promise<any> {
-    return this.$router.replace({
-      // path: this.$router.currentRoute.path,
-      query: { ...this.$router.currentRoute.query, ...p}
-    }).catch(() => console.log('route duplicated.'))
+    return this.$router
+      .replace({
+        // path: this.$router.currentRoute.path,
+        query: { ...this.$router.currentRoute.query, ...p },
+      })
+      .catch(() => console.log("route duplicated."));
   }
 
   async toggleSearchInColumn(h: TableHeader): Promise<void> {
     if (this.fields === null) {
       // include all but self
-      await this.changeQueryParam({ fields: this.headers.filter(h1 => h1.value !== h.value && h.searchable).map(h => h.value).join(',') })
-    } else if (this.fields === '') {
+      await this.changeQueryParam({
+        fields: this.headers
+          .filter((h1) => h1.value !== h.value && h.searchable)
+          .map((h) => h.value)
+          .join(","),
+      });
+    } else if (this.fields === "") {
       // include only self
-      await this.changeQueryParam({ fields: h.value })
+      await this.changeQueryParam({ fields: h.value });
     } else {
       if (this.shouldSearchInColumn(h)) {
         // remove self
-        await this.changeQueryParam({ fields: this.fields.split(',').filter(f => f !== h.value).join(',') })
+        await this.changeQueryParam({
+          fields: this.fields
+            .split(",")
+            .filter((f) => f !== h.value)
+            .join(","),
+        });
       } else {
         // add self
-        await this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
+        await this.changeQueryParam({
+          fields: this.fields.split(",").concat(h.value).join(","),
+        });
       }
     }
     if (this.query !== null) {
@@ -929,6 +978,17 @@ export default class Database extends Vue {
     }
   }
 
+  async toggleOneCol(h: TableHeader): Promise<void> {
+    
+      // include all but self
+        await this.changeQueryParam({ fields: h.value });
+      // await this.changeQueryParam({
+      // fields: this.headers
+      //     .filter((h1) => h1.value !== h.value && h.searchable)
+      //     .map((h) => h.value)
+      // });
+    } 
+    
   shouldSearchInColumn(h: TableHeader): boolean {
     if (this.fields === "") {
       return false;
@@ -1116,9 +1176,10 @@ export default class Database extends Vue {
     return _(res).flatten().join(", ");
   }
 
-   isMultiple() {
-    if (this.searchCounter > 1) { true; }
-    else false;
+  isMultiple() {
+    if (this.searchCounter > 1) {
+      true;
+    } else false;
   }
 
   async mounted() {
@@ -1136,12 +1197,12 @@ export default class Database extends Vue {
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val !== undefined && val.trim() !== "") {
-      this.searching = true
+      this.searching = true;
       this.collectionSearchItems = (await searchCollections(val)).map((x) => ({
         ...x,
         text: x.name,
       }));
-      this.searching = false
+      this.searching = false;
     }
   }
 
@@ -1201,7 +1262,11 @@ export default class Database extends Vue {
     if (ids.length > 0) {
       await this.changeQueryParam({ type: "collection" });
       this.searching = true;
-      const res = await getDocumentsByCollection(ids, this.pagination.page, this.pagination.itemsPerPage);
+      const res = await getDocumentsByCollection(
+        ids,
+        this.pagination.page,
+        this.pagination.itemsPerPage
+      );
       this.items = _(res.documents)
         .uniqBy((d) => d.id)
         .map((d) => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
@@ -1299,7 +1364,7 @@ export default class Database extends Vue {
   }
 
   arrangeToArr(val: string) {
-    console.log(this.collection_ids)
+    console.log(this.collection_ids);
     var tmp = val.toString();
     const colls = tmp.split(",");
     this.getLocationsOfCollections(colls);
