@@ -169,18 +169,11 @@
                     v-if="type === 'fulltext' && !areAllSearchColumsSelected"
                   >
                     In
-                    {{
-                      fields
-                        ? visibleHeaders.map((h) =>
-                            shouldSearchInColumn(h) ? h.text : ""
-                          )
+                    {{ 
+                      fields ? getStringForHead()
                         : "keiner"
                     }}
                     Spalte
-
-                    <!-- In {{ fields ? fields.split(",").length : 0 }} Spalte{{
-                      fields && fields.split(",").length === 1 ? "" : "n"
-                    }} -->
                   </template>
                   <template v-if="type === 'collection'"> Nach Namen </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
@@ -211,7 +204,7 @@
                   v-if="!areAllSearchColumsSelected"
                 >
                   <v-list-item-avatar />
-                  <v-list-item-title>
+                  <v-list-item-title left>
                     In allen Spalten suchen
                   </v-list-item-title>
                 </v-list-item>
@@ -365,23 +358,13 @@
                   <template
                     v-if="type === 'fulltext' && !areAllSearchColumsSelected"
                   >
-                    In {{ fields ? fields.split(",") : "keiner" }} Spalte
-                    <!-- In {{ fields ? fields.split(",").length : 0 }} Spalte{{
-                      fields && fields.split(",").length === 1 ? "" : "n"
-                    }} -->
+                    In {{ fields ? getStringForHead() : "keiner" }} Spalte
                   </template>
                   <template v-if="type === 'collection'"> Nach Namen </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
               <v-list dense class="context-menu-list">
-                <!-- <v-list-item dense @click="extended = !extended">
-                  <v-list-item-avatar>
-                    <v-icon v-if="extended">mdi-check</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title> Alle Spalten anzeigen </v-list-item-title>
-                </v-list-item>
-                <v-divider /> -->
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
@@ -403,51 +386,19 @@
                   </v-list-item-title>
                 </v-list-item>
                 <v-divider />
-
-                <!-- TRY -->
-                <!-- <v-list-item
+               <v-radio-group                                  
+                v-if="!areAllSearchColumsSelected"
+                > 
+                <v-radio
                   dense
                   :disabled="type === 'collection'"
                   v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
-                  @click="toggleSearchInColumn(h)"
-                  
+                  :label="h.text"
+                  @change="toggleOneCol(h)"
                 >
-                  <v-list-item-avatar>
-                    <v-icon
-                      :color="type === 'collection' ? 'grey' : undefined"
-                      v-if="shouldSearchInColumn(h)"
-                    >
-                      mdi-check
-                    </v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title>
-                    {{ h.text }}
-                  </v-list-item-title>
-                </v-list-item> -->
-                <!-- END -->
-
-                <!-- grrrr -->
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection'"
-                  v-for="h in visibleHeaders.filter((h) => h.searchable)"
-                  :key="h.value"
-                  @click="toggleSearchInColumn(h)"
-                >
-                  <v-list-item-avatar>
-                    <v-icon
-                      :color="type === 'collection' ? 'grey' : undefined"
-                      v-if="shouldSearchInColumn(h)"
-                    >
-                      mdi-check
-                    </v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title>
-                    {{ h.text }}
-                  </v-list-item-title>
-                </v-list-item>
-                <!-- grrrr -->
+                </v-radio>
+               </v-radio-group>
               </v-list>
             </v-menu>
           </v-col>
@@ -688,6 +639,7 @@ export default class Database extends Vue {
 
   searchCounter = 1;
   // multipleSearch = false;
+  stringSpalte = ""// this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -979,15 +931,13 @@ export default class Database extends Vue {
   }
 
   async toggleOneCol(h: TableHeader): Promise<void> {
-    
-      // include all but self
         await this.changeQueryParam({ fields: h.value });
-      // await this.changeQueryParam({
-      // fields: this.headers
-      //     .filter((h1) => h1.value !== h.value && h.searchable)
-      //     .map((h) => h.value)
-      // });
     } 
+
+  getStringForHead(): string {
+    this.visibleHeaders.forEach((h) => this.shouldSearchInColumn(h) ? this.stringSpalte = h.text : "")     
+    return this.stringSpalte
+  }  
     
   shouldSearchInColumn(h: TableHeader): boolean {
     if (this.fields === "") {
