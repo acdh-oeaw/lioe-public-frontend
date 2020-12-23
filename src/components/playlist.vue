@@ -2,26 +2,70 @@
   <div>
     <v-flex xs12>
       <v-card>
-        <v-card-text>
+        <v-checkbox v-model="showAllBelege" color="primary" label="Alle Belege"></v-checkbox>
+        <v-card-text style="padding: 0px">
           <v-list dense>
             <v-subheader>Mein Sammlungen</v-subheader>
             <v-list-item-group>
-              <v-list-item v-for="(item, i) in temp_coll" :key="i">
+              <v-list-item v-for="(item, i) in temp_coll" :key="i" @click="switchShow(item)">
                 <v-list-item-action>
                   <v-checkbox
-                    :input-value="item.selected"
+                    v-model="item.selected"
+                    @click.prevent=""
                     color="primary"
                   ></v-checkbox>
                 </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title
+                    v-if="item.editing === false"
                     v-text="item.collection_name"
                   ></v-list-item-title>
+                  <v-text-field
+                    dense
+                    v-if="item.editing === true"
+                    @keypress.enter="item.editing = false"
+                    @blur="item.editing = false"
+                    v-model="item.collection_name"
+                    autofocus
+                  ></v-text-field>
                 </v-list-item-content>
+                <v-list-item-action>
+                  <v-menu offset-y>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        x-small
+                        fab
+                        text
+                        depressed
+                        v-bind="attrs"
+                        v-on="on"
+                      >
+                        <span class="mdi mdi-dots-horizontal"></span>
+                      </v-btn>
+                    </template>
+                    <v-list dense>
+                      <v-list-item>
+                        <v-list-item-title @click="item.editing = true"
+                          >Umbennenen</v-list-item-title
+                        >
+                      </v-list-item>
+                      <v-list-item>
+                        <v-list-item-title @click="deleteCol(item)"
+                          >Löschen</v-list-item-title
+                        >
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-list-item-action>
               </v-list-item>
             </v-list-item-group>
           </v-list>
-          <v-btn @click="addCollection()" style="width: 100%">
+          <v-btn
+            color="primary"
+            depressed
+            @click="addCollection()"
+            style="width: 95% margin: 0 auto;"
+          >
             Neue Sammlung anlegen
           </v-btn>
           <v-list dense>
@@ -39,6 +83,29 @@
                     v-text="item.collection_name"
                   ></v-list-item-title>
                 </v-list-item-content>
+                <v-list-item-action>
+                  <v-menu offset-y>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        x-small
+                        fab
+                        text
+                        depressed
+                        v-bind="attrs"
+                        v-on="on"
+                      >
+                        <span class="mdi mdi-dots-horizontal"></span>
+                      </v-btn>
+                    </template>
+                    <v-list dense>
+                      <v-list-item>
+                        <v-list-item-title @click="deleteCol(item)"
+                          >Löschen</v-list-item-title
+                        >
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-list-item-action>
               </v-list-item>
             </v-list-item-group>
           </v-list>
@@ -49,6 +116,7 @@
             label="Zu tippen beginnen, um nach Sammlungen zu suchen"
             hide-details
             text
+            full-width
             dense
             prepend-inner-icon="search"
             solo
@@ -85,14 +153,12 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { stateProxy, Collection } from "../store/collections";
 import { getDocumentsByCollection, searchCollections } from "@src/api";
 
-
 @Component
 export default class Playlist extends Vue {
-
   collectionSearchItems: any[] = [];
   selectedCollections: any[] = [];
   searchCollection: string | null = null;
-
+  showAllBelege = false;
 
   get temp_coll() {
     return stateProxy.collections.temp_coll;
@@ -106,6 +172,12 @@ export default class Playlist extends Vue {
   async selectCollections() {
     if (this.selectedCollections.length > -1) {
       await this.getLocationsOfCollections(this.selectedCollections);
+    }
+  }
+
+  switchShow(item: Collection) {
+    if(item.editing === false) {
+      stateProxy.collections.swapShow(item);
     }
   }
 
@@ -139,17 +211,20 @@ export default class Playlist extends Vue {
             collDescription = iterColl.description;
           }
         });
-        stateProxy.collections.addWBOE_coll({changedColl: {
-          id: Math.random() * 1000,
-          selected: true,
-          preColl: coll,
-          collection_name: collName,
-          editing: false,
-          fillColor:
-            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-          borderColor: "#000",
-          items: CollLocation,
-        }, add: true});
+        stateProxy.collections.addWBOE_coll({
+          changedColl: {
+            id: Math.random() * 1000,
+            selected: true,
+            preColl: coll,
+            collection_name: collName,
+            editing: false,
+            fillColor:
+              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+            borderColor: "#000",
+            items: CollLocation,
+          },
+          add: true,
+        });
       }
     });
   }
@@ -164,12 +239,26 @@ export default class Playlist extends Vue {
     }
   }
 
+  @Watch("showAllBelege")
+  emitShowAllBelege() {
+    console.log('AAAAAAAAAA')
+    this.$emit("entries", this.showAllBelege)
+  }
+
+  deleteCol(col: Collection) {
+    if (col.preColl !== -1) {
+      stateProxy.collections.addWBOE_coll({ changedColl: col, add: false });
+    } else {
+      stateProxy.collections.addTemp_coll({ changedColl: col, add: false });
+    }
+  }
+
   addCollection() {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
       collection_name: "Neue Sammlung",
-      editing: true,
+      editing: false,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
       selected: true,

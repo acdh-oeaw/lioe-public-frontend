@@ -39,7 +39,7 @@ class CollectionModule extends VuexModule{
             this.temp_collections.push(coll.changedColl);
         } else {
             this.temp_collections.forEach(collLoop => {
-                if(coll.changedColl == collLoop) {
+                if(coll.changedColl.id == collLoop.id) {
                     this.temp_collections.splice(this.temp_collections.indexOf(collLoop),1)
                 }
             });
@@ -52,17 +52,55 @@ class CollectionModule extends VuexModule{
             this.wboe_collections.push(coll.changedColl);
         } else {
             this.wboe_collections.forEach(collLoop => {
-                if(coll.changedColl == collLoop) {
+                if(coll.changedColl.id == collLoop.id) {
                     this.wboe_collections.splice(this.wboe_collections.indexOf(collLoop), 1)
                 }
             });
         }
     }
+
+    @mutation
+    addPlacesToCollection(input:{col: Number, items: any}) {
+        this.temp_collections.forEach(collectionLoop => {
+            if(collectionLoop.id === input.col) {
+                collectionLoop.items.push(input.items)
+            }
+        });
+    }
+
+    @mutation
+    swapShow(item: Collection) {
+        if (item.preColl = -1) {
+            this.temp_collections.forEach(itemLoop => {
+                if(item.id === itemLoop.id) {
+                    itemLoop.selected = !itemLoop.selected
+                }
+            });
+        } else {
+            this.wboe_collections.forEach(itemLoop => {
+                if(item.id === itemLoop.id) {
+                    itemLoop.selected = !itemLoop.selected
+                }
+            });
+        }
+    }
+
+    get amountActiveCollections() {
+        let lengthSelected = 0
+        this.temp_collections.forEach(element => {
+            if(element.selected) {
+                lengthSelected++;
+            }
+        });
+        this.wboe_collections.forEach(element => {
+            if(element.selected) {
+                lengthSelected++;
+            }
+        });
+        return lengthSelected
+    }
     
 }
-
-// export let collections = new Collections()
-// {temp_collections: [], wboe_collections: []};
 
 export const store = new Vuex.Store({
   modules: {

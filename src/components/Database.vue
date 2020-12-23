@@ -1,20 +1,17 @@
 <template>
   <v-layout column>
-    <v-navigation-drawer
-      :value="sideBar"
-      left
-      app
-      permanent
-      v-if="sideBar"
-    >
-      <playlist>
-      </playlist>
+    <v-navigation-drawer :value="sideBar" left app permanent v-if="sideBar">
+      <playlist @entries="showAllBelege = $event"> </playlist>
     </v-navigation-drawer>
     <v-flex>
       <v-card class="sticky-card" width="100%">
         <v-row no-gutters>
           <v-col class="pa-0 divider-right">
-            <v-btn @click="sideBar = !sideBar" depressed style="margin-left:5px; margin-top:5px;">
+            <v-btn
+              @click="sideBar = !sideBar"
+              depressed
+              style="margin-left: 5px; margin-top: 5px"
+            >
               Sammlungen
             </v-btn>
           </v-col>
@@ -198,7 +195,7 @@
         hide-default-footer
         height="500px"
         :loading="loading"
-        :items="_items"
+        :items="shownItems"
       >
         <template
           v-for="h in headers"
@@ -226,80 +223,6 @@
         <template v-slot:footer="{ props, on, headers }">
           <v-divider />
           <v-row>
-            <v-col class="pb-0">
-              <v-tooltip
-                color="ci"
-                top
-                :disabled="mappableSelectionItems.length > 0"
-              >
-                <template v-slot:activator="{ on }">
-                  <v-menu
-                    v-on="on"
-                    :nudge-top="4"
-                    top
-                    offset-y
-                    open-on-hover
-                    :disabled="mappableSelectionItems.length === 0"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-btn
-                        @click="showSelectionOnMap"
-                        :disabled="mappableSelectionItems.length === 0"
-                        small
-                        v-on="on"
-                        class="pl-3 pr-3"
-                        rounded
-                        depressed
-                        color="primary"
-                      >
-                        auf Karte anzeigen ({{ mappableSelectionItems.length }})
-                      </v-btn>
-                    </template>
-                  </v-menu>
-                </template>
-                <span>Wählen Sie zuvor Dokumente mit Ortsangaben aus</span>
-              </v-tooltip>
-              <v-btn
-                @click="arrangeToArr(collection_ids)"
-                v-if="type === 'collection' && collection_ids !== '' && collection_ids !== null"
-                v-on="on"
-                small
-                class="pl-3 pr-3"
-                rounded
-                text
-                color="ci"
-              >
-                Sammlung auf Karte anzeigen
-              </v-btn>
-              <v-menu top open-on-hover>
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    slot="activator"
-                    v-on="on"
-                    :disabled="items.length === 0"
-                    small
-                    text
-                    class="pl-3 pr-3"
-                    rounded
-                    color="ci"
-                  >
-                    Exportieren
-                    {{ selected.length > 0 ? `(${selected.length})` : "" }}
-                  </v-btn>
-                </template>
-                <v-list class="context-menu-list" dense>
-                  <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
-                  <v-list-item @click="saveJSON">JSON</v-list-item>
-                  <v-list-item @click="saveCSV">CSV</v-list-item>
-                  <v-divider />
-                  <v-list-item
-                    :disabled="selected.length === 0"
-                    @click="selected = []"
-                    >Auswahl leeren</v-list-item
-                  >
-                </v-list>
-              </v-menu>
-            </v-col>
             <v-col class="py-0">
               <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />
             </v-col>
@@ -338,6 +261,60 @@
           </tr>
         </template>
       </v-data-table>
+      <div v-if="mappableSelectionItems.length !== 0" class="collBox">
+        <div
+          style="color: white; margin-left: 40px; margin-top: 8px; float: left"
+        >
+          {{ mappableSelectionItems.length }} Beleg<span
+            v-if="mappableSelectionItems.length > 1"
+            >e</span
+          >
+          ausgewählt
+        </div>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="secondary"
+              :disabled="temp_coll.length === 0"
+              v-bind="attrs"
+              v-on="on"
+              class="white--text"
+              rounded
+              style="float: right"
+            >
+              Zu Sammlung hinzufügen
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item v-for="(item, index) in temp_coll" :key="index">
+              <v-list-item-title @click="addBelegtoCollection(item)">{{
+                item.collection_name
+              }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <v-menu top open-on-hover>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              slot="activator"
+              v-on="on"
+              small
+              text
+              class="pl-3 pr-3"
+              rounded
+              color="white"
+              style="float: right; margin-top: 3px; margin-right: 20px"
+            >
+              Exportieren
+            </v-btn>
+          </template>
+          <v-list class="context-menu-list" dense>
+            <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
+            <v-list-item @click="saveJSON">JSON</v-list-item>
+            <v-list-item @click="saveCSV">CSV</v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
     </v-flex>
   </v-layout>
 </template>
@@ -345,7 +322,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import InfoText from "@components/InfoText.vue";
 import InfoBox from "@components/InfoBox.vue";
-import Playlist from '@components/playlist.vue';
+import Playlist from "@components/playlist.vue";
 import {
   getDocuments,
   searchDocuments,
@@ -354,6 +331,7 @@ import {
   searchCollections,
   getCollectionByIds,
 } from "../api";
+import { stateProxy, Collection } from "../store/collections";
 import { geoStore } from "../store/geo";
 import { regions } from "../regions";
 import * as FileSaver from "file-saver";
@@ -382,7 +360,7 @@ interface TableHeader {
   components: {
     InfoText,
     InfoBox,
-    Playlist
+    Playlist,
   },
 })
 export default class Database extends Vue {
@@ -393,7 +371,7 @@ export default class Database extends Vue {
   @Prop({ default: "true" }) fuzzy: "true" | "false";
 
   geoStore = geoStore;
-  sideBar:Boolean = false
+  sideBar: Boolean = false;
   items: any[] = [];
   searchCollection: string | null = null;
   collectionSearchItems: any[] = [];
@@ -402,6 +380,7 @@ export default class Database extends Vue {
   loading = false;
   searching = false;
   showFilterOptions = false;
+  showAllBelege: any;
   pagination = {
     page: 1,
     itemsPerPage: 10,
@@ -653,36 +632,82 @@ export default class Database extends Vue {
   debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
 
   async toggleFuzziness() {
-    await this.changeQueryParam({ fuzzy: this.fuzzy === "true" ? "false" : "true" });
+    await this.changeQueryParam({
+      fuzzy: this.fuzzy === "true" ? "false" : "true",
+    });
     this.onChangeQuery(this.query);
   }
 
+  get temp_coll() {
+    return stateProxy.collections.temp_coll;
+  }
+
+  get wboeColl() {
+    return stateProxy.collections.wboe_coll;
+  }
+
+  @Watch("stateProxy.collections.amountActiveCollections")
+  testIfSelectWOrks() {
+    console.log(stateProxy.collections.amountActiveCollections);
+  }
+
+  get showSelectedCollection() {
+    let activeCollections = stateProxy.collections.amountActiveCollections;
+    let allBelege = this.showAllBelege;
+    //console.log(activeCollections, allBelege)
+    if (activeCollections > 0 && !allBelege) {
+      return true;
+    }
+    return false;
+  }
+
   changeQueryParam(p: any): Promise<any> {
-    return this.$router.replace({
-      // path: this.$router.currentRoute.path,
-      query: { ...this.$router.currentRoute.query, ...p}
-    }).catch(() => console.log('route duplicated.'))
+    return this.$router
+      .replace({
+        // path: this.$router.currentRoute.path,
+        query: { ...this.$router.currentRoute.query, ...p },
+      })
+      .catch(() => console.log("route duplicated."));
   }
 
   async toggleSearchInColumn(h: TableHeader): Promise<void> {
     if (this.fields === null) {
       // include all but self
-      await this.changeQueryParam({ fields: this.headers.filter(h1 => h1.value !== h.value && h.searchable).map(h => h.value).join(',') })
-    } else if (this.fields === '') {
+      await this.changeQueryParam({
+        fields: this.headers
+          .filter((h1) => h1.value !== h.value && h.searchable)
+          .map((h) => h.value)
+          .join(","),
+      });
+    } else if (this.fields === "") {
       // include only self
-      await this.changeQueryParam({ fields: h.value })
+      await this.changeQueryParam({ fields: h.value });
     } else {
       if (this.shouldSearchInColumn(h)) {
         // remove self
-        await this.changeQueryParam({ fields: this.fields.split(',').filter(f => f !== h.value).join(',') })
+        await this.changeQueryParam({
+          fields: this.fields
+            .split(",")
+            .filter((f) => f !== h.value)
+            .join(","),
+        });
       } else {
         // add self
-        await this.changeQueryParam({ fields: this.fields.split(',').concat(h.value).join(',') })
+        await this.changeQueryParam({
+          fields: this.fields.split(",").concat(h.value).join(","),
+        });
       }
     }
     if (this.query !== null) {
       this.onChangeQuery(this.query);
     }
+  }
+
+  addBelegtoCollection(col: Collection) {
+    stateProxy.collections.addPlacesToCollection({
+      col: col.id,
+      items: this.mappableSelectionItems,
+    });
   }
 
   shouldSearchInColumn(h: TableHeader): boolean {
@@ -884,6 +909,24 @@ export default class Database extends Vue {
     );
   }
 
+  get shownItems() {
+    if (this.showSelectedCollection) {
+      return this.collItems;
+    }
+    return this._items;
+  }
+
+  get collItems() {
+    let allItems: any[] = [];
+    this.wboeColl.forEach((beleg) => {
+      allItems = [...allItems, ...beleg.items]
+    });
+    this.temp_coll.forEach((beleg) => {
+      allItems = [...allItems, ...beleg.items]
+    });
+    return allItems
+  }
+
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val !== undefined && val.trim() !== "") {
@@ -1048,7 +1091,6 @@ export default class Database extends Vue {
   }
 
   arrangeToArr(val: string) {
-    console.log(this.collection_ids)
     var tmp = val.toString();
     const colls = tmp.split(",");
     this.getLocationsOfCollections(colls);
@@ -1202,5 +1244,11 @@ div.v-data-footer {
   position: -webkit-sticky;
   position: sticky;
   bottom: 0;
+}
+.collBox {
+  width: 100%;
+  height: 50px;
+  background-color: #3b89a0;
+  padding: 6px;
 }
 </style>
