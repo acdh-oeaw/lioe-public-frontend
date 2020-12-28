@@ -63,7 +63,7 @@ class CollectionModule extends VuexModule{
     addPlacesToCollection(input:{col: Number, items: any}) {
         this.temp_collections.forEach(collectionLoop => {
             if(collectionLoop.id === input.col) {
-                collectionLoop.items.push(input.items)
+                collectionLoop.items = [...collectionLoop.items, ...input.items]
             }
         });
     }

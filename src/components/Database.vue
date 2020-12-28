@@ -6,7 +6,6 @@
     <v-flex>
       <v-card class="sticky-card" width="100%">
         <v-row no-gutters>
-          <v-col class="pa-0 divider-right">
             <v-btn
               @click="sideBar = !sideBar"
               depressed
@@ -14,8 +13,7 @@
             >
               Sammlungen
             </v-btn>
-          </v-col>
-          <v-col class="pa-0 flex-grow-1">
+          <v-col class="pa-0 flex-grow-1" style="margin-left: 5px;">
             <v-text-field
               @click.stop=""
               v-if="type === 'fulltext'"
@@ -24,6 +22,7 @@
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
               :value="query"
+              :disabled="this.showSelectedCollection"
               @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
@@ -911,6 +910,8 @@ export default class Database extends Vue {
 
   get shownItems() {
     if (this.showSelectedCollection) {
+      console.log(this.temp_coll[0].items)
+      console.log(this.collItems)
       return this.collItems;
     }
     return this._items;
@@ -919,10 +920,14 @@ export default class Database extends Vue {
   get collItems() {
     let allItems: any[] = [];
     this.wboeColl.forEach((beleg) => {
-      allItems = [...allItems, ...beleg.items]
+      if(beleg.selected) {
+        allItems = [...allItems, ...beleg.items]
+      }
     });
     this.temp_coll.forEach((beleg) => {
-      allItems = [...allItems, ...beleg.items]
+      if(beleg.selected) {
+        allItems = [...allItems, ...beleg.items]
+      }
     });
     return allItems
   }
