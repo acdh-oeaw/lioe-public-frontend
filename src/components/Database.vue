@@ -11,7 +11,7 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="searchFields[0]"
+              :value="queryFields[0]"
               @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
@@ -114,7 +114,10 @@
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
-                  <v-list-item-title style="color: black">
+                  <v-list-item-title v-if="type !== 'collection'" style="color: black">
+                    Exakte Suche
+                  </v-list-item-title>
+                  <v-list-item-title v-else>
                     Exakte Suche
                   </v-list-item-title>
                 </v-list-item>
@@ -128,7 +131,10 @@
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
-                  <v-list-item-title style="color: black">
+                  <v-list-item-title v-if="type !== 'collection'" style="color: black">
+                    Fehlertolerante Suche
+                  </v-list-item-title>
+                  <v-list-item-title v-else>
                     Fehlertolerante Suche
                   </v-list-item-title>
                 </v-list-item>
@@ -193,7 +199,7 @@
                   @click="selectNoColumnsAndSearch"
                   v-if="areAllSearchColumsSelected"
                 >
-                  <v-list-item-avatar />
+                  <!-- <v-list-item-avatar /> -->
                   <v-list-item-title> Einzelne Suche </v-list-item-title>
                 </v-list-item>
 
@@ -203,8 +209,8 @@
                   @click="selectAllColumnsAndSearch"
                   v-if="!areAllSearchColumsSelected"
                 >
-                  <v-list-item-avatar />
-                  <v-list-item-title left>
+                  <!-- <v-list-item-avatar /> -->
+                  <v-list-item-title>
                     In allen Spalten suchen
                   </v-list-item-title>
                 </v-list-item>
@@ -222,8 +228,6 @@
                   :label="h.text"
                   @change="toggleOneCol(h)"
                 >
-                  <!-- @click="toggleOneCol(h)" -->
-                  <!-- @click="toggleSearchInColumn(h)" -->
                 </v-radio>
                   <!-- <v-list-item-avatar>
                     <v-icon
@@ -278,7 +282,7 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="searchFields[searchCounter - 1]"
+              :value="queryFields[searchCounter - 1]"
               @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
@@ -371,7 +375,7 @@
                   @click="selectNoColumnsAndSearch"
                   v-if="areAllSearchColumsSelected"
                 >
-                  <v-list-item-avatar />
+                  <!-- <v-list-item-avatar /> -->
                   <v-list-item-title> Einzelne Suche </v-list-item-title>
                 </v-list-item>
                 <v-list-item
@@ -380,7 +384,7 @@
                   @click="selectAllColumnsAndSearch"
                   v-if="!areAllSearchColumsSelected"
                 >
-                  <v-list-item-avatar />
+                  <!-- <v-list-item-avatar /> -->
                   <v-list-item-title>
                     In allen Spalten suchen
                   </v-list-item-title>
@@ -616,7 +620,7 @@ export default class Database extends Vue {
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
 
-  @Prop({ default: "" }) searchFields: string[] | null;
+  @Prop({ default: "" }) queryFields: string[] | null;
 
   geoStore = geoStore;
   items: any[] = [];
