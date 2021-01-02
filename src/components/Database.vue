@@ -219,6 +219,8 @@
                 <!-- HERE THE SINGLE CHOICE -->
                 <v-radio-group                                  
                 v-if="!areAllSearchColumsSelected"
+                dense
+                class="my-0 pr-1"           
                 > 
                 <v-radio
                   dense
@@ -392,6 +394,8 @@
                 <v-divider />
                <v-radio-group                                  
                 v-if="!areAllSearchColumsSelected"
+                dense
+                class="my-0 pr-1"           
                 > 
                 <v-radio
                   dense
