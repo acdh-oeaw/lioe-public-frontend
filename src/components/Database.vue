@@ -11,7 +11,7 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="queryFields[0]"
+              :value="request[0].query"
               @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
@@ -63,7 +63,7 @@
             </v-autocomplete>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon @click="searchCounter++"
+            <v-btn icon @click="appendArrayReq()"
               ><v-icon>add_circle_outline</v-icon></v-btn
             >
           </v-col>
@@ -176,7 +176,7 @@
                   >
                     In
                     {{ 
-                      fields ? getStringForHead()
+                      request[0].fields ? getStringForHead()
                         : "keiner"
                     }}
                     Spalte
@@ -268,80 +268,36 @@
       </v-card>
     </v-flex>
     <!-- STARTING HERE THE MULTIPLE SEARCH FIELDS -->
-    <v-flex v-if="searchCounter > 1">
+    <v-flex v-if="request.length > 1">
       <v-card
         class="sticky-card mt-2"
-        v-for="counter in searchCounter - 1"
-        :key="counter"
+        v-for="req in request.slice(1)"
+        :key="req.id"
         width="100%"
       >
-        <v-row v-if="searchCounter > 1" no-gutters>
+        <v-row no-gutters>
           <v-col class="pa-0 flex-grow-1">
             <v-text-field
               @click.stop=""
-              v-if="type === 'fulltext'"
               autofocus
               flat
-              label="Datenbank durchsuchen…"
+              label="Datenbank durchsuchen… "
               prepend-inner-icon="search"
-              :value="queryFields[searchCounter - 1]"
+              :value="req.query"
               @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
               solo
               clearable
             />
-            <v-autocomplete
-              v-if="type === 'collection'"
-              autofocus
-              flat
-              @update:search-input="searchCollection = $event"
-              prepend-inner-icon="search"
-              :loading="searching"
-              :items="collectionSearchItems"
-              item-text="text"
-              :value="selectedCollections"
-              @input="selectCollections"
-              label="Sammlungen suchen…"
-              chips
-              deletable-chips
-              cache-items
-              return-object
-              hide-details
-              multiple
-              solo
-              clearable
-            >
-              <template v-slot:no-data>
-                <v-list-item v-if="searching">
-                  <v-list-item-title class="text-center">
-                    <v-progress-circular indeterminate color="grey" />
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-else-if="
-                    searchCollection === null || searchCollection.trim() === ''
-                  "
-                >
-                  <v-list-item-title class="caption">
-                    Suchen Sie nach einer bestimmten Sammlung.
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item v-else>
-                  <v-list-item-title class="caption">
-                    Keine Sammlung gefunden.
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
-            </v-autocomplete>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon @click="searchCounter++"
-              ><v-icon>add_circle_outline</v-icon></v-btn
+            <v-btn icon @click="appendArrayReq()"
+              ><v-icon>add_circle_outline </v-icon></v-btn
             >
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon @click="searchCounter--"
+            <v-btn icon @click="removeElementArrayReq(req)"
               ><v-icon>remove_circle_outline</v-icon></v-btn
             >
           </v-col>
@@ -357,16 +313,15 @@
                   v-bind="attrs"
                 >
                   <template
-                    v-if="type === 'fulltext' && areAllSearchColumsSelected"
+                    v-if="areAllSearchColumsSelected"
                   >
                     In allen Spalten
                   </template>
                   <template
-                    v-if="type === 'fulltext' && !areAllSearchColumsSelected"
+                    v-if="!areAllSearchColumsSelected"
                   >
-                    In {{ fields ? getStringForHead() : "keiner" }} Spalte
+                    In {{ req.fields ? getStringForHead() : "keiner" }} Spalte
                   </template>
-                  <template v-if="type === 'collection'"> Nach Namen </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
@@ -593,6 +548,7 @@ import * as FileSaver from "file-saver";
 import * as xlsx from "xlsx";
 import * as _ from "lodash";
 import { log } from "util";
+import { request } from "http";
 
 interface Places {
   Ort: string;
@@ -620,11 +576,19 @@ interface TableHeader {
 export default class Database extends Vue {
   @Prop({ default: "" }) collection_ids: string | null;
   @Prop({ default: "" }) query: string | null;
-  @Prop({ default: null }) fields: string | null;
+ @Prop({ default: null }) fields: string | null;
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
 
   @Prop({ default: "" }) queryFields: string[] | null;
+
+  @Prop({ default: null}) request: Object[] = [
+    {
+      query: "", 
+      fields: null, // string contains null == all | name
+      id: 0, // setting index 
+    },
+  ];
 
   geoStore = geoStore;
   items: any[] = [];
@@ -645,9 +609,9 @@ export default class Database extends Vue {
   extended = false;
   totalItems = 100;
 
-  searchCounter = 1;
+  indexField = 1;
   // multipleSearch = false;
-  stringSpalte = ""// this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
+  stringSpalte = "" // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -905,6 +869,20 @@ export default class Database extends Vue {
       .catch(() => console.log("route duplicated."));
   }
 
+  // set an id for each '+' click
+  appendArrayReq(): void {
+  this.request.push({query: "", fields: null, id: this.indexField})
+  // this.request[]
+  this.indexField++
+  console.log(this.indexField,this.request.toString, this.request.length);
+  }
+
+  // remove element with each '-' click
+  removeElementArrayReq(o: object): void {
+    this.request.splice(this.request.indexOf(o), 1)
+  }
+
+
   async toggleSearchInColumn(h: TableHeader): Promise<void> {
     if (this.fields === null) {
       // include all but self
@@ -1135,7 +1113,7 @@ export default class Database extends Vue {
   }
 
   isMultiple() {
-    if (this.searchCounter > 1) {
+    if (this.indexField > 1) {
       true;
     } else false;
   }
