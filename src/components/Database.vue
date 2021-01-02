@@ -228,7 +228,7 @@
                   v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
                   :label="h.text"
-                  @change="toggleOneCol(h)"
+                  @change="toggleOneCol(h, request[0])"
                 >
                 </v-radio>
                   <!-- <v-list-item-avatar>
@@ -358,7 +358,7 @@
                   v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
                   :label="h.text"
-                  @change="toggleOneCol(h)"
+                  @change="toggleOneCol(h, req)"
                 >
                 </v-radio>
                </v-radio-group>
@@ -916,7 +916,8 @@ export default class Database extends Vue {
     }
   }
 
-  async toggleOneCol(h: TableHeader): Promise<void> {
+  async toggleOneCol(h: TableHeader, o: any): Promise<void> {
+        o.fields = h.value
         await this.changeQueryParam({ fields: h.value });
     } 
 
