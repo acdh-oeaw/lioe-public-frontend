@@ -27,6 +27,14 @@ interface Documents {
   }[]
 }
 
+export interface SearchRequest {
+  query: string
+  // string contains null == all | name
+  fields: null|string
+  headerStr: string
+  id: number
+}
+
 const apiEndpoint = 'https://dboeannotation.acdh-dev.oeaw.ac.at/api'
 const txtEndpoint = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
 export const localEndpoint = process.env.API_HOST || 'http://localhost:8081'
@@ -178,11 +186,18 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  
-  search: string, page = 1, items = 100, descending: boolean[] = [true], sortBy:any[] = [null], searchFields: string[] = [], fuzziness:boolean = false
+  search: SearchRequest[], page = 1, items = 100, descending: boolean[] = [true], sortBy:any[] = [null], fuzziness:boolean = false
   ): Promise<Documents> {
-  console.log('search docs', search, sortBy);
   const sort = [];
+
+  const searchTerms = search.reduce((m, e, i, l) => {
+    if (e.fields !== null) {
+      m[e.fields] = e.query
+    }
+    return m
+  }, {} as { [key: string]: string })
+
+  console.log({search, page, items, fuzziness, searchTerms})
   if(sortBy.length !== 0) {
     if(descending.length !== 0) {
       sort.push(
@@ -201,12 +216,13 @@ export async function searchDocuments(
       from: (page - 1) * items,
       size: items,
       query: {
-        multi_match: {
-          fields: searchFields,
-          query: search,
-          type: 'best_fields',
-          fuzziness: fuzziness ? 3 : 0,
-        }
+        term: searchTerms
+        // multi_match: {
+        //   fields: searchFields,
+        //   query: search,
+        //   type: 'best_fields',
+        //   fuzziness: fuzziness ? 3 : 0,
+        // }
       }
     }
   })).data

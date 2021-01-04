@@ -12,7 +12,6 @@
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
               :value="request[0].query"
-              @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
               solo
@@ -231,18 +230,6 @@
                   @change="toggleOneCol(h, request[0])"
                 >
                 </v-radio>
-                  <!-- <v-list-item-avatar>
-                    <v-icon
-                      :color="type === 'collection' ? 'grey' : undefined"
-                      v-if="shouldSearchInColumn(h)"
-                    >
-                      mdi-check
-                    </v-icon>
-                  </v-list-item-avatar> -->
-
-                  <!-- <v-list-item-title>
-                    {{ h.text }}
-                  </v-list-item-title> -->
                 </v-radio-group>
               </v-list>
             </v-menu>
@@ -271,8 +258,8 @@
     <v-flex v-if="request.length > 1">
       <v-card
         class="sticky-card mt-2"
-        v-for="req in request.slice(1)"
-        :key="req.id"
+        v-for="(req, index) in request.slice(1)"
+        :key="index"
         width="100%"
       >
         <v-row no-gutters>
@@ -283,8 +270,7 @@
               flat
               label="Datenbank durchsuchen… "
               prepend-inner-icon="search"
-              :value="req.query"
-              @input="debouncedSearchDatabase"
+              v-model="req.query"
               :loading="searching"
               hide-details
               solo
@@ -541,6 +527,7 @@ import {
   getDocumentsByCollection,
   searchCollections,
   getCollectionByIds,
+  SearchRequest
 } from "../api";
 import { geoStore } from "../store/geo";
 import { regions } from "../regions";
@@ -575,21 +562,18 @@ interface TableHeader {
 })
 export default class Database extends Vue {
   @Prop({ default: "" }) collection_ids: string | null;
-  @Prop({ default: "" }) query: string | null;
- @Prop({ default: null }) fields: string | null;
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
 
   @Prop({ default: "" }) queryFields: string[] | null;
 
-  @Prop({ default: null}) request: Object[] = [
-    {
+  @Prop({ default: () => ([{
       query: "", 
       fields: null, // string contains null == all | name
       headerStr: "",
       id: 0, // setting index 
     },
-  ];
+  ])}) request: SearchRequest[]
 
   geoStore = geoStore;
   items: any[] = [];
@@ -852,13 +836,11 @@ export default class Database extends Vue {
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
 
-  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
-
   async toggleFuzziness() {
     await this.changeQueryParam({
       fuzzy: this.fuzzy === "true" ? "false" : "true",
     });
-    this.onChangeQuery(this.query);
+    this.onChangeQuery(this.request)
   }
 
   changeQueryParam(p: any): Promise<any> {
@@ -879,42 +861,9 @@ export default class Database extends Vue {
   }
 
   // remove element with each '-' click
-  removeElementArrayReq(o: object): void {
-    this.request.splice(this.request.indexOf(o), 1)
-  }
-
-
-  async toggleSearchInColumn(h: TableHeader): Promise<void> {
-    if (this.fields === null) {
-      // include all but self
-      await this.changeQueryParam({
-        fields: this.headers
-          .filter((h1) => h1.value !== h.value && h.searchable)
-          .map((h) => h.value)
-          .join(","),
-      });
-    } else if (this.fields === "") {
-      // include only self
-      await this.changeQueryParam({ fields: h.value });
-    } else {
-      if (this.shouldSearchInColumn(h)) {
-        // remove self
-        await this.changeQueryParam({
-          fields: this.fields
-            .split(",")
-            .filter((f) => f !== h.value)
-            .join(","),
-        });
-      } else {
-        // add self
-        await this.changeQueryParam({
-          fields: this.fields.split(",").concat(h.value).join(","),
-        });
-      }
-    }
-    if (this.query !== null) {
-      this.onChangeQuery(this.query);
-    }
+  removeElementArrayReq(o: SearchRequest): void {
+    this.request = this.request.filter(r => r.id !== o.id)
+    // this.request.splice(this.request.indexOf(o), 1)
   }
 
   async toggleOneCol(h: TableHeader, o: any): Promise<void> {
@@ -926,17 +875,6 @@ export default class Database extends Vue {
     this.visibleHeaders.forEach((h) => this.shouldSearchInColumnReqBased(h, o) ? o.headerStr = h.text : "")     
     return o.headerStr
   }  
-    
-  shouldSearchInColumn(h: TableHeader): boolean {
-    if (this.fields === "") {
-      return false;
-    } else if (this.fields === null) {
-      return true;
-    } else {
-      return this.fields.split(",").includes(h.value) && h.searchable;
-    }
-  }
-
    
   shouldSearchInColumnReqBased(h: TableHeader, o: any): boolean {
     if (o.fields === "") {
@@ -946,13 +884,6 @@ export default class Database extends Vue {
     } else {
       return o.fields.split(",").includes(h.value) && h.searchable;
     }
-  }
-
-  get areAllSearchColumsSelected(): boolean {
-    // all columns are either selected, or not searchable
-    return this.headers.every(
-      (h) => this.shouldSearchInColumn(h) || h.searchable === false
-    );
   }
 
   areAllSearchColumsSelectedReqBased(o: any): boolean {
@@ -1244,8 +1175,8 @@ export default class Database extends Vue {
     if (newVal.page !== oldVal.page) {
       window.scroll({ top: 0, behavior: "smooth" });
     }
-    if (this.query) {
-      this.onChangeQuery(this.query);
+    if (this.request) {
+      this.onChangeQuery(this.request);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
     } else {
@@ -1394,47 +1325,28 @@ export default class Database extends Vue {
     });
   }
 
-  get searchInFields() {
-    if (this.fields === "") {
-      return [];
-    } else if (this.fields === null) {
-      return this.headers
-        .filter((h) => h.searchable && h.show)
-        .map((h) => h.value);
-    } else {
-      return this.fields.split(",");
-    }
-  }
-
-  @Watch("query", { immediate: true })
-  async onChangeQuery(search: string | null) {
-    if (search !== null) {
+  @Watch("request", { immediate: true, deep: true })
+  async onChangeQuery(req: SearchRequest[]) {
+    if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
-        search,
+        req,
         this.pagination.page,
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
         this.pagination.sortBy,
-        this.searchInFields,
         this.fuzzy === "true"
       );
       this.items = res.documents.map((d) => ({
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
-
       // console.log('fluss', res.total)
       this.totalItems = res.total.value || 0;
       this.searching = false;
     } else {
       this.init();
     }
-  }
-
-  async searchDatabase(search: string) {
-    // this.$router.replace({ query: { query: search } })
-    await this.changeQueryParam({ query: search });
   }
 
   saveXLSX() {
