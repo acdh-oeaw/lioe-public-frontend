@@ -176,7 +176,7 @@
                   >
                     In
                     {{ 
-                      request[0].fields ? getStringForHead()
+                      request[0].fields ? getStringForHead(request[0])
                         : "keiner"
                     }}
                     Spalte
@@ -320,7 +320,7 @@
                   <template
                     v-if="!areAllSearchColumsSelected"
                   >
-                    In {{ req.fields ? getStringForHead() : "keiner" }} Spalte
+                    In {{ req.fields ? getStringForHead(req) : "keiner" }} Spalte
                   </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
@@ -586,6 +586,7 @@ export default class Database extends Vue {
     {
       query: "", 
       fields: null, // string contains null == all | name
+      headerStr: "",
       id: 0, // setting index 
     },
   ];
@@ -871,7 +872,7 @@ export default class Database extends Vue {
 
   // set an id for each '+' click
   appendArrayReq(): void {
-  this.request.push({query: "", fields: null, id: this.indexField})
+  this.request.push({query: "", fields: null, headerStr: "", id: this.indexField})
   // this.request[]
   this.indexField++
   console.log(this.indexField,this.request.toString, this.request.length);
@@ -921,9 +922,9 @@ export default class Database extends Vue {
         await this.changeQueryParam({ fields: h.value });
     } 
 
-  getStringForHead(): string {
-    this.visibleHeaders.forEach((h) => this.shouldSearchInColumn(h) ? this.stringSpalte = h.text : "")     
-    return this.stringSpalte
+  getStringForHead(o: any): string {
+    this.visibleHeaders.forEach((h) => this.shouldSearchInColumnReqBased(h, o) ? o.headerStr = h.text : "")     
+    return o.headerStr
   }  
     
   shouldSearchInColumn(h: TableHeader): boolean {
@@ -936,10 +937,28 @@ export default class Database extends Vue {
     }
   }
 
+   
+  shouldSearchInColumnReqBased(h: TableHeader, o: any): boolean {
+    if (o.fields === "") {
+      return false;
+    } else if (o.fields === null) {
+      return true;
+    } else {
+      return o.fields.split(",").includes(h.value) && h.searchable;
+    }
+  }
+
   get areAllSearchColumsSelected(): boolean {
     // all columns are either selected, or not searchable
     return this.headers.every(
       (h) => this.shouldSearchInColumn(h) || h.searchable === false
+    );
+  }
+
+  areAllSearchColumsSelectedReqBased(o: any): boolean {
+    // all columns are either selected, or not searchable
+    return this.headers.every(
+      (h) => this.shouldSearchInColumnReqBased(h, o) || h.searchable === false
     );
   }
 
