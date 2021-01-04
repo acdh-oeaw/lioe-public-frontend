@@ -167,12 +167,12 @@
                   v-bind="attrs"
                 >
                   <template
-                    v-if="type === 'fulltext' && areAllSearchColumsSelected"
+                    v-if="type === 'fulltext' && areAllSearchColumsSelectedReqBased(request[0])"
                   >
                     In allen Spalten
                   </template>
                   <template
-                    v-if="type === 'fulltext' && !areAllSearchColumsSelected"
+                    v-if="type === 'fulltext' && !areAllSearchColumsSelectedReqBased(request[0])"
                   >
                     In
                     {{ 
@@ -196,8 +196,8 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch"
-                  v-if="areAllSearchColumsSelected"
+                  @click="selectNoColumnsAndSearch(request[0])"
+                  v-if="areAllSearchColumsSelectedReqBased(request[0])"
                 >
                   <!-- <v-list-item-avatar /> -->
                   <v-list-item-title> Einzelne Suche </v-list-item-title>
@@ -206,8 +206,8 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectAllColumnsAndSearch"
-                  v-if="!areAllSearchColumsSelected"
+                  @click="selectAllColumnsAndSearch(request[0])"
+                  v-if="!areAllSearchColumsSelectedReqBased(request[0])"
                 >
                   <!-- <v-list-item-avatar /> -->
                   <v-list-item-title>
@@ -218,7 +218,7 @@
 
                 <!-- HERE THE SINGLE CHOICE -->
                 <v-radio-group                                  
-                v-if="!areAllSearchColumsSelected"
+                v-if="!areAllSearchColumsSelectedReqBased(request[0])"
                 dense
                 class="my-0 pr-1"           
                 > 
@@ -313,12 +313,12 @@
                   v-bind="attrs"
                 >
                   <template
-                    v-if="areAllSearchColumsSelected"
+                    v-if="areAllSearchColumsSelectedReqBased(req)"
                   >
                     In allen Spalten
                   </template>
                   <template
-                    v-if="!areAllSearchColumsSelected"
+                    v-if="!areAllSearchColumsSelectedReqBased(req)"
                   >
                     In {{ req.fields ? getStringForHead(req) : "keiner" }} Spalte
                   </template>
@@ -329,8 +329,8 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch"
-                  v-if="areAllSearchColumsSelected"
+                  @click="selectNoColumnsAndSearch(req)"
+                  v-if="areAllSearchColumsSelectedReqBased(req)"
                 >
                   <!-- <v-list-item-avatar /> -->
                   <v-list-item-title> Einzelne Suche </v-list-item-title>
@@ -338,8 +338,8 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectAllColumnsAndSearch"
-                  v-if="!areAllSearchColumsSelected"
+                  @click="selectAllColumnsAndSearch(req)"
+                  v-if="!areAllSearchColumsSelectedReqBased(req)"
                 >
                   <!-- <v-list-item-avatar /> -->
                   <v-list-item-title>
@@ -348,7 +348,7 @@
                 </v-list-item>
                 <v-divider />
                <v-radio-group                                  
-                v-if="!areAllSearchColumsSelected"
+                v-if="!areAllSearchColumsSelectedReqBased(req)"
                 dense
                 class="my-0 pr-1"           
                 > 
@@ -962,19 +962,21 @@ export default class Database extends Vue {
     );
   }
 
-  async selectAllColumnsAndSearch() {
+  async selectAllColumnsAndSearch(o: any) {
     // allow search in all columns that are searchable
+    o.fields = null //?
     await this.changeQueryParam({ fields: null });
-    if (this.query !== null) {
-      this.onChangeQuery(this.query);
+    if (o.query !== null) {
+      this.onChangeQuery(o.query);
     }
   }
 
-  async selectNoColumnsAndSearch() {
+  async selectNoColumnsAndSearch(o: any) {
     // allow search in no columns
+    o.fields = "" // ?
     await this.changeQueryParam({ fields: "" });
-    if (this.query !== null) {
-      this.onChangeQuery(this.query);
+    if (o.query !== null) {
+      this.onChangeQuery(o.query);
     }
   }
 
