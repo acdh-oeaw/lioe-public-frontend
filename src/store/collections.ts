@@ -24,13 +24,23 @@ class CollectionModule extends VuexModule{
 
     private temp_collections:Array<Collection> = []
     private wboe_collections:Array<Collection> = []
+    private showAlleBelege:Boolean = false
 
+
+    get getShowAlleBelege() {
+        return this.showAlleBelege;
+    }
     get temp_coll() {
         return this.temp_collections;
     }
 
     get wboe_coll() {
         return this.wboe_collections;
+    }
+
+    @mutation
+    changeShowAlleBelege(show: Boolean) {
+        this.showAlleBelege = show;
     }
 
     @mutation

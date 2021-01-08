@@ -2,7 +2,7 @@
   <div>
     <v-flex xs12>
       <v-card>
-        <v-checkbox v-model="showAllBelege" color="primary" label="Alle Belege"></v-checkbox>
+        <v-checkbox v-model="showAlleBelege" color="primary" label="Alle Belege"></v-checkbox>
         <v-card-text style="padding: 0px">
           <v-list dense>
             <v-subheader>Mein Sammlungen</v-subheader>
@@ -158,7 +158,14 @@ export default class Playlist extends Vue {
   collectionSearchItems: any[] = [];
   selectedCollections: any[] = [];
   searchCollection: string | null = null;
-  showAllBelege = false;
+
+  get showAlleBelege() {
+    return stateProxy.collections.getShowAlleBelege;
+  }
+  
+  set showAlleBelege(show: Boolean) {
+    stateProxy.collections.changeShowAlleBelege(show);
+  }
 
   get temp_coll() {
     return stateProxy.collections.temp_coll;
@@ -237,12 +244,6 @@ export default class Playlist extends Vue {
         text: x.name,
       }));
     }
-  }
-
-  @Watch("showAllBelege")
-  emitShowAllBelege() {
-    console.log('AAAAAAAAAA')
-    this.$emit("entries", this.showAllBelege)
   }
 
   deleteCol(col: Collection) {

@@ -1,7 +1,7 @@
 <template>
   <v-layout column>
     <v-navigation-drawer :value="sideBar" left app permanent v-if="sideBar">
-      <playlist @entries="showAllBelege = $event"> </playlist>
+      <playlist> </playlist>
     </v-navigation-drawer>
     <v-flex>
       <v-card class="sticky-card" width="100%">
@@ -379,7 +379,6 @@ export default class Database extends Vue {
   loading = false;
   searching = false;
   showFilterOptions = false;
-  showAllBelege: any;
   pagination = {
     page: 1,
     itemsPerPage: 10,
@@ -645,14 +644,13 @@ export default class Database extends Vue {
     return stateProxy.collections.wboe_coll;
   }
 
-  @Watch("stateProxy.collections.amountActiveCollections")
-  testIfSelectWOrks() {
-    console.log(stateProxy.collections.amountActiveCollections);
+  get showAlleBelege() {
+    return stateProxy.collections.getShowAlleBelege;
   }
 
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
-    let allBelege = this.showAllBelege;
+    let allBelege = this.showAlleBelege;
     //console.log(activeCollections, allBelege)
     if (activeCollections > 0 && !allBelege) {
       return true;
