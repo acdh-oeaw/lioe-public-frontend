@@ -191,13 +191,24 @@ export async function searchDocuments(
   const sort = [];
 
   const searchTerms = search.reduce((m, e, i, l) => {
+    
     if (e.fields !== null) {
+      if(m[e.fields] !== undefined) {
+        m[e.fields] = m[e.fields] + "'" + e.fields
+      }
       m[e.fields] = e.query
+      //else m[e.fields].concat("," + e.query)
+      // if(m[e.fields] === null) 
+      
+      // m[e.fields] = e.query
+      // else{m[e.fields]+= "," + e.query}
     }
+
+    console.log('OUR M: ', m)
     return m
   }, {} as { [key: string]: string })
 
-  console.log({search, page, items, fuzziness, searchTerms})
+ // console.log({search, page, items, fuzziness, searchTerms})
   if(sortBy.length !== 0) {
     if(descending.length !== 0) {
       sort.push(

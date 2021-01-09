@@ -11,7 +11,7 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="request[0].query"
+              v-model="request_arr[0].query"
               :loading="searching"
               hide-details
               solo
@@ -166,16 +166,16 @@
                   v-bind="attrs"
                 >
                   <template
-                    v-if="type === 'fulltext' && areAllSearchColumsSelectedReqBased(request[0])"
+                    v-if="type === 'fulltext' && areAllSearchColumsSelectedReqBased(request_arr[0])"
                   >
                     In allen Spalten
                   </template>
                   <template
-                    v-if="type === 'fulltext' && !areAllSearchColumsSelectedReqBased(request[0])"
+                    v-if="type === 'fulltext' && !areAllSearchColumsSelectedReqBased(request_arr[0])"
                   >
                     In
                     {{ 
-                      request[0].fields ? getStringForHead(request[0])
+                      request_arr[0].fields ? getStringForHead(request_arr[0])
                         : "keiner"
                     }}
                     Spalte
@@ -195,8 +195,8 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch(request[0])"
-                  v-if="areAllSearchColumsSelectedReqBased(request[0])"
+                  @click="selectNoColumnsAndSearch(request_arr[0])"
+                  v-if="areAllSearchColumsSelectedReqBased(request_arr[0])"
                 >
                   <!-- <v-list-item-avatar /> -->
                   <v-list-item-title> Einzelne Suche </v-list-item-title>
@@ -205,8 +205,8 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectAllColumnsAndSearch(request[0])"
-                  v-if="!areAllSearchColumsSelectedReqBased(request[0])"
+                  @click="selectAllColumnsAndSearch(request_arr[0])"
+                  v-if="!areAllSearchColumsSelectedReqBased(request_arr[0])"
                 >
                   <!-- <v-list-item-avatar /> -->
                   <v-list-item-title>
@@ -217,7 +217,7 @@
 
                 <!-- HERE THE SINGLE CHOICE -->
                 <v-radio-group                                  
-                v-if="!areAllSearchColumsSelectedReqBased(request[0])"
+                v-if="!areAllSearchColumsSelectedReqBased(request_arr[0])"
                 dense
                 class="my-0 pr-1"           
                 > 
@@ -227,7 +227,7 @@
                   v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
                   :label="h.text"
-                  @change="toggleOneCol(h, request[0])"
+                  @change="toggleOneCol(h, request_arr[0])"
                 >
                 </v-radio>
                 </v-radio-group>
@@ -255,10 +255,10 @@
       </v-card>
     </v-flex>
     <!-- STARTING HERE THE MULTIPLE SEARCH FIELDS -->
-    <v-flex v-if="request.length > 1">
+    <v-flex v-if="request_arr.length > 1">
       <v-card
         class="sticky-card mt-2"
-        v-for="(req, index) in request.slice(1)"
+        v-for="(req, index) in request_arr.slice(1)"
         :key="index"
         width="100%"
       >
@@ -536,6 +536,7 @@ import * as xlsx from "xlsx";
 import * as _ from "lodash";
 import { log } from "util";
 import { request } from "http";
+import { forEach } from "lodash";
 
 interface Places {
   Ort: string;
@@ -573,7 +574,7 @@ export default class Database extends Vue {
       headerStr: "",
       id: 0, // setting index 
     },
-  ])}) request: SearchRequest[]
+  ])}) request_arr: SearchRequest[]
 
   geoStore = geoStore;
   items: any[] = [];
@@ -840,7 +841,7 @@ export default class Database extends Vue {
     await this.changeQueryParam({
       fuzzy: this.fuzzy === "true" ? "false" : "true",
     });
-    this.onChangeQuery(this.request)
+    this.onChangeQuery(this.request_arr)
   }
 
   changeQueryParam(p: any): Promise<any> {
@@ -854,15 +855,14 @@ export default class Database extends Vue {
 
   // set an id for each '+' click
   appendArrayReq(): void {
-  this.request.push({query: "", fields: null, headerStr: "", id: this.indexField})
-  // this.request[]
+  this.request_arr.push({query: "", fields: null, headerStr: "", id: this.indexField})
   this.indexField++
-  console.log(this.indexField,this.request.toString, this.request.length);
+  console.log(this.indexField,this.request_arr.toString, this.request_arr.length);
   }
 
   // remove element with each '-' click
   removeElementArrayReq(o: SearchRequest): void {
-    this.request = this.request.filter(r => r.id !== o.id)
+    this.request_arr = this.request_arr.filter(r => r.id !== o.id)
     // this.request.splice(this.request.indexOf(o), 1)
   }
 
@@ -879,10 +879,13 @@ export default class Database extends Vue {
   shouldSearchInColumnReqBased(h: TableHeader, o: any): boolean {
     if (o.fields === "") {
       return false;
-    } else if (o.fields === null) {
+    } else if (o.fields === null)  { // based on the join operation 
       return true;
-    } else {
-      return o.fields.split(",").includes(h.value) && h.searchable;
+    } // else if(o.fields.contains(',')) {
+    //   return true
+    // }
+    else {
+      return o.fields.includes(h.value) && h.searchable;
     }
   }
 
@@ -894,11 +897,15 @@ export default class Database extends Vue {
   }
 
   async selectAllColumnsAndSearch(o: any) {
-    // allow search in all columns that are searchable
-    o.fields = null //?
-    await this.changeQueryParam({ fields: null });
+    // allow search in all columns that are searchable, by filtering out the unsearchable options and join them into a string
+    o.fields = null 
+    // this.headers.filter((h) => h.searchable && h.show)
+    //   .map((h) => h.value).join()
+
+     
+    await this.changeQueryParam({ fields: null }); // TODO
     if (o.query !== null) {
-      this.onChangeQuery(o.query);
+      this.onChangeQuery(this.request_arr);
     }
   }
 
@@ -907,7 +914,7 @@ export default class Database extends Vue {
     o.fields = "" // ?
     await this.changeQueryParam({ fields: "" });
     if (o.query !== null) {
-      this.onChangeQuery(o.query);
+      this.onChangeQuery(this.request_arr);
     }
   }
 
@@ -1175,8 +1182,8 @@ export default class Database extends Vue {
     if (newVal.page !== oldVal.page) {
       window.scroll({ top: 0, behavior: "smooth" });
     }
-    if (this.request) {
-      this.onChangeQuery(this.request);
+    if (this.request_arr) {
+      this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
     } else {
@@ -1325,12 +1332,42 @@ export default class Database extends Vue {
     });
   }
 
-  @Watch("request", { immediate: true, deep: true })
+  get filterReq(): SearchRequest[] {
+      // filtering out all empty fields requests
+      console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
+      const tmp = this.request_arr.filter(r => r.fields !== "");
+           
+      // creating the result array. In case of null fields ( == all fields), appending
+      let i;
+      let j = 0; // for the id in the result array
+      var res: SearchRequest[] = [];
+
+
+      for(i = 0; i < tmp.length; i++) {
+        if(tmp[i].fields === null) {
+          // exapnding res by appending an entry per header with the query value
+          let g; 
+          for(g = 0; g < this.headers.length; g++) {
+            if(this.headers[g].searchable && this.headers[g].show) {
+              res.push({query: tmp[i].query, fields: this.headers[g].value, headerStr: "", id: j});
+              j++;
+            }
+          }
+        } else {
+          res.push({query: tmp[i].query, fields: tmp[i].fields, headerStr: tmp[i].headerStr, id: j})
+          j++
+        }
+      }
+    
+    return res;
+  }
+
+  @Watch("request_arr", { immediate: true, deep: true })
   async onChangeQuery(req: SearchRequest[]) {
     if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
-        req,
+        this.filterReq, // send here the req array without the "" fields queries
         this.pagination.page,
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
@@ -1341,7 +1378,7 @@ export default class Database extends Vue {
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
-      // console.log('fluss', res.total)
+
       this.totalItems = res.total.value || 0;
       this.searching = false;
     } else {
