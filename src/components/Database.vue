@@ -859,8 +859,8 @@ export default class Database extends Vue {
   changeQueryParamReq(s: string): Promise<any> {
     return this.$router
     .replace({
-      // TODO replace here the q=... part by the new one
-      query: {}
+      // TODO replace here the q=... part by the new one but keeping the rest (fuzziness etc.)
+      query: { ...this.$router.currentRoute.query, s},
     })
   }
 
@@ -868,7 +868,7 @@ export default class Database extends Vue {
     return this.$router
       .replace({
         // path: this.$router.currentRoute.path,
-        query: { ...this.$router.currentRoute.params, ...p },
+        query: { ...this.$router.currentRoute.query, ...p },
       })
       .catch(() => console.log("route duplicated."));
   }
