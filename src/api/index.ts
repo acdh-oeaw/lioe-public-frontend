@@ -194,16 +194,16 @@ export async function searchDocuments(
     
     if (e.fields !== null) {
 
-      if(m[e.fields] !== undefined) { // concatenating in case of pre-existing value
-        // console.log('yes it is already defined: ', m[e.fields]);
-        m[e.fields] = m[e.fields] + "," + e.query
+      if(m[e.fields] !== undefined) { // pushing in case of the array already exists
+        m[e.fields].push(e.query) 
       } else {
-      m[e.fields] = e.query }
+       m[e.fields] = [e.query] }
+    
     }
 
     console.log('OUR M: ', m)
     return m
-  }, {} as { [key: string]: string })
+  }, {} as { [key: string]: [string] })
   //  console.log('searchTerms looks like: ', searchTerms)
  // console.log({search, page, items, fuzziness, searchTerms})
   if(sortBy.length !== 0) {
