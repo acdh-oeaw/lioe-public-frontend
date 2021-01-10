@@ -1182,7 +1182,7 @@ export default class Database extends Vue {
     if (newVal.page !== oldVal.page) {
       window.scroll({ top: 0, behavior: "smooth" });
     }
-    if (this.request_arr) {
+    if (this.request_arr[0]) {
       this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
