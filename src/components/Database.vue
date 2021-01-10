@@ -844,11 +844,31 @@ export default class Database extends Vue {
     this.onChangeQuery(this.request_arr)
   }
 
+  getReqRoute(): string {
+    let tmp = "q="
+    let i;
+
+    (this.request_arr[0].fields === null || this.request_arr[0].fields === "" ) ? "" + this.request_arr[0].query : this.request_arr[0].fields + ":" + this.request_arr[0].query 
+    for(i = 1; i < this.request_arr.length; i++) {
+      tmp += "," + (this.request_arr[i].fields === null || this.request_arr[i].fields === "" ) ? this.request_arr[i].query : this.request_arr[i].fields + ":" + this.request_arr[0].query 
+    }
+
+    return tmp
+  }
+
+  changeQueryParamReq(s: string): Promise<any> {
+    return this.$router
+    .replace({
+      // TODO replace here the q=... part by the new one
+      query: {}
+    })
+  }
+
   changeQueryParam(p: any): Promise<any> {
     return this.$router
       .replace({
         // path: this.$router.currentRoute.path,
-        query: { ...this.$router.currentRoute.query, ...p },
+        query: { ...this.$router.currentRoute.params, ...p },
       })
       .catch(() => console.log("route duplicated."));
   }
@@ -868,7 +888,7 @@ export default class Database extends Vue {
 
   async toggleOneCol(h: TableHeader, o: any): Promise<void> {
         o.fields = h.value
-        await this.changeQueryParam({ fields: h.value });
+        await this.changeQueryParamReq(this.getReqRoute());
     } 
 
   getStringForHead(o: any): string {
@@ -897,13 +917,10 @@ export default class Database extends Vue {
   }
 
   async selectAllColumnsAndSearch(o: any) {
-    // allow search in all columns that are searchable, by filtering out the unsearchable options and join them into a string
-    o.fields = null 
-    // this.headers.filter((h) => h.searchable && h.show)
-    //   .map((h) => h.value).join()
 
-     
-    await this.changeQueryParam({ fields: null }); // TODO
+    o.fields = null 
+    
+    await this.changeQueryParamReq(this.getReqRoute()); 
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -911,8 +928,8 @@ export default class Database extends Vue {
 
   async selectNoColumnsAndSearch(o: any) {
     // allow search in no columns
-    o.fields = "" // ?
-    await this.changeQueryParam({ fields: "" });
+    o.fields = ""
+    await this.changeQueryParamReq(this.getReqRoute());
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -1182,7 +1199,7 @@ export default class Database extends Vue {
     if (newVal.page !== oldVal.page) {
       window.scroll({ top: 0, behavior: "smooth" });
     }
-    if (this.request_arr[0]) {
+    if (this.request_arr[0]) { // TODO: recheck if this.request_arr or first entry
       this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);

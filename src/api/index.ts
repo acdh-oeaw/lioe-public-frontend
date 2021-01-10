@@ -224,7 +224,7 @@ export async function searchDocuments(
       from: (page - 1) * items,
       size: items,
       query: {
-        term: searchTerms
+        terms: searchTerms
         // multi_match: {
         //   fields: searchFields,
         //   query: search,
