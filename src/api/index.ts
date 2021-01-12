@@ -186,10 +186,34 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  search: SearchRequest[], page = 1, items = 100, descending: boolean[] = [true], sortBy:any[] = [null], fuzziness:boolean = false
-  ): Promise<Documents> {
+  search: SearchRequest[],
+  page = 1,
+  items = 100,
+  descending: boolean[] = [true],
+  sortBy:any[] = [null],
+  fuzziness:boolean = false
+): Promise<Documents> {
+  // TODO:
+  const allFieldsQuery = {}
+  // DONE
+  const individualFieldsQuery = {
+    bool: {
+      must: _(search)
+        .filter(f => f.query.trim() !== '')
+        .groupBy('fields')
+        .map((group, groupName) => {
+          return {
+            terms: {
+              [ groupName ]: group.map(item => item.query)
+            }
+          }
+        })
+        .value()
+    }
+  }
+  const finalQuery = { ...allFieldsQuery, ...individualFieldsQuery}
   const sort = [];
-
+  // console.log({search})
   const searchTerms = search.reduce((m, e, i, l) => {
     
     if (e.fields !== null) {
@@ -204,7 +228,7 @@ export async function searchDocuments(
     console.log('OUR M: ', m)
     return m
   }, {} as { [key: string]: [string] })
-  //  console.log('searchTerms looks like: ', searchTerms)
+   console.log('searchTerms looks like: ', searchTerms)
  // console.log({search, page, items, fuzziness, searchTerms})
   if(sortBy.length !== 0) {
     if(descending.length !== 0) {
@@ -217,23 +241,23 @@ export async function searchDocuments(
       sort.push(sortBy[0]);
     }
   }
+
   const ds = (await axios(localEndpoint + '/es-query', {
     method: 'POST',
     data: {
       sort,
       from: (page - 1) * items,
       size: items,
-      query: {
-        terms: searchTerms
+      query: individualFieldsQuery
         // multi_match: {
         //   fields: searchFields,
         //   query: search,
         //   type: 'best_fields',
         //   fuzziness: fuzziness ? 3 : 0,
         // }
-      }
     }
   })).data
+
   return {
     documents: ds.hits.hits.map((h: any) => {
       return {
