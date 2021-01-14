@@ -1,16 +1,23 @@
 <template>
-  <div>    
+  <div>
     <v-navigation-drawer
+      class="drawer"
       :value="playlistBar"
       left
       app
       permanent
       v-if="playlistBar"
     >
-      <playlist>
-      </playlist>
+      <playlist :onMapPage="true"> </playlist>
     </v-navigation-drawer>
-    <v-navigation-drawer :value="sideBar" right app permanent v-if="sideBar">
+    <v-navigation-drawer
+      class="drawer"
+      :value="sideBar"
+      right
+      app
+      permanent
+      v-if="sideBar"
+    >
       <v-card elevation="0">
         <v-card-title>
           Karten
@@ -111,7 +118,11 @@
     <v-card class="sticky-card" width="100%">
       <v-layout>
         <v-flex>
-          <v-btn @click="playlistBar = !playlistBar" depressed style="margin-left:5px; margin-top:5px;">
+          <v-btn
+            @click="playlistBar = !playlistBar"
+            depressed
+            style="margin-left: 5px; margin-top: 5px"
+          >
             Sammlungen
           </v-btn>
         </v-flex>
@@ -246,7 +257,7 @@
 
       <router-link to="/">
         <img
-          :style="{ right: sideBar === true ? '255px' : '0vw' }"
+          :style="{ left: playlistBar === true ? '255px' : '0vw' }"
           class="logo mt-2 logo-container"
           src="/static/img/logo.svg"
         />
@@ -254,6 +265,7 @@
 
       <map-legende
         id="legende"
+        :style="{ right: sideBar === true ? '255px' : '0vw' }"
         :geoCollections="geoCollections"
         @interface="selectedCollection = $event"
       ></map-legende>
@@ -389,7 +401,8 @@ import * as FileSaver from "file-saver";
 import domtoimage from "dom-to-image";
 import * as L from "leaflet";
 import * as _ from "lodash";
-import Playlist from '@components/playlist.vue'
+import { stateProxy, Collection } from "../store/collections";
+import Playlist from "@components/playlist.vue";
 import {
   searchCollections,
   getDocumentsByCollection,
@@ -471,7 +484,7 @@ export default class Maps extends Vue {
   showGemeindenArea = false;
   updateLayers = false;
   colorGemeinde = "#333";
-  autocompleteSearch = ""
+  autocompleteSearch = "";
   colorBundesland = "#000";
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
@@ -768,23 +781,6 @@ export default class Maps extends Vue {
     }
   }
 
-  changeLocinCollection() {
-    let activeCol;
-    this.geoCollections.forEach((coll) => {
-      if (coll.id === this.selectedCollection) {
-        activeCol = coll;
-      }
-    });
-    if (this.geoCollections.length > 0) {
-      //@ts-ignore
-      activeCol.items = this.selectedLocations[this.indexOfSelected];
-    }
-    console.log('AAAAAAA')
-    console.log(this.selectedCollection)
-    this.autocompleteSearch = "";
-    this.safeCollectionsInURL();
-  }
-
   styleOf(collection: Object) {
     return {
       fillOpacity: 1,
@@ -865,16 +861,6 @@ export default class Maps extends Vue {
         { permanent: perm, sticky: true }
       );
     };
-  }
-
-  get indexOfSelected() {
-    let returnColl;
-    this.geoCollections.forEach((coll) => {
-      if (coll.id === this.selectedCollection) {
-        returnColl = coll;
-      }
-    });
-    return this.geoCollections.indexOf(returnColl);
   }
 
   getCollectionsOutOfURL() {
@@ -964,26 +950,6 @@ export default class Maps extends Vue {
     }
   }
 
-  @Watch("geoCollections.length")
-  changeAutofillsOnDelete() {
-    let indexDelete = -1;
-    this.selectedLocations.forEach((auto) => {
-      let stillExists = false;
-      this.geoCollections.forEach((geoColl) => {
-        if (geoColl.items === auto) {
-          stillExists = true;
-        }
-      });
-      if (!stillExists) {
-        indexDelete = this.selectedLocations.indexOf(auto);
-      }
-    });
-    if (indexDelete != -1) {
-      this.selectedLocations.splice(indexDelete, 1);
-    }
-    this.safeCollectionsInURL();
-  }
-
   @Watch("selectedTileSet")
   darkModeBorderColor() {
     if (this.selectedTileSet === 2) {
@@ -1034,9 +1000,9 @@ export default class Maps extends Vue {
 }
 
 #legende {
+  transition: 0.5s;
   position: fixed;
   bottom: 25px;
-  left: 25px;
   z-index: 1;
   width: auto;
 }
@@ -1053,6 +1019,7 @@ export default class Maps extends Vue {
   right: 0vw;
   opacity: 0.8;
 }
+
 .logo-container.logo-hidden {
   overflow: hidden;
   height: 20px;

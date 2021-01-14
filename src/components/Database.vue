@@ -1,7 +1,7 @@
 <template>
   <v-layout column>
     <v-navigation-drawer :value="sideBar" left app permanent v-if="sideBar">
-      <playlist> </playlist>
+      <playlist :onMapPage="false"> </playlist>
     </v-navigation-drawer>
     <v-flex>
       <v-card class="sticky-card" width="100%">
@@ -908,8 +908,6 @@ export default class Database extends Vue {
 
   get shownItems() {
     if (this.showSelectedCollection) {
-      console.log(this.temp_coll[0].items)
-      console.log(this.collItems)
       return this.collItems;
     }
     return this._items;

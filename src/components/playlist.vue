@@ -2,10 +2,10 @@
   <div>
     <v-flex xs12>
       <v-card>
-        <v-checkbox v-model="showAlleBelege" color="primary" label="Alle Belege"></v-checkbox>
+        <v-checkbox v-model="showAlleBelege" color="primary" style="margin-left:20px" :disabled="onMapPage" label="Alle Belege"></v-checkbox>
         <v-card-text style="padding: 0px">
           <v-list dense>
-            <v-subheader>Mein Sammlungen</v-subheader>
+            <v-subheader>Meine Sammlungen</v-subheader>
             <v-list-item-group>
               <v-list-item v-for="(item, i) in temp_coll" :key="i" @click="switchShow(item)">
                 <v-list-item-action>
@@ -155,6 +155,7 @@ import { getDocumentsByCollection, searchCollections } from "@src/api";
 
 @Component
 export default class Playlist extends Vue {
+  @Prop() onMapPage: Boolean;
   collectionSearchItems: any[] = [];
   selectedCollections: any[] = [];
   searchCollection: string | null = null;
