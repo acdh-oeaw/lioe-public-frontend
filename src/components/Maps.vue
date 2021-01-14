@@ -130,15 +130,12 @@
           <v-autocomplete
             :loading="isLoading"
             :items="locationsSearchItems"
-            v-model="selectedLocations[indexOfSelected]"
-            @input="changeLocinCollection"
             label="Suche…"
             :search-input.sync="autocompleteSearch"
             autofocus
             item-text="text"
             item-value="value"
             hide-details
-            :disabled="disableAuto(gC.tempColl)"
             text
             flat
             chips
@@ -146,38 +143,8 @@
             solo
             elevation="0"
             clearable
-            multiple
-            v-for="gC in geoCollections"
-            :key="gC.id"
-            v-if="gC.id === selectedCollection"
           >
-            <template v-slot:selection="{ attr, on, item, selected }">
-              <v-chip
-                v-bind="attr"
-                :input-value="selected"
-                v-if="collectionPlaces.includes(item.value)"
-                v-on="on"
-              >
-                <v-icon left> map </v-icon>
-                <span v-text="item.text"></span>
-              </v-chip>
-            </template>
-            <template v-slot:item="{ item }">
-              <v-list-item-content>
-                <v-list-item-title v-text="item.text"></v-list-item-title>
-              </v-list-item-content>
-            </template>
           </v-autocomplete>
-        </v-flex>
-        <v-flex class="pr-2 pt-1 text-right">
-          <v-chip
-            v-if="amountOfTooManyItems > 0"
-            color="accent"
-            style="margin: 3px"
-            @click="dialogPlaces = true"
-          >
-            <span v-text="'+ ' + amountOfTooManyItems + ' weitere'"></span>
-          </v-chip>
         </v-flex>
         <v-flex class="pr-2 pt-1 text-right">
           <v-menu open-on-hover :offset-y="true">
@@ -194,26 +161,6 @@
         </v-flex>
       </v-layout>
     </v-card>
-
-    <v-dialog v-model="dialogPlaces" width="500">
-      <v-card>
-        <v-card-title class="headline grey lighten-2">
-          Orte in {{ currentCollectionName }}
-        </v-card-title>
-        <v-card-text>
-          <v-chip
-            close
-            close-icon="mdi-delete"
-            v-for="place in getNameOfSigle(selectedLocations[indexOfSelected])"
-            :key="place.sigle"
-            style="margin: 4px"
-            @click:close="removePlaceFromCollection(place.sigle)"
-          >
-            <span v-text="place.name"></span>
-          </v-chip>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
 
     <v-layout class="map-overlay pa-4">
       <v-flex xs1>
@@ -493,17 +440,6 @@ export default class Maps extends Vue {
   maxVisibleItems = 8;
   dialogPlaces = false;
   //searchCollections
-  geoCollections: any[] = [
-    {
-      id: 0,
-      tempColl: -1,
-      collection_name: "Unbenannte Sammlung",
-      editing: false,
-      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-      borderColor: "#000",
-      items: [],
-    },
-  ];
   selectedCollection = 0;
   selectedLocations: any[] = [];
   title: boolean = true;
@@ -541,16 +477,6 @@ export default class Maps extends Vue {
     },
   };
 
-  get currentCollectionName() {
-    let name = "";
-    this.geoCollections.forEach((geoColl) => {
-      if (geoColl.id === this.selectedCollection) {
-        name = geoColl.collection_name;
-      }
-    });
-    return name;
-  }
-
   options = {
     onEachFeature: this.onEachFeatureFunction,
     pointToLayer: (feature: any, latlng: any) => {
@@ -566,6 +492,17 @@ export default class Maps extends Vue {
   layerGeoJson: any = null;
   map: any = null;
 
+  get geoCollections() {
+    let allItems = [
+      ...stateProxy.collections.temp_coll,
+      ...stateProxy.collections.wboe_coll,
+    ];
+    
+    return allItems.filter((el: any) => {
+        return el.selected;
+      });
+  }
+
   get tileSetUrl(): string {
     return this.tileSets[this.selectedTileSet].url;
   }
@@ -577,31 +514,9 @@ export default class Maps extends Vue {
     }
   }
 
-  get collectionPlaces() {
-    let stuff = this.selectedLocations[this.indexOfSelected];
-    return _.takeRight(stuff, this.maxVisibleItems);
-  }
-
-  get amountOfTooManyItems() {
-    let amount = 0;
-    if (this.selectedLocations[this.indexOfSelected]) {
-      amount =
-        this.selectedLocations[this.indexOfSelected].length -
-        this.collectionPlaces.length;
-    }
-    return amount;
-  }
-
   resetView() {
     this.zoom = defaultZoom;
     this.center = defaultCenter;
-  }
-
-  removePlaceFromCollection(sigle: String) {
-    const index = this.selectedLocations[this.indexOfSelected].indexOf(sigle);
-    if (index > -1) {
-      this.selectedLocations[this.indexOfSelected].splice(index, 1);
-    }
   }
 
   async printMap(type?: string) {
@@ -629,12 +544,6 @@ export default class Maps extends Vue {
         2
       );
       FileSaver.saveAs(new Blob([blob]), "map.json");
-    }
-  }
-
-  disableAuto(collID: Number) {
-    if (collID != -1) {
-      return true;
     }
   }
 
@@ -792,11 +701,18 @@ export default class Maps extends Vue {
     };
   }
 
-  collDisplayLocations(locations: string[]) {
+  i = 1;
+
+  collDisplayLocations(locations: Object[]) {
+    let places: String[] = [];
+    locations.forEach((beleg) => {
+      //@ts-ignore
+      places.push(beleg.ortsSigle[0]);
+    });
     return {
       ...this.geoStore!.gemeinden,
       features: this.allFeatures.filter((f: any) => {
-        return locations.indexOf(f.properties.sigle) > -1;
+        return places.indexOf(f.properties.sigle) > -1;
       }),
     };
   }
@@ -861,18 +777,6 @@ export default class Maps extends Vue {
         { permanent: perm, sticky: true }
       );
     };
-  }
-
-  getCollectionsOutOfURL() {
-    if (this.$route.query.col) {
-      //@ts-ignore
-      let geoCollectionURL = JSON.parse(this.$route.query.col);
-      this.geoCollections = geoCollectionURL;
-      this.geoCollections.forEach((element) => {
-        this.selectedLocations[this.geoCollections.indexOf(element)] =
-          element.items;
-      });
-    }
   }
 
   get onEachFeatureFunction() {
@@ -963,21 +867,8 @@ export default class Maps extends Vue {
     }
   }
 
-  @Watch("$route.query.col")
-  comingFromArticle() {
-    if (this.$route.query.source === "article") {
-      this.showGrossregionen = true;
-      this.selectedTileSet = 3;
-      this.fixTooltip = true;
-    }
-    if (this.$route.query.col) {
-      this.getCollectionsOutOfURL();
-    }
-  }
-
   async mounted() {
     this.loadRivers();
-    this.getCollectionsOutOfURL();
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson;
       this.map = this.$refs.map;
