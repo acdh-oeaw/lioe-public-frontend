@@ -1349,10 +1349,10 @@ export default class Database extends Vue {
     });
   }
 
-  get filterReq(): SearchRequest[] {
+  get filterReqAll(): SearchRequest[] {
       // filtering out all empty fields requests
-      console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
-      const tmp = this.request_arr.filter(r => r.fields !== "");
+     // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
+      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields === null);
            
       // creating the result array. In case of null fields ( == all fields), appending
       let i;
@@ -1361,7 +1361,7 @@ export default class Database extends Vue {
 
 
       for(i = 0; i < tmp.length; i++) {
-        if(tmp[i].fields === null) {
+        
           // exapnding res by appending an entry per header with the query value
           let g; 
           for(g = 0; g < this.headers.length; g++) {
@@ -1370,21 +1370,39 @@ export default class Database extends Vue {
               j++;
             }
           }
-        } else {
-          res.push({query: tmp[i].query, fields: tmp[i].fields, headerStr: tmp[i].headerStr, id: j})
-          j++
-        }
       }
     
     return res;
   }
+
+  get filterReqSingle(): SearchRequest[] {
+      // filtering out all empty fields requests
+     // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
+      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields !== null);
+           
+      // creating the result array. In case of null fields ( == all fields), appending
+      let i;
+      let j = 0; // for the id in the result array
+      var res: SearchRequest[] = [];
+
+
+      for(i = 0; i < tmp.length; i++) {  
+          res.push({query: tmp[i].query, fields: tmp[i].fields, headerStr: tmp[i].headerStr, id: j})
+          j++
+        }
+      
+    
+    return res;
+  }
+
 
   @Watch("request_arr", { immediate: true, deep: true })
   async onChangeQuery(req: SearchRequest[]) {
     if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
-        this.filterReq, // send here the req array without the "" fields queries
+        this.filterReqAll, // in all fields search query array (OR)
+        this.filterReqSingle, // send here the req array of the single fields (AND)
         this.pagination.page,
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,

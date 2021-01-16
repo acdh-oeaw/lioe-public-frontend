@@ -1,5 +1,6 @@
 import axios from 'axios'
 import * as _ from 'lodash'
+import { concat } from 'lodash'
 import { userStore } from '../store/user'
 
 declare var process: {
@@ -186,19 +187,20 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  search: SearchRequest[],
+  search1: SearchRequest[],
+  search2: SearchRequest[],
   page = 1,
   items = 100,
   descending: boolean[] = [true],
   sortBy:any[] = [null],
-  fuzziness:boolean = false
+  should_fuzzy:boolean = false
 ): Promise<Documents> {
-  // TODO:
-  const allFieldsQuery = {}
   // DONE
   const individualFieldsQuery = {
     bool: {
-      must: _(search)
+      must:  
+      // [
+        _(search2)
         .filter(f => f.query.trim() !== '')
         .groupBy('fields')
         .map((group, groupName) => {
@@ -207,29 +209,55 @@ export async function searchDocuments(
               [ groupName ]: group.map(item => item.query)
             }
           }
+          
         })
         .value()
+        // , { fuzzy: 
+        //     { fuzziness: should_fuzzy ? 3 : 0 } 
+        //   }
+        // ]
+      }
+      
     }
-  }
-  const finalQuery = { ...allFieldsQuery, ...individualFieldsQuery}
+    console.log("INDI: ", individualFieldsQuery)
+    // TODO:
+    const allFieldsQuery = {
+      bool: {
+        should: 
+        [
+          _(search1)
+          .filter(f => f.query.trim() !== '')
+          .groupBy('fields')
+          .map((group, groupName) => {
+            return {
+              terms: {
+                [ groupName ]: group.map(item => item.query)
+              }
+            }
+          })
+          .value()
+          // ,
+        //  { fuzzy: 
+        //     { fuzziness: should_fuzzy ? 3 : 0 } 
+        //   }
+        
+        , individualFieldsQuery  // here should the must part be nested
+        ]
+      }
+    }
+
+  // "should": [
+  // { fuzzy: 
+  //    { fuzziness: should_fuzzy ? 3 : 0 }
+  // },
+  // {
+  //   "term": { "HL": "holl"	}
+  // },
+
+
+ // const finalQuery = { ...allFieldsQuery, ...individualFieldsQuery}
   const sort = [];
-  // console.log({search})
-  const searchTerms = search.reduce((m, e, i, l) => {
-    
-    if (e.fields !== null) {
 
-      if(m[e.fields] !== undefined) { // pushing in case of the array already exists
-        m[e.fields].push(e.query) 
-      } else {
-       m[e.fields] = [e.query] }
-    
-    }
-
-    console.log('OUR M: ', m)
-    return m
-  }, {} as { [key: string]: [string] })
-   console.log('searchTerms looks like: ', searchTerms)
- // console.log({search, page, items, fuzziness, searchTerms})
   if(sortBy.length !== 0) {
     if(descending.length !== 0) {
       sort.push(
@@ -248,7 +276,8 @@ export async function searchDocuments(
       sort,
       from: (page - 1) * items,
       size: items,
-      query: individualFieldsQuery
+      query: 
+      allFieldsQuery
         // multi_match: {
         //   fields: searchFields,
         //   query: search,
