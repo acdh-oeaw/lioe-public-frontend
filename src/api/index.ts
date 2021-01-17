@@ -187,20 +187,48 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  search1: SearchRequest[],
-  search2: SearchRequest[],
+  searchAllMult: SearchRequest[],
+  searchInd: SearchRequest[],
   page = 1,
   items = 100,
   descending: boolean[] = [true],
   sortBy:any[] = [null],
   should_fuzzy:boolean = false
 ): Promise<Documents> {
-  // DONE
+
+  let fuzzlevel = should_fuzzy ? 3 : 0
+
+  // building the individual, AND request
+  let indvidualArr : any[] = [];
+
+  _(searchInd)
+        .filter(f => f.query.trim() !== '')
+        .groupBy('fields')
+        .map((group, groupName) => { 
+          return {
+            terms: {
+              [ groupName ]: group.map(item => item.query)
+            }
+          }       
+        }).forEach(el => (
+          indvidualArr.push(el))
+        )
+
+  indvidualArr.push({ fuzzy: { fuzziness: fuzzlevel } } )
+
+  // this constant will be pushed as an object of the overall SHOULD array
   const individualFieldsQuery = {
     bool: {
       must:  
-      // [
-        _(search2)
+      indvidualArr
+      }    
+  }
+
+  // creating the multiple array (OR Request)
+    let multArr : any[] = [];
+
+    
+    _(searchAllMult)
         .filter(f => f.query.trim() !== '')
         .groupBy('fields')
         .map((group, groupName) => {
@@ -209,51 +237,26 @@ export async function searchDocuments(
               [ groupName ]: group.map(item => item.query)
             }
           }
-          
-        })
-        .value()
-        // , { fuzzy: 
-        //     { fuzziness: should_fuzzy ? 3 : 0 } 
-        //   }
-        // ]
-      }
-      
-    }
-    console.log("INDI: ", individualFieldsQuery)
-    // TODO:
+        }).forEach(el => (
+          multArr.push(el))
+        )
+    
+    // nesting together the 2 arrays and the fuzziness attribute
+    multArr.push({ fuzzy: { fuzziness: fuzzlevel } })
+    multArr.push( individualFieldsQuery )
+
+
+    console.log("final array: ", multArr)
+   
     const allFieldsQuery = {
       bool: {
-        should: 
-        [
-          _(search1)
-          .filter(f => f.query.trim() !== '')
-          .groupBy('fields')
-          .map((group, groupName) => {
-            return {
-              terms: {
-                [ groupName ]: group.map(item => item.query)
-              }
-            }
-          })
-          .value()
-          // ,
-        //  { fuzzy: 
-        //     { fuzziness: should_fuzzy ? 3 : 0 } 
-        //   }
-        
-        , individualFieldsQuery  // here should the must part be nested
-        ]
+        should: multArr
       }
     }
 
-  // "should": [
-  // { fuzzy: 
-  //    { fuzziness: should_fuzzy ? 3 : 0 }
-  // },
-  // {
-  //   "term": { "HL": "holl"	}
-  // },
 
+    console.log("final request: ", allFieldsQuery)
+    
 
  // const finalQuery = { ...allFieldsQuery, ...individualFieldsQuery}
   const sort = [];
@@ -270,14 +273,18 @@ export async function searchDocuments(
     }
   }
 
+  
+
   const ds = (await axios(localEndpoint + '/es-query', {
     method: 'POST',
     data: {
+
       sort,
       from: (page - 1) * items,
       size: items,
-      query: 
-      allFieldsQuery
+      query: allFieldsQuery 
+
+      
         // multi_match: {
         //   fields: searchFields,
         //   query: search,
