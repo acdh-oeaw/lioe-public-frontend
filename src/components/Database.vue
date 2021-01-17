@@ -1349,11 +1349,12 @@ export default class Database extends Vue {
     });
   }
 
-  get filterReqAll(): SearchRequest[] {
+  get filterReqAll(): SearchRequest[] | null {
       // filtering out all empty fields requests
      // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
-      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields === null);
+      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields === null && r.query !== '');
            
+      if(tmp.length === 0) return null
       // creating the result array. In case of null fields ( == all fields), appending
       let i;
       let j = 0; // for the id in the result array
@@ -1375,10 +1376,12 @@ export default class Database extends Vue {
     return res;
   }
 
-  get filterReqSingle(): SearchRequest[] {
+  get filterReqSingle(): SearchRequest[] | null {
       // filtering out all empty fields requests
      // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
-      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields !== null);
+      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields !== null && r.query !== '');
+
+      if(tmp.length === 0) return null
            
       // creating the result array. In case of null fields ( == all fields), appending
       let i;

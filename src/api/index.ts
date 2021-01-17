@@ -187,8 +187,8 @@ export async function getCollectionByIds(ids: string[]): Promise<{ name: string,
 }
 
 export async function searchDocuments(
-  searchAllMult: SearchRequest[],
-  searchInd: SearchRequest[],
+  searchAllMult: SearchRequest[] | null,
+  searchInd: SearchRequest[] | null,
   page = 1,
   items = 100,
   descending: boolean[] = [true],
@@ -198,67 +198,6 @@ export async function searchDocuments(
 
   let fuzzlevel = should_fuzzy ? 3 : 0
 
-  // building the individual, AND request
-  let indvidualArr : any[] = [];
-
-  _(searchInd)
-        .filter(f => f.query.trim() !== '')
-        .groupBy('fields')
-        .map((group, groupName) => { 
-          return {
-            terms: {
-              [ groupName ]: group.map(item => item.query)
-            }
-          }       
-        }).forEach(el => (
-          indvidualArr.push(el))
-        )
-
-  indvidualArr.push({ fuzzy: { fuzziness: fuzzlevel } } )
-
-  // this constant will be pushed as an object of the overall SHOULD array
-  const individualFieldsQuery = {
-    bool: {
-      must:  
-      indvidualArr
-      }    
-  }
-
-  // creating the multiple array (OR Request)
-    let multArr : any[] = [];
-
-    
-    _(searchAllMult)
-        .filter(f => f.query.trim() !== '')
-        .groupBy('fields')
-        .map((group, groupName) => {
-          return {
-            terms: {
-              [ groupName ]: group.map(item => item.query)
-            }
-          }
-        }).forEach(el => (
-          multArr.push(el))
-        )
-    
-    // nesting together the 2 arrays and the fuzziness attribute
-    multArr.push({ fuzzy: { fuzziness: fuzzlevel } })
-    multArr.push( individualFieldsQuery )
-
-
-    console.log("final array: ", multArr)
-   
-    const allFieldsQuery = {
-      bool: {
-        should: multArr
-      }
-    }
-
-
-    console.log("final request: ", allFieldsQuery)
-    
-
- // const finalQuery = { ...allFieldsQuery, ...individualFieldsQuery}
   const sort = [];
 
   if(sortBy.length !== 0) {
@@ -282,7 +221,7 @@ export async function searchDocuments(
       sort,
       from: (page - 1) * items,
       size: items,
-      query: allFieldsQuery 
+      query: getFinalQuery(searchAllMult, searchInd, fuzzlevel) 
 
       
         // multi_match: {
@@ -305,6 +244,89 @@ export async function searchDocuments(
     total: ds.hits.total
   }
 }
+
+
+// creating the nested query based on 4 case - null null, individual null, null multiple, individual multiple
+function getFinalQuery(searchAllMult: SearchRequest[] | null,
+  searchInd: SearchRequest[] | null,
+  fuzzlevel: number) : Object {
+
+    console.log("so we have indi: ", searchInd, " and multi: ", searchAllMult)
+
+    let indvidualArr : any[] = [];
+    let multArr : any[] = [];
+    let individualFieldsQuery;
+    
+
+    if (searchAllMult === null && searchInd === null) {
+        // TODO: create a drop down for the initial before searching page
+        return []
+    }
+
+    if (searchInd !== null) {
+ 
+      _(searchInd)
+        .filter(f => f.query.trim() !== '')
+        .groupBy('fields')
+        .map((group, groupName) => { 
+          return {
+            terms: {
+              [ groupName ]: group.map(item => item.query)
+            }
+          }       
+        }).forEach(el => (
+          indvidualArr.push(el))
+        )
+
+      indvidualArr.push({ fuzzy: { fuzziness: fuzzlevel } } )
+
+      // this constant will be pushed as an object of the overall SHOULD array
+     individualFieldsQuery = {
+        bool: {
+          must:  
+          indvidualArr
+        }    
+      }
+
+      if (searchAllMult === null) return individualFieldsQuery // returns only the must part - AND for single queries
+    }
+
+    if (searchAllMult !== null) {
+      // creating the multiple array (OR Request)
+    _(searchAllMult)
+        .filter(f => f.query.trim() !== '')
+        .groupBy('fields')
+        .map((group, groupName) => {
+          return {
+            terms: {
+              [ groupName ]: group.map(item => item.query)
+            }
+          }
+        }).forEach(el => (
+          multArr.push(el))
+        )
+    
+    // nesting together the 2 arrays and the fuzziness attribute
+    multArr.push({ fuzzy: { fuzziness: fuzzlevel } })
+    
+    if (searchInd !== null) multArr.push( individualFieldsQuery )
+
+
+    console.log("final array: ", multArr)
+   
+    const allFieldsQuery = {
+      bool: {
+        should: multArr
+      }
+    }
+
+    return allFieldsQuery
+
+    }
+
+    return {} // will never reach this state
+  
+  }
 
 export async function getDocumentsByCollection(ids: string[], page = 1, items = 100): Promise<Documents> {
   const r = await (await fetch(apiEndpoint + `/documents/?${
