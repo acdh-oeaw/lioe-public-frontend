@@ -285,7 +285,7 @@
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item v-for="(item, index) in temp_coll" :key="index">
+            <v-list-item class="addToCollectionItem" v-for="(item, index) in temp_coll" :key="index">
               <v-list-item-title @click="addBelegtoCollection(item)">{{
                 item.collection_name
               }}</v-list-item-title>
@@ -1251,5 +1251,14 @@ div.v-data-footer {
   height: 50px;
   background-color: #3b89a0;
   padding: 6px;
+
 }
+
+.addToCollectionItem:hover{
+   cursor: pointer;
+   background: #3b89a0;
+   color: white;
+}
+
+
 </style>
