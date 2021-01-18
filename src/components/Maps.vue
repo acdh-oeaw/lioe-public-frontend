@@ -349,7 +349,7 @@ import domtoimage from "dom-to-image";
 import * as L from "leaflet";
 import * as _ from "lodash";
 import { stateProxy, Collection } from "../store/collections";
-import Playlist from "@components/playlist.vue";
+import Playlist from "@components/Playlist.vue";
 import {
   searchCollections,
   getDocumentsByCollection,

@@ -1,13 +1,21 @@
 <template>
   <div>
     <v-flex xs12>
-      <v-card>
-        <v-checkbox v-model="showAlleBelege" color="primary" style="margin-left:20px" :disabled="onMapPage" label="Alle Belege"></v-checkbox>
-        <v-card-text style="padding: 0px">
+      <v-card elevation="0">
+        <v-card-text style="padding: 10px">
+          <v-checkbox v-model="showAlleBelege" color="primary" :disabled="onMapPage" label="Alle Belege"></v-checkbox>
+          <v-text-field
+            placeholder="Sammlungen filtern..."
+            rounded
+            dense
+            filled
+            style="width:98%"
+            v-model="filterCollection"
+          ></v-text-field>
           <v-list dense>
             <v-subheader>Meine Sammlungen</v-subheader>
             <v-list-item-group>
-              <v-list-item v-for="(item, i) in temp_coll" :key="i" @click="switchShow(item)">
+              <v-list-item v-for="(item, i) in temp_coll.filter(item => item.collection_name.includes(this.filterCollection))" :key="i" @click="switchShow(item)">
                 <v-list-item-action>
                   <v-checkbox
                     v-model="item.selected"
@@ -64,14 +72,14 @@
             color="primary"
             depressed
             @click="addCollection()"
-            style="width: 95% margin: 0 auto;"
+            style="width: 98%; margin: 0 auto;"
           >
-            Neue Sammlung anlegen
+            Sammlung anlegen
           </v-btn>
           <v-list dense>
             <v-subheader>WBÖ Sammlungen</v-subheader>
             <v-list-item-group>
-              <v-list-item v-for="(item, i) in wboe_coll" :key="i">
+              <v-list-item v-for="(item, i) in wboe_coll.filter(item => item.collection_name.includes(this.filterCollection))" :key="i">
                 <v-list-item-action>
                   <v-checkbox
                     :input-value="item.selected"
@@ -113,14 +121,13 @@
             :items="collectionSearchItems"
             v-model="selectedCollections"
             :search-input.sync="searchCollection"
-            label="Zu tippen beginnen, um nach Sammlungen zu suchen"
+            label="WBÖ-Sammlungen hinzufügen..."
             hide-details
-            text
-            full-width
+            style="width:98%"
             dense
-            prepend-inner-icon="search"
-            solo
             flat
+            rounded
+            filled
             hide-selected
             multiple
           >
@@ -159,6 +166,7 @@ export default class Playlist extends Vue {
   collectionSearchItems: any[] = [];
   selectedCollections: any[] = [];
   searchCollection: string | null = null;
+  filterCollection: string = "";
 
   get showAlleBelege() {
     return stateProxy.collections.getShowAlleBelege;
@@ -171,6 +179,7 @@ export default class Playlist extends Vue {
   get temp_coll() {
     return stateProxy.collections.temp_coll;
   }
+
 
   get wboe_coll() {
     return stateProxy.collections.wboe_coll;
