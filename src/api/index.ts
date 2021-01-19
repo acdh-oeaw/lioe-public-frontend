@@ -260,7 +260,7 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
 
     if (searchAllMult === null && searchInd === null) {
         // TODO: create a drop down for the initial before searching page
-        return []
+        return { match_all: {} } 
     }
 
     if (searchInd !== null) {
