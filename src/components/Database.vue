@@ -224,7 +224,7 @@
                 <v-radio
                   dense
                   :disabled="type === 'collection'"
-                  v-for="h in visibleHeaders.filter((h) => h.searchable)"
+                  v-for="(h, i) in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
                   :label="h.text"
                   @change="toggleOneCol(h, request_arr[0])"
@@ -568,13 +568,13 @@ export default class Database extends Vue {
 
   @Prop({ default: "" }) queryFields: string[] | null;
 
-  @Prop({ default: () => ([{
+  request_arr: SearchRequest[] = [{
       query: "", 
       fields: null, // string contains null == all | name
       headerStr: "",
       id: 0, // setting index 
-    },
-  ])}) request_arr: SearchRequest[]
+    }
+  ]
 
   geoStore = geoStore;
   items: any[] = [];
@@ -856,15 +856,16 @@ export default class Database extends Vue {
     return tmp
   }
 
-  changeQueryParamReq(s: string): Promise<any> {
-    return this.$router
-    .replace({
-      // TODO replace here the q=... part by the new one but keeping the rest (fuzziness etc.)
-      query: { ...this.$router.currentRoute.query, s},
-    })
-  }
+  // changeQueryParamReq(s: string): Promise<any> {
+  //   return this.$router
+  //   .replace({
+  //     // TODO replace here the q=... part by the new one but keeping the rest (fuzziness etc.)
+  //     query: { ...this.$router.currentRoute.query, s},
+  //   })
+  // }
 
   changeQueryParam(p: any): Promise<any> {
+    console.log('changeQueryParam')
     return this.$router
       .replace({
         // path: this.$router.currentRoute.path,
@@ -875,9 +876,9 @@ export default class Database extends Vue {
 
   // set an id for each '+' click
   appendArrayReq(): void {
-  this.request_arr.push({query: "", fields: null, headerStr: "", id: this.indexField})
-  this.indexField++
-  console.log(this.indexField,this.request_arr.toString, this.request_arr.length);
+    this.request_arr.push({query: "", fields: null, headerStr: "", id: this.indexField})
+    this.indexField++
+    console.log(this.indexField,this.request_arr.toString, this.request_arr.length);
   }
 
   // remove element with each '-' click
@@ -886,10 +887,10 @@ export default class Database extends Vue {
     // this.request.splice(this.request.indexOf(o), 1)
   }
 
-  async toggleOneCol(h: TableHeader, o: any): Promise<void> {
-        o.fields = h.value
-        await this.changeQueryParamReq(this.getReqRoute());
-    } 
+  async toggleOneCol(h: TableHeader, o: SearchRequest): Promise<void> {
+    o.fields = h.value
+    // await this.changeQueryParamReq(this.getReqRoute());
+  } 
 
   getStringForHead(o: any): string {
     this.visibleHeaders.forEach((h) => this.shouldSearchInColumnReqBased(h, o) ? o.headerStr = h.text : "")     
@@ -920,7 +921,7 @@ export default class Database extends Vue {
 
     o.fields = null 
     
-    await this.changeQueryParamReq(this.getReqRoute()); 
+    // await this.changeQueryParamReq(this.getReqRoute()); 
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -929,7 +930,7 @@ export default class Database extends Vue {
   async selectNoColumnsAndSearch(o: any) {
     // allow search in no columns
     o.fields = ""
-    await this.changeQueryParamReq(this.getReqRoute());
+    // await this.changeQueryParamReq(this.getReqRoute());
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -1398,9 +1399,39 @@ export default class Database extends Vue {
     return res;
   }
 
+  @Watch('$route')
+  onChangeRoute() {
+    if (this.$route.query !== undefined || (this.$route.query as any).q !== undefined) {
+      const requestList = this.deserializeRequestList(this.$route.query.q as string)
+      this.performSearch(requestList)
+    }
+  }
 
-  @Watch("request_arr", { immediate: true, deep: true })
-  async onChangeQuery(req: SearchRequest[]) {
+  deserializeRequestList(q: string|null): SearchRequest[] {
+    if (q === null) {
+      return []
+    } else {
+      return q
+        .split(';')
+        .map((rs, i) => {
+          const chunks = rs.split(',')
+          return {
+            fields: chunks[0] === 'all_fields' ? null : chunks[0],
+            query: chunks[1],
+            headerStr: chunks[2],
+            id: i
+          }
+        })
+    }
+  }
+
+  serializeRequestList(rl: SearchRequest[]): string {
+    return rl.map(s => {
+      return `${s.fields || 'all_fields'},${s.query},${s.headerStr}`
+    }).join(';')
+  }
+
+  async performSearch(req: SearchRequest[]) {
     if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
@@ -1416,11 +1447,21 @@ export default class Database extends Vue {
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
-
       this.totalItems = res.total.value || 0;
       this.searching = false;
     } else {
       this.init();
+    }
+  }
+
+  @Watch("request_arr", { deep: true })
+  async onChangeQuery(req: SearchRequest[], oldVal?: SearchRequest[]) {
+    if (req !== undefined) {
+      this.$router.replace({
+        query: { ...this.$router.currentRoute.query, q: this.serializeRequestList(req) }
+      })
+    } else {
+      console.log(req)
     }
   }
 
