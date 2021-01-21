@@ -107,14 +107,13 @@ export default class MapLegende extends Vue {
       ...stateProxy.collections.temp_coll,
       ...stateProxy.collections.wboe_coll,
     ];
-    return allItems.filter(this.checkIfSelected);
+    return allItems.filter((el: any) => {
+        return el.selected;
+      });
   }
 
-  checkIfSelected(coll: Collection) {
-    if (coll.selected) {
-      return true;
-    }
-    return false;
+  set geoCollections(colls: Collection[]) {
+
   }
 }
 </script>

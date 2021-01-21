@@ -213,8 +213,6 @@
       <map-legende
         id="legende"
         :style="{ right: sideBar === true ? '255px' : '0vw' }"
-        :geoCollections="geoCollections"
-        @interface="selectedCollection = $event"
       ></map-legende>
     </v-layout>
 
@@ -497,7 +495,6 @@ export default class Maps extends Vue {
       ...stateProxy.collections.temp_coll,
       ...stateProxy.collections.wboe_coll,
     ];
-    
     return allItems.filter((el: any) => {
         return el.selected;
       });
