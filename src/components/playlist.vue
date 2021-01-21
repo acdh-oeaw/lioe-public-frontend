@@ -3,118 +3,148 @@
     <v-flex xs12>
       <v-card elevation="0">
         <v-card-text style="padding: 10px">
-          <v-checkbox v-model="showAlleBelege" color="primary" :disabled="onMapPage" label="Alle Belege"></v-checkbox>
+          <v-checkbox
+            v-model="showAlleBelege"
+            color="primary"
+            :disabled="onMapPage"
+            label="Alle Belege"
+          ></v-checkbox>
           <v-text-field
             placeholder="Sammlungen filtern..."
             rounded
             dense
             filled
-            style="width:98%"
+            style="width: 98%"
             v-model="filterCollection"
           ></v-text-field>
           <v-list dense>
             <v-subheader>Meine Sammlungen</v-subheader>
             <v-list-item-group>
-              <v-list-item v-for="(item, i) in temp_coll.filter(item => item.collection_name.includes(this.filterCollection))" :key="i" @click="switchShow(item)">
-                <v-list-item-action>
-                  <v-checkbox
-                    v-model="item.selected"
-                    @click.prevent=""
-                    color="primary"
-                  ></v-checkbox>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-if="item.editing === false"
-                    v-text="item.collection_name"
-                  ></v-list-item-title>
-                  <v-text-field
-                    dense
-                    v-if="item.editing === true"
-                    @keypress.enter="item.editing = false"
-                    @blur="item.editing = false"
-                    v-model="item.collection_name"
-                    autofocus
-                  ></v-text-field>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        x-small
-                        fab
-                        text
-                        depressed
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        <span class="mdi mdi-dots-horizontal"></span>
-                      </v-btn>
-                    </template>
-                    <v-list dense>
-                      <v-list-item>
-                        <v-list-item-title @click="item.editing = true"
-                          >Umbennenen</v-list-item-title
+              <draggable
+                v-model="temp_coll"
+                group="temp_coll"
+                @start="drag = true"
+                @end="drag = false"
+              >
+                <v-list-item
+                  v-for="(item, i) in temp_coll.filter((item) =>
+                    item.collection_name.includes(this.filterCollection)
+                  )"
+                  :key="i"
+                  @click="switchShow(item)"
+                >
+                  <v-list-item-action>
+                    <v-checkbox
+                      v-model="item.selected"
+                      @click.prevent=""
+                      color="primary"
+                    ></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-if="item.editing === false"
+                      v-text="item.collection_name"
+                    ></v-list-item-title>
+                    <v-text-field
+                      dense
+                      v-if="item.editing === true"
+                      @keypress.enter="item.editing = false"
+                      @blur="item.editing = false"
+                      v-model="item.collection_name"
+                      autofocus
+                    ></v-text-field>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-menu offset-y>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          x-small
+                          fab
+                          text
+                          depressed
+                          v-bind="attrs"
+                          v-on="on"
                         >
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title @click="deleteCol(item)"
-                          >Löschen</v-list-item-title
-                        >
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-list-item-action>
-              </v-list-item>
+                          <span class="mdi mdi-dots-horizontal"></span>
+                        </v-btn>
+                      </template>
+                      <v-list dense>
+                        <v-list-item>
+                          <v-list-item-title @click="item.editing = true"
+                            >Umbennenen</v-list-item-title
+                          >
+                        </v-list-item>
+                        <v-list-item>
+                          <v-list-item-title @click="deleteCol(item)"
+                            >Löschen</v-list-item-title
+                          >
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-list-item-action>
+                </v-list-item>
+              </draggable>
             </v-list-item-group>
           </v-list>
           <v-btn
             color="primary"
             depressed
             @click="addCollection()"
-            style="width: 98%; margin: 0 auto;"
+            style="width: 98%; margin: 0 auto"
           >
             Sammlung anlegen
           </v-btn>
           <v-list dense>
             <v-subheader>WBÖ Sammlungen</v-subheader>
             <v-list-item-group>
-              <v-list-item v-for="(item, i) in wboe_coll.filter(item => item.collection_name.includes(this.filterCollection))" :key="i">
-                <v-list-item-action>
-                  <v-checkbox
-                    :input-value="item.selected"
-                    color="primary"
-                  ></v-checkbox>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title
-                    v-text="item.collection_name"
-                  ></v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        x-small
-                        fab
-                        text
-                        depressed
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        <span class="mdi mdi-dots-horizontal"></span>
-                      </v-btn>
-                    </template>
-                    <v-list dense>
-                      <v-list-item>
-                        <v-list-item-title @click="deleteCol(item)"
-                          >Löschen</v-list-item-title
+              <draggable
+                v-model="wboe_coll"
+                group="wboe_coll"
+                @start="drag = true"
+                @end="drag = false"
+              >
+                <v-list-item
+                  v-for="(item, i) in wboe_coll.filter((item) =>
+                    item.collection_name.includes(this.filterCollection)
+                  )"
+                  :key="i"
+                >
+                  <v-list-item-action>
+                    <v-checkbox
+                      :input-value="item.selected"
+                      color="primary"
+                    ></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title
+                      v-text="item.collection_name"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-menu offset-y>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          x-small
+                          fab
+                          text
+                          depressed
+                          v-bind="attrs"
+                          v-on="on"
                         >
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-list-item-action>
-              </v-list-item>
+                          <span class="mdi mdi-dots-horizontal"></span>
+                        </v-btn>
+                      </template>
+                      <v-list dense>
+                        <v-list-item>
+                          <v-list-item-title @click="deleteCol(item)"
+                            >Löschen</v-list-item-title
+                          >
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-list-item-action>
+                </v-list-item>
+              </draggable>
             </v-list-item-group>
           </v-list>
           <v-autocomplete
@@ -123,7 +153,7 @@
             :search-input.sync="searchCollection"
             label="WBÖ-Sammlungen hinzufügen..."
             hide-details
-            style="width:98%"
+            style="width: 98%"
             dense
             flat
             rounded
@@ -159,8 +189,13 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { stateProxy, Collection } from "../store/collections";
 import { getDocumentsByCollection, searchCollections } from "@src/api";
+import draggable from "vuedraggable";
 
-@Component
+@Component({
+  components: {
+    draggable
+  },
+})
 export default class Playlist extends Vue {
   @Prop() onMapPage: Boolean;
   collectionSearchItems: any[] = [];
@@ -171,7 +206,7 @@ export default class Playlist extends Vue {
   get showAlleBelege() {
     return stateProxy.collections.getShowAlleBelege;
   }
-  
+
   set showAlleBelege(show: Boolean) {
     stateProxy.collections.changeShowAlleBelege(show);
   }
@@ -180,9 +215,16 @@ export default class Playlist extends Vue {
     return stateProxy.collections.temp_coll;
   }
 
+  set temp_coll(colls: Collection[]) {
+    stateProxy.collections.setTemp_coll(colls);
+  }
 
   get wboe_coll() {
     return stateProxy.collections.wboe_coll;
+  }
+
+  set wboe_coll(colls: Collection[]) {
+    stateProxy.collections.setWboe_coll(colls);
   }
 
   @Watch("selectedCollections")
@@ -193,7 +235,7 @@ export default class Playlist extends Vue {
   }
 
   switchShow(item: Collection) {
-    if(item.editing === false) {
+    if (item.editing === false) {
       stateProxy.collections.swapShow(item);
     }
   }

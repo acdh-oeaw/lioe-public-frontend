@@ -39,6 +39,16 @@ class CollectionModule extends VuexModule{
     }
 
     @mutation
+    setTemp_coll(colls: Collection[]) {
+        this.temp_collections = colls
+    }
+
+    @mutation
+    setWboe_coll(colls: Collection[]) {
+        this.wboe_collections = colls;
+    }
+
+    @mutation
     changeShowAlleBelege(show: Boolean) {
         this.showAlleBelege = show;
     }

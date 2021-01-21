@@ -58,6 +58,7 @@
     "vue-property-decorator": "^6.0.0",
     "vue-router": "^3.2.0",
     "vue2-leaflet": "^1.2.3",
+    "vuedraggable": "^2.24.3",
     "vuetify": "^2.2.27",
     "vuewordcloud": "^18.7.11",
     "vuex": "^3.6.0",
