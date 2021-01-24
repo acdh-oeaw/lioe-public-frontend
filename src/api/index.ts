@@ -259,7 +259,6 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
     
 
     if (searchAllMult === null && searchInd === null) {
-        // TODO: create a drop down for the initial before searching page
         return { match_all: {} } 
     }
 
@@ -278,7 +277,7 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
           indvidualArr.push(el))
         )
 
-      indvidualArr.push({ fuzzy: { fuzziness: fuzzlevel } } )
+     // indvidualArr.push({ fuzzy: { fuzziness: fuzzlevel } } )
 
       // this constant will be pushed as an object of the overall SHOULD array
      individualFieldsQuery = {
