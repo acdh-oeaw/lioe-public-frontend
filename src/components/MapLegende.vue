@@ -1,74 +1,82 @@
 <template>
   <vContainer>
-    <v-list
-      v-if="geoCollections.length > 0"
-      dense
-      class="list listHeight-s listHeight-m listHeight-l"
-    >
-      <draggable
-        v-model="geoCollections"
-        group="collections"
-        @start="drag = true"
-        @end="drag = false"
+    <div id="list_legy" v-if="geoCollections.length > 0">
+      <b>Legende</b>
+      <v-list
+        dense
+        class="legend_items list listHeight-s listHeight-m listHeight-l"
       >
-        <v-list-item v-for="gC in geoCollections" :key="gC.id">
-          <v-list-item-content style="margin-right: 30px">
-            <v-text-field
-              v-if="gC.editing === true"
-              @blur="
-                gC.editing = false;
-                safeCollectionsInURL();
-              "
-              @keypress.enter="
-                gC.editing = false;
-                safeCollectionsInURL();
-              "
-              v-model="gC.collection_name"
-              autofocus
-            ></v-text-field>
-            <v-list-item-title v-else>
-              {{ gC.collection_name }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-menu :close-on-content-click="false" offset-y top>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  v-on="on"
-                  class="legendeButtons"
-                  :color="gC.fillColor"
-                  elevation="1"
-                  fab
-                  x-small
-                ></v-btn>
-              </template>
-              <v-color-picker
-                hide-inputs
-                v-model="gC.fillColor"
-              ></v-color-picker>
-            </v-menu>
-          </v-list-item-action>
-          <v-list-item-action>
-            <v-menu :close-on-content-click="false" offset-y top>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  v-on="on"
-                  class="legendeButtons"
-                  :color="gC.borderColor"
-                  elevation="1"
-                  fab
-                  x-small
-                ></v-btn>
-              </template>
-              <v-color-picker
-                hide-inputs
-                v-model="gC.borderColor"
-              ></v-color-picker>
-            </v-menu>
-          </v-list-item-action>
-        </v-list-item>
-      </draggable>
-    </v-list>
+        <draggable
+          v-model="geoCollections"
+          group="collections"
+          @start="drag = true"
+          @end="drag = false"
+        >
+          <v-list-item
+            class="legend_items"
+            v-for="gC in geoCollections"
+            :key="gC.id"
+          >
+            <v-list-item-content style="margin-right: 30px">
+              <v-text-field
+                v-if="gC.editing === true"
+                @blur="
+                  gC.editing = false;
+                  safeCollectionsInURL();
+                "
+                @keypress.enter="
+                  gC.editing = false;
+                  safeCollectionsInURL();
+                "
+                v-model="gC.collection_name"
+                autofocus
+              ></v-text-field>
+              <v-list-item-title v-else>
+                {{ gC.collection_name }}
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <div :color="gC.borderColor" style="width: 18px; height: 18px">
+                <v-menu
+                  :close-on-content-click="false"
+                  offset-y
+                  top
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      v-on="on"
+                      :color="gC.borderColor"
+                      elevation="1"
+                      fab
+                      style="width: 18px; height: 18px; margin-bottom: 20px"
+                    >
+                      <v-btn
+                        :color="gC.fillColor"
+                        elevation="1"
+                        fab
+                        style="width: 15px; height: 15px"
+                      ></v-btn>
+                    </v-btn>
+                  </template>
+                  <div id="menuItem">
+                    Farbe des Rahmens
+                    <v-color-picker
+                      hide-inputs
+                      v-model="gC.borderColor"
+                    ></v-color-picker>
+                    Farbe des Inhalts
+                    <v-color-picker
+                      hide-inputs
+                      v-model="gC.fillColor"
+                    ></v-color-picker>
+                  </div>
+                </v-menu>
+              </div>
+            </v-list-item-action>
+          </v-list-item>
+        </draggable>
+      </v-list>
+    </div>
   </vContainer>
 </template>
 
@@ -108,13 +116,11 @@ export default class MapLegende extends Vue {
       ...stateProxy.collections.wboe_coll,
     ];
     return allItems.filter((el: any) => {
-        return el.selected;
-      });
+      return el.selected;
+    });
   }
 
-  set geoCollections(colls: Collection[]) {
-
-  }
+  set geoCollections(colls: Collection[]) {}
 }
 </script>
 
@@ -141,29 +147,46 @@ a {
 
 @media only screen and (min-height: 10px) {
   .listHeight-s {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 10vh;
   }
 }
 
 @media only screen and (min-height: 700px) {
   .listHeight-s {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 23vh;
   }
 }
 
 @media only screen and (min-height: 900px) {
   .listHeight-m {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 40vh;
   }
 }
 
 @media only screen and (min-height: 1000px) {
   .listHeight-l {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 40vh;
   }
+}
+
+.legend_items {
+  background-color: rgba($color: #ddeeff, $alpha: 0);
+}
+
+#list_legy {
+  background-color: rgba($color: #fff, $alpha: 0.8);
+  text-align: center;
+  padding: 5px;
+  border-radius: 2.5px;
+}
+
+#menuItem {
+  padding: 5px;
+  background-color: rgba($color: #fff, $alpha: 0.8);
+  text-align: center;
 }
 </style>
