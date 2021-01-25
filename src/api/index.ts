@@ -29,7 +29,7 @@ interface Documents {
 }
 
 export interface SearchRequest {
-  query: string
+  query: string|null
   // string contains null == all | name
   fields: null|string
   headerStr: string
@@ -134,7 +134,6 @@ export async function getDocuments(page = 1, items = 100, sortBy: string[] = [],
     },
     url: localEndpoint + '/es-query'
   })).data
-  console.log('nintendoDS', ds.hits.hits)
   return {
     documents: ds.hits.hits.filter((e:any) => e._source.entry).map((h: any) => {
       return {
@@ -265,7 +264,7 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
     if (searchInd !== null) {
  
       _(searchInd)
-        .filter(f => f.query.trim() !== '')
+        .filter(f => f.query !== null && f.query.trim() !== '')
         .groupBy('fields')
         .map((group, groupName) => { 
           return {
@@ -293,7 +292,7 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
     if (searchAllMult !== null) {
       // creating the multiple array (OR Request)
     _(searchAllMult)
-        .filter(f => f.query.trim() !== '')
+        .filter(f => f.query !== null && f.query.trim() !== '')
         .groupBy('fields')
         .map((group, groupName) => {
           return {
