@@ -1422,13 +1422,12 @@ export default class Database extends Vue {
 
   @Watch("request_arr", { deep: true })
   async onChangeQuery(req: SearchRequest[], oldVal?: SearchRequest[]) {
-    console.log('updated!!')
     if (req !== undefined) {
       this.$router.replace({
         query: { ...this.$router.currentRoute.query, q: this.serializeRequestList(req) }
-      })
+      }).catch(() => console.log("route duplicated."))
     } else {
-      console.log(req)
+      console.log('request_array is undefined.')
     }
   }
 
