@@ -195,7 +195,7 @@ import draggable from "vuedraggable";
 
 @Component({
   components: {
-    draggable
+    draggable,
   },
 })
 export default class Playlist extends Vue {

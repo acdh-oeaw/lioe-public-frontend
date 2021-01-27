@@ -1,82 +1,71 @@
 <template>
   <vContainer>
     <div id="list_legy" v-if="geoCollections.length > 0">
-      <div style="text-align:center; width: fill;">
-      <b>Legende</b>
+      <div style="text-align: center; width: fill">
+        <b>Legende</b>
       </div>
       <v-list
         dense
         class="legend_items list listHeight-s listHeight-m listHeight-l"
       >
-        <draggable
-          v-model="geoCollections"
-          group="collections"
-          @start="drag = true"
-          @end="drag = false"
+        <v-list-item
+          class="legend_items"
+          v-for="gC in geoCollections"
+          :key="gC.id"
         >
-          <v-list-item
-            class="legend_items"
-            v-for="gC in geoCollections"
-            :key="gC.id"
-          >
-            <v-list-item-content style="margin-right: 30px">
-              <v-text-field
-                v-if="gC.editing === true"
-                @blur="
-                  gC.editing = false;
-                  safeCollectionsInURL();
-                "
-                @keypress.enter="
-                  gC.editing = false;
-                  safeCollectionsInURL();
-                "
-                v-model="gC.collection_name"
-                autofocus
-              ></v-text-field>
-              <v-list-item-title v-else>
-                {{ gC.collection_name }}
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <div :color="gC.borderColor" style="width: 18px; height: 18px">
-                <v-menu
-                  :close-on-content-click="false"
-                  offset-y
-                  top
-                >
-                  <template v-slot:activator="{ on }">
+          <v-list-item-content style="margin-right: 30px">
+            <v-text-field
+              v-if="gC.editing === true"
+              @blur="
+                gC.editing = false;
+                safeCollectionsInURL();
+              "
+              @keypress.enter="
+                gC.editing = false;
+                safeCollectionsInURL();
+              "
+              v-model="gC.collection_name"
+              autofocus
+            ></v-text-field>
+            <v-list-item-title v-else>
+              {{ gC.collection_name }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <div :color="gC.borderColor" style="width: 18px; height: 18px">
+              <v-menu :close-on-content-click="false" offset-y top>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    :color="gC.borderColor"
+                    elevation="1"
+                    fab
+                    style="width: 18px; height: 18px; margin-bottom: 20px"
+                  >
                     <v-btn
-                      v-on="on"
-                      :color="gC.borderColor"
+                      :color="gC.fillColor"
                       elevation="1"
                       fab
-                      style="width: 18px; height: 18px; margin-bottom: 20px"
-                    >
-                      <v-btn
-                        :color="gC.fillColor"
-                        elevation="1"
-                        fab
-                        style="width: 15px; height: 15px"
-                      ></v-btn>
-                    </v-btn>
-                  </template>
-                  <div id="menuItem">
-                    Farbe des Rahmens
-                    <v-color-picker
-                      hide-inputs
-                      v-model="gC.borderColor"
-                    ></v-color-picker>
-                    Farbe des Inhalts
-                    <v-color-picker
-                      hide-inputs
-                      v-model="gC.fillColor"
-                    ></v-color-picker>
-                  </div>
-                </v-menu>
-              </div>
-            </v-list-item-action>
-          </v-list-item>
-        </draggable>
+                      style="width: 15px; height: 15px"
+                    ></v-btn>
+                  </v-btn>
+                </template>
+                <div id="menuItem">
+                  Farbe des Rahmens
+                  <v-color-picker
+                    hide-inputs
+                    v-model="gC.borderColor"
+                  ></v-color-picker>
+                  Farbe des Inhalts
+                  <v-color-picker
+                    hide-inputs
+                    v-model="gC.fillColor"
+                  ></v-color-picker>
+                </div>
+              </v-menu>
+            </div>
+          </v-list-item-action>
+        </v-list-item>
       </v-list>
     </div>
   </vContainer>

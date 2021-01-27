@@ -496,8 +496,8 @@ export default class Maps extends Vue {
       ...stateProxy.collections.wboe_coll,
     ];
     return allItems.filter((el: any) => {
-        return el.selected;
-      });
+      return el.selected;
+    });
   }
 
   get tileSetUrl(): string {

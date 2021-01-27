@@ -6,14 +6,14 @@
     <v-flex>
       <v-card class="sticky-card" width="100%">
         <v-row no-gutters>
-            <v-btn
-              @click="sideBar = !sideBar"
-              depressed
-              style="margin-left: 5px; margin-top: 5px"
-            >
-              Sammlungen
-            </v-btn>
-          <v-col class="pa-0 flex-grow-1" style="margin-left: 5px;">
+          <v-btn
+            @click="sideBar = !sideBar"
+            depressed
+            style="margin-left: 5px; margin-top: 5px"
+          >
+            Sammlungen
+          </v-btn>
+          <v-col class="pa-0 flex-grow-1" style="margin-left: 5px">
             <v-text-field
               @click.stop=""
               v-if="type === 'fulltext'"
@@ -285,7 +285,11 @@
             </v-btn>
           </template>
           <v-list dense>
-            <v-list-item class="addToCollectionItem" v-for="(item, index) in temp_coll" :key="index">
+            <v-list-item
+              class="addToCollectionItem"
+              v-for="(item, index) in temp_coll"
+              :key="index"
+            >
               <v-list-item-title @click="addBelegtoCollection(item)">{{
                 item.collection_name
               }}</v-list-item-title>
@@ -916,16 +920,16 @@ export default class Database extends Vue {
   get collItems() {
     let allItems: any[] = [];
     this.wboeColl.forEach((beleg) => {
-      if(beleg.selected) {
-        allItems = [...allItems, ...beleg.items]
+      if (beleg.selected) {
+        allItems = [...allItems, ...beleg.items];
       }
     });
     this.temp_coll.forEach((beleg) => {
-      if(beleg.selected) {
-        allItems = [...allItems, ...beleg.items]
+      if (beleg.selected) {
+        allItems = [...allItems, ...beleg.items];
       }
     });
-    return allItems
+    return allItems;
   }
 
   @Watch("searchCollection")
@@ -1251,14 +1255,11 @@ div.v-data-footer {
   height: 50px;
   background-color: #3b89a0;
   padding: 6px;
-
 }
 
-.addToCollectionItem:hover{
-   cursor: pointer;
-   background: #3b89a0;
-   color: white;
+.addToCollectionItem:hover {
+  cursor: pointer;
+  background: #3b89a0;
+  color: white;
 }
-
-
 </style>
