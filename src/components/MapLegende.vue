@@ -1,7 +1,9 @@
 <template>
   <vContainer>
     <div id="list_legy" v-if="geoCollections.length > 0">
+      <div style="text-align:center; width: fill;">
       <b>Legende</b>
+      </div>
       <v-list
         dense
         class="legend_items list listHeight-s listHeight-m listHeight-l"
@@ -179,7 +181,6 @@ a {
 
 #list_legy {
   background-color: rgba($color: #fff, $alpha: 0.8);
-  text-align: center;
   padding: 5px;
   border-radius: 2.5px;
 }
@@ -187,6 +188,6 @@ a {
 #menuItem {
   padding: 5px;
   background-color: rgba($color: #fff, $alpha: 0.8);
-  text-align: center;
+  text-align: left;
 }
 </style>

@@ -107,11 +107,13 @@
                   v-for="(item, i) in wboe_coll.filter((item) =>
                     item.collection_name.includes(this.filterCollection)
                   )"
+                  @click="switchShow(item)"
                   :key="i"
                 >
                   <v-list-item-action>
                     <v-checkbox
                       :input-value="item.selected"
+                      @click.prevent=""
                       color="primary"
                     ></v-checkbox>
                   </v-list-item-action>

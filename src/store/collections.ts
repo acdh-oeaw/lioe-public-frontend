@@ -1,4 +1,5 @@
 import { createModule, mutation, action, extractVuexModule, Module, createProxy, } from "vuex-class-component";
+import { getDocumentsByCollection } from "../api";
 import Vuex from 'vuex'
 import Vue from 'vue'
 Vue.use(Vuex)
@@ -66,9 +67,12 @@ class CollectionModule extends VuexModule{
         }
     }
 
-    @mutation
-    addWBOE_coll(coll:{changedColl:Collection, add: boolean}) {
+    @action
+    async addWBOE_coll(coll:{changedColl:Collection, add: boolean}) {
         if(coll.add) {
+            //@ts-ignore
+            let documents = await getDocumentsByCollection([coll.changedColl.preColl.toString()])
+            coll.changedColl.items = documents.documents
             this.wboe_collections.push(coll.changedColl);
         } else {
             this.wboe_collections.forEach(collLoop => {
@@ -90,7 +94,7 @@ class CollectionModule extends VuexModule{
 
     @mutation
     swapShow(item: Collection) {
-        if (item.preColl = -1) {
+        if (item.preColl === -1) {
             this.temp_collections.forEach(itemLoop => {
                 if(item.id === itemLoop.id) {
                     itemLoop.selected = !itemLoop.selected
