@@ -1314,6 +1314,7 @@ export default class Database extends Vue {
     });
   }
 
+ 
   get filterReqAll(): SearchRequest[] | null {
       // filtering out all empty fields requests
      // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
@@ -1324,20 +1325,15 @@ export default class Database extends Vue {
       let i;
       let j = 0; // for the id in the result array
       var res: SearchRequest[] = [];
+      let searchFields = this.headers.filter((h) => h.searchable && h.show).map((h) => h.value).join(',');
+
 
 
       for(i = 0; i < tmp.length; i++) {
-        
-          // exapnding res by appending an entry per header with the query value
-          let g; 
-          for(g = 0; g < this.headers.length; g++) {
-            if(this.headers[g].searchable && this.headers[g].show) {
-              res.push({query: tmp[i].query, fields: this.headers[g].value, headerStr: "", id: j});
-              j++;
-            }
-          }
+        res.push({ query: tmp[i].query, fields: searchFields, headerStr: "", id: i})
       }
-    
+    console.log('RES Length: ', res.length)
+
     return res;
   }
 
