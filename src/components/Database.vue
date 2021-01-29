@@ -874,6 +874,8 @@ export default class Database extends Vue {
       .catch(() => console.log("route duplicated."));
   }
 
+
+
   // set an id for each '+' click
   appendArrayReq(): void {
     this.request_arr.push({query: "", fields: null, headerStr: "", id: this.indexField})
@@ -1360,19 +1362,28 @@ export default class Database extends Vue {
       let i;
       let j = 0; // for the id in the result array
       var res: SearchRequest[] = [];
+      let searchFields = this.headers.filter((h) => h.searchable && h.show).map((h) => h.value).join(',');
+      console.log('THIS IS the field string: ', searchFields)
+
 
 
       for(i = 0; i < tmp.length; i++) {
+
+        res.push({ query: tmp[i].query, fields: searchFields, headerStr: "", id: i})
         
           // exapnding res by appending an entry per header with the query value
-          let g; 
-          for(g = 0; g < this.headers.length; g++) {
-            if(this.headers[g].searchable && this.headers[g].show) {
-              res.push({query: tmp[i].query, fields: this.headers[g].value, headerStr: "", id: j});
-              j++;
-            }
-          }
+          // let g; 
+
+
+
+          // for(g = 0; g < this.headers.length; g++) {
+          //   if(this.headers[g].searchable && this.headers[g].show) {
+          //     res.push({query: tmp[i].query, fields: this.headers[g].value, headerStr: "", id: j});
+          //     j++;
+          //   }
+          // }
       }
+    console.log('RES Length: ', res.length)
     
     return res;
   }
