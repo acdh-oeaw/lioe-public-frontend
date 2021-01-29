@@ -38,7 +38,7 @@
                 :to="
                   item.type === 'article'
                     ? `/articles/${item.text}`
-                    : item.type !== 'collection' ? `/db?query=${item.value}&fields=Sigle1&type=fulltext` : `/db?collection_ids=${item.value}&type=collection`
+                    : item.type !== 'collection' ? `/db?q=Sigle1,${item.value}` : `/db?collection_ids=${item.value}&type=collection`
                 "
               >
                 <v-list-item-avatar>
@@ -74,7 +74,7 @@
                     class="text-no-transform"
                     @click.stop.prevent="
                       $router.replace(
-                        `/db?query=${item.text}&fields=HL&type=fulltext`)" 
+                        `/db?q=HL,${item.text}`)" 
                     >&rarr; Belege in Datenbank anzeigen</v-btn>
                   <v-btn text
                     v-if="item.type === `collection`"
@@ -94,7 +94,7 @@
               </v-list-item>
               <v-list-item
                 v-else-if="searchTerm !== null && searchTerm.trim() !== ''"
-                :to="`db?query=${searchTerm}&fields=HL&type=fulltext`">
+                :to="`db?q=HL,${searchTerm}`">
                 <v-list-item-title class="caption">
                   Der gesuchte Begriff konnte nicht gefunden werden. Zum Weitersuchen
                   in der Belegdatenbank:
@@ -103,7 +103,7 @@
                   <v-btn
                     text
                     color="ci"
-                    :to="`db?query=${searchTerm}&fields=HL&type=fulltext`">
+                    :to="`db?q=HL,${searchTerm}`">
                     &rarr; {{ searchTerm }}
                   </v-btn>
                 </v-list-item-action>
