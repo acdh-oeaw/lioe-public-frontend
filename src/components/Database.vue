@@ -11,7 +11,9 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              v-model="request_arr[0].query"
+              :value="request_arr[0].query"
+              @keyup="updateRequestQueryDebounced(0, $event.target.value)"
+              @change="updateRequestQueryDebounced(0, $event)"
               :loading="searching"
               hide-details
               solo
@@ -76,8 +78,8 @@
                   v-on="on"
                   v-bind="attrs"
                 >
-                  <template v-if="type === 'fulltext'"> Volltext </template>
-                  <template v-if="type === 'collection'"> Sammlung </template>
+                  <template v-if="type === 'fulltext'">Volltext</template>
+                  <template v-if="type === 'collection'">Sammlung</template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
@@ -88,19 +90,19 @@
                     changeQueryParam({ type: 'fulltext', collection_ids: null })
                   "
                 >
-                  <v-list-item-avatar>
-                    <v-icon v-if="type === 'fulltext'">mdi-check</v-icon>
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="type === 'fulltext'">mdi-check</v-icon>
                   </v-list-item-avatar>
-                  <v-list-item-title> Volltext </v-list-item-title>
+                  <v-list-item-title>Volltext</v-list-item-title>
                 </v-list-item>
                 <v-list-item
                   dense
                   @click="changeQueryParam({ type: 'collection' })"
                 >
-                  <v-list-item-avatar>
-                    <v-icon v-if="type === 'collection'">mdi-check</v-icon>
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="type === 'collection'">mdi-check</v-icon>
                   </v-list-item-avatar>
-                  <v-list-item-title> Sammlung </v-list-item-title>
+                  <v-list-item-title>Sammlung</v-list-item-title>
                 </v-list-item>
                 <v-divider />
                 <v-list-item
@@ -108,8 +110,8 @@
                   :disabled="type === 'collection' || this.fuzzy !== 'true'"
                   @click="toggleFuzziness"
                 >
-                  <v-list-item-avatar>
-                    <v-icon v-if="this.fuzzy !== 'true' && type === 'fulltext'"
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="this.fuzzy !== 'true' && type === 'fulltext'"
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
@@ -125,8 +127,8 @@
                   :disabled="type === 'collection' || this.fuzzy === 'true'"
                   @click="toggleFuzziness"
                 >
-                  <v-list-item-avatar>
-                    <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'"
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="this.fuzzy === 'true' && type === 'fulltext'"
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
@@ -166,12 +168,12 @@
                   v-bind="attrs"
                 >
                   <template
-                    v-if="type === 'fulltext' && areAllSearchColumsSelectedReqBased(request_arr[0])"
+                    v-if="type === 'fulltext' && shouldSearchInAllColumns(request_arr[0])"
                   >
                     In allen Spalten
                   </template>
                   <template
-                    v-if="type === 'fulltext' && !areAllSearchColumsSelectedReqBased(request_arr[0])"
+                    v-if="type === 'fulltext' && !shouldSearchInAllColumns(request_arr[0])"
                   >
                     In
                     {{ 
@@ -184,53 +186,37 @@
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
-              <v-list dense class="context-menu-list">
-                <!-- <v-list-item dense @click="extended = !extended">
-                  <v-list-item-avatar>
-                    <v-icon v-if="extended">mdi-check</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title> Alle Spalten anzeigen </v-list-item-title>
-                </v-list-item>
-                <v-divider /> -->
+              <v-list dense>
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch(request_arr[0])"
-                  v-if="areAllSearchColumsSelectedReqBased(request_arr[0])"
-                >
-                  <!-- <v-list-item-avatar /> -->
-                  <v-list-item-title> Einzelne Suche </v-list-item-title>
+                  @click="selectNoColumnsAndSearch(request_arr[0])">
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="shouldSearchInAllColumns(request_arr[0])">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>In allen Spalten suchen</v-list-item-title>
                 </v-list-item>
 
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection'"
-                  @click="selectAllColumnsAndSearch(request_arr[0])"
-                  v-if="!areAllSearchColumsSelectedReqBased(request_arr[0])"
-                >
-                  <!-- <v-list-item-avatar /> -->
-                  <v-list-item-title>
-                    In allen Spalten suchen
-                  </v-list-item-title>
-                </v-list-item>
                 <v-divider />
 
                 <!-- HERE THE SINGLE CHOICE -->
-                <v-radio-group                                  
-                v-if="!areAllSearchColumsSelectedReqBased(request_arr[0])"
-                dense
-                class="my-0 pr-1"           
-                > 
-                <v-radio
-                  dense
-                  :disabled="type === 'collection'"
+                <v-list-item
                   v-for="(h, i) in visibleHeaders.filter((h) => h.searchable)"
+                  :disabled="type === 'collection'"
                   :key="h.value"
                   :label="h.text"
-                  @change="toggleOneCol(h, request_arr[0])"
-                >
-                </v-radio>
-                </v-radio-group>
+                  @click="toggleOneCol(h, request_arr[0])">
+                  <v-list-item-avatar size="15">
+                    <v-icon
+                      v-if="shouldSearchInColumnReqBased(h, request_arr[0])"
+                      small>
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ h.text }}
+                  </v-list-item-title>
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-col>
@@ -270,7 +256,9 @@
               flat
               label="Datenbank durchsuchen… "
               prepend-inner-icon="search"
-              v-model="req.query"
+              :value="req.query"
+              @keyup="updateRequestQueryDebounced(index + 1, $event.target.value)"
+              @change="updateRequestQueryDebounced(index + 1, $event)"
               :loading="searching"
               hide-details
               solo
@@ -299,55 +287,55 @@
                   v-bind="attrs"
                 >
                   <template
-                    v-if="areAllSearchColumsSelectedReqBased(req)"
+                    v-if="type === 'fulltext' && shouldSearchInAllColumns(req)"
                   >
                     In allen Spalten
                   </template>
                   <template
-                    v-if="!areAllSearchColumsSelectedReqBased(req)"
+                    v-if="type === 'fulltext' && !shouldSearchInAllColumns(req)"
                   >
-                    In {{ req.fields ? getStringForHead(req) : "keiner" }} Spalte
+                    In
+                    {{ 
+                      req.fields ? getStringForHead(req)
+                        : "keiner"
+                    }}
+                    Spalte
                   </template>
+                  <template v-if="type === 'collection'"> Nach Namen </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
-              <v-list dense class="context-menu-list">
+              <v-list dense>
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch(req)"
-                  v-if="areAllSearchColumsSelectedReqBased(req)"
-                >
-                  <!-- <v-list-item-avatar /> -->
-                  <v-list-item-title> Einzelne Suche </v-list-item-title>
+                  @click="selectNoColumnsAndSearch(req)">
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="shouldSearchInAllColumns(req)">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>In allen Spalten suchen</v-list-item-title>
                 </v-list-item>
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection'"
-                  @click="selectAllColumnsAndSearch(req)"
-                  v-if="!areAllSearchColumsSelectedReqBased(req)"
-                >
-                  <!-- <v-list-item-avatar /> -->
-                  <v-list-item-title>
-                    In allen Spalten suchen
-                  </v-list-item-title>
-                </v-list-item>
+
                 <v-divider />
-               <v-radio-group                                  
-                v-if="!areAllSearchColumsSelectedReqBased(req)"
-                dense
-                class="my-0 pr-1"           
-                > 
-                <v-radio
-                  dense
+
+                <!-- HERE THE SINGLE CHOICE -->
+                <v-list-item
+                  v-for="(h, i) in visibleHeaders.filter((h) => h.searchable)"
                   :disabled="type === 'collection'"
-                  v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
                   :label="h.text"
-                  @change="toggleOneCol(h, req)"
-                >
-                </v-radio>
-               </v-radio-group>
+                  @click="toggleOneCol(h, req)">
+                  <v-list-item-avatar size="15">
+                    <v-icon
+                      v-if="shouldSearchInColumnReqBased(h, req)"
+                      small>
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ h.text }}
+                  </v-list-item-title>
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-col>
@@ -534,9 +522,8 @@ import { regions } from "../regions";
 import * as FileSaver from "file-saver";
 import * as xlsx from "xlsx";
 import * as _ from "lodash";
-import { log } from "util";
-import { request } from "http";
-import { forEach } from "lodash";
+
+const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b)
 
 interface Places {
   Ort: string;
@@ -844,25 +831,13 @@ export default class Database extends Vue {
     this.onChangeQuery(this.request_arr)
   }
 
-  getReqRoute(): string {
-    let tmp = "q="
-    let i;
-
-    (this.request_arr[0].fields === null || this.request_arr[0].fields === "" ) ? "" + this.request_arr[0].query : this.request_arr[0].fields + ":" + this.request_arr[0].query 
-    for(i = 1; i < this.request_arr.length; i++) {
-      tmp += "," + (this.request_arr[i].fields === null || this.request_arr[i].fields === "" ) ? this.request_arr[i].query : this.request_arr[i].fields + ":" + this.request_arr[0].query 
+  updateRequestQuery(index: number, e: string) {
+    if (this.request_arr[index] !== undefined) {
+      this.request_arr[index].query = e
     }
-
-    return tmp
   }
 
-  // changeQueryParamReq(s: string): Promise<any> {
-  //   return this.$router
-  //   .replace({
-  //     // TODO replace here the q=... part by the new one but keeping the rest (fuzziness etc.)
-  //     query: { ...this.$router.currentRoute.query, s},
-  //   })
-  // }
+  updateRequestQueryDebounced = _.debounce(this.updateRequestQuery, 150)
 
   changeQueryParam(p: any): Promise<any> {
     console.log('changeQueryParam')
@@ -889,7 +864,6 @@ export default class Database extends Vue {
 
   async toggleOneCol(h: TableHeader, o: SearchRequest): Promise<void> {
     o.fields = h.value
-    // await this.changeQueryParamReq(this.getReqRoute());
   } 
 
   getStringForHead(o: any): string {
@@ -897,31 +871,25 @@ export default class Database extends Vue {
     return o.headerStr
   }  
    
-  shouldSearchInColumnReqBased(h: TableHeader, o: any): boolean {
-    if (o.fields === "") {
-      return false;
-    } else if (o.fields === null)  { // based on the join operation 
-      return true;
-    } // else if(o.fields.contains(',')) {
-    //   return true
-    // }
-    else {
-      return o.fields.includes(h.value) && h.searchable;
-    }
+  shouldSearchInColumnReqBased(h: TableHeader, o: SearchRequest): boolean {
+    return o.fields !== null && o.fields.includes(h.value) && h.searchable === true
   }
 
-  areAllSearchColumsSelectedReqBased(o: any): boolean {
-    // all columns are either selected, or not searchable
-    return this.headers.every(
-      (h) => this.shouldSearchInColumnReqBased(h, o) || h.searchable === false
-    );
+  shouldSearchInAllColumns(s: SearchRequest): boolean {
+    return s.fields === null || s.fields === ''
   }
+
+  // areAllSearchColumsSelectedReqBased(o: SearchRequest): boolean {
+  //   // all columns are either selected, or not searchable
+  //   return this.headers.every(
+  //     (h) => this.shouldSearchInColumnReqBased(h, o) || h.searchable === false
+  //   );
+  // }
 
   async selectAllColumnsAndSearch(o: any) {
 
     o.fields = null 
     
-    // await this.changeQueryParamReq(this.getReqRoute()); 
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -930,7 +898,6 @@ export default class Database extends Vue {
   async selectNoColumnsAndSearch(o: any) {
     // allow search in no columns
     o.fields = ""
-    // await this.changeQueryParamReq(this.getReqRoute());
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -1197,10 +1164,7 @@ export default class Database extends Vue {
 
   @Watch("pagination", { deep: true })
   updateResults(newVal: any, oldVal: any) {
-    if (newVal.page !== oldVal.page) {
-      window.scroll({ top: 0, behavior: "smooth" });
-    }
-    if (this.request_arr[0]) { // TODO: recheck if this.request_arr or first entry
+    if (this.request_arr[0] && this.request_arr[0].query !== '') { // TODO: recheck if this.request_arr or first entry
       this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
@@ -1399,10 +1363,11 @@ export default class Database extends Vue {
     return res;
   }
 
-  @Watch('$route')
+  @Watch('$route', { immediate: true })
   onChangeRoute() {
-    if (this.$route.query !== undefined || (this.$route.query as any).q !== undefined) {
+    if (this.$route.query !== undefined && this.$route.query.q !== undefined) {
       const requestList = this.deserializeRequestList(this.$route.query.q as string)
+      this.request_arr = requestList
       this.performSearch(requestList)
     }
   }
@@ -1432,6 +1397,7 @@ export default class Database extends Vue {
   }
 
   async performSearch(req: SearchRequest[]) {
+    console.log('perf search', req)
     if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
@@ -1445,7 +1411,7 @@ export default class Database extends Vue {
       );
       this.items = res.documents.map((d) => ({
         ...d,
-        ...this.getPlacesFromSigle(d.ortsSigle),
+        ...this.getPlacesFromSigle(d.ortsSigle)
       }));
       this.totalItems = res.total.value || 0;
       this.searching = false;
@@ -1459,9 +1425,9 @@ export default class Database extends Vue {
     if (req !== undefined) {
       this.$router.replace({
         query: { ...this.$router.currentRoute.query, q: this.serializeRequestList(req) }
-      })
+      }).catch(() => console.log("route duplicated."))
     } else {
-      console.log(req)
+      console.log('request_array is undefined.')
     }
   }
 
