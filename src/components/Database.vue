@@ -522,6 +522,7 @@ import { regions } from "../regions";
 import * as FileSaver from "file-saver";
 import * as xlsx from "xlsx";
 import * as _ from "lodash";
+import { concat } from "lodash";
 
 const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b)
 
@@ -1362,7 +1363,6 @@ export default class Database extends Vue {
   @Watch('$route', { immediate: true })
   onChangeRoute() {
     if (this.$route.query !== undefined && this.$route.query.q !== undefined) {
-      // vllt here split &, than sending the last chunk
       const requestList = this.deserializeRequestList(this.$route.query.q as string)
       this.request_arr = requestList
       this.performSearch(requestList)
@@ -1422,7 +1422,7 @@ export default class Database extends Vue {
     if (req !== undefined) {
       this.$router.replace({
         query: { ...this.$router.currentRoute.query, q: this.serializeRequestList(req) }
-      }).catch(() => console.log("route duplicated. here"))
+      }) .catch(() => console.log("route duplicated. "))
     } else {
       console.log('request_array is undefined.')
     }
