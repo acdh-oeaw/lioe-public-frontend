@@ -203,6 +203,8 @@ export async function searchDocuments(
 
   let fuzzlevel = should_fuzzy ? 3 : 0
 
+  console.log('page: ', page, 'items: ', items)
+
   const sort = [];
 
   if(sortBy.length !== 0) {

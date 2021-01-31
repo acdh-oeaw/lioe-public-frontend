@@ -1164,7 +1164,7 @@ export default class Database extends Vue {
 
   @Watch("pagination", { deep: true })
   updateResults(newVal: any, oldVal: any) {
-    if (this.request_arr[0] && this.request_arr[0].query !== '') { // TODO: recheck if this.request_arr or first entry
+    if (this.request_arr[0] && this.request_arr[0].query !== '') { 
       this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
@@ -1362,6 +1362,7 @@ export default class Database extends Vue {
   @Watch('$route', { immediate: true })
   onChangeRoute() {
     if (this.$route.query !== undefined && this.$route.query.q !== undefined) {
+      // vllt here split &, than sending the last chunk
       const requestList = this.deserializeRequestList(this.$route.query.q as string)
       this.request_arr = requestList
       this.performSearch(requestList)
@@ -1378,8 +1379,8 @@ export default class Database extends Vue {
           const chunks = rs.split(',')
           return {
             fields: chunks[0] === 'all_fields' ? null : chunks[0],
-            query: chunks[1],
-            headerStr: chunks[2],
+            query: chunks[1] === null ? '' : chunks[1],
+            headerStr: chunks[2] === null ? '' : chunks[2],
             id: i
           }
         })
@@ -1397,8 +1398,8 @@ export default class Database extends Vue {
     if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
-        this.filterReqAll, // in all fields search query array (OR)
-        this.filterReqSingle, // send here the req array of the single fields (AND)
+        this.filterReqAll, // in all fields search query array (multi_match)
+        this.filterReqSingle, // send here the req array of the single fields (or per category)
         this.pagination.page,
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
@@ -1421,7 +1422,7 @@ export default class Database extends Vue {
     if (req !== undefined) {
       this.$router.replace({
         query: { ...this.$router.currentRoute.query, q: this.serializeRequestList(req) }
-      }).catch(() => console.log("route duplicated."))
+      }).catch(() => console.log("route duplicated. here"))
     } else {
       console.log('request_array is undefined.')
     }
