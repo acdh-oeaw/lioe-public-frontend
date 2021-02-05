@@ -84,13 +84,13 @@
           <v-flex class="text-right">
             <v-btn
               class="pl-3 pr-3"
-              small
+              medium
               rounded
               text
               @click="downloadEditorXML"
               >download</v-btn
             >
-            <v-btn small rounded text @click="saveEditorXML">view</v-btn>
+            <v-btn class="pl-3 pr-3" small rounded text @click="saveEditorXML"><v-icon>close</v-icon></v-btn>
           </v-flex>
         </v-card-title>
         <v-card-text class="pa-0 fill-height">
@@ -187,14 +187,19 @@ export default class Article extends Vue {
     this.$nextTick(() => {
       setTimeout(() => {
         requestAnimationFrame(() => {
-          // open print dialog
-          window.print();
-          // reset title
+
+      // open print dialog
+         window.print();
+    
+      // reset title
           document.title = oldTitle;
         });
       }, 500);
     });
   }
+
+
+
 
   isPlaceNameElement(el: HTMLElement | any) {
     return el.nodeName === "PLACENAME" && el.hasAttribute("ref");

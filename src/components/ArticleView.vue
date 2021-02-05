@@ -14,8 +14,8 @@
           isEveryArticleExpanded ? "Einklappen" : "Ausklappen"
         }}</v-btn>
       </v-flex>
-      <v-flex v-if="userStore.showPdfPrintButton">
-        <v-btn small rounded text @click="$emit('printArticle')">PDF</v-btn>
+      <v-flex class="text-xs-right">
+        <v-btn small rounded text @click="$emit('printArticle')">PDF/PRINT</v-btn>
       </v-flex>
       <v-flex class="text-xs-right">
         <v-btn small rounded text @click="$emit('showEditor')">XML/TEI</v-btn>

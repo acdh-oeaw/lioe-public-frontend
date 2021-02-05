@@ -21,14 +21,63 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="query"
+              :value="request_arr[0].query"
+              @keyup="updateRequestQueryDebounced(0, $event.target.value)"
+              @change="updateRequestQueryDebounced(0, $event)"
               :disabled="this.showSelectedCollection"
-              @input="debouncedSearchDatabase"
               :loading="searching"
               hide-details
               solo
               clearable
             />
+            <v-autocomplete
+              v-if="type === 'collection'"
+              autofocus
+              flat
+              @update:search-input="searchCollection = $event"
+              prepend-inner-icon="search"
+              :loading="searching"
+              :items="collectionSearchItems"
+              item-text="text"
+              :value="selectedCollections"
+              @input="selectCollections"
+              label="Sammlungen suchen…"
+              chips
+              deletable-chips
+              cache-items
+              return-object
+              hide-details
+              multiple
+              solo
+              clearable
+            >
+              <template v-slot:no-data>
+                <v-list-item v-if="searching">
+                  <v-list-item-title class="text-center">
+                    <v-progress-circular indeterminate color="grey" />
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  v-else-if="
+                    searchCollection === null || searchCollection.trim() === ''
+                  "
+                >
+                  <v-list-item-title class="caption">
+                    Suchen Sie nach einer bestimmten Sammlung.
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item v-else>
+                  <v-list-item-title class="caption">
+                    Keine Sammlung gefunden.
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-autocomplete>
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon @click="appendArrayReq()"
+              ><v-icon>add_circle_outline</v-icon></v-btn
+            >
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu offset-y :close-on-content-click="false">
@@ -40,8 +89,8 @@
                   v-on="on"
                   v-bind="attrs"
                 >
-                  <template v-if="type === 'fulltext'"> Volltext </template>
-                  <template v-if="type === 'collection'"> Sammlung </template>
+                  <template v-if="type === 'fulltext'">Volltext</template>
+                  <template v-if="type === 'collection'">Sammlung</template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
@@ -52,35 +101,72 @@
                     changeQueryParam({ type: 'fulltext', collection_ids: null })
                   "
                 >
-                  <v-list-item-avatar>
-                    <v-icon v-if="type === 'fulltext'">mdi-check</v-icon>
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="type === 'fulltext'">mdi-check</v-icon>
                   </v-list-item-avatar>
-                  <v-list-item-title> Volltext </v-list-item-title>
+                  <v-list-item-title>Volltext</v-list-item-title>
                 </v-list-item>
                 <v-list-item
                   dense
                   @click="changeQueryParam({ type: 'collection' })"
                 >
-                  <v-list-item-avatar>
-                    <v-icon v-if="type === 'collection'">mdi-check</v-icon>
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="type === 'collection'">mdi-check</v-icon>
                   </v-list-item-avatar>
-                  <v-list-item-title> Sammlung </v-list-item-title>
+                  <v-list-item-title>Sammlung</v-list-item-title>
                 </v-list-item>
                 <v-divider />
                 <v-list-item
                   dense
-                  :disabled="type === 'collection'"
+                  :disabled="type === 'collection' || this.fuzzy !== 'true'"
                   @click="toggleFuzziness"
                 >
-                  <v-list-item-avatar>
-                    <v-icon v-if="this.fuzzy === 'true' && type === 'fulltext'"
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="this.fuzzy !== 'true' && type === 'fulltext'"
                       >mdi-check</v-icon
                     >
                   </v-list-item-avatar>
-                  <v-list-item-title> Fehlertolerante Suche </v-list-item-title>
+                  <v-list-item-title v-if="type !== 'collection'" style="color: black">
+                    Exakte Suche
+                  </v-list-item-title>
+                  <v-list-item-title v-else>
+                    Exakte Suche
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection' || this.fuzzy === 'true'"
+                  @click="toggleFuzziness"
+                >
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="this.fuzzy === 'true' && type === 'fulltext'"
+                      >mdi-check</v-icon
+                    >
+                  </v-list-item-avatar>
+                  <v-list-item-title v-if="type !== 'collection'" style="color: black">
+                    Fehlertolerante Suche
+                  </v-list-item-title>
+                  <v-list-item-title v-else>
+                    Fehlertolerante Suche
+                  </v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
+          </v-col>
+
+          <v-col cols="auto" class="pa-0 divider-left">
+            <v-btn
+              style="margin-top: 6px"
+              class="mx-1 text-no-transform"
+              text
+              @click="extended = !extended"
+              v-model="extended"
+            >
+              <!-- <v-list-item dense @click="extended = !extended"> -->
+              <!-- <v-list-item-avatar> -->
+              <v-icon v-if="extended" color="grey">mdi-check</v-icon>
+              Alle Spalten anzeigen
+            </v-btn>
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
@@ -93,62 +179,48 @@
                   v-bind="attrs"
                 >
                   <template
-                    v-if="type === 'fulltext' && areAllSearchColumsSelected"
+                    v-if="type === 'fulltext' && shouldSearchInAllColumns(request_arr[0])"
                   >
                     In allen Spalten
                   </template>
                   <template
-                    v-if="type === 'fulltext' && !areAllSearchColumsSelected"
+                    v-if="type === 'fulltext' && !shouldSearchInAllColumns(request_arr[0])"
                   >
-                    In {{ fields ? fields.split(",").length : 0 }} Spalte{{
-                      fields && fields.split(",").length === 1 ? "" : "n"
+                    In
+                    {{ 
+                      request_arr[0].fields ? getStringForHead(request_arr[0])
+                        : "keiner"
                     }}
+                    Spalte
                   </template>
                   <template v-if="type === 'collection'"> Nach Namen </template>
                   <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
                 </v-btn>
               </template>
-              <v-list dense class="context-menu-list">
-                <v-list-item dense @click="extended = !extended">
-                  <v-list-item-avatar>
-                    <v-icon v-if="extended">mdi-check</v-icon>
+              <v-list dense>
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectNoColumnsAndSearch(request_arr[0])">
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="shouldSearchInAllColumns(request_arr[0])">mdi-check</v-icon>
                   </v-list-item-avatar>
-                  <v-list-item-title> Alle Spalten anzeigen </v-list-item-title>
+                  <v-list-item-title>In allen Spalten suchen</v-list-item-title>
                 </v-list-item>
+
                 <v-divider />
+
+                <!-- HERE THE SINGLE CHOICE -->
                 <v-list-item
-                  dense
+                  v-for="(h, i) in visibleHeaders.filter((h) => h.searchable)"
                   :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch"
-                  v-if="areAllSearchColumsSelected"
-                >
-                  <v-list-item-avatar />
-                  <v-list-item-title> Nichts auswählen </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection'"
-                  @click="selectAllColumnsAndSearch"
-                  v-if="!areAllSearchColumsSelected"
-                >
-                  <v-list-item-avatar />
-                  <v-list-item-title>
-                    In allen Spalten suchen
-                  </v-list-item-title>
-                </v-list-item>
-                <v-divider />
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection'"
-                  v-for="h in visibleHeaders.filter((h) => h.searchable)"
                   :key="h.value"
-                  @click="toggleSearchInColumn(h)"
-                >
-                  <v-list-item-avatar>
+                  :label="h.text"
+                  @click="toggleOneCol(h, request_arr[0])">
+                  <v-list-item-avatar size="15">
                     <v-icon
-                      :color="type === 'collection' ? 'grey' : undefined"
-                      v-if="shouldSearchInColumn(h)"
-                    >
+                      v-if="shouldSearchInColumnReqBased(h, request_arr[0])"
+                      small>
                       mdi-check
                     </v-icon>
                   </v-list-item-avatar>
@@ -175,6 +247,108 @@
                 </v-card-text>
               </v-card>
             </v-dialog>
+          </v-col>
+        </v-row>
+      </v-card>
+    </v-flex>
+    <!-- STARTING HERE THE MULTIPLE SEARCH FIELDS -->
+    <v-flex v-if="request_arr.length > 1">
+      <v-card
+        class="sticky-card mt-2"
+        v-for="(req, index) in request_arr.slice(1)"
+        :key="index"
+        width="100%"
+      >
+        <v-row no-gutters>
+          <v-col class="pa-0 flex-grow-1">
+            <v-text-field
+              @click.stop=""
+              autofocus
+              flat
+              label="Datenbank durchsuchen… "
+              prepend-inner-icon="search"
+              :value="req.query"
+              @keyup="updateRequestQueryDebounced(index + 1, $event.target.value)"
+              @change="updateRequestQueryDebounced(index + 1, $event)"
+              :loading="searching"
+              hide-details
+              solo
+              clearable
+            />
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon @click="appendArrayReq()"
+              ><v-icon>add_circle_outline </v-icon></v-btn
+            >
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon @click="removeElementArrayReq(req)"
+              ><v-icon>remove_circle_outline</v-icon></v-btn
+            >
+          </v-col>
+
+          <v-col cols="auto" class="pa-0 divider-left">
+            <v-menu max-height="80vh" offset-y :close-on-content-click="false">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  style="margin-top: 6px"
+                  class="mx-1 text-no-transform"
+                  text
+                  v-on="on"
+                  v-bind="attrs"
+                >
+                  <template
+                    v-if="type === 'fulltext' && shouldSearchInAllColumns(req)"
+                  >
+                    In allen Spalten
+                  </template>
+                  <template
+                    v-if="type === 'fulltext' && !shouldSearchInAllColumns(req)"
+                  >
+                    In
+                    {{ 
+                      req.fields ? getStringForHead(req)
+                        : "keiner"
+                    }}
+                    Spalte
+                  </template>
+                  <template v-if="type === 'collection'"> Nach Namen </template>
+                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+              <v-list dense>
+                <v-list-item
+                  dense
+                  :disabled="type === 'collection'"
+                  @click="selectNoColumnsAndSearch(req)">
+                  <v-list-item-avatar size="15">
+                    <v-icon small v-if="shouldSearchInAllColumns(req)">mdi-check</v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>In allen Spalten suchen</v-list-item-title>
+                </v-list-item>
+
+                <v-divider />
+
+                <!-- HERE THE SINGLE CHOICE -->
+                <v-list-item
+                  v-for="(h, i) in visibleHeaders.filter((h) => h.searchable)"
+                  :disabled="type === 'collection'"
+                  :key="h.value"
+                  :label="h.text"
+                  @click="toggleOneCol(h, req)">
+                  <v-list-item-avatar size="15">
+                    <v-icon
+                      v-if="shouldSearchInColumnReqBased(h, req)"
+                      small>
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ h.text }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </v-col>
         </v-row>
       </v-card>
@@ -333,6 +507,7 @@ import {
   getDocumentsByCollection,
   searchCollections,
   getCollectionByIds,
+  SearchRequest
 } from "../api";
 import { stateProxy, Collection } from "../store/collections";
 import { geoStore } from "../store/geo";
@@ -340,7 +515,9 @@ import { regions } from "../regions";
 import * as FileSaver from "file-saver";
 import * as xlsx from "xlsx";
 import * as _ from "lodash";
-import { log } from "util";
+import { concat } from "lodash";
+
+const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b)
 
 interface Places {
   Ort: string;
@@ -368,10 +545,18 @@ interface TableHeader {
 })
 export default class Database extends Vue {
   @Prop({ default: "" }) collection_ids: string | null;
-  @Prop({ default: "" }) query: string | null;
-  @Prop({ default: null }) fields: string | null;
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
+
+  @Prop({ default: "" }) queryFields: string[] | null;
+
+  request_arr: SearchRequest[] = [{
+      query: "", 
+      fields: null, // string contains null == all | name
+      headerStr: "",
+      id: 0, // setting index 
+    }
+  ]
 
   geoStore = geoStore;
   sideBar: Boolean = false;
@@ -392,6 +577,10 @@ export default class Database extends Vue {
   };
   extended = false;
   totalItems = 100;
+
+  indexField = 1;
+  // multipleSearch = false;
+  stringSpalte = "" // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -631,13 +820,11 @@ export default class Database extends Vue {
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
 
-  debouncedSearchDatabase = _.debounce(this.searchDatabase, 500);
-
   async toggleFuzziness() {
     await this.changeQueryParam({
       fuzzy: this.fuzzy === "true" ? "false" : "true",
     });
-    this.onChangeQuery(this.query);
+    this.onChangeQuery(this.request_arr)
   }
 
   get temp_coll() {
@@ -662,7 +849,16 @@ export default class Database extends Vue {
     return false;
   }
 
+  updateRequestQuery(index: number, e: string) {
+    if (this.request_arr[index] !== undefined) {
+      this.request_arr[index].query = e
+    }
+  }
+
+  updateRequestQueryDebounced = _.debounce(this.updateRequestQuery, 150)
+
   changeQueryParam(p: any): Promise<any> {
+    console.log('changeQueryParam')
     return this.$router
       .replace({
         // path: this.$router.currentRoute.path,
@@ -671,76 +867,57 @@ export default class Database extends Vue {
       .catch(() => console.log("route duplicated."));
   }
 
-  async toggleSearchInColumn(h: TableHeader): Promise<void> {
-    if (this.fields === null) {
-      // include all but self
-      await this.changeQueryParam({
-        fields: this.headers
-          .filter((h1) => h1.value !== h.value && h.searchable)
-          .map((h) => h.value)
-          .join(","),
-      });
-    } else if (this.fields === "") {
-      // include only self
-      await this.changeQueryParam({ fields: h.value });
-    } else {
-      if (this.shouldSearchInColumn(h)) {
-        // remove self
-        await this.changeQueryParam({
-          fields: this.fields
-            .split(",")
-            .filter((f) => f !== h.value)
-            .join(","),
-        });
-      } else {
-        // add self
-        await this.changeQueryParam({
-          fields: this.fields.split(",").concat(h.value).join(","),
-        });
-      }
-    }
-    if (this.query !== null) {
-      this.onChangeQuery(this.query);
-    }
+  // set an id for each '+' click
+  appendArrayReq(): void {
+    this.request_arr.push({query: "", fields: null, headerStr: "", id: this.indexField})
+    this.indexField++
+    console.log(this.indexField,this.request_arr.toString, this.request_arr.length);
   }
 
-  addBelegtoCollection(col: Collection) {
-    stateProxy.collections.addPlacesToCollection({
-      col: col.id,
-      items: this.mappableSelectionItems,
-    });
+  // remove element with each '-' click
+  removeElementArrayReq(o: SearchRequest): void {
+    this.request_arr = this.request_arr.filter(r => r.id !== o.id)
+    // this.request.splice(this.request.indexOf(o), 1)
   }
 
-  shouldSearchInColumn(h: TableHeader): boolean {
-    if (this.fields === "") {
-      return false;
-    } else if (this.fields === null) {
-      return true;
-    } else {
-      return this.fields.split(",").includes(h.value) && h.searchable;
+  async toggleOneCol(h: TableHeader, o: SearchRequest): Promise<void> {
+    o.fields = h.value
+  } 
+
+  getStringForHead(o: any): string {
+    this.visibleHeaders.forEach((h) => this.shouldSearchInColumnReqBased(h, o) ? o.headerStr = h.text : "")     
+    return o.headerStr
+  }  
+   
+  shouldSearchInColumnReqBased(h: TableHeader, o: SearchRequest): boolean {
+    return o.fields !== null && o.fields.includes(h.value) && h.searchable === true
+  }
+
+  shouldSearchInAllColumns(s: SearchRequest): boolean {
+    return s.fields === null || s.fields === ''
+  }
+
+  // areAllSearchColumsSelectedReqBased(o: SearchRequest): boolean {
+  //   // all columns are either selected, or not searchable
+  //   return this.headers.every(
+  //     (h) => this.shouldSearchInColumnReqBased(h, o) || h.searchable === false
+  //   );
+  // }
+
+  async selectAllColumnsAndSearch(o: any) {
+
+    o.fields = null 
+    
+    if (o.query !== null) {
+      this.onChangeQuery(this.request_arr);
     }
   }
 
-  get areAllSearchColumsSelected(): boolean {
-    // all columns are either selected, or not searchable
-    return this.headers.every(
-      (h) => this.shouldSearchInColumn(h) || h.searchable === false
-    );
-  }
-
-  async selectAllColumnsAndSearch() {
-    // allow search in all columns that are searchable
-    await this.changeQueryParam({ fields: null });
-    if (this.query !== null) {
-      this.onChangeQuery(this.query);
-    }
-  }
-
-  async selectNoColumnsAndSearch() {
+  async selectNoColumnsAndSearch(o: any) {
     // allow search in no columns
-    await this.changeQueryParam({ fields: "" });
-    if (this.query !== null) {
-      this.onChangeQuery(this.query);
+    o.fields = ""
+    if (o.query !== null) {
+      this.onChangeQuery(this.request_arr);
     }
   }
 
@@ -898,6 +1075,12 @@ export default class Database extends Vue {
     return _(res).flatten().join(", ");
   }
 
+  isMultiple() {
+    if (this.indexField > 1) {
+      true;
+    } else false;
+  }
+
   async mounted() {
     if (this.type === "collection" && this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
@@ -935,10 +1118,12 @@ export default class Database extends Vue {
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val !== undefined && val.trim() !== "") {
+      this.searching = true;
       this.collectionSearchItems = (await searchCollections(val)).map((x) => ({
         ...x,
         text: x.name,
       }));
+      this.searching = false;
     }
   }
 
@@ -998,7 +1183,11 @@ export default class Database extends Vue {
     if (ids.length > 0) {
       await this.changeQueryParam({ type: "collection" });
       this.searching = true;
-      const res = await getDocumentsByCollection(ids, this.pagination.page);
+      const res = await getDocumentsByCollection(
+        ids,
+        this.pagination.page,
+        this.pagination.itemsPerPage
+      );
       this.items = _(res.documents)
         .uniqBy((d) => d.id)
         .map((d) => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
@@ -1015,11 +1204,8 @@ export default class Database extends Vue {
 
   @Watch("pagination", { deep: true })
   updateResults(newVal: any, oldVal: any) {
-    if (newVal.page !== oldVal.page) {
-      window.scroll({ top: 0, behavior: "smooth" });
-    }
-    if (this.query) {
-      this.onChangeQuery(this.query);
+    if (this.request_arr[0] && this.request_arr[0].query !== '') { 
+      this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
     } else {
@@ -1096,6 +1282,7 @@ export default class Database extends Vue {
   }
 
   arrangeToArr(val: string) {
+    console.log(this.collection_ids);
     var tmp = val.toString();
     const colls = tmp.split(",");
     this.getLocationsOfCollections(colls);
@@ -1167,37 +1354,101 @@ export default class Database extends Vue {
     });
   }
 
-  get searchInFields() {
-    if (this.fields === "") {
-      return [];
-    } else if (this.fields === null) {
-      return this.headers
-        .filter((h) => h.searchable && h.show)
-        .map((h) => h.value);
-    } else {
-      return this.fields.split(",");
+ 
+  get filterReqAll(): SearchRequest[] | null {
+      // filtering out all empty fields requests
+     // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
+      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields === null && r.query !== '');
+           
+      if(tmp.length === 0) return null
+      // creating the result array. In case of null fields ( == all fields), appending
+      let i;
+      let j = 0; // for the id in the result array
+      var res: SearchRequest[] = [];
+      let searchFields = this.headers.filter((h) => h.searchable && h.show).map((h) => h.value).join(',');
+
+
+
+      for(i = 0; i < tmp.length; i++) {
+        res.push({ query: tmp[i].query, fields: searchFields, headerStr: "", id: i})
+      }
+    console.log('RES Length: ', res.length)
+
+    return res;
+  }
+
+  get filterReqSingle(): SearchRequest[] | null {
+      // filtering out all empty fields requests
+     // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
+      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields !== null && r.query !== '');
+
+      if(tmp.length === 0) return null
+           
+      // creating the result array. In case of null fields ( == all fields), appending
+      let i;
+      let j = 0; // for the id in the result array
+      var res: SearchRequest[] = [];
+
+
+      for(i = 0; i < tmp.length; i++) {  
+          res.push({query: tmp[i].query, fields: tmp[i].fields, headerStr: tmp[i].headerStr, id: j})
+          j++
+        }
+      
+    
+    return res;
+  }
+
+  @Watch('$route', { immediate: true })
+  onChangeRoute() {
+    if (this.$route.query !== undefined && this.$route.query.q !== undefined) {
+      const requestList = this.deserializeRequestList(this.$route.query.q as string)
+      this.request_arr = requestList
+      this.performSearch(requestList)
     }
   }
 
-  @Watch("query", { immediate: true })
-  async onChangeQuery(search: string | null) {
-    if (search !== null) {
+  deserializeRequestList(q: string|null): SearchRequest[] {
+    if (q === null) {
+      return []
+    } else {
+      return q
+        .split(';')
+        .map((rs, i) => {
+          const chunks = rs.split(',')
+          return {
+            fields: chunks[0] === 'all_fields' ? null : chunks[0],
+            query: chunks[1] === null ? '' : chunks[1],
+            headerStr: chunks[2] === null ? '' : chunks[2],
+            id: i
+          }
+        })
+    }
+  }
+
+  serializeRequestList(rl: SearchRequest[]): string {
+    return rl.map(s => {
+      return `${s.fields || 'all_fields'},${s.query},${s.headerStr}`
+    }).join(';')
+  }
+
+  async performSearch(req: SearchRequest[]) {
+    console.log('perf search', req)
+    if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
-        search,
+        this.filterReqAll, // in all fields search query array (multi_match)
+        this.filterReqSingle, // send here the req array of the single fields (or per category)
         this.pagination.page,
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
         this.pagination.sortBy,
-        this.searchInFields,
         this.fuzzy === "true"
       );
       this.items = res.documents.map((d) => ({
         ...d,
-        ...this.getPlacesFromSigle(d.ortsSigle),
+        ...this.getPlacesFromSigle(d.ortsSigle)
       }));
-
-      // console.log('fluss', res.total)
       this.totalItems = res.total.value || 0;
       this.searching = false;
     } else {
@@ -1205,9 +1456,15 @@ export default class Database extends Vue {
     }
   }
 
-  async searchDatabase(search: string) {
-    // this.$router.replace({ query: { query: search } })
-    await this.changeQueryParam({ query: search });
+  @Watch("request_arr", { deep: true })
+  async onChangeQuery(req: SearchRequest[], oldVal?: SearchRequest[]) {
+    if (req !== undefined) {
+      this.$router.replace({
+        query: { ...this.$router.currentRoute.query, q: this.serializeRequestList(req) }
+      }) .catch(() => console.log("route duplicated. "))
+    } else {
+      console.log('request_array is undefined.')
+    }
   }
 
   saveXLSX() {
