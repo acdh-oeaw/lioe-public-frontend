@@ -867,6 +867,13 @@ export default class Database extends Vue {
       .catch(() => console.log("route duplicated."));
   }
 
+  addBelegtoCollection(col: Collection) {
+    stateProxy.collections.addPlacesToCollection({
+      col: col.id,
+      items: this.mappableSelectionItems,
+    });
+  }
+
   // set an id for each '+' click
   appendArrayReq(): void {
     this.request_arr.push({query: "", fields: null, headerStr: "", id: this.indexField})
