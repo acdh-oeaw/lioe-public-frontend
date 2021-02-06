@@ -4,12 +4,18 @@
       <playlist :onMapPage="false"> </playlist>
     </v-navigation-drawer>
     <v-flex>
-      <v-card class="sticky-card" width="100%">
+      <v-card
+        class="sticky-card mt-2"
+        v-for="(req, index) in request_arr"
+        :key="index"
+        width="100%"
+      >
         <v-row no-gutters>
           <v-btn
             @click="sideBar = !sideBar"
             depressed
             style="margin-left: 5px; margin-top: 5px"
+            v-if="index === 0"
           >
             Sammlungen
           </v-btn>
@@ -21,140 +27,40 @@
               flat
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
-              :value="request_arr[0].query"
-              @keyup="updateRequestQueryDebounced(0, $event.target.value)"
-              @change="updateRequestQueryDebounced(0, $event)"
+              :value="req.query"
+              @keyup="updateRequestQueryDebounced(index, $event.target.value)"
+              @change="updateRequestQueryDebounced(index, $event)"
               :disabled="this.showSelectedCollection"
               :loading="searching"
               hide-details
               solo
               clearable
             />
-            <v-autocomplete
-              v-if="type === 'collection'"
-              autofocus
-              flat
-              @update:search-input="searchCollection = $event"
-              prepend-inner-icon="search"
-              :loading="searching"
-              :items="collectionSearchItems"
-              item-text="text"
-              :value="selectedCollections"
-              @input="selectCollections"
-              label="Sammlungen suchen…"
-              chips
-              deletable-chips
-              cache-items
-              return-object
-              hide-details
-              multiple
-              solo
-              clearable
-            >
-              <template v-slot:no-data>
-                <v-list-item v-if="searching">
-                  <v-list-item-title class="text-center">
-                    <v-progress-circular indeterminate color="grey" />
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-else-if="
-                    searchCollection === null || searchCollection.trim() === ''
-                  "
-                >
-                  <v-list-item-title class="caption">
-                    Suchen Sie nach einer bestimmten Sammlung.
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item v-else>
-                  <v-list-item-title class="caption">
-                    Keine Sammlung gefunden.
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
-            </v-autocomplete>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-btn icon @click="appendArrayReq()"
               ><v-icon>add_circle_outline</v-icon></v-btn
             >
           </v-col>
-          <v-col cols="auto" class="pa-0 divider-left">
-            <v-menu offset-y :close-on-content-click="false">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
+          <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
+            <v-btn icon @click="removeElementArrayReq(req)"
+              ><v-icon>remove_circle_outline</v-icon></v-btn
+            >
+          </v-col>
+          <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
+                  <v-btn
                   style="margin-top: 6px"
                   class="mx-1 text-no-transform"
                   text
-                  v-on="on"
-                  v-bind="attrs"
-                >
-                  <template v-if="type === 'fulltext'">Volltext</template>
-                  <template v-if="type === 'collection'">Sammlung</template>
-                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
-                </v-btn>
-              </template>
-              <v-list class="context-menu-list" dense>
-                <v-list-item
-                  dense
-                  @click="
-                    changeQueryParam({ type: 'fulltext', collection_ids: null })
-                  "
-                >
-                  <v-list-item-avatar size="15">
-                    <v-icon small v-if="type === 'fulltext'">mdi-check</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title>Volltext</v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  dense
-                  @click="changeQueryParam({ type: 'collection' })"
-                >
-                  <v-list-item-avatar size="15">
-                    <v-icon small v-if="type === 'collection'">mdi-check</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title>Sammlung</v-list-item-title>
-                </v-list-item>
-                <v-divider />
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection' || this.fuzzy !== 'true'"
                   @click="toggleFuzziness"
+                  v-model="extended"
                 >
-                  <v-list-item-avatar size="15">
-                    <v-icon small v-if="this.fuzzy !== 'true' && type === 'fulltext'"
-                      >mdi-check</v-icon
-                    >
-                  </v-list-item-avatar>
-                  <v-list-item-title v-if="type !== 'collection'" style="color: black">
-                    Exakte Suche
-                  </v-list-item-title>
-                  <v-list-item-title v-else>
-                    Exakte Suche
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection' || this.fuzzy === 'true'"
-                  @click="toggleFuzziness"
-                >
-                  <v-list-item-avatar size="15">
-                    <v-icon small v-if="this.fuzzy === 'true' && type === 'fulltext'"
-                      >mdi-check</v-icon
-                    >
-                  </v-list-item-avatar>
-                  <v-list-item-title v-if="type !== 'collection'" style="color: black">
-                    Fehlertolerante Suche
-                  </v-list-item-title>
-                  <v-list-item-title v-else>
-                    Fehlertolerante Suche
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
+              
+                {{ fuzzy === "true" ? 'Fehlertolerante Suche' : 'Exakte Suche' }}
+                
+                </v-btn> 
           </v-col>
-
-          <v-col cols="auto" class="pa-0 divider-left">
+          <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
             <v-btn
               style="margin-top: 6px"
               class="mx-1 text-no-transform"
@@ -162,131 +68,10 @@
               @click="extended = !extended"
               v-model="extended"
             >
-              <!-- <v-list-item dense @click="extended = !extended"> -->
-              <!-- <v-list-item-avatar> -->
               <v-icon v-if="extended" color="grey">mdi-check</v-icon>
               Alle Spalten anzeigen
             </v-btn>
           </v-col>
-          <v-col cols="auto" class="pa-0 divider-left">
-            <v-menu max-height="80vh" offset-y :close-on-content-click="false">
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  style="margin-top: 6px"
-                  class="mx-1 text-no-transform"
-                  text
-                  v-on="on"
-                  v-bind="attrs"
-                >
-                  <template
-                    v-if="type === 'fulltext' && shouldSearchInAllColumns(request_arr[0])"
-                  >
-                    In allen Spalten
-                  </template>
-                  <template
-                    v-if="type === 'fulltext' && !shouldSearchInAllColumns(request_arr[0])"
-                  >
-                    In
-                    {{ 
-                      request_arr[0].fields ? getStringForHead(request_arr[0])
-                        : "keiner"
-                    }}
-                    Spalte
-                  </template>
-                  <template v-if="type === 'collection'"> Nach Namen </template>
-                  <v-icon class="ml-1" color="grey">mdi-menu-down</v-icon>
-                </v-btn>
-              </template>
-              <v-list dense>
-                <v-list-item
-                  dense
-                  :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch(request_arr[0])">
-                  <v-list-item-avatar size="15">
-                    <v-icon small v-if="shouldSearchInAllColumns(request_arr[0])">mdi-check</v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title>In allen Spalten suchen</v-list-item-title>
-                </v-list-item>
-
-                <v-divider />
-
-                <!-- HERE THE SINGLE CHOICE -->
-                <v-list-item
-                  v-for="(h, i) in visibleHeaders.filter((h) => h.searchable)"
-                  :disabled="type === 'collection'"
-                  :key="h.value"
-                  :label="h.text"
-                  @click="toggleOneCol(h, request_arr[0])">
-                  <v-list-item-avatar size="15">
-                    <v-icon
-                      v-if="shouldSearchInColumnReqBased(h, request_arr[0])"
-                      small>
-                      mdi-check
-                    </v-icon>
-                  </v-list-item-avatar>
-                  <v-list-item-title>
-                    {{ h.text }}
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-col>
-          <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-dialog max-width="1000" color="#2b2735" scrollable>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" color="accent" icon text>
-                  <v-icon>info</v-icon>
-                </v-btn>
-              </template>
-              <v-card text class="fill-height pa-4">
-                <v-card-text class="pa-0 fill-height">
-                  <info-text
-                    class="pt-4 white fill-height"
-                    path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </v-col>
-        </v-row>
-      </v-card>
-    </v-flex>
-    <!-- STARTING HERE THE MULTIPLE SEARCH FIELDS -->
-    <v-flex v-if="request_arr.length > 1">
-      <v-card
-        class="sticky-card mt-2"
-        v-for="(req, index) in request_arr.slice(1)"
-        :key="index"
-        width="100%"
-      >
-        <v-row no-gutters>
-          <v-col class="pa-0 flex-grow-1">
-            <v-text-field
-              @click.stop=""
-              autofocus
-              flat
-              label="Datenbank durchsuchen… "
-              prepend-inner-icon="search"
-              :value="req.query"
-              @keyup="updateRequestQueryDebounced(index + 1, $event.target.value)"
-              @change="updateRequestQueryDebounced(index + 1, $event)"
-              :loading="searching"
-              hide-details
-              solo
-              clearable
-            />
-          </v-col>
-          <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon @click="appendArrayReq()"
-              ><v-icon>add_circle_outline </v-icon></v-btn
-            >
-          </v-col>
-          <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon @click="removeElementArrayReq(req)"
-              ><v-icon>remove_circle_outline</v-icon></v-btn
-            >
-          </v-col>
-
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
@@ -338,7 +123,7 @@
                   @click="toggleOneCol(h, req)">
                   <v-list-item-avatar size="15">
                     <v-icon
-                      v-if="shouldSearchInColumnReqBased(h, req)"
+                      v-if="shouldSearchInColumn(h, req)"
                       small>
                       mdi-check
                     </v-icon>
@@ -349,6 +134,23 @@
                 </v-list-item>
               </v-list>
             </v-menu>
+          </v-col>
+          <v-col cols="auto" class="pr-2 pt-1 text-right">
+            <v-dialog max-width="1000" color="#2b2735" scrollable>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" color="accent" icon text>
+                  <v-icon>info</v-icon>
+                </v-btn>
+              </template>
+              <v-card text class="fill-height pa-4">
+                <v-card-text class="pa-0 fill-height">
+                  <info-text
+                    class="pt-4 white fill-height"
+                    path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
+                  />
+                </v-card-text>
+              </v-card>
+            </v-dialog>
           </v-col>
         </v-row>
       </v-card>
@@ -415,10 +217,6 @@
                 :key="`${header.value}_${index}`"
                 v-if="extended || !header.extended"
               >
-                <!-- <i v-if="header.text === 'Kontext'" > {{header.renderFnc(item)}} </i>
-                <template v-if="header.renderFnc && header.text!== 'Kontext' ">{{ header.renderFnc(item) }}
-                </template> -->
-
                 <template v-if="header.renderFnc">
                   <template
                     v-if="
@@ -579,7 +377,6 @@ export default class Database extends Vue {
   totalItems = 100;
 
   indexField = 1;
-  // multipleSearch = false;
   stringSpalte = "" // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
   headers: TableHeader[] = [
@@ -892,11 +689,11 @@ export default class Database extends Vue {
   } 
 
   getStringForHead(o: any): string {
-    this.visibleHeaders.forEach((h) => this.shouldSearchInColumnReqBased(h, o) ? o.headerStr = h.text : "")     
+    this.visibleHeaders.forEach((h) => this.shouldSearchInColumn(h, o) ? o.headerStr = h.text : "")     
     return o.headerStr
   }  
    
-  shouldSearchInColumnReqBased(h: TableHeader, o: SearchRequest): boolean {
+  shouldSearchInColumn(h: TableHeader, o: SearchRequest): boolean {
     return o.fields !== null && o.fields.includes(h.value) && h.searchable === true
   }
 
@@ -1370,7 +1167,6 @@ export default class Database extends Vue {
       if(tmp.length === 0) return null
       // creating the result array. In case of null fields ( == all fields), appending
       let i;
-      let j = 0; // for the id in the result array
       var res: SearchRequest[] = [];
       let searchFields = this.headers.filter((h) => h.searchable && h.show).map((h) => h.value).join(',');
 
@@ -1379,7 +1175,6 @@ export default class Database extends Vue {
       for(i = 0; i < tmp.length; i++) {
         res.push({ query: tmp[i].query, fields: searchFields, headerStr: "", id: i})
       }
-    console.log('RES Length: ', res.length)
 
     return res;
   }
@@ -1435,7 +1230,7 @@ export default class Database extends Vue {
 
   serializeRequestList(rl: SearchRequest[]): string {
     return rl.map(s => {
-      return `${s.fields || 'all_fields'},${s.query},${s.headerStr}`
+      return `${s.fields || 'all_fields'},${s.query === null ? '' : s.query},${s.headerStr}`
     }).join(';')
   }
 
