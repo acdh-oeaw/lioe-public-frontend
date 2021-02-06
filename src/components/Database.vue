@@ -345,6 +345,8 @@ export default class Database extends Vue {
   @Prop({ default: "" }) collection_ids: string | null;
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
+  // @Prop({ default: "" }) page: string | null
+  // @Prop({ default: "" }) items: string | null 
 
   @Prop({ default: "" }) queryFields: string[] | null;
 
@@ -1008,7 +1010,11 @@ export default class Database extends Vue {
 
   @Watch("pagination", { deep: true })
   updateResults(newVal: any, oldVal: any) {
-    if (this.request_arr[0] && this.request_arr[0].query !== '') { 
+    if (this.request_arr[0] && this.request_arr[0].query !== '') {
+    this.$router.replace({
+        query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
+      }).catch(() => console.log("route duplicated. "))
+
       this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
@@ -1232,6 +1238,10 @@ export default class Database extends Vue {
     return rl.map(s => {
       return `${s.fields || 'all_fields'},${s.query === null ? '' : s.query},${s.headerStr}`
     }).join(';')
+  }
+
+  pageItemList(): string {
+    return `${this.pagination.page},${this.pagination.itemsPerPage}`
   }
 
   async performSearch(req: SearchRequest[]) {
