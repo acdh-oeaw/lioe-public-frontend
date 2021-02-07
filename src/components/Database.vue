@@ -345,8 +345,8 @@ export default class Database extends Vue {
   @Prop({ default: "" }) collection_ids: string | null;
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
-  // @Prop({ default: "" }) page: string | null
-  // @Prop({ default: "" }) items: string | null 
+  @Prop({ default: "" }) page: string | null
+  @Prop({ default: "" }) itemsPerPage: string | null 
 
   @Prop({ default: "" }) queryFields: string[] | null;
 
@@ -1011,9 +1011,14 @@ export default class Database extends Vue {
   @Watch("pagination", { deep: true })
   updateResults(newVal: any, oldVal: any) {
     if (this.request_arr[0] && this.request_arr[0].query !== '') {
-    this.$router.replace({
-        query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
-      }).catch(() => console.log("route duplicated. "))
+      this.changeQueryParam({
+      page: this.pagination.page, itemsPerPage: this.pagination.itemsPerPage 
+    });
+
+
+    // this.$router.replace({
+    //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
+    //   }).catch(() => console.log("route duplicated. "))
 
       this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
@@ -1213,6 +1218,11 @@ export default class Database extends Vue {
       const requestList = this.deserializeRequestList(this.$route.query.q as string)
       this.request_arr = requestList
       this.performSearch(requestList)
+    }
+    if (this.$route.query !== undefined && this.$route.query.p !== undefined) {
+      this.changeQueryParam({
+      page: this.$route.query.page, itemsPerPage: this.$route.query.itemsPerPage 
+    });
     }
   }
 
