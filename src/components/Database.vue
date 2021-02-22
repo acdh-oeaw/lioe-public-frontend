@@ -28,8 +28,7 @@
               label="Datenbank durchsuchen…"
               prepend-inner-icon="search"
               :value="req.query"
-              @keyup="updateRequestQueryDebounced(index, $event.target.value)"
-              @change="updateRequestQueryDebounced(index, $event)"
+              @input="updateRequestQueryDebounced(index, $event)"
               :disabled="this.showSelectedCollection"
               :loading="searching"
               hide-details
