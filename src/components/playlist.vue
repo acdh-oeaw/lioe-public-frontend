@@ -1,23 +1,37 @@
 <template>
-  <div>
-    <v-flex xs12>
-      <v-card elevation="0">
-        <v-card-text style="padding: 10px">
-          <v-checkbox
-            v-model="showAlleBelege"
-            color="primary"
-            :disabled="onMapPage"
-            label="Alle Belege"
-          ></v-checkbox>
+  <div class="fill-height">
+    <v-flex class="fill-height" xs12>
+      <v-card class="fill-height d-flex flex-column" elevation="0">
+        <v-card-title>
           <v-text-field
             placeholder="Sammlungen filtern..."
+            class="text-body-2"
             rounded
             dense
+            clearable
             filled
+            prepend-inner-icon="mdi-magnify"
+            hide-details
             style="width: 98%"
             v-model="filterCollection"
           ></v-text-field>
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-3 pt-0 flex-grow-1 overflow-y-auto">
           <v-list dense>
+            <v-subheader>Belegdatenbank</v-subheader>
+            <v-list-item :disabled="onMapPage" @click="showAlleBelege = !showAlleBelege">
+              <v-list-item-action>
+                <v-checkbox
+                  :disabled="onMapPage"
+                  v-model="showAlleBelege"
+                  color="primary"
+                />
+              </v-list-item-action>
+              <v-list-item-content>
+                Alle Belege zeigen
+              </v-list-item-content>
+            </v-list-item>
             <v-subheader>Meine Sammlungen</v-subheader>
             <v-list-item-group>
               <draggable
@@ -183,6 +197,17 @@
             </template>
           </v-autocomplete>
         </v-card-text>
+        <v-divider />
+        <v-card-actions>
+          <v-btn block v-if="onMapPage" elevation="0">
+            <v-icon left>mdi-database</v-icon>
+            In Datenbank zeigen
+          </v-btn>
+          <v-btn block v-else elevation="0">
+            <v-icon left>mdi-map</v-icon>
+            Auf Karte zeigen
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-flex>
   </div>
@@ -328,5 +353,10 @@ export default class Playlist extends Vue {
   position: absolute;
   right: 12px;
   top: 12px;
+}
+
+.v-btn{
+  letter-spacing: 0;
+  text-transform: none;
 }
 </style>
