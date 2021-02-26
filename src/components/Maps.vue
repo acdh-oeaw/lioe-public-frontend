@@ -701,7 +701,6 @@ export default class Maps extends Vue {
   i = 1;
 
   collDisplayLocations(locations: Object[]) {
-    console.log(locations)
     let places: String[] = [];
     locations.forEach((beleg) => {
       //@ts-ignore

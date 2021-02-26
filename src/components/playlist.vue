@@ -24,7 +24,7 @@
               :disabled="onMapPage"
               @click="showAlleBelege = !showAlleBelege"
             >
-              <v-list-item-action>
+              <v-list-item-action style="margin-right: 0px">
                 <v-checkbox
                   :disabled="onMapPage"
                   @click.prevent=""
@@ -32,7 +32,9 @@
                   color="primary"
                 />
               </v-list-item-action>
-              <v-list-item-content> Alle Belege zeigen </v-list-item-content>
+              <v-list-item-content style="margin-left: 5px">
+                Alle Belege zeigen
+              </v-list-item-content>
             </v-list-item>
             <v-subheader>Meine Sammlungen</v-subheader>
             <v-list-item-group>
@@ -55,14 +57,16 @@
                   :key="i"
                   @click="switchShow(item)"
                 >
-                  <v-list-item-action>
+                  <v-list-item-action style="margin-right: 0px">
                     <v-checkbox
                       v-model="item.selected"
                       @click.prevent=""
                       color="primary"
                     ></v-checkbox>
                   </v-list-item-action>
-                  <v-list-item-content>
+                  <v-list-item-content
+                    style="margin-left: 5px; margin-right: 5px"
+                  >
                     <v-list-item-title
                       v-if="item.editing === false"
                       v-text="item.collection_name"
@@ -76,7 +80,21 @@
                       autofocus
                     ></v-text-field>
                   </v-list-item-content>
-                  <v-list-item-action>
+                  <v-list-item-icon
+                    style="margin: auto 0px"
+                    v-if="onMapPage && item.items.length === 0"
+                  >
+                    <v-tooltip top style="width:200px">
+                      <template v-slot:activator="{ on }">
+                        <v-icon v-on="on" style="color: red" class="mdi-18px">mdi-alert</v-icon>
+                      </template>
+                      Diese Sammlung ist noch leer! Gehen Sie zur Belegdatenbank <br>
+                      um Belege zu dieser Sammlung hinzuzufügen.
+                    </v-tooltip>
+                  </v-list-item-icon>
+                  <v-list-item-action
+                    style="margin-left: 0px; margin-right: 0px"
+                  >
                     <v-menu offset-y>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
@@ -138,14 +156,14 @@
                   @click="switchShow(item)"
                   :key="i"
                 >
-                  <v-list-item-action>
+                  <v-list-item-action style="margin-right: 0px">
                     <v-checkbox
                       :input-value="item.selected"
                       @click.prevent=""
                       color="primary"
                     ></v-checkbox>
                   </v-list-item-action>
-                  <v-list-item-content>
+                  <v-list-item-content style="margin-left: 5px">
                     <v-list-item-title
                       v-text="item.collection_name"
                     ></v-list-item-title>

@@ -14,20 +14,7 @@
           :key="gC.id"
         >
           <v-list-item-content style="margin-right: 30px">
-            <v-text-field
-              v-if="gC.editing === true"
-              @blur="
-                gC.editing = false;
-                safeCollectionsInURL();
-              "
-              @keypress.enter="
-                gC.editing = false;
-                safeCollectionsInURL();
-              "
-              v-model="gC.collection_name"
-              autofocus
-            ></v-text-field>
-            <v-list-item-title v-else>
+            <v-list-item-title>
               {{ gC.collection_name }}
             </v-list-item-title>
           </v-list-item-content>
