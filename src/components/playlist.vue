@@ -42,7 +42,7 @@
               >
                 <v-list-item
                   v-for="(item, i) in temp_coll.filter((item) =>
-                    item.collection_name.includes(this.filterCollection)
+                    item.collection_name.toLowerCase().includes((this.filterCollection.toLowerCase() == null) ? '' : this.filterCollection.toLowerCase())
                   )"
                   :key="i"
                   @click="switchShow(item)"
@@ -119,7 +119,7 @@
               >
                 <v-list-item
                   v-for="(item, i) in wboe_coll.filter((item) =>
-                    item.collection_name.includes(this.filterCollection)
+                    item.collection_name.toLowerCase().includes((this.filterCollection.toLowerCase() == null) ? '' : this.filterCollection.toLowerCase())
                   )"
                   @click="switchShow(item)"
                   :key="i"
