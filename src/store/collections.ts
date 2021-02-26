@@ -14,6 +14,7 @@ export interface Collection {
     id: Number;
     preColl: Number
     collection_name: String
+    collection_desc?: String
     editing: Boolean
     fillColor: String
     selected: Boolean

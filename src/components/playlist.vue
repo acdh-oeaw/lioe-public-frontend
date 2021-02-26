@@ -168,7 +168,7 @@
                       v-text="item.collection_name"
                     ></v-list-item-title>
                     <v-list-item-subtitle
-                      v-text="item.collection_name"
+                      v-text="item.collection_desc"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                   <v-list-item-action>
@@ -350,6 +350,7 @@ export default class Playlist extends Vue {
             selected: true,
             preColl: coll,
             collection_name: collName,
+            collection_desc: collDescription,
             editing: false,
             fillColor:
               "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
