@@ -20,17 +20,19 @@
         <v-card-text class="pa-3 pt-0 flex-grow-1 overflow-y-auto">
           <v-list dense>
             <v-subheader>Belegdatenbank</v-subheader>
-            <v-list-item :disabled="onMapPage" @click="showAlleBelege = !showAlleBelege">
+            <v-list-item
+              :disabled="onMapPage"
+              @click="showAlleBelege = !showAlleBelege"
+            >
               <v-list-item-action>
                 <v-checkbox
                   :disabled="onMapPage"
+                  @click.prevent=""
                   v-model="showAlleBelege"
                   color="primary"
                 />
               </v-list-item-action>
-              <v-list-item-content>
-                Alle Belege zeigen
-              </v-list-item-content>
+              <v-list-item-content> Alle Belege zeigen </v-list-item-content>
             </v-list-item>
             <v-subheader>Meine Sammlungen</v-subheader>
             <v-list-item-group>
@@ -42,7 +44,13 @@
               >
                 <v-list-item
                   v-for="(item, i) in temp_coll.filter((item) =>
-                    item.collection_name.toLowerCase().includes((this.filterCollection.toLowerCase() == null) ? '' : this.filterCollection.toLowerCase())
+                    item.collection_name
+                      .toLowerCase()
+                      .includes(
+                        this.filterCollection.toLowerCase() == null
+                          ? ''
+                          : this.filterCollection.toLowerCase()
+                      )
                   )"
                   :key="i"
                   @click="switchShow(item)"
@@ -119,7 +127,13 @@
               >
                 <v-list-item
                   v-for="(item, i) in wboe_coll.filter((item) =>
-                    item.collection_name.toLowerCase().includes((this.filterCollection.toLowerCase() == null) ? '' : this.filterCollection.toLowerCase())
+                    item.collection_name
+                      .toLowerCase()
+                      .includes(
+                        this.filterCollection.toLowerCase() == null
+                          ? ''
+                          : this.filterCollection.toLowerCase()
+                      )
                   )"
                   @click="switchShow(item)"
                   :key="i"
@@ -135,6 +149,9 @@
                     <v-list-item-title
                       v-text="item.collection_name"
                     ></v-list-item-title>
+                    <v-list-item-subtitle
+                      v-text="item.collection_name"
+                    ></v-list-item-subtitle>
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-menu offset-y>
@@ -199,11 +216,11 @@
         </v-card-text>
         <v-divider />
         <v-card-actions>
-          <v-btn block v-if="onMapPage" elevation="0">
+          <v-btn block v-if="onMapPage" elevation="0" @click="routeToDB()">
             <v-icon left>mdi-database</v-icon>
             In Datenbank zeigen
           </v-btn>
-          <v-btn block v-else elevation="0">
+          <v-btn block v-else elevation="0" @click="routeToMaps()">
             <v-icon left>mdi-map</v-icon>
             Auf Karte zeigen
           </v-btn>
@@ -259,6 +276,18 @@ export default class Playlist extends Vue {
     if (this.selectedCollections.length > -1) {
       await this.getLocationsOfCollections(this.selectedCollections);
     }
+  }
+
+  routeToMaps() {
+    this.$router.push({
+      path: "/maps",
+    });
+  }
+
+  routeToDB() {
+    this.$router.push({
+      path: "/db",
+    });
   }
 
   switchShow(item: Collection) {
@@ -355,7 +384,7 @@ export default class Playlist extends Vue {
   top: 12px;
 }
 
-.v-btn{
+.v-btn {
   letter-spacing: 0;
   text-transform: none;
 }
