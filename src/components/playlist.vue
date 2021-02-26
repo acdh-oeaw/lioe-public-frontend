@@ -338,7 +338,7 @@ export default class Playlist extends Vue {
       id: Math.random() * 1000,
       preColl: -1,
       collection_name: "Neue Sammlung",
-      editing: false,
+      editing: true,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
       selected: true,
