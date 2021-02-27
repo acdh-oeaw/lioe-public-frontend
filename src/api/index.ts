@@ -292,7 +292,7 @@ export async function searchDocuments(
               fuzzy:
               {
                 [obj.field]: {
-                  term: !!element ? element.replace('(', '').replace('-', '').replace(')', '') : element,
+                  term: !!element ? element.replace('(', '').replace('-', '').replace(')', '').toLowerCase() : element,
                   fuzziness: fuzzlevel
                 }
               }
@@ -304,7 +304,7 @@ export async function searchDocuments(
             fuzzy:
             {
               [obj.field]: {
-                term: obj.query.replace('(', '').replace(')', '').replace('-', ''),
+                term: obj.query.replace('(', '').replace(')', '').replace('-', '').toLowerCase(),
                 fuzziness: fuzzlevel
               }
             }
