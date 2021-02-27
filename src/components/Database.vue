@@ -1095,6 +1095,7 @@ export default class Database extends Vue {
     return output;
   }
 
+  /*
   arrangeToArr(val: string) {
     console.log(this.collection_ids);
     var tmp = val.toString();
@@ -1150,6 +1151,7 @@ export default class Database extends Vue {
             id: Math.random() * 1000,
             tempColl: coll,
             collection_name: collName,
+            collection_desc: collDescription,
             editing: false,
             fillColor:
               "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
@@ -1167,6 +1169,7 @@ export default class Database extends Vue {
       }
     });
   }
+  */
 
  
   get filterReqAll(): SearchRequest[] | null {

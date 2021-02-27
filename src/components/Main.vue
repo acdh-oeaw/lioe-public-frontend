@@ -38,19 +38,27 @@
                 :to="
                   item.type === 'article'
                     ? `/articles/${item.text}`
-                    : item.type !== 'collection' ? `/db?q=Sigle1,${item.value}` : `/db?collection_ids=${item.value}&type=collection`
+                    : item.type !== 'collection'
+                    ? `/db?q=Sigle1,${item.value}`
+                    : `/db?collection_ids=${item.value}&type=collection`
                 "
               >
                 <v-list-item-avatar>
                   <v-icon v-if="item.type === 'article'">mdi-newspaper</v-icon>
                   <v-icon v-if="item.type === 'place'">map</v-icon>
-                  <v-icon v-if="item.type === 'collection'">mdi-folder-outline</v-icon>
+                  <v-icon v-if="item.type === 'collection'"
+                    >mdi-folder-outline</v-icon
+                  >
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title> {{ item.text }}</v-list-item-title>
                   <!-- <v-list-item-subtitle v-if="item.type === 'article'">  Beleg zum Artikel anzeigen </v-list-item-subtitle> -->
-                  <v-list-item-subtitle v-if="item.type === 'collection'">  {{ item.description }} </v-list-item-subtitle>
-                  <v-list-item-subtitle v-if="item.type === 'place'">  {{item.value}} </v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.type === 'collection'">
+                    {{ item.description }}
+                  </v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item.type === 'place'">
+                    {{ item.value }}
+                  </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-btn
@@ -66,24 +74,27 @@
                         },
                       })
                     "
-                    >&rarr; Ort auf Karte anzeigen</v-btn>
+                    >&rarr; Ort auf Karte anzeigen</v-btn
+                  >
                   <v-btn
                     v-if="item.type === `article`"
                     text
                     color="ci"
                     class="text-no-transform"
                     @click.stop.prevent="
-                      $router.replace(
-                        `/db?q=HL,${item.text}`)" 
-                    >&rarr; Belege in Datenbank anzeigen</v-btn>
-                  <v-btn text
+                      $router.replace(`/db?q=HL,${item.text}`)
+                    "
+                    >&rarr; Belege in Datenbank anzeigen</v-btn
+                  >
+                  <v-btn
+                    text
                     v-if="item.type === `collection`"
                     class="text-no-transform"
                     color="ci"
-                    @click.stop.prevent="getLocationsOfCollections(item.value, item.text)" 
-                        >&rarr; Sammlung auf Karte anzeigen</v-btn
-                      >
-                 </v-list-item-action>
+                    @click.stop.prevent="getLocationsOfCollections(item)"
+                    >&rarr; Sammlung auf Karte anzeigen</v-btn
+                  >
+                </v-list-item-action>
               </v-list-item>
             </template>
             <template v-slot:no-data>
@@ -94,16 +105,14 @@
               </v-list-item>
               <v-list-item
                 v-else-if="searchTerm !== null && searchTerm.trim() !== ''"
-                :to="`db?q=HL,${searchTerm}`">
+                :to="`db?q=HL,${searchTerm}`"
+              >
                 <v-list-item-title class="caption">
-                  Der gesuchte Begriff konnte nicht gefunden werden. Zum Weitersuchen
-                  in der Belegdatenbank:
+                  Der gesuchte Begriff konnte nicht gefunden werden. Zum
+                  Weitersuchen in der Belegdatenbank:
                 </v-list-item-title>
                 <v-list-item-action>
-                  <v-btn
-                    text
-                    color="ci"
-                    :to="`db?q=HL,${searchTerm}`">
+                  <v-btn text color="ci" :to="`db?q=HL,${searchTerm}`">
                     &rarr; {{ searchTerm }}
                   </v-btn>
                 </v-list-item-action>
@@ -178,19 +187,22 @@
         :spacing="0.2"
         @update:progress="updateWordProgress"
         font-weight="800"
-        font-family="fiduz">
+        font-family="fiduz"
+      >
         <template slot-scope="{ text, weight, word }">
           <router-link
             class="word-cloud-link"
-            :to="`/articles/${findArticleByTitle(text).filename.replace('.xml', '')}`">
+            :to="`/articles/${findArticleByTitle(text).filename.replace(
+              '.xml',
+              ''
+            )}`"
+          >
             {{ text }}
           </router-link>
         </template>
       </vue-word-cloud>
     </v-flex>
-    <div v-if="loading" class="text-center grey--text mt-5">
-      Laden…
-    </div>
+    <div v-if="loading" class="text-center grey--text mt-5">Laden…</div>
     <div v-else class="text-center grey--text mt-5">
       {{ articles ? articles.length.toLocaleString() : "?" }} WBÖ Artikel
     </div>
@@ -204,7 +216,12 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import * as _ from "lodash";
 import InfoText from "@components/InfoText.vue";
-import { getArticles, searchCollections, getDocumentsByCollection } from "../api";
+import {
+  getArticles,
+  searchCollections,
+  getDocumentsByCollection,
+} from "../api";
+import { stateProxy, Collection } from "../store/collections";
 import InfoBox from "@components/InfoBox.vue";
 import { geoStore } from "../store/geo";
 
@@ -228,22 +245,44 @@ export default class Main extends Vue {
   autoFit = false;
   loc: string | null;
   geoStore = geoStore;
-  isSearching = false
-  searchItems: Array<{ type: string, text: string, value: string, description: string }> = []
+  isSearching = false;
+  searchItems: Array<{
+    type: string;
+    text: string;
+    value: string;
+    description: string;
+  }> = [];
   // items=[{text: 'Lemma', value: 'Lemma', disabled: false},{text: 'Ort', value: 'Ort', disabled: false}]
 
-  debouncedPerformSearch = _.debounce(this.performSearch, 300)
+  debouncedPerformSearch = _.debounce(this.performSearch, 300);
 
-  async performSearch(s: string|null) {
-    if (s !== null && s.trim() !== '') {
-      this.searchTerm = s
-      this.isSearching = true
-      const collections = (await searchCollections(s)).map((c) => ({ type: 'collection', text: c.name, value: c.value, description: c.description }))
-      const articles = this.articles.map((a) => ({ type: "article", text: a.title, value: a.filename, description: '' }))
-      const places = this.geoStore.ortslisteGeo.map((f: any) => ({type: "place", text: f.name, value: f.sigle, description: ''}))
-      const results = [...articles, ...places, ...collections].filter(i => i !== null)
-      this.searchItems = results
-      this.isSearching = false
+  async performSearch(s: string | null) {
+    if (s !== null && s.trim() !== "") {
+      this.searchTerm = s;
+      this.isSearching = true;
+      const collections = (await searchCollections(s)).map((c) => ({
+        type: "collection",
+        text: c.name,
+        value: c.value,
+        description: c.description,
+      }));
+      const articles = this.articles.map((a) => ({
+        type: "article",
+        text: a.title,
+        value: a.filename,
+        description: "",
+      }));
+      const places = this.geoStore.ortslisteGeo.map((f: any) => ({
+        type: "place",
+        text: f.name,
+        value: f.sigle,
+        description: "",
+      }));
+      const results = [...articles, ...places, ...collections].filter(
+        (i) => i !== null
+      );
+      this.searchItems = results;
+      this.isSearching = false;
     }
   }
 
@@ -309,57 +348,52 @@ export default class Main extends Vue {
     return output;
   }
 
-  async getLocationsOfCollections(colls: string[], collName: string) {
-    console.log(Array.isArray(colls))
-    console.log(colls)
-      if(!Array.isArray(colls)) {
-       var tmp = new Array()
-       tmp.push(colls)
-       colls = tmp
-     }
-
-    if(colls.length === 0) {
-      return
+  async getLocationsOfCollections(item:any) {
+    console.log(item)
+    let colls: Number[] = item.value;
+    if (!Array.isArray(colls)) {
+      var tmp = new Array();
+      tmp.push(colls);
+      colls = tmp;
     }
-    let output;
 
-    const res: any = await getDocumentsByCollection([colls[0]], 1, 1000);
-        let CollLocation: any[] = [];
-        //@ts-ignore
-        res.documents.forEach((document) => {
-          let sigle: string = document.ortsSigle;
-          if (sigle) {
-            if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
-              CollLocation.push(document.ortsSigle.split(" ")[0]);
-            }
-          }
-        });
-        
-        output = JSON.stringify([
-          {
-          id: Math.random() * 1000,
-          tempColl: colls[0],
-          collection_name: collName,
-          editing: false,
-          fillColor:
-            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-          borderColor: "#000",
-          items: CollLocation,
-        }]);
-        console.log('output: ' + output)
+    if (colls.length === 0) {
+      return;
+    }
 
-         this.$router.push({
-                        path: '/maps',
-                        query: {
-                          col: output
-                        },
-                      })
+    const res: any = await getDocumentsByCollection([colls[0].toString()], 1, 1000);
+    let CollLocation: any[] = [];
+    //@ts-ignore
+    res.documents.forEach((document) => {
+      let sigle: string = document.ortsSigle;
+      if (sigle) {
+        if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
+          CollLocation.push(document.ortsSigle.split(" ")[0]);
+        }
       }
+    });
 
+    stateProxy.collections.addWBOE_coll({
+      changedColl: {
+        id: Math.random() * 1000,
+        selected: true,
+        preColl: item.value,
+        collection_name: item.text,
+        collection_desc: item.description,
+        editing: false,
+        fillColor:
+          "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+        borderColor: "#000",
+        items: CollLocation,
+      },
+      add: true,
+    });
+    this.$router.push({
+      path: "/maps",
+    });
+  }
 
-
-
-  @Watch('$route')
+  @Watch("$route")
   siteChanged(to: any, from: any) {
     if (from.path === "/") {
       this.visited = true;
