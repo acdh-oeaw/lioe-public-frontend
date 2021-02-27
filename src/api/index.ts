@@ -280,9 +280,7 @@ export async function searchDocuments(
         }).forEach(el => {
           indvidualArr.push({ query: el[el.groupName], field: el.groupName })
         })
-  
-  
-  
+       
       indvidualArr.forEach(obj => {
   
         let shouldArr: any[] = [];
@@ -292,7 +290,7 @@ export async function searchDocuments(
               fuzzy:
               {
                 [obj.field]: {
-                  term: !!element ? element.replace('(', '').replace('-', '').replace(')', '').toLowerCase() : element,
+                  term: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element,
                   fuzziness: fuzzlevel
                 }
               }
@@ -304,7 +302,7 @@ export async function searchDocuments(
             fuzzy:
             {
               [obj.field]: {
-                term: obj.query.replace('(', '').replace(')', '').replace('-', '').toLowerCase(),
+                term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
                 fuzziness: fuzzlevel
               }
             }
