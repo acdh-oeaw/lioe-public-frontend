@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as _ from 'lodash'
-import { concat } from 'lodash'
+import { concat, isNull } from 'lodash'
 import { userStore } from '../store/user'
 
 declare var process: {
@@ -292,7 +292,7 @@ export async function searchDocuments(
               fuzzy:
               {
                 [obj.field]: {
-                  term: element,
+                  term: !!element ? element.replace('(', '').replace('-', '').replace(')', '') : element,
                   fuzziness: fuzzlevel
                 }
               }
@@ -304,7 +304,7 @@ export async function searchDocuments(
             fuzzy:
             {
               [obj.field]: {
-                term: obj.query,
+                term: obj.query.replace('(', '').replace(')', '').replace('-', ''),
                 fuzziness: fuzzlevel
               }
             }
