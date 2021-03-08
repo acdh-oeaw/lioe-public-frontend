@@ -204,7 +204,7 @@
     </v-flex>
     <div v-if="loading" class="text-center grey--text mt-5">Laden…</div>
     <div v-else class="text-center grey--text mt-5">
-      {{ articles ? articles.length.toLocaleString() : "?" }} WBÖ Artikel
+      {{ articles ? articles.length.toLocaleString() : "?" }} WBÖ-Artikel
     </div>
 
     <v-flex class="pt-4">
