@@ -130,14 +130,17 @@
           <v-autocomplete
             :loading="isLoading"
             :items="locationsSearchItems"
+            :value="selectedLocations"
+            @input="selectLocations"
             label="Suche…"
-            :search-input.sync="autocompleteSearch"
             autofocus
             item-text="text"
             item-value="value"
             hide-details
             text
             flat
+            multiple
+            deletable-chips
             chips
             prepend-inner-icon="search"
             solo
@@ -321,6 +324,13 @@
           :options="options"
           :optionsStyle="styleOf(item)"
         />
+
+        <l-geo-json
+          v-if="!updateLayers && selectedLocations.length > 0"
+          ref="layerGeoJson"
+          :geojson="displayLocations"
+          :options="options"
+        />
       </div>
     </l-map>
   </div>
@@ -429,7 +439,6 @@ export default class Maps extends Vue {
   showGemeindenArea = false;
   updateLayers = false;
   colorGemeinde = "#333";
-  autocompleteSearch = "";
   colorBundesland = "#000";
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
@@ -439,7 +448,6 @@ export default class Maps extends Vue {
   dialogPlaces = false;
   //searchCollections
   selectedCollection = 0;
-  selectedLocations: any[] = [];
   title: boolean = true;
 
   rivers: any = null;
@@ -627,8 +635,10 @@ export default class Maps extends Vue {
   }
 
   get displayLocations() {
-    if (this.loc && !this.isLoading) {
-      const locations = this.loc.split(",");
+    let temp = this.selectedLocations
+    console.log(temp)
+    if (temp && !this.isLoading) {
+      const locations = temp;
       return {
         ...this.geoStore!.gemeinden,
         features: this.allFeatures.filter((f: any) => {
@@ -687,6 +697,24 @@ export default class Maps extends Vue {
     }
   }
 
+  get selectedLocations(): string[] {
+    if (stateProxy.collections.getLocations) {
+      return stateProxy.collections.getLocations
+    } else {
+      return []
+    }
+  }
+
+
+  selectLocations(locs: string[]) {
+    if (locs.length === 0) {
+      stateProxy.collections.setLocations([])
+    } else {
+      stateProxy.collections.setLocations(locs)
+    }
+  }
+
+
   styleOf(collection: Object) {
     return {
       fillOpacity: 1,
@@ -704,7 +732,7 @@ export default class Maps extends Vue {
     let places: String[] = [];
     locations.forEach((beleg) => {
       //@ts-ignore
-      if(beleg.ortsSigle != null) {
+      if (beleg.ortsSigle != null) {
         //@ts-ignore
         places.push(beleg.ortsSigle[0]);
       }

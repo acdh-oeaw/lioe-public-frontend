@@ -26,8 +26,17 @@ class CollectionModule extends VuexModule {
 
     private temp_collections: Array<Collection> = []
     private wboe_collections: Array<Collection> = []
+    private locations: Array<any> = []
     private showAlleBelege: Boolean = false
 
+    get getLocations() {
+        return this. locations
+    }
+
+    @mutation
+    setLocations(loc: Array<any>) {
+        this.locations = loc;
+    }
 
     get getShowAlleBelege() {
         return this.showAlleBelege;
