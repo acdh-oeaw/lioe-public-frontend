@@ -252,7 +252,6 @@
         "
         :geojson="dialektregionen"
       />
-
       <l-geo-json
         v-if="!updateLayers && showDialektregionenFill"
         :options="{ onEachFeature: bindTooltip(['name']) }"
@@ -277,9 +276,19 @@
           weight: 2,
         }"
       />
-      <l-geo-json
+      <!-- <l-geo-json
         v-if="!updateLayers && showGrossregionen"
         :options="optionsFunctionGross"
+        :geojson="grossregionen"
+        :optionsStyle="{
+          fillOpacity: 0,
+          color: colorGrossregionen,
+          weight: 1.5,
+        }"
+      /> -->
+      <l-geo-json
+        v-if="!updateLayers && showGrossregionen"
+        :options="{ onEachFeature: bindPopUpPlace() }"
         :geojson="grossregionen"
         :optionsStyle="{
           fillOpacity: 0,
@@ -321,15 +330,14 @@
         <l-geo-json
           v-if="!updateLayers && item.items.length > 0"
           :geojson="collDisplayLocations(item.items)"
-          :options="options"
+          :options="{ onEachFeature: bindPopUpPlace() }"
           :optionsStyle="styleOf(item)"
         />
 
         <l-geo-json
           v-if="!updateLayers && selectedLocations.length > 0"
-          ref="layerGeoJson"
+          :options="{ onEachFeature: bindPopUpPlace() }"
           :geojson="displayLocations"
-          :options="options"
         />
       </div>
     </l-map>
@@ -343,7 +351,6 @@ import {
   LTileLayer,
   LMarker,
   LGeoJson,
-  LIconDefault,
   LWMSTileLayer as LWmsTileLayer,
 } from "vue2-leaflet";
 import InfoText from "@components/InfoText.vue";
@@ -357,12 +364,9 @@ import domtoimage from "dom-to-image";
 import * as L from "leaflet";
 import * as _ from "lodash";
 import { stateProxy, Collection } from "../store/collections";
+//@ts-ignore
 import Playlist from "@components/Playlist.vue";
-import {
-  searchCollections,
-  getDocumentsByCollection,
-  getCollectionByIds,
-} from "../api";
+import { searchDocumentsFromES } from "../api";
 
 function base64ToBlob(dataURI: string) {
   const byteString = atob(dataURI.split(",")[1]);
@@ -635,8 +639,7 @@ export default class Maps extends Vue {
   }
 
   get displayLocations() {
-    let temp = this.selectedLocations
-    console.log(temp)
+    let temp = this.selectedLocations;
     if (temp && !this.isLoading) {
       const locations = temp;
       return {
@@ -699,21 +702,19 @@ export default class Maps extends Vue {
 
   get selectedLocations(): string[] {
     if (stateProxy.collections.getLocations) {
-      return stateProxy.collections.getLocations
+      return stateProxy.collections.getLocations;
     } else {
-      return []
+      return [];
     }
   }
-
 
   selectLocations(locs: string[]) {
     if (locs.length === 0) {
-      stateProxy.collections.setLocations([])
+      stateProxy.collections.setLocations([]);
     } else {
-      stateProxy.collections.setLocations(locs)
+      stateProxy.collections.setLocations(locs);
     }
   }
-
 
   styleOf(collection: Object) {
     return {
@@ -807,6 +808,34 @@ export default class Maps extends Vue {
     };
   }
 
+  bindPopUpPlace(properties = ["Grossreg"], showLabel = false, perm = false) {
+    return async (feature: geojson.Feature, layer: L.Layer) => {
+      let docs: any = {};
+      let regionType: any;
+      if (feature.properties) {
+        if (typeof feature.properties.sigle === "string") {
+          docs = await searchDocumentsFromES(feature.properties.sigle, true);
+        } else if (typeof feature.properties.Grossreg === "string") {
+          docs = await searchDocumentsFromES(feature.properties.Grossreg, false);
+        } else if (typeof feature.properties.name === "string") {
+          docs = await searchDocumentsFromES(feature.properties.name, false);
+        } else {
+          docs = await searchDocumentsFromES(feature.properties.Name, false);
+        }
+        if (typeof feature.properties.Grossreg === "string") {
+          regionType = "Grossreg";
+        } else if (typeof feature.properties.name === "string") {
+          regionType = "name";
+        }
+
+        layer.bindPopup(
+          `<div>  ${feature.properties[regionType]} | Documents: ${docs.total.value}   <hr style="margin-bottom: 5px;"> ${docs.documents[0]._source.HL} <br>  ${docs.documents[1]._source.HL} <br> <router-link :to="{ path: 'db', query: { q: Sigle1,${feature.properties.sigle} }}"><a>Alle Dokumente einsehen</a></router-link>
+  </div>`
+        );
+      }
+    };
+  }
+
   get onEachFeatureFunction() {
     const aThis: any = this;
     return (feature: geojson.Feature, layer: L.Layer) => {
@@ -829,6 +858,7 @@ export default class Maps extends Vue {
       });
     };
   }
+
   get isLoading() {
     if (
       this.geoStore.gemeinden !== null &&
