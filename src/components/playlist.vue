@@ -318,6 +318,7 @@ export default class Playlist extends Vue {
   }
 
   async getLocationsOfCollections(colls: any[]) {
+    // i should really change this at some point to be more efficient
     if (typeof colls === "object" && colls !== []) {
       colls.forEach(async (coll) => {
         let shownInGeo;
