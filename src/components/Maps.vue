@@ -330,13 +330,13 @@
         <l-geo-json
           v-if="!updateLayers && item.items.length > 0"
           :geojson="collDisplayLocations(item.items)"
-          :options="{ onEachFeature: bindPopUpPlace() }"
+          :options="options"
           :optionsStyle="styleOf(item)"
         />
 
         <l-geo-json
           v-if="!updateLayers && selectedLocations.length > 0"
-          :options="{ onEachFeature: bindPopUpPlace() }"
+          :options="options"
           :geojson="displayLocations"
         />
       </div>
@@ -488,7 +488,7 @@ export default class Maps extends Vue {
   };
 
   options = {
-    onEachFeature: this.onEachFeatureFunction,
+    onEachFeature: this.bindPopUpPlace(),
     pointToLayer: (feature: any, latlng: any) => {
       return L.circleMarker(latlng, {
         radius: 3,
@@ -735,7 +735,7 @@ export default class Maps extends Vue {
       //@ts-ignore
       if (beleg.ortsSigle != null) {
         //@ts-ignore
-        places.push(beleg.ortsSigle[0]);
+        places.push(beleg.ortsSigle);
       }
     });
     return {
@@ -808,15 +808,18 @@ export default class Maps extends Vue {
     };
   }
 
-  bindPopUpPlace(properties = ["Grossreg"], showLabel = false, perm = false) {
-    return async (feature: geojson.Feature, layer: L.Layer) => {
+  bindPopUpPlace() {
+    return async (feature: geojson.Feature, layer: L.Layer): Promise<void> => {
       let docs: any = {};
       let regionType: any;
       if (feature.properties) {
         if (typeof feature.properties.sigle === "string") {
-          docs = await searchDocumentsFromES(feature.properties.sigle, true);
+          docs = await searchDocumentsFromES(feature.properties.sigle, true).catch(err => console.log( err ));
         } else if (typeof feature.properties.Grossreg === "string") {
-          docs = await searchDocumentsFromES(feature.properties.Grossreg, false);
+          docs = await searchDocumentsFromES(
+            feature.properties.Grossreg,
+            false
+          );
         } else if (typeof feature.properties.name === "string") {
           docs = await searchDocumentsFromES(feature.properties.name, false);
         } else {
@@ -829,7 +832,7 @@ export default class Maps extends Vue {
         }
 
         layer.bindPopup(
-          `<div>  ${feature.properties[regionType]} | Documents: ${docs.total.value}   <hr style="margin-bottom: 5px;"> ${docs.documents[0]._source.HL} <br>  ${docs.documents[1]._source.HL} <br> <router-link :to="{ path: 'db', query: { q: Sigle1,${feature.properties.sigle} }}"><a>Alle Dokumente einsehen</a></router-link>
+          `<div>  ${feature.properties[regionType]} | Documents: ${docs.total.value}   <hr style="margin-bottom: 5px;"> ${docs.documents[0] ? docs.documents[0]._source.HL : ''} <br>  ${docs.documents[1] ? docs.documents[1]._source.HL : ''} <br> <router-link :to="{ path: 'db', query: { q: Sigle1,${feature.properties.sigle} }}"><a>Alle Dokumente einsehen</a></router-link>
   </div>`
         );
       }
