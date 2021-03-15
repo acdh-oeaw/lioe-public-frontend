@@ -91,6 +91,7 @@ class CollectionModule extends VuexModule {
                 }
             });
         }
+        console.log(this.wboe_collections)
     }
 
     @mutation
