@@ -832,7 +832,9 @@ export default class Maps extends Vue {
         }
 
         layer.bindPopup(
-          `<div>  ${feature.properties[regionType]} | Documents: ${docs.total.value}   <hr style="margin-bottom: 5px;"> ${docs.documents[0] ? docs.documents[0]._source.HL : ''} <br>  ${docs.documents[1] ? docs.documents[1]._source.HL : ''} <br> <router-link :to="{ path: 'db', query: { q: Sigle1,${feature.properties.sigle} }}"><a>Alle Dokumente einsehen</a></router-link>
+          `<div>  ${feature.properties[regionType]} | Documents: ${docs.total.value}   <hr style="margin-bottom: 5px;"> ${docs.documents[0] ? docs.documents[0]._source.HL : ''} <br>  ${docs.documents[1] ? docs.documents[1]._source.HL : ''} <br> 
+<a href="${ String(this.$router).substring(0,String(this.$router).indexOf('/')) + 'db?fuzzy=false&q=Sigle1,' + feature.properties.sigle + ',Sigle'}">Alle Dokumente anzeigen</a>
+
   </div>`
         );
       }

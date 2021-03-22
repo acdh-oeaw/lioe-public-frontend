@@ -258,7 +258,7 @@ export async function searchDocumentsFromES(place: string, sigle: boolean) {
      ds = (await axios(localEndpoint + '/es-query', {
       method: 'POST',
       data: {
-        size: 200,
+        size: 5,
         query: {
           bool: {
             must:
@@ -271,7 +271,7 @@ export async function searchDocumentsFromES(place: string, sigle: boolean) {
     ds = (await axios(localEndpoint + '/es-query', {
       method: 'POST',
       data: {
-        size: 200,
+        size: 5,
         query: {
           bool: {
             should: [
