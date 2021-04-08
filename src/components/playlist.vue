@@ -292,13 +292,6 @@ export default class Playlist extends Vue {
     stateProxy.collections.setWboe_coll(colls);
   }
 
-  /*@Watch("selectedCollections")
-  async selectCollections() {
-    if (this.selectedCollections.length > -1) {
-      await this.getLocationsOfCollections(this.selectedCollections);
-    }
-  }*/
-
   routeToMaps() {
     this.$router.push({
       path: "/maps",

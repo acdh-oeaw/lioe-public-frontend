@@ -814,7 +814,10 @@ export default class Maps extends Vue {
       let regionType: any;
       if (feature.properties) {
         if (typeof feature.properties.sigle === "string") {
-          docs = await searchDocumentsFromES(feature.properties.sigle, true).catch(err => console.log( err ));
+          docs = await searchDocumentsFromES(
+            feature.properties.sigle,
+            true
+          ).catch((err) => console.log(err));
         } else if (typeof feature.properties.Grossreg === "string") {
           docs = await searchDocumentsFromES(
             feature.properties.Grossreg,
@@ -832,10 +835,13 @@ export default class Maps extends Vue {
         }
 
         layer.bindPopup(
-          `<div>  ${feature.properties[regionType]} | Documents: ${docs.total.value}   <hr style="margin-bottom: 5px;"> ${docs.documents[0] ? docs.documents[0]._source.HL : ''} <br>  ${docs.documents[1] ? docs.documents[1]._source.HL : ''} <br> 
-<a href="${ String(this.$router).substring(0,String(this.$router).indexOf('/')) + 'db?fuzzy=false&q=Sigle1,' + feature.properties.sigle + ',Sigle'}">Alle Dokumente anzeigen</a>
-
-  </div>`
+          `<div>  ${feature.properties[regionType]} | Documents: ${
+            docs.total.value
+          }   <hr style="margin-bottom: 5px;"> 
+          ${ _(docs.documents).take(5).map(d => `<div>${ d._source.HL }</div>`).value().join('') }
+          } <br>  ${docs.documents[1] ? docs.documents[1]._source.HL : ""} <br> 
+          <a onclick="window.showDocumentsFromPopUp('${feature.properties.sigle}')">Alle Dokumente anzeigen</a>
+          </div>`
         );
       }
     };
@@ -931,12 +937,20 @@ export default class Maps extends Vue {
   }
 
   async mounted() {
+    (window as any).showDocumentsFromPopUp = (sigle: any) => {
+      this.$router.push({ path: `/db?q=Sigle1,${sigle}` })
+      stateProxy.collections.changeShowAlleBelege(true);
+    }
     this.loadRivers();
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson;
       this.map = this.$refs.map;
     });
   }
+
+  beforeUnmount() {
+   	(window as any).showDocumentsFromPopUp = undefined
+   }
 }
 </script>
 <style lang="scss" scoped>
