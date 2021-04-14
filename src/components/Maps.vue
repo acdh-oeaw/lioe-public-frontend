@@ -326,10 +326,10 @@
       />
 
       <l-geo-json
-          :geojson="selectedLocations"
-          :options="options"
-          :optionsStyle="styleFunction"
-        />
+        :geojson="selectedLocations"
+        :options="options"
+        :optionsStyle="styleFunction"
+      />
 
       <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
@@ -519,12 +519,12 @@ export default class Maps extends Vue {
     return (feature: any) => {
       return {
         weight: 1,
-        color: '#333333',
+        color: "#333333",
         opacity: 1,
-        fillColor: '#333',
-        fillOpacity: 0.5
-      }
-    }
+        fillColor: "#333",
+        fillOpacity: 0.5,
+      };
+    };
   }
 
   async fitMap() {
@@ -704,7 +704,7 @@ export default class Maps extends Vue {
         return locations.indexOf(f.properties.sigle) > -1;
       }),
     };
-    return a
+    return a;
   }
 
   selectLocations(locs: string[]) {
