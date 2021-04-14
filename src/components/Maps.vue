@@ -364,7 +364,7 @@ import * as L from "leaflet";
 import * as _ from "lodash";
 import { stateProxy, Collection } from "../store/collections";
 //@ts-ignore
-import Playlist from "@components/Playlist.vue";
+import Playlist from "@components/playlist.vue";
 import { searchDocumentsFromES } from "../api";
 
 function base64ToBlob(dataURI: string) {

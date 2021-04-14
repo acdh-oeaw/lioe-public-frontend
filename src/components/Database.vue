@@ -296,7 +296,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import InfoText from "@components/InfoText.vue";
 import InfoBox from "@components/InfoBox.vue";
-import Playlist from "@components/Playlist.vue";
+import Playlist from "@src/components/playlist.vue";
 import {
   getDocuments,
   searchDocuments,
