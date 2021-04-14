@@ -130,7 +130,6 @@
           <v-autocomplete
             :loading="isLoading"
             :items="locationsSearchItems"
-            :value="selectedLocations"
             @input="selectLocations"
             label="Suche…"
             autofocus
@@ -326,18 +325,18 @@
         :geojson="rivers2"
       />
 
+      <l-geo-json
+          :geojson="selectedLocations"
+          :options="options"
+          :optionsStyle="styleFunction"
+        />
+
       <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
           v-if="!updateLayers && item.items.length > 0"
           :geojson="collDisplayLocations(item.items)"
           :options="options"
           :optionsStyle="styleOf(item)"
-        />
-
-        <l-geo-json
-          v-if="!updateLayers && selectedLocations.length > 0"
-          :options="options"
-          :geojson="displayLocations"
         />
       </div>
     </l-map>
@@ -494,7 +493,7 @@ export default class Maps extends Vue {
         radius: 3,
         weight: 1,
         opacity: 1,
-        fillOpacity: 0.8,
+        fillOpacity: 0.5,
       });
     },
   };
@@ -514,6 +513,18 @@ export default class Maps extends Vue {
 
   get tileSetUrl(): string {
     return this.tileSets[this.selectedTileSet].url;
+  }
+
+  get styleFunction() {
+    return (feature: any) => {
+      return {
+        weight: 1,
+        color: '#333333',
+        opacity: 1,
+        fillColor: '#333',
+        fillOpacity: 0.5
+      }
+    }
   }
 
   async fitMap() {
@@ -638,21 +649,6 @@ export default class Maps extends Vue {
     }
   }
 
-  get displayLocations() {
-    let temp = this.selectedLocations;
-    if (temp && !this.isLoading) {
-      const locations = temp;
-      return {
-        ...this.geoStore!.gemeinden,
-        features: this.allFeatures.filter((f: any) => {
-          return locations.indexOf(f.properties.sigle) > -1;
-        }),
-      };
-    } else {
-      return this.allFeatures;
-    }
-  }
-
   get locationsSearchItems() {
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
@@ -700,12 +696,15 @@ export default class Maps extends Vue {
     }
   }
 
-  get selectedLocations(): string[] {
-    if (stateProxy.collections.getLocations) {
-      return stateProxy.collections.getLocations;
-    } else {
-      return [];
-    }
+  get selectedLocations() {
+    const locations = stateProxy.collections.getLocations;
+    let a = {
+      ...this.geoStore!.gemeinden,
+      features: this.allFeatures.filter((f: any) => {
+        return locations.indexOf(f.properties.sigle) > -1;
+      }),
+    };
+    return a
   }
 
   selectLocations(locs: string[]) {
@@ -833,14 +832,18 @@ export default class Maps extends Vue {
         } else if (typeof feature.properties.name === "string") {
           regionType = "name";
         }
-
         layer.bindPopup(
           `<div>  ${feature.properties[regionType]} | Documents: ${
             docs.total.value
           }   <hr style="margin-bottom: 5px;"> 
-          ${ _(docs.documents).take(5).map(d => `<div>${ d._source.HL }</div>`).value().join('') }
-          } <br>  ${docs.documents[1] ? docs.documents[1]._source.HL : ""} <br> 
-          <a onclick="window.showDocumentsFromPopUp('${feature.properties.sigle}')">Alle Dokumente anzeigen</a>
+          ${_(docs.documents)
+            .take(5)
+            .map((d) => `<div>${d._source.HL}</div>`)
+            .value()
+            .join("")}
+          <a onclick="window.showDocumentsFromPopUp('${
+            feature.properties.sigle
+          }')">Alle Dokumente anzeigen</a>
           </div>`
         );
       }
@@ -938,9 +941,9 @@ export default class Maps extends Vue {
 
   async mounted() {
     (window as any).showDocumentsFromPopUp = (sigle: any) => {
-      this.$router.push({ path: `/db?q=Sigle1,${sigle}` })
+      this.$router.push({ path: `/db?q=Sigle1,${sigle}&fuzzy=false` });
       stateProxy.collections.changeShowAlleBelege(true);
-    }
+    };
     this.loadRivers();
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson;
@@ -949,8 +952,8 @@ export default class Maps extends Vue {
   }
 
   beforeUnmount() {
-   	(window as any).showDocumentsFromPopUp = undefined
-   }
+    (window as any).showDocumentsFromPopUp = undefined;
+  }
 }
 </script>
 <style lang="scss" scoped>
