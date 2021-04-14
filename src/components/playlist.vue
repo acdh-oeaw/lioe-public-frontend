@@ -84,11 +84,14 @@
                     style="margin: auto 0px"
                     v-if="onMapPage && item.items.length === 0"
                   >
-                    <v-tooltip top style="width:200px">
+                    <v-tooltip top style="width: 200px">
                       <template v-slot:activator="{ on }">
-                        <v-icon v-on="on" style="color: red" class="mdi-18px">mdi-alert</v-icon>
+                        <v-icon v-on="on" style="color: red" class="mdi-18px"
+                          >mdi-alert</v-icon
+                        >
                       </template>
-                      Diese Sammlung ist noch leer! Gehen Sie zur Belegdatenbank <br>
+                      Diese Sammlung ist noch leer! Gehen Sie zur Belegdatenbank
+                      <br />
                       um Belege zu dieser Sammlung hinzuzufügen.
                     </v-tooltip>
                   </v-list-item-icon>
@@ -220,7 +223,7 @@
               </v-list-item>
             </template>
             <template v-slot:item="{ item }">
-              <v-list-item-content>
+              <v-list-item-content @click="getLocationsOfCollections(this.selectedCollections)">
                 <v-list-item-title v-text="item.text"></v-list-item-title>
                 <v-list-item-subtitle
                   v-text="item.description"
@@ -289,13 +292,6 @@ export default class Playlist extends Vue {
     stateProxy.collections.setWboe_coll(colls);
   }
 
-  @Watch("selectedCollections")
-  async selectCollections() {
-    if (this.selectedCollections.length > -1) {
-      await this.getLocationsOfCollections(this.selectedCollections);
-    }
-  }
-
   routeToMaps() {
     this.$router.push({
       path: "/maps",
@@ -315,52 +311,58 @@ export default class Playlist extends Vue {
   }
 
   async getLocationsOfCollections(colls: any[]) {
-    colls.forEach(async (coll) => {
-      let shownInGeo;
-      this.wboe_coll.forEach((CollInGeo) => {
-        //@ts-ignore
-        if (CollInGeo.preColl === coll) {
-          shownInGeo = true;
+    // i should really change this at some point to be more efficient
+    if (typeof colls === "object" && colls !== []) {
+      colls.forEach(async (coll) => {
+        let shownInGeo;
+        this.wboe_coll.forEach((CollInGeo) => {
+          //@ts-ignore
+          if (CollInGeo.preColl === coll) {
+            shownInGeo = true;
+          }
+        });
+        //It is a new one
+        if (!shownInGeo) {
+          const res: any = await getDocumentsByCollection([coll], 1, 1000);
+          let CollLocation: any[] = [];
+          //@ts-ignore
+          res.documents.forEach((document) => {
+            let sigle: string = document.ortsSigle;
+            if (sigle) {
+              if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
+                CollLocation.push(document.ortsSigle.split(" ")[0]);
+              }
+            }
+          });
+          let collName = "";
+          let collDescription = "";
+          this.collectionSearchItems.forEach((iterColl) => {
+            if (coll === iterColl.value) {
+              collName = iterColl.name;
+              collDescription = iterColl.description;
+            }
+          });
+          stateProxy.collections.addWBOE_coll({
+            changedColl: {
+              id: Math.random() * 1000,
+              selected: true,
+              preColl: coll,
+              collection_name: collName,
+              collection_desc: collDescription,
+              editing: false,
+              fillColor:
+                "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+              borderColor: "#000",
+              items: CollLocation,
+            },
+            add: true,
+          });
         }
       });
-      //It is a new one
-      if (!shownInGeo) {
-        const res: any = await getDocumentsByCollection([coll], 1, 1000);
-        let CollLocation: any[] = [];
-        //@ts-ignore
-        res.documents.forEach((document) => {
-          let sigle: string = document.ortsSigle;
-          if (sigle) {
-            if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
-              CollLocation.push(document.ortsSigle.split(" ")[0]);
-            }
-          }
-        });
-        let collName = "";
-        let collDescription = "";
-        this.collectionSearchItems.forEach((iterColl) => {
-          if (coll === iterColl.value) {
-            collName = iterColl.name;
-            collDescription = iterColl.description;
-          }
-        });
-        stateProxy.collections.addWBOE_coll({
-          changedColl: {
-            id: Math.random() * 1000,
-            selected: true,
-            preColl: coll,
-            collection_name: collName,
-            collection_desc: collDescription,
-            editing: false,
-            fillColor:
-              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-            borderColor: "#000",
-            items: CollLocation,
-          },
-          add: true,
-        });
-      }
-    });
+      this.selectedCollections = []
+    } else {
+      setTimeout(() => this.getLocationsOfCollections(this.selectedCollections), 100);
+    }
   }
 
   @Watch("searchCollection")

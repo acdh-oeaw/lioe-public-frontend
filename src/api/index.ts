@@ -29,9 +29,9 @@ interface Documents {
 }
 
 export interface SearchRequest {
-  query: string|null
+  query: string | null
   // string contains null == all | name
-  fields: null|string
+  fields: null | string
   headerStr: string
   id: number
 }
@@ -197,8 +197,8 @@ export async function searchDocuments(
   page = 1,
   items = 100,
   descending: boolean[] = [true],
-  sortBy:any[] = [null],
-  should_fuzzy:boolean = false
+  sortBy: any[] = [null],
+  should_fuzzy: boolean = false
 ): Promise<Documents> {
 
   let fuzzlevel = should_fuzzy ? 3 : 0
@@ -207,8 +207,8 @@ export async function searchDocuments(
 
   const sort = [];
 
-  if(sortBy.length !== 0) {
-    if(descending.length !== 0) {
+  if (sortBy.length !== 0) {
+    if (descending.length !== 0) {
       sort.push(
         {
           [`${sortBy[0]}.keyword`]: descending[0] ? 'desc' : 'asc'
@@ -219,7 +219,7 @@ export async function searchDocuments(
     }
   }
 
-  
+
 
   const ds = (await axios(localEndpoint + '/es-query', {
     method: 'POST',
@@ -228,15 +228,15 @@ export async function searchDocuments(
       sort,
       from: (page - 1) * items,
       size: items,
-      query: getFinalQuery(searchAllMult, searchInd, fuzzlevel) 
+      query: getFinalQuery(searchAllMult, searchInd, fuzzlevel)
 
-      
-        // multi_match: {
-        //   fields: searchFields,
-        //   query: search,
-        //   type: 'best_fields',
-        //   fuzziness: fuzziness ? 3 : 0,
-        // }
+
+      // multi_match: {
+      //   fields: searchFields,
+      //   query: search,
+      //   type: 'best_fields',
+      //   fuzziness: fuzziness ? 3 : 0,
+      // }
     }
   })).data
 
@@ -252,106 +252,146 @@ export async function searchDocuments(
   }
 }
 
-
-  // creating the nested query based on 4 case - null null, individual null, null multiple, individual multiple
-  function getFinalQuery(searchAllMult: SearchRequest[] | null,
-    searchInd: SearchRequest[] | null,
-    fuzzlevel: number): Object {
-  
-    let indvidualArr: individualRequest[] = [];
-  
-    let mustArr: any[] = [];
-  
-    if (searchAllMult === null && searchInd === null) {
-      return { match_all: {} }
-    }
-  
-    if (searchInd !== null) {
-  
-      _(searchInd)
-        .filter(f => f.query !== null && f.query.trim() !== '')
-        .groupBy('fields')
-        .map((group, groupName) => {
-          return {
-  
-            [groupName]: group.map(item => item.query), groupName
-  
+export async function searchDocumentsFromES(place: string, sigle: boolean) {
+  let ds
+  if (sigle) {
+     ds = (await axios(localEndpoint + '/es-query', {
+      method: 'POST',
+      data: {
+        size: 5,
+        query: {
+          bool: {
+            must:
+              { "term": { "Sigle1": place } }
           }
-        }).forEach(el => {
-          indvidualArr.push({ query: el[el.groupName], field: el.groupName })
-        })
-       
-      indvidualArr.forEach(obj => {
-  
-        let shouldArr: any[] = [];
-        if (Array.isArray(obj.query)) {
-          obj.query.forEach(element => {
-            shouldArr.push({
-              fuzzy:
-              {
-                [obj.field]: {
-                  term: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element,
-                  fuzziness: fuzzlevel
-                }
-              }
-            })
-          });
-  
-        } else {
+        }
+      }
+    })).data
+  } else {
+    ds = (await axios(localEndpoint + '/es-query', {
+      method: 'POST',
+      data: {
+        size: 5,
+        query: {
+          bool: {
+            should: [
+              { "match": { "Bundesland1": place } },
+              { "match": { "Großregion1": place } },
+              { "match": { "Kleinregion1": place } },
+              { "match": { "Gemeinde1": place } }
+            ]
+          }
+        }
+      }
+    })).data
+  }
+
+  return {
+    documents: ds.hits.hits,
+    total: ds.hits.total
+  }
+}
+
+
+// creating the nested query based on 4 case - null null, individual null, null multiple, individual multiple
+function getFinalQuery(searchAllMult: SearchRequest[] | null,
+  searchInd: SearchRequest[] | null,
+  fuzzlevel: number): Object {
+
+  let indvidualArr: individualRequest[] = [];
+
+  let mustArr: any[] = [];
+
+  if (searchAllMult === null && searchInd === null) {
+    return { match_all: {} }
+  }
+
+  if (searchInd !== null) {
+
+    _(searchInd)
+      .filter(f => f.query !== null && f.query.trim() !== '')
+      .groupBy('fields')
+      .map((group, groupName) => {
+        return {
+
+          [groupName]: group.map(item => item.query), groupName
+
+        }
+      }).forEach(el => {
+        indvidualArr.push({ query: el[el.groupName], field: el.groupName })
+      })
+
+    indvidualArr.forEach(obj => {
+
+      let shouldArr: any[] = [];
+      if (Array.isArray(obj.query)) {
+        obj.query.forEach(element => {
           shouldArr.push({
             fuzzy:
             {
               [obj.field]: {
-                term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
+                term: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element,
                 fuzziness: fuzzlevel
               }
             }
           })
-        }
-  
-        mustArr.push({ bool: { should: shouldArr } })
-      })
-  
-      if (searchAllMult === null) {
-        const finalQuery = {
-          bool: {
-            must: mustArr
-          }
-        }
-  
-        return finalQuery
-      }
-    }
-    if (searchAllMult !== null) {
-      // Adding multi_match objects per search term
-      if (searchAllMult[0].fields != null) {
-        let searchFields = searchAllMult[0].fields.split(',');
-        for (var i = 0; i < searchAllMult.length; i++) {
-          mustArr.push({
-            multi_match: {
-              query: searchAllMult[i].query,
-              fields: searchFields,
+        });
+
+      } else {
+        shouldArr.push({
+          fuzzy:
+          {
+            [obj.field]: {
+              term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
               fuzziness: fuzzlevel
             }
-          })
-        }
-  
+          }
+        })
       }
-  
-      const allFieldsQuery = {
+
+      mustArr.push({ bool: { should: shouldArr } })
+    })
+
+    if (searchAllMult === null) {
+      const finalQuery = {
         bool: {
           must: mustArr
         }
       }
-  
-      return allFieldsQuery
-  
-  
+
+      return finalQuery
     }
-  
-    return {} // will never reach this state
-  
   }
+  if (searchAllMult !== null) {
+    // Adding multi_match objects per search term
+    if (searchAllMult[0].fields != null) {
+      let searchFields = searchAllMult[0].fields.split(',');
+      for (var i = 0; i < searchAllMult.length; i++) {
+        mustArr.push({
+          multi_match: {
+            query: searchAllMult[i].query,
+            fields: searchFields,
+            fuzziness: fuzzlevel
+          }
+        })
+      }
+
+    }
+
+    const allFieldsQuery = {
+      bool: {
+        must: mustArr
+      }
+    }
+
+    return allFieldsQuery
+
+
+  }
+
+  return {} // will never reach this state
+
+}
 export async function getDocumentsByCollection(ids: string[], page = 1, items = 100): Promise<Documents> {
   const r = await (await fetch(apiEndpoint + `/documents/?${ids.map(id => 'in_collections=' + id).join('&')
     }&page_size=${items}&page=${page}`)).json()

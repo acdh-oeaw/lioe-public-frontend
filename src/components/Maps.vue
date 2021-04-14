@@ -130,14 +130,16 @@
           <v-autocomplete
             :loading="isLoading"
             :items="locationsSearchItems"
+            @input="selectLocations"
             label="Suche…"
-            :search-input.sync="autocompleteSearch"
             autofocus
             item-text="text"
             item-value="value"
             hide-details
             text
             flat
+            multiple
+            deletable-chips
             chips
             prepend-inner-icon="search"
             solo
@@ -249,7 +251,6 @@
         "
         :geojson="dialektregionen"
       />
-
       <l-geo-json
         v-if="!updateLayers && showDialektregionenFill"
         :options="{ onEachFeature: bindTooltip(['name']) }"
@@ -274,9 +275,19 @@
           weight: 2,
         }"
       />
-      <l-geo-json
+      <!-- <l-geo-json
         v-if="!updateLayers && showGrossregionen"
         :options="optionsFunctionGross"
+        :geojson="grossregionen"
+        :optionsStyle="{
+          fillOpacity: 0,
+          color: colorGrossregionen,
+          weight: 1.5,
+        }"
+      /> -->
+      <l-geo-json
+        v-if="!updateLayers && showGrossregionen"
+        :options="{ onEachFeature: bindPopUpPlace() }"
         :geojson="grossregionen"
         :optionsStyle="{
           fillOpacity: 0,
@@ -314,6 +325,12 @@
         :geojson="rivers2"
       />
 
+      <l-geo-json
+        :geojson="selectedLocations"
+        :options="options"
+        :optionsStyle="styleFunction"
+      />
+
       <div v-for="item in geoCollections" :key="item.id">
         <l-geo-json
           v-if="!updateLayers && item.items.length > 0"
@@ -333,7 +350,6 @@ import {
   LTileLayer,
   LMarker,
   LGeoJson,
-  LIconDefault,
   LWMSTileLayer as LWmsTileLayer,
 } from "vue2-leaflet";
 import InfoText from "@components/InfoText.vue";
@@ -347,12 +363,9 @@ import domtoimage from "dom-to-image";
 import * as L from "leaflet";
 import * as _ from "lodash";
 import { stateProxy, Collection } from "../store/collections";
+//@ts-ignore
 import Playlist from "@components/Playlist.vue";
-import {
-  searchCollections,
-  getDocumentsByCollection,
-  getCollectionByIds,
-} from "../api";
+import { searchDocumentsFromES } from "../api";
 
 function base64ToBlob(dataURI: string) {
   const byteString = atob(dataURI.split(",")[1]);
@@ -429,7 +442,6 @@ export default class Maps extends Vue {
   showGemeindenArea = false;
   updateLayers = false;
   colorGemeinde = "#333";
-  autocompleteSearch = "";
   colorBundesland = "#000";
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
@@ -439,7 +451,6 @@ export default class Maps extends Vue {
   dialogPlaces = false;
   //searchCollections
   selectedCollection = 0;
-  selectedLocations: any[] = [];
   title: boolean = true;
 
   rivers: any = null;
@@ -476,13 +487,13 @@ export default class Maps extends Vue {
   };
 
   options = {
-    onEachFeature: this.onEachFeatureFunction,
+    onEachFeature: this.bindPopUpPlace(),
     pointToLayer: (feature: any, latlng: any) => {
       return L.circleMarker(latlng, {
         radius: 3,
         weight: 1,
         opacity: 1,
-        fillOpacity: 0.8,
+        fillOpacity: 0.5,
       });
     },
   };
@@ -502,6 +513,18 @@ export default class Maps extends Vue {
 
   get tileSetUrl(): string {
     return this.tileSets[this.selectedTileSet].url;
+  }
+
+  get styleFunction() {
+    return (feature: any) => {
+      return {
+        weight: 1,
+        color: "#333333",
+        opacity: 1,
+        fillColor: "#333",
+        fillOpacity: 0.5,
+      };
+    };
   }
 
   async fitMap() {
@@ -626,20 +649,6 @@ export default class Maps extends Vue {
     }
   }
 
-  get displayLocations() {
-    if (this.loc && !this.isLoading) {
-      const locations = this.loc.split(",");
-      return {
-        ...this.geoStore!.gemeinden,
-        features: this.allFeatures.filter((f: any) => {
-          return locations.indexOf(f.properties.sigle) > -1;
-        }),
-      };
-    } else {
-      return this.allFeatures;
-    }
-  }
-
   get locationsSearchItems() {
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
@@ -687,6 +696,25 @@ export default class Maps extends Vue {
     }
   }
 
+  get selectedLocations() {
+    const locations = stateProxy.collections.getLocations;
+    let a = {
+      ...this.geoStore!.gemeinden,
+      features: this.allFeatures.filter((f: any) => {
+        return locations.indexOf(f.properties.sigle) > -1;
+      }),
+    };
+    return a;
+  }
+
+  selectLocations(locs: string[]) {
+    if (locs.length === 0) {
+      stateProxy.collections.setLocations([]);
+    } else {
+      stateProxy.collections.setLocations(locs);
+    }
+  }
+
   styleOf(collection: Object) {
     return {
       fillOpacity: 1,
@@ -704,9 +732,9 @@ export default class Maps extends Vue {
     let places: String[] = [];
     locations.forEach((beleg) => {
       //@ts-ignore
-      if(beleg.ortsSigle != null) {
+      if (beleg.ortsSigle != null) {
         //@ts-ignore
-        places.push(beleg.ortsSigle[0]);
+        places.push(beleg.ortsSigle);
       }
     });
     return {
@@ -779,6 +807,49 @@ export default class Maps extends Vue {
     };
   }
 
+  bindPopUpPlace() {
+    return async (feature: geojson.Feature, layer: L.Layer): Promise<void> => {
+      let docs: any = {};
+      let regionType: any;
+      if (feature.properties) {
+        if (typeof feature.properties.sigle === "string") {
+          docs = await searchDocumentsFromES(
+            feature.properties.sigle,
+            true
+          ).catch((err) => console.log(err));
+        } else if (typeof feature.properties.Grossreg === "string") {
+          docs = await searchDocumentsFromES(
+            feature.properties.Grossreg,
+            false
+          );
+        } else if (typeof feature.properties.name === "string") {
+          docs = await searchDocumentsFromES(feature.properties.name, false);
+        } else {
+          docs = await searchDocumentsFromES(feature.properties.Name, false);
+        }
+        if (typeof feature.properties.Grossreg === "string") {
+          regionType = "Grossreg";
+        } else if (typeof feature.properties.name === "string") {
+          regionType = "name";
+        }
+        layer.bindPopup(
+          `<div>  ${feature.properties[regionType]} | Documents: ${
+            docs.total.value
+          }   <hr style="margin-bottom: 5px;"> 
+          ${_(docs.documents)
+            .take(5)
+            .map((d) => `<div>${d._source.HL}</div>`)
+            .value()
+            .join("")}
+          <a onclick="window.showDocumentsFromPopUp('${
+            feature.properties.sigle
+          }')">Alle Dokumente anzeigen</a>
+          </div>`
+        );
+      }
+    };
+  }
+
   get onEachFeatureFunction() {
     const aThis: any = this;
     return (feature: geojson.Feature, layer: L.Layer) => {
@@ -801,6 +872,7 @@ export default class Maps extends Vue {
       });
     };
   }
+
   get isLoading() {
     if (
       this.geoStore.gemeinden !== null &&
@@ -868,11 +940,19 @@ export default class Maps extends Vue {
   }
 
   async mounted() {
+    (window as any).showDocumentsFromPopUp = (sigle: any) => {
+      this.$router.push({ path: `/db?q=Sigle1,${sigle}&fuzzy=false` });
+      stateProxy.collections.changeShowAlleBelege(true);
+    };
     this.loadRivers();
     this.$nextTick(() => {
       this.layerGeoJson = this.$refs.layerGeoJson;
       this.map = this.$refs.map;
     });
+  }
+
+  beforeUnmount() {
+    (window as any).showDocumentsFromPopUp = undefined;
   }
 }
 </script>
