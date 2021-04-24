@@ -383,6 +383,7 @@ export default class Playlist extends Vue {
     }
   }
 
+  //potential Improvement: Levenshtein
   sortByTerm(data:any, term:any) {
     return data.sort(function (a:any, b:any) {
        return a.name.toLowerCase().indexOf(term) < b.name.toLowerCase().indexOf(term) ? -1 : 1;

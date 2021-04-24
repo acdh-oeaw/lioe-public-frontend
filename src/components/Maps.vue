@@ -275,19 +275,9 @@
           weight: 2,
         }"
       />
-      <!-- <l-geo-json
-        v-if="!updateLayers && showGrossregionen"
-        :options="optionsFunctionGross"
-        :geojson="grossregionen"
-        :optionsStyle="{
-          fillOpacity: 0,
-          color: colorGrossregionen,
-          weight: 1.5,
-        }"
-      /> -->
       <l-geo-json
         v-if="!updateLayers && showGrossregionen"
-        :options="{ onEachFeature: bindPopUpPlace() }"
+        :options="optionsFunctionGross"
         :geojson="grossregionen"
         :optionsStyle="{
           fillOpacity: 0,
@@ -335,7 +325,7 @@
         <l-geo-json
           v-if="!updateLayers && item.items.length > 0"
           :geojson="collDisplayLocations(item.items)"
-          :options="options"
+          :options="optionsColl"
           :optionsStyle="styleOf(item)"
         />
       </div>
@@ -497,6 +487,19 @@ export default class Maps extends Vue {
       });
     },
   };
+
+  optionsColl = {
+    onEachFeature: this.bindPopUpPlaceCollection(),
+    pointToLayer: (feature: any, latlng: any) => {
+      return L.circleMarker(latlng, {
+        radius: 3,
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.5,
+      });
+    },
+  };
+
   printPlugin: any = null;
   layerGeoJson: any = null;
   map: any = null;
@@ -839,6 +842,64 @@ export default class Maps extends Vue {
           ${_(docs.documents)
             .take(5)
             .map((d) => `<div>${d._source.HL}</div>`)
+            .value()
+            .join("")}
+          <a onclick="window.showDocumentsFromPopUp('${
+            feature.properties.sigle
+          }')">Alle Dokumente anzeigen</a>
+          </div>`
+        );
+      }
+    };
+  }
+
+  get temp_coll() {
+    return stateProxy.collections.temp_coll;
+  }
+
+  get wboeColl() {
+    return stateProxy.collections.wboe_coll;
+  }
+
+  bindPopUpPlaceCollection() {
+    return async (feature: geojson.Feature, layer: L.Layer): Promise<void> => {
+      let allItems: any[] = [];
+      this.wboeColl.forEach((beleg: any) => {
+        if (beleg.selected) {
+          allItems = [...allItems, ...beleg.items];
+        }
+      });
+      this.temp_coll.forEach((beleg: any) => {
+        if (beleg.selected) {
+          allItems = [...allItems, ...beleg.items];
+        }
+      });
+      let regionType: any;
+      if (feature.properties) {
+        if (typeof feature.properties.Grossreg === "string") {
+          regionType = "Grossreg";
+        } else if (typeof feature.properties.name === "string") {
+          regionType = "name";
+        }
+        let correctSigleItems: any[] = [];
+        console.log(allItems);
+        allItems.forEach((doc) => {
+          //@ts-ignore
+          console.log(doc.Sigle1, feature.properties.sigle);
+          //@ts-ignore
+          if (doc.Sigle1.includes(feature.properties.sigle.toString())) {
+            correctSigleItems.push(doc);
+          }
+        });
+        layer.bindPopup(
+          `<div>  ${
+            feature.properties[regionType]
+          } | Dokumente (in Sammlung): ${
+            correctSigleItems.length
+          }   <hr style="margin-bottom: 5px;"> 
+          ${_(correctSigleItems)
+            .take(5)
+            .map((d) => `<div>${d.HL}</div>`)
             .value()
             .join("")}
           <a onclick="window.showDocumentsFromPopUp('${
