@@ -836,7 +836,7 @@ export default class Maps extends Vue {
           regionType = "name";
         }
         layer.bindPopup(
-          `<div>  ${feature.properties[regionType]} | Documents: ${
+          `<div>  ${feature.properties[regionType]} | Dokumente: ${
             docs.total.value
           }   <hr style="margin-bottom: 5px;"> 
           ${_(docs.documents)
