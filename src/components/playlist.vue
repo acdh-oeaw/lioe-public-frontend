@@ -368,10 +368,10 @@ export default class Playlist extends Vue {
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val.trim() !== "") {
-      this.collectionSearchItems = (await searchCollections(val)).map((x) => ({
+      this.collectionSearchItems = this.sortByTerm((await searchCollections(val)).map((x) => ({
         ...x,
         text: x.name,
-      }));
+      })), val);
     }
   }
 
@@ -382,6 +382,13 @@ export default class Playlist extends Vue {
       stateProxy.collections.addTemp_coll({ changedColl: col, add: false });
     }
   }
+
+  sortByTerm(data:any, term:any) {
+    return data.sort(function (a:any, b:any) {
+       return a.name.toLowerCase().indexOf(term) < b.name.toLowerCase().indexOf(term) ? -1 : 1;
+    });
+  };
+
 
   addCollection() {
     let newColl: Collection = {
