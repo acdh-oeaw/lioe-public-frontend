@@ -882,10 +882,7 @@ export default class Maps extends Vue {
           regionType = "name";
         }
         let correctSigleItems: any[] = [];
-        console.log(allItems);
         allItems.forEach((doc) => {
-          //@ts-ignore
-          console.log(doc.Sigle1, feature.properties.sigle);
           //@ts-ignore
           if (doc.Sigle1.includes(feature.properties.sigle.toString())) {
             correctSigleItems.push(doc);
