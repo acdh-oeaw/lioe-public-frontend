@@ -637,6 +637,11 @@ export default class Database extends Vue {
     return stateProxy.collections.getShowAlleBelege;
   }
 
+  @Watch('showAlleBelege')
+  clearSelection() {
+    this.selected = []
+  }
+
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     let allBelege = this.showAlleBelege;
