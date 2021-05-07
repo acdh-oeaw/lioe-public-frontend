@@ -875,7 +875,7 @@ export default class Maps extends Vue {
         }
       });
       let regionType: any;
-      if (feature.properties) {
+      if (feature.properties != null) {
         if (typeof feature.properties.Grossreg === "string") {
           regionType = "Grossreg";
         } else if (typeof feature.properties.name === "string") {
@@ -883,9 +883,20 @@ export default class Maps extends Vue {
         }
         let correctSigleItems: any[] = [];
         allItems.forEach((doc) => {
-          //@ts-ignore
-          if (doc.Sigle1.includes(feature.properties.sigle.toString())) {
-            correctSigleItems.push(doc);
+          if (doc.ortsSigle != undefined) {
+            if (
+              doc.ortsSigle
+                .split(",")
+                //@ts-ignore
+                .includes(feature.properties.sigle.toString())
+            ) {
+              correctSigleItems.push(doc);
+            }
+          } else if (doc.Sigle1 != undefined) {
+            //@ts-ignore
+            if (doc.Sigle1.includes(feature.properties.sigle.toString())) {
+              correctSigleItems.push(doc);
+            }
           }
         });
         layer.bindPopup(

@@ -403,6 +403,7 @@ export default class Playlist extends Vue {
       items: [],
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    this.showAlleBelege = true;
   }
 }
 </script>
