@@ -293,7 +293,7 @@ export async function searchDocumentsFromES(place: string, sigle: boolean) {
 }
 
 
-// creating the nested query based on 4 case - null null, individual null, null multiple, individual multiple
+// creating the nested query based on 7 cases - null null, individual null (fuzzy 1 | 3), null multiple (fuzzy 1 | 3), individual multiple (fuzzy 1 | 3)
 function getFinalQuery(searchAllMult: SearchRequest[] | null,
   searchInd: SearchRequest[] | null,
   fuzzlevel: number): Object {
@@ -325,28 +325,53 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
 
       let shouldArr: any[] = [];
       if (Array.isArray(obj.query)) {
-        obj.query.forEach(element => {
+        if (fuzzlevel === 3) {
+          obj.query.forEach(element => {
+            shouldArr.push({
+              fuzzy:
+              {
+                [obj.field]: {
+                  term: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element,
+                  fuzziness: fuzzlevel
+                }
+              }
+            })
+          });
+        }
+        else {
+          obj.query.forEach(element => {
+            shouldArr.push({
+              prefix:
+              {
+                [obj.field]: {
+                  value: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element
+                }
+              }
+            })
+          });
+        }
+
+      } else {
+        if (fuzzlevel === 3) {
           shouldArr.push({
             fuzzy:
             {
               [obj.field]: {
-                term: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element,
+                term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
                 fuzziness: fuzzlevel
               }
             }
           })
-        });
-
-      } else {
-        shouldArr.push({
-          fuzzy:
-          {
-            [obj.field]: {
-              term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-              fuzziness: fuzzlevel
+        } else {
+          shouldArr.push({
+            fuzzy:
+            {
+              [obj.field]: {
+                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+              }
             }
-          }
-        })
+          })          
+        }
       }
 
       mustArr.push({ bool: { should: shouldArr } })
@@ -366,12 +391,28 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
     // Adding multi_match objects per search term
     if (searchAllMult[0].fields != null) {
       let searchFields = searchAllMult[0].fields.split(',');
-      for (var i = 0; i < searchAllMult.length; i++) {
+      if (fuzzlevel === 3) {
+        for (var i = 0; i < searchAllMult.length; i++) {
+          mustArr.push({
+            multi_match: {
+              query: searchAllMult[i].query,
+              fields: searchFields,
+              fuzziness: fuzzlevel
+            }
+          })
+        }
+      } else {
+        let searchStr = searchAllMult[0].query?.concat('*');
+        for (var i = 1; i < searchAllMult.length; i++) {
+          if (searchAllMult[i].query !== null) {
+            let localSearch = searchAllMult[i].query;
+            searchStr = searchStr?.concat(' OR ', localSearch !== null ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
+          } else continue;
+        }
         mustArr.push({
-          multi_match: {
-            query: searchAllMult[i].query,
-            fields: searchFields,
-            fuzziness: fuzzlevel
+          query_string: {
+            query: searchStr,
+            fields: searchFields
           }
         })
       }
