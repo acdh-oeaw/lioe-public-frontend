@@ -293,7 +293,33 @@ export async function searchDocumentsFromES(place: string, sigle: boolean) {
 }
 
 
-// creating the nested query based on 4 case - null null, individual null, null multiple, individual multiple
+/**
+ * creating the nested search query based on 7 cases:
+ * 1) null null 
+ * 2 + 3) individual null (fuzzy 1 | 3) 
+ * 4 + 5) null multiple (fuzzy 1 | 3)
+ * 6 + 7) individual multiple (fuzzy 1 | 3)
+ * 
+ * === fuzziness level 1 === 
+ * search in individual columns is done with a 'prefix' query
+ * search in all the columns is done with a 'query_string' query and inner OR for multiple search values, each value is followed by a star *
+ * 
+ * === fuzziness level 3 === 
+ * search in individual columns is done with a 'fuzzy' query
+ * search in all the columns is done with a 'multi_match' query
+ * 
+ * Whole of the search queries are wrapped in one 'bool - must' query as an array
+ * The inner structure includes: 
+ * (+) multiple 'bool - should' queries -> each represents a single / multiple search value(s) in the same column 
+ * AND
+ * (+) multiple multi_match queries OR
+ * (+) one query_string with an inner ' OR ' for multiple search values
+ *  
+ * Besides the multi_match query:  
+ * For all of the search queries the round brackets () and '-' sign are filtered out
+ * All search queries are lower-case
+ * 
+ */ 
 function getFinalQuery(searchAllMult: SearchRequest[] | null,
   searchInd: SearchRequest[] | null,
   fuzzlevel: number): Object {
@@ -302,10 +328,12 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
 
   let mustArr: any[] = [];
 
+  // first case, drop down of all the values
   if (searchAllMult === null && searchInd === null) {
     return { match_all: {} }
   }
 
+  // handle the individual cols search
   if (searchInd !== null) {
 
     _(searchInd)
@@ -325,33 +353,61 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
 
       let shouldArr: any[] = [];
       if (Array.isArray(obj.query)) {
-        obj.query.forEach(element => {
+        // create a fuzzy query, add the designed queries under the boolean query 'should'
+        if (fuzzlevel === 3) {
+          obj.query.forEach(element => {
+            shouldArr.push({
+              fuzzy:
+              {
+                [obj.field]: {
+                  term: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element,
+                  fuzziness: fuzzlevel
+                }
+              }
+            })
+          });
+        }
+        // create a prefix query, add the designed queries under the boolean query 'should'
+        else {
+          obj.query.forEach(element => {
+            shouldArr.push({
+              prefix:
+              {
+                [obj.field]: {
+                  value: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element
+                }
+              }
+            })
+          });
+        }
+        // handle non - array object, same scheme
+      } else {
+        if (fuzzlevel === 3) {
           shouldArr.push({
             fuzzy:
             {
               [obj.field]: {
-                term: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element,
+                term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
                 fuzziness: fuzzlevel
               }
             }
           })
-        });
-
-      } else {
-        shouldArr.push({
-          fuzzy:
-          {
-            [obj.field]: {
-              term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-              fuzziness: fuzzlevel
+        } else {
+          shouldArr.push({
+            fuzzy:
+            {
+              [obj.field]: {
+                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+              }
             }
-          }
-        })
+          })          
+        }
       }
-
+      // add the designed query under the boolean query 'should'
       mustArr.push({ bool: { should: shouldArr } })
     })
 
+    // if no multiple search field is needed, wrap up the should queries with one 'must' boolean query and return 
     if (searchAllMult === null) {
       const finalQuery = {
         bool: {
@@ -362,22 +418,43 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
       return finalQuery
     }
   }
+
+  // handle the multiple cols search
   if (searchAllMult !== null) {
     // Adding multi_match objects per search term
     if (searchAllMult[0].fields != null) {
       let searchFields = searchAllMult[0].fields.split(',');
-      for (var i = 0; i < searchAllMult.length; i++) {
+      // create one or multiple multi_match queries, no need for filtering out any signs or to lower case the search term
+      if (fuzzlevel === 3) {
+        for (var i = 0; i < searchAllMult.length; i++) {
+          mustArr.push({
+            multi_match: {
+              query: searchAllMult[i].query,
+              fields: searchFields,
+              fuzziness: fuzzlevel
+            }
+          })
+        }
+      // create a query_string query 
+      } else {
+        let searchStr = searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '').concat('*');
+        for (var i = 1; i < searchAllMult.length; i++) {
+          if (searchAllMult[i].query !== null) {
+            let localSearch = searchAllMult[i].query?.replace(/[\(]|[\)]|[-]/g, '');
+            searchStr = searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
+          } else continue;
+        }
         mustArr.push({
-          multi_match: {
-            query: searchAllMult[i].query,
-            fields: searchFields,
-            fuzziness: fuzzlevel
+          query_string: {
+            query: searchStr,
+            fields: searchFields
           }
         })
       }
 
     }
 
+    // wrap all the queries in the mustArr with a 'must' boolean request  
     const allFieldsQuery = {
       bool: {
         must: mustArr
