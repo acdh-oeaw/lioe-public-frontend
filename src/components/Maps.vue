@@ -56,6 +56,28 @@
               von Untersuchungsgebiet, Großregionen oder Dialektregionen</span
             >
           </v-tooltip>
+          <br style="clear:both" />
+          <v-checkbox v-model="legacyGemeinde" hide-details style="float: left" />
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <span
+                @click="legacyGemeinde = !legacyGemeinde"
+                style="
+                  float: left;
+                  margin-top: 20px;
+                  color: rgba(0, 0, 0, 0.6);
+                  font-size: 16px;
+                "
+                v-on="on"
+                v-bind="attrs"
+                >Gemeindepunkte</span
+              >
+            </template>
+            <span
+              >Zeigt bei der Auswahl von Gemeinden unter Referenzpunkte <br />
+              diese Gemeinden als Punkte an</span
+            >
+          </v-tooltip>
         </v-card-text>
         <v-divider style="clear: both; margin-top: 50px" />
         <v-card-text>
@@ -131,7 +153,7 @@
             :loading="isLoading"
             :items="locationsSearchItems"
             @input="selectLocations"
-            label="Suche…"
+            label="Referenzorte auswählen..."
             autofocus
             item-text="text"
             item-value="value"
@@ -419,6 +441,8 @@ export default class Maps extends Vue {
   ];
   selectedTileSet = 0;
 
+  //show gemeinden from the searchbar as either points (true) or areas (false)
+  legacyGemeinde: Boolean = false;
   playlistBar = false;
   sideBar = false;
   showHillshades = false;
@@ -580,10 +604,16 @@ export default class Maps extends Vue {
     if (this.isLoading) {
       return [];
     } else {
+      let tempGemeinde;
+      if ((this.legacyGemeinde === true)) {
+        tempGemeinde = this.geoStore.gemeindenPoints!.features;
+      } else {
+        tempGemeinde = this.geoStore.gemeindenArea!.features;
+      }
       return _([
         ...this.geoStore.bundeslaender!.features,
         ...this.geoStore.grossregionen!.features,
-        ...this.geoStore.gemeinden!.features,
+        ...tempGemeinde,
         ...this.geoStore.kleinregionen!.features,
       ])
         .map((f) => {
@@ -621,8 +651,8 @@ export default class Maps extends Vue {
   }
 
   get gemeinden(): geojson.Feature[] {
-    if (!this.isLoading && this.geoStore.gemeinden !== null) {
-      return this.geoStore.gemeinden.features;
+    if (!this.isLoading && this.geoStore.gemeindenPoints !== null) {
+      return this.geoStore.gemeindenPoints.features;
     } else {
       return [];
     }
@@ -702,7 +732,7 @@ export default class Maps extends Vue {
   get selectedLocations() {
     const locations = stateProxy.collections.getLocations;
     let a = {
-      ...this.geoStore!.gemeinden,
+      ...this.geoStore!.gemeindenPoints,
       features: this.allFeatures.filter((f: any) => {
         return locations.indexOf(f.properties.sigle) > -1;
       }),
@@ -741,7 +771,6 @@ export default class Maps extends Vue {
       }
     });
     return {
-      ...this.geoStore!.gemeinden,
       features: this.allFeatures.filter((f: any) => {
         return places.indexOf(f.properties.sigle) > -1;
       }),
@@ -944,7 +973,7 @@ export default class Maps extends Vue {
 
   get isLoading() {
     if (
-      this.geoStore.gemeinden !== null &&
+      this.geoStore.gemeindenPoints !== null &&
       this.geoStore.grossregionen !== null &&
       this.geoStore.bundeslaender !== null &&
       this.geoStore.ortsliste !== null &&
