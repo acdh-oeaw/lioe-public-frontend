@@ -37,14 +37,22 @@
             />
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon @click="appendArrayReq()"
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+            <v-btn icon @click="appendArrayReq()" v-on="on"
               ><v-icon>add_circle_outline</v-icon></v-btn
-            >
+            ></template>
+            <span>Suchwort hinzufügen</span>
+            </v-tooltip>
           </v-col>
           <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
-            <v-btn icon @click="removeElementArrayReq(req)"
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+            <v-btn icon @click="removeElementArrayReq(req)" v-on="on"
               ><v-icon>remove_circle_outline</v-icon></v-btn
-            >
+            ></template>
+            <span>Suchwort entfernen</span>
+            </v-tooltip>
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
                   <v-btn
