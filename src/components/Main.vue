@@ -44,8 +44,18 @@
                 "
               >
                 <v-list-item-avatar>
-                  <v-icon v-if="item.type === 'article'">mdi-newspaper</v-icon>
-                  <v-icon v-if="item.type === 'place'">map</v-icon>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                  <v-icon v-if="item.type === 'article'" v-on="on">mdi-newspaper</v-icon>
+                    </template>
+                    <span>Artikel anzeigen</span>
+                  </v-tooltip>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                  <v-icon v-if="item.type === 'place'" v-on="on">map</v-icon>
+                    </template>
+                    <span>Ort in Datenbank anzeigen</span>
+                  </v-tooltip>
                   <v-icon v-if="item.type === 'collection'"
                     >mdi-folder-outline</v-icon
                   >
