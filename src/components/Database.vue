@@ -569,7 +569,7 @@ export default class Database extends Vue {
           _(val.Bundesland1)
             .flatten()
             .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
-            .replace(/›LT[\d]?/g, "")
+            .replace(/[›]?[L|K]T[\d]?/g, "")
             .replace(/ ,/g, ",")
         ),
       sortable: true,
@@ -585,7 +585,7 @@ export default class Database extends Vue {
           _(val.Großregion1)
             .flatten()
             .replace(/\d[A-Z]?[\.]\d/g, "")
-            .replace(/›LT[\d]?/g, "")
+            .replace(/[›]?[L|K]T[\d]?/g, "")
             .replace(/ ,/g, ",")
         ),
       sortable: true,
@@ -601,7 +601,7 @@ export default class Database extends Vue {
           _(val.Kleinregion1)
             .flatten()
             .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
-            .replace(/›LT[\d]?/g, "")
+            .replace(/[›]?[L|K]T[\d]?/g, "")
             .replace(/ ,/g, ",")
         ),
       sortable: true,
@@ -615,7 +615,8 @@ export default class Database extends Vue {
       renderFnc: (val: any) =>
         `${_(val.Gemeinde1)
           .flatten()
-          .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")}`,
+          .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")
+          .replace(/[›]?[L|K]T[\d]?/g, "")}`,
       // ${val.Ort ? ` ${val.Ort}` : ''}`
       sortable: true,
     },
