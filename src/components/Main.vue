@@ -146,7 +146,7 @@
       /> -->
       <vue-word-cloud
         style="
-        height: 480px;
+        height: 360px;
         "
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
         :rotation="0.875"
