@@ -13,8 +13,6 @@
       />
     </v-flex> -->
 
-    <!-- TRY -->
-
     <v-layout column>
       <v-flex>
         <v-col class="pa-0">
@@ -135,50 +133,9 @@
             </template>
           </v-autocomplete>
         </v-col>
-
-        <!-- <v-row no-gutters>
-    <v-col><v-text-field
-      :loading="loading"
-        autofocus
-        text
-        v-model="searchTerm"
-        label="Suche nach Wort" 
-        @input="debouncedSearchArticle"
-        prepend-inner-icon="search"
-        solo
-        clearable
-    ></v-text-field></v-col>
-    <v-col><v-autocomplete
-      :loading="loading" 
-      :items='locationsSearchItems'
-      :value="locationsSearchItems"
-      @input="selectLocations"
-        label="Suche nach Ort"
-        autofocus
-        v-model="searchOrt" 
-        item-text="text"
-        item-value="value"
-        text
-        hide-details
-        chips 
-        prepend-inner-icon="search"
-        solo
-        clearable
-        >
-        <template v-slot:item="{ item }">
-          <v-list-item-content>
-            <v-list-item-title v-text="item.text"></v-list-item-title>
-        <router-link :to="`/maps`"></router-link>
-          </v-list-item-content>
-        </template>
-        </v-autocomplete>
-    </v-col>
-
-  </v-row> -->
       </v-flex>
     </v-layout>
 
-    <!-- END TRY -->
 
     <v-flex style="height: 40vh" xs12>
       <!-- <v-progress-linear
@@ -187,8 +144,10 @@
         v-if="wordProgress !== null && wordProgress !== 100"
         indeterminate
       /> -->
-
       <vue-word-cloud
+        style="
+        height: 480px;
+        "
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
         :rotation="0.875"
         :words="filteredWords"
@@ -198,7 +157,7 @@
         @update:progress="updateWordProgress"
         font-weight="800"
         font-family="fiduz"
-      >
+      > 
         <template slot-scope="{ text, weight, word }">
           <router-link
             class="word-cloud-link"
@@ -316,6 +275,7 @@ export default class Main extends Vue {
   }
 
   get filteredWords() {
+    console.log('We arrived here: ', this.wordsWithWeights.length, this.wordsWithWeights)
     return _(this.wordsWithWeights).sampleSize(25).value();
   }
 
