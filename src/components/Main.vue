@@ -120,7 +120,7 @@
                   Weitersuchen in der Belegdatenbank:
                 </v-list-item-title>
                 <v-list-item-action>
-                  <v-btn text color="ci" :to="`db?q=HL,${searchTerm}`">
+                  <v-btn text color="ci" >
                     &rarr; {{ searchTerm }}
                   </v-btn>
                 </v-list-item-action>
