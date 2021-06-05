@@ -275,7 +275,7 @@
             </v-list-item>
           </v-list>
         </v-menu>
-        <v-menu top open-on-hover>
+        <v-menu top open-on-hover offset-y>
           <template v-slot:activator="{ on }">
             <v-btn
               slot="activator"
