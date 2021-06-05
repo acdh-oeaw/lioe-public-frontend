@@ -84,7 +84,7 @@
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
                   style="margin-top: 6px"
-                  class="mx-1 text-no-transform"
+                  class="mx-1 text-no-transform font-weight-black"
                   text
                   v-on="on"
                   v-bind="attrs"
