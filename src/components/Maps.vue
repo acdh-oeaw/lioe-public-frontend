@@ -56,8 +56,12 @@
               von Untersuchungsgebiet, Großregionen oder Dialektregionen</span
             >
           </v-tooltip>
-          <br style="clear:both" />
-          <v-checkbox v-model="legacyGemeinde" hide-details style="float: left" />
+          <br style="clear: both" />
+          <v-checkbox
+            v-model="legacyGemeinde"
+            hide-details
+            style="float: left"
+          />
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <span
@@ -168,6 +172,14 @@
             elevation="0"
             clearable
           >
+            <template v-slot:item="{ item }">
+              <v-list-item-content>
+                <v-list-item-title>{{ item.text }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ item.subtitle }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </template>
           </v-autocomplete>
         </v-flex>
         <v-flex class="pr-2 pt-1 text-right">
@@ -605,7 +617,7 @@ export default class Maps extends Vue {
       return [];
     } else {
       let tempGemeinde;
-      if ((this.legacyGemeinde === true)) {
+      if (this.legacyGemeinde === true) {
         tempGemeinde = this.geoStore.gemeindenPoints!.features;
       } else {
         tempGemeinde = this.geoStore.gemeindenArea!.features;
@@ -686,18 +698,23 @@ export default class Maps extends Vue {
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
         let name: String = "";
+        let subtitle: String = "";
         if (f.field === "Kleinregion") {
           name = regions.mapKleinreg(f.name);
+          subtitle = "Kleinregion";
         } else if (f.field === "Großregion") {
           name = regions.mapGrossreg(f.name);
+          subtitle = "Großregion";
         } else if (f.field === "Bundesland") {
           name = regions.mapBundeslaender(f.name);
+          subtitle = "Bundesland";
         } else {
           name = f.name;
         }
         return {
           text: name,
           value: f.sigle,
+          subtitle: subtitle,
           parents: f.parentsObj
             ? f.parentsObj
                 .slice()
