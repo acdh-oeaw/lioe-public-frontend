@@ -56,8 +56,12 @@
               von Untersuchungsgebiet, Großregionen oder Dialektregionen</span
             >
           </v-tooltip>
-          <br style="clear:both" />
-          <v-checkbox v-model="legacyGemeinde" hide-details style="float: left" />
+          <br style="clear: both" />
+          <v-checkbox
+            v-model="legacyGemeinde"
+            hide-details
+            style="float: left"
+          />
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <span
@@ -152,6 +156,7 @@
           <v-autocomplete
             :loading="isLoading"
             :items="locationsSearchItems"
+            :search-input.sync="search"
             @input="selectLocations"
             label="Referenzorte auswählen..."
             autofocus
@@ -423,8 +428,7 @@ export default class Maps extends Vue {
     },
     {
       name: "Minimal Ländergrenzen (hell)",
-      url:
-        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
     },
     {
@@ -460,10 +464,10 @@ export default class Maps extends Vue {
   colorGrossregionen = "#555";
   colorKleinregionen = "#888";
   pinned = false;
+  search: string | null = null;
   fixTooltip = false;
   maxVisibleItems = 8;
   dialogPlaces = false;
-  //searchCollections
   selectedCollection = 0;
   title: boolean = true;
 
@@ -605,7 +609,7 @@ export default class Maps extends Vue {
       return [];
     } else {
       let tempGemeinde;
-      if ((this.legacyGemeinde === true)) {
+      if (this.legacyGemeinde === true) {
         tempGemeinde = this.geoStore.gemeindenPoints!.features;
       } else {
         tempGemeinde = this.geoStore.gemeindenArea!.features;
@@ -707,9 +711,14 @@ export default class Maps extends Vue {
             : "",
         };
       });
-      return (lokaleOrtsliste = lokaleOrtsliste.filter((el: any) => {
-        return el != null;
-      }));
+      if (this.search !== null) {
+        return this.sortByTerm(
+          (lokaleOrtsliste = lokaleOrtsliste.filter((el: any) => {
+            return el != null;
+          })),
+          this.search.toLowerCase()
+        );
+      }
     } else {
       return [];
     }
@@ -888,6 +897,55 @@ export default class Maps extends Vue {
 
   get wboeColl() {
     return stateProxy.collections.wboe_coll;
+  }
+
+  //Levenshtein-distance
+  getEditDistance(a: String, b: String) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    var matrix = [];
+
+    // increment along the first column of each row
+    var i;
+    for (i = 0; i <= b.length; i++) {
+      matrix[i] = [i];
+    }
+
+    // increment each column in the first row
+    var j;
+    for (j = 0; j <= a.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    // Fill in the rest of the matrix
+    for (i = 1; i <= b.length; i++) {
+      for (j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) == a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substitution
+            Math.min(
+              matrix[i][j - 1] + 1, // insertion
+              matrix[i - 1][j] + 1
+            )
+          ); // deletion
+        }
+      }
+    }
+
+    return matrix[b.length][a.length];
+  }
+
+  sortByTerm(data: any, term: any) {
+    let this_a = this;
+    return data.sort(function (a: any, b: any) {
+      return this_a.getEditDistance(a.text.toLowerCase(), term) <
+        this_a.getEditDistance(b.text.toLowerCase(), term)
+        ? -1
+        : 1;
+    });
   }
 
   bindPopUpPlaceCollection() {
