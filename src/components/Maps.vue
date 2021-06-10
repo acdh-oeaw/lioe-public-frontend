@@ -710,6 +710,7 @@ export default class Maps extends Vue {
           subtitle = "Bundesland";
         } else {
           name = f.name;
+          subtitle = "Gemeinde"
         }
         return {
           text: name,
