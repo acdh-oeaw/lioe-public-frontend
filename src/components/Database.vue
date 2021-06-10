@@ -55,18 +55,20 @@
             </v-tooltip>
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-                  <v-btn
+                  <!-- <v-btn
                   style="margin-top: 6px"
                   class="mx-1 text-no-transform"
                   text
                   @click="toggleFuzziness"
                   v-model="this.checkboxFuzzy"
-                >
-                <v-checkbox v-model="this.checkboxFuzzy"></v-checkbox>
-                  Fehlertolerante Suche
+                > -->
+                <v-checkbox v-model="this.checkboxFuzzy" @change="toggleFuzziness" label="Fehlertolerante Suche" style="margin-top: 6px" class="mx-1" hide-details >
+                  
+                </v-checkbox>
+                  
                 <!-- {{ fuzzy === "true" ? 'Fehlertolerante Suche' : 'Exakte Suche' }} -->
                 
-                </v-btn> 
+                <!-- </v-btn>  -->
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
             <v-btn
@@ -1372,4 +1374,5 @@ div.v-data-footer {
   background: #3b89a0;
   color: white;
 }
+
 </style>

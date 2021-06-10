@@ -305,10 +305,6 @@ export default class Main extends Vue {
     console.log(e);
   }
 
-  getArticleStr(val: string) {
-    return val.replace(/\([a-zA-Z]*(-)?\)/, '')
-  }
-
   getColStr(val: any) {
     let output = JSON.stringify([
       {
