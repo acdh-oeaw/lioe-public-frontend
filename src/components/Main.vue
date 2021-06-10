@@ -35,7 +35,10 @@
               <v-list-item
                 :to="
                   item.type === 'article'
-                    ? `/articles/${item.text}`
+                    ? `/articles/${findArticleByTitle(item.text).filename.replace(
+              '.xml',
+              ''
+            )}`
                     : item.type !== 'collection'
                     ? `/db?q=Sigle1,${item.value}`
                     : `/db?collection_ids=${item.value}&type=collection`
@@ -300,6 +303,10 @@ export default class Main extends Vue {
 
   log(e: any) {
     console.log(e);
+  }
+
+  getArticleStr(val: string) {
+    return val.replace(/\([a-zA-Z]*(-)?\)/, '')
   }
 
   getColStr(val: any) {
