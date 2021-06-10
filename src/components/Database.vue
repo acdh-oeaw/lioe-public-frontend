@@ -67,18 +67,6 @@
             >
             </v-checkbox>
           </v-col>
-          <!-- <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-            <v-btn
-              style="margin-top: 6px"
-              class="mx-1 text-no-transform"
-              text
-              @click="extended = !extended"
-              v-model="extended"
-            >
-              <v-icon v-if="extended" color="grey">mdi-check</v-icon>
-              Alle Spalten anzeigen
-            </v-btn>
-          </v-col> -->
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
@@ -742,13 +730,6 @@ export default class Database extends Vue {
   shouldSearchInAllColumns(s: SearchRequest): boolean {
     return s.fields === null || s.fields === "";
   }
-
-  // areAllSearchColumsSelectedReqBased(o: SearchRequest): boolean {
-  //   // all columns are either selected, or not searchable
-  //   return this.headers.every(
-  //     (h) => this.shouldSearchInColumnReqBased(h, o) || h.searchable === false
-  //   );
-  // }
 
   async selectAllColumnsAndSearch(o: any) {
     o.fields = null;
