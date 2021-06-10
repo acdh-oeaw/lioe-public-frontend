@@ -210,11 +210,12 @@
           </v-row>
         </template>
         <template v-slot:item="{ item, index, isSelected }">
-          <tr>
+          <tr @click="customSelect(item)">
             <td>
               <v-checkbox
                 :value="isSelected"
                 @change="customSelect(item)"
+                @click.prevent=""
               ></v-checkbox>
             </td>
             <template v-for="header in visibleHeaders">
