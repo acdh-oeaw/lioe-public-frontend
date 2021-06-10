@@ -60,10 +60,11 @@
                   class="mx-1 text-no-transform"
                   text
                   @click="toggleFuzziness"
-                  v-model="extended"
+                  v-model="this.checkboxFuzzy"
                 >
-              
-                {{ fuzzy === "true" ? 'Fehlertolerante Suche' : 'Exakte Suche' }}
+                <v-checkbox v-model="this.checkboxFuzzy"></v-checkbox>
+                  Fehlertolerante Suche
+                <!-- {{ fuzzy === "true" ? 'Fehlertolerante Suche' : 'Exakte Suche' }} -->
                 
                 </v-btn> 
           </v-col>
@@ -144,7 +145,7 @@
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-dialog max-width="1000" color="#2b2735" scrollable>
-              <template v-slot:activator="{ on }">
+              <template v-if="index === 0" v-slot:activator="{ on }">
                 <v-btn v-on="on" color="accent" icon text>
                   <v-icon>info</v-icon>
                 </v-btn>
@@ -367,6 +368,7 @@ export default class Database extends Vue {
 
   geoStore = geoStore;
   sideBar: Boolean = false;
+  checkboxFuzzy: Boolean = true;
   items: any[] = [];
   searchCollection: string | null = null;
   collectionSearchItems: any[] = [];
@@ -628,9 +630,11 @@ export default class Database extends Vue {
   };
 
   async toggleFuzziness() {
+    console.log('checkboxFuzzy: ', this.checkboxFuzzy, 'checkboxFuzzy to string:', this.checkboxFuzzy.toString())
     await this.changeQueryParam({
       fuzzy: this.fuzzy === "true" ? "false" : "true",
     });
+  
     this.onChangeQuery(this.request_arr)
   }
 
@@ -945,6 +949,17 @@ export default class Database extends Vue {
       this.searching = false;
     }
   }
+
+  @Watch("fuzzy", { immediate: true })
+  synchronizeCheckbox() {
+    if (this.fuzzy === 'true' && !this.checkboxFuzzy) {
+      this.checkboxFuzzy = true
+    }
+    if (this.fuzzy === 'false' && this.checkboxFuzzy) {
+      this.checkboxFuzzy = false
+    }
+  }
+
 
   selectCollections(colls: any[]) {
     this.changeQueryParam({
