@@ -1324,6 +1324,8 @@ export default class Database extends Vue {
       }));
       this.totalItems = res.total.value || 0;
       this.searching = false;
+      const work = await getDocumentTotalCount();
+      console.log('total items: ', this.totalItems, res.total, res.documents.length, work)
     } else {
       this.init();
     }
