@@ -72,21 +72,23 @@
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-btn
+                  <!-- <v-btn
                     v-if="item.type === 'place'"
                     color="ci"
                     class="text-no-transform"
                     text
-                    @click.stop.prevent="
-                      $router.push({
-                        path: '/maps',
-                        query: {
-                          col: getColStr(item.value),
-                        },
-                      })
-                    "
                     >&rarr; Ort auf Karte anzeigen</v-btn
                   >
+                    :to="{ path: '/maps', params: { search: item.value, insertedValSearch: 'try' }}" -->
+                    <!-- @click.stop.prevent="
+                      $router.push({
+                        path: '/maps',
+                        params: {
+                          insertedValSearch: `${item.value}`,
+                          search: `${item.value}`
+                        },
+                      })
+                    " -->
                   <v-btn
                     v-if="item.type === `article`"
                     text

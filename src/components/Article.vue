@@ -117,6 +117,7 @@ import ArticleViewLegacy from "@components/ArticleViewLegacy.vue"
 import ArticleView from "@components/ArticleView.vue"
 import * as FileSaver from "file-saver"
 import { userStore, ArticleStatus } from "../store/user"
+import { concat } from "lodash"
 
 @Component({
   components: {
@@ -239,10 +240,10 @@ export default class Article extends Vue {
           e.target.getAttribute("ref")
         );
         if (sigle !== null) {
-          this.openMapsWithPlaces([sigle]);
+          this.openDBWithPlaces([sigle]);
         }
       } else if (e.target.dataset.geoSigle !== undefined) {
-        this.openMapsWithPlaces([e.target.dataset.geoSigle]);
+        this.openDBWithPlaces([e.target.dataset.geoSigle]);
       } else if (this.getCollectionLink(e.target) !== null) {
         const id = this.getCollectionLink(e.target)!;
         this.$router.push({ path: "/db", query: { collection_ids: id } });
@@ -265,6 +266,13 @@ export default class Article extends Vue {
       path: "/maps",
       query: { col: this.getColStr(placeIds.join(",")), source: "article" },
     });
+  }
+  
+  openDBWithPlaces(placeIds: string[]) {
+    console.log(placeIds);
+    const routingStr = '/db?q=Sigle1,'.concat(placeIds[0]); 
+    this.$router.push(routingStr);
+    
   }
 
   getColStr(val: any) {
