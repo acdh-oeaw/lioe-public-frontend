@@ -478,7 +478,6 @@ export default class Maps extends Vue {
   dialogPlaces = false;
   selectedCollection = 0;
   title: boolean = true;
-  insertedValSearch: string | null = null;
 
   rivers: any = null;
   rivers2: any = null;
@@ -696,7 +695,6 @@ export default class Maps extends Vue {
   }
 
   get locationsSearchItems() {
-    console.log('in locationsSearchItems - search: ', this.search)
     if (!this.isLoading) {
       var lokaleOrtsliste = this.geoStore.ortslisteGeo.map((f: any) => {
         let name: String = "";
@@ -964,14 +962,6 @@ export default class Maps extends Vue {
     });
   }
 
-  @Watch("insertedValSearch", {deep: true})
-  updateField() {
-    console.log(this.insertedValSearch, " ", this.search)
-    if (this.insertedValSearch !== null) {
-      this.search = this.insertedValSearch;
-    } 
-    console.log(this.insertedValSearch, " ", this.search)
-  }
 
   bindPopUpPlaceCollection() {
     return async (feature: geojson.Feature, layer: L.Layer): Promise<void> => {
