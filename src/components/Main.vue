@@ -41,8 +41,9 @@
             )}`
                     : item.type !== 'collection'
                     ? `/db?q=Sigle1,${item.value}`
-                    : `/db?collection_ids=${item.value}&type=collection`
+                    : ``
                 "
+                @click="item.type === 'collection' ? getLocationsOfCollections(item, 'page') : null"
               >
                 <v-list-item-avatar>
                   <v-tooltip top>
@@ -95,7 +96,7 @@
                     v-if="item.type === `collection`"
                     class="text-no-transform"
                     color="ci"
-                    @click.stop.prevent="getLocationsOfCollections(item)"
+                    @click.stop.prevent="getLocationsOfCollections(item, 'btn')"
                     >&rarr; Sammlung auf Karte anzeigen</v-btn
                   >
                 </v-list-item-action>
@@ -314,7 +315,12 @@ export default class Main extends Vue {
     return output;
   }
 
-  async getLocationsOfCollections(item: any) {
+  strRouting(item: any) {
+    this.getLocationsOfCollections(item, 'page');
+    return ''
+  }
+
+  async getLocationsOfCollections(item: any, val: string) {
     console.log(item)
     let colls: Number[] = item.value;
     if (!Array.isArray(colls)) {
@@ -354,9 +360,17 @@ export default class Main extends Vue {
       },
       add: true,
     });
-    this.$router.push({
-      path: "/maps",
-    });
+    if (val === 'btn') {
+      this.$router.push({
+        path: "/maps",
+      });
+    } 
+    else if (val === 'page') {
+      this.$router.push({
+        path: "/db",
+      });
+
+    }
   }
 
   routeToMaps(item: any) {
@@ -375,8 +389,6 @@ export default class Main extends Vue {
     this.$router.push({
       path: "/maps",
     });
-
-    console.log('we are supposed to find ourselves here')
   }
 
   @Watch("$route")
