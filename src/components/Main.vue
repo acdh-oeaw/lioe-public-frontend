@@ -272,7 +272,6 @@ export default class Main extends Vue {
   }
 
   get filteredWords() {
-    console.log('We arrived here: ', this.wordsWithWeights.length, this.wordsWithWeights)
     return _(this.wordsWithWeights).sampleSize(25).value();
   }
 
@@ -374,7 +373,6 @@ export default class Main extends Vue {
   }
 
   routeToMaps(item: any) {
-    console.log('item: ', item, item.value)
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
