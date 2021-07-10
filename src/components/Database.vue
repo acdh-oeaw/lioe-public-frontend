@@ -1205,7 +1205,6 @@ export default class Database extends Vue {
 
   get filterReqAll(): SearchRequest[] | null {
     // filtering out all empty fields requests
-    // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
     const tmp = this.request_arr.filter(
       (r) => r.fields !== "" && r.fields === null && r.query !== ""
     );
@@ -1233,7 +1232,6 @@ export default class Database extends Vue {
 
   get filterReqSingle(): SearchRequest[] | null {
     // filtering out all empty fields requests
-    // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
     const tmp = this.request_arr.filter(
       (r) => r.fields !== "" && r.fields !== null && r.query !== ""
     );
@@ -1325,7 +1323,6 @@ export default class Database extends Vue {
       this.totalItems = res.total.value || 0;
       this.searching = false;
       const work = await getDocumentTotalCount();
-      console.log('total items: ', this.totalItems, res.total, res.documents.length, work)
     } else {
       this.init();
     }
