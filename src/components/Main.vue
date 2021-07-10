@@ -72,23 +72,14 @@
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <!-- <v-btn
+                 <v-btn
                     v-if="item.type === 'place'"
                     color="ci"
                     class="text-no-transform"
                     text
-                    >&rarr; Ort auf Karte anzeigen</v-btn
+                    @click.stop.prevent="routeToMaps(item)"
+                    > Ort auf Karte anzeigen</v-btn
                   >
-                    :to="{ path: '/maps', params: { search: item.value, insertedValSearch: 'try' }}" -->
-                    <!-- @click.stop.prevent="
-                      $router.push({
-                        path: '/maps',
-                        params: {
-                          insertedValSearch: `${item.value}`,
-                          search: `${item.value}`
-                        },
-                      })
-                    " -->
                   <v-btn
                     v-if="item.type === `article`"
                     text
@@ -323,7 +314,7 @@ export default class Main extends Vue {
     return output;
   }
 
-  async getLocationsOfCollections(item:any) {
+  async getLocationsOfCollections(item: any) {
     console.log(item)
     let colls: Number[] = item.value;
     if (!Array.isArray(colls)) {
@@ -366,6 +357,26 @@ export default class Main extends Vue {
     this.$router.push({
       path: "/maps",
     });
+  }
+
+  routeToMaps(item: any) {
+    console.log('item: ', item, item.value)
+    let newColl: Collection = {
+      id: Math.random() * 1000,
+      preColl: -1,
+      collection_name: "Neue Sammlung",
+      editing: true,
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
+      selected: true,
+      items: [item.value],
+    };
+    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    this.$router.push({
+      path: "/maps",
+    });
+
+    console.log('we are supposed to find ourselves here')
   }
 
   @Watch("$route")
