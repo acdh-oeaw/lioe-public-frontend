@@ -320,7 +320,7 @@ export default class Main extends Vue {
   }
 
   async getLocationsOfCollections(item: any, val: string) {
-    console.log(item)
+    console.log('item it is: ',item)
     let colls: Number[] = item.value;
     if (!Array.isArray(colls)) {
       var tmp = new Array();

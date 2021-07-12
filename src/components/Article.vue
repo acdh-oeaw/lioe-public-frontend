@@ -108,7 +108,7 @@
 <script lang="ts">
 // tslint:disable:max-line-length
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { getArticleByFileName, getArticles } from "../api"
+import { getArticleByFileName, getArticles, getCollectionByIds, getDocumentsByCollection } from "../api"
 import XmlEditor from "@components/XmlEditor.vue"
 import { geoStore } from "../store/geo"
 import * as _ from "lodash"
@@ -118,6 +118,7 @@ import ArticleView from "@components/ArticleView.vue"
 import * as FileSaver from "file-saver"
 import { userStore, ArticleStatus } from "../store/user"
 import { concat } from "lodash"
+import { stateProxy } from "@src/store/collections"
 
 @Component({
   components: {
@@ -246,7 +247,8 @@ export default class Article extends Vue {
         this.openDBWithPlaces([e.target.dataset.geoSigle]);
       } else if (this.getCollectionLink(e.target) !== null) {
         const id = this.getCollectionLink(e.target)!;
-        this.$router.push({ path: "/db", query: { collection_ids: id } });
+        this.goToDB(id);
+        // this.$router.push({ path: "/db", query: { collection_ids: id } });
         // Verweis auf anderes Lemma
       } else if (
         typeof this.getLemmaLinkElement(e.target as HTMLElement) === "string"
@@ -260,6 +262,57 @@ export default class Article extends Vue {
       }
     }
   }
+
+  async goToDB(id: any) {
+    let colls: Number[] = id; // item.value == id !!!
+    if (!Array.isArray(colls)) {
+      var tmp = new Array();
+      tmp.push(colls);
+      colls = tmp;
+    }
+
+    if (colls.length === 0) {
+      return;
+    }
+
+    const res: any = await getDocumentsByCollection([colls[0].toString()], 1, 1000);
+    let CollLocation: any[] = [];
+    //@ts-ignore
+    res.documents.forEach((document) => {
+      let sigle: string = document.ortsSigle;
+      if (sigle) {
+        if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
+          CollLocation.push(document.ortsSigle.split(" ")[0]);
+        }
+      }
+    });
+
+    const cs  = await getCollectionByIds([id]);
+    let relevant_coll = cs[0];
+    let coll_name = relevant_coll.name;
+    let coll_desc = relevant_coll.description;
+    
+    stateProxy.collections.addWBOE_coll({
+      changedColl: {
+        id: Math.random() * 1000,
+        selected: true,
+        preColl: id,
+        collection_name: coll_name,
+        collection_desc: coll_desc,
+        editing: false,
+        fillColor:
+          "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+        borderColor: "#000",
+        items: CollLocation,
+      },
+      add: true,
+    });
+      this.$router.push({
+        path: "/db",
+      });
+  }
+
+  
 
   openMapsWithPlaces(placeIds: string[]) {
     this.$router.push({
