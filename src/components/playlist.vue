@@ -129,23 +129,22 @@
               </draggable>
             </v-list-item-group>
           </v-list>
-          <v-tooltip 
-            right
-            max-width="220"
-            min-width="100"
+          <v-tooltip right max-width="220" min-width="100">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                depressed
+                @click="addCollection()"
+                style="width: 98%; margin: 0 auto"
+                v-on="on"
+              >
+                Sammlung anlegen
+              </v-btn>
+            </template>
+            <span
+              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
+              nur so lange, wie die Seite nicht neu geladen wird.</span
             >
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  color="primary"
-                  depressed
-                  @click="addCollection()"
-                  style="width: 98%; margin: 0 auto"
-                  v-on="on"
-                >
-                  Sammlung anlegen
-                </v-btn>
-              </template>
-            <span>Die erstellte Sammlung wird nicht online gespeichert sondern hält nur so lange, wie die Seite nicht neu geladen wird.</span>
           </v-tooltip>
 
           <v-list dense>
@@ -186,27 +185,21 @@
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                   <v-list-item-action>
-                    <v-menu offset-y>
-                      <template v-slot:activator="{ on, attrs }">
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
                         <v-btn
                           x-small
                           fab
                           text
                           depressed
-                          v-bind="attrs"
+                          icon
+                          @click="deleteCol(item)"
                           v-on="on"
-                        >
-                          <span class="mdi mdi-dots-horizontal"></span>
-                        </v-btn>
-                      </template>
-                      <v-list dense>
-                        <v-list-item>
-                          <v-list-item-title @click="deleteCol(item)"
-                            >Löschen</v-list-item-title
-                          >
-                        </v-list-item>
-                      </v-list>
-                    </v-menu>
+                          ><v-icon>close</v-icon>
+                        </v-btn></template
+                      >
+                      <span>Sammlung entfernen</span>
+                    </v-tooltip>
                   </v-list-item-action>
                 </v-list-item>
               </draggable>
@@ -234,7 +227,9 @@
               </v-list-item>
             </template>
             <template v-slot:item="{ item }">
-              <v-list-item-content @click="getLocationsOfCollections(this.selectedCollections)">
+              <v-list-item-content
+                @click="getLocationsOfCollections(this.selectedCollections)"
+              >
                 <v-list-item-title v-text="item.text"></v-list-item-title>
                 <v-list-item-subtitle
                   v-text="item.description"
@@ -370,19 +365,25 @@ export default class Playlist extends Vue {
           });
         }
       });
-      this.selectedCollections = []
+      this.selectedCollections = [];
     } else {
-      setTimeout(() => this.getLocationsOfCollections(this.selectedCollections), 100);
+      setTimeout(
+        () => this.getLocationsOfCollections(this.selectedCollections),
+        100
+      );
     }
   }
 
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val.trim() !== "") {
-      this.collectionSearchItems = this.sortByTerm((await searchCollections(val)).map((x) => ({
-        ...x,
-        text: x.name,
-      })), val);
+      this.collectionSearchItems = this.sortByTerm(
+        (await searchCollections(val)).map((x) => ({
+          ...x,
+          text: x.name,
+        })),
+        val
+      );
     }
   }
 
@@ -395,12 +396,14 @@ export default class Playlist extends Vue {
   }
 
   //potential Improvement: Levenshtein
-  sortByTerm(data:any, term:any) {
-    return data.sort(function (a:any, b:any) {
-       return a.name.toLowerCase().indexOf(term) < b.name.toLowerCase().indexOf(term) ? -1 : 1;
+  sortByTerm(data: any, term: any) {
+    return data.sort(function (a: any, b: any) {
+      return a.name.toLowerCase().indexOf(term) <
+        b.name.toLowerCase().indexOf(term)
+        ? -1
+        : 1;
     });
-  };
-
+  }
 
   addCollection() {
     let newColl: Collection = {

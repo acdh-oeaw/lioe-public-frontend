@@ -725,7 +725,7 @@ export default class Maps extends Vue {
             : "",
         };
       });
-      if (this.search !== null) {
+      if (this.search !== null && this.search !== undefined) {
         return this.sortByTerm(
           (lokaleOrtsliste = lokaleOrtsliste.filter((el: any) => {
             return el != null;
@@ -961,6 +961,7 @@ export default class Maps extends Vue {
         : 1;
     });
   }
+
 
   bindPopUpPlaceCollection() {
     return async (feature: geojson.Feature, layer: L.Layer): Promise<void> => {
