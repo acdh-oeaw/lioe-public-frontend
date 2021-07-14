@@ -58,7 +58,7 @@
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
             <v-checkbox
-              v-model="this.checkboxFuzzy"
+              v-model="checkboxFuzz"
               @change="toggleFuzziness"
               label="Fehlertolerante Suche"
               class=fuzyyCheckbox
@@ -647,6 +647,10 @@ export default class Database extends Vue {
 
   get showAlleBelege() {
     return stateProxy.collections.getShowAlleBelege;
+  }
+
+  checkboxFuzz() {
+    return this.fuzzy === "true"; 
   }
 
   @Watch("showAlleBelege")
