@@ -241,10 +241,10 @@ export default class Article extends Vue {
           e.target.getAttribute("ref")
         );
         if (sigle !== null) {
-          this.openDBWithPlaces([sigle]);
+          this.openMapsWithPlaces([sigle]);
         }
       } else if (e.target.dataset.geoSigle !== undefined) {
-        this.openDBWithPlaces([e.target.dataset.geoSigle]);
+        this.openMapsWithPlaces([e.target.dataset.geoSigle]);
       } else if (this.getCollectionLink(e.target) !== null) {
         const id = this.getCollectionLink(e.target)!;
         this.goToDB(id);
@@ -315,9 +315,9 @@ export default class Article extends Vue {
   
 
   openMapsWithPlaces(placeIds: string[]) {
+    stateProxy.collections.setLocations(placeIds)
     this.$router.push({
       path: "/maps",
-      query: { col: this.getColStr(placeIds.join(",")), source: "article" },
     });
   }
   
