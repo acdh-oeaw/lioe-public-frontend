@@ -374,8 +374,7 @@ export default class Main extends Vue {
   routeToMaps(item: any) {
     stateProxy.collections.setLocations([item.value]);
     this.$router.push({
-      path: "/maps",
-      params: { "search": item.text }
+      path: "/maps"
     });
   }
 

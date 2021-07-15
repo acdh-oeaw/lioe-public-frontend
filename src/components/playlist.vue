@@ -184,22 +184,34 @@
                       v-text="item.collection_desc"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
+
                   <v-list-item-action>
-                    <v-tooltip top>
-                      <template v-slot:activator="{ on }">
+                    <v-menu offset-y>
+                      <template v-slot:activator="{ on, attrs }">
                         <v-btn
                           x-small
                           fab
                           text
                           depressed
-                          icon
-                          @click="deleteCol(item)"
+                          v-bind="attrs"
                           v-on="on"
-                          ><v-icon>close</v-icon>
-                        </v-btn></template
-                      >
-                      <span>Sammlung entfernen</span>
-                    </v-tooltip>
+                        >
+                          <span class="mdi mdi-dots-horizontal"></span>
+                        </v-btn>
+                      </template>
+                      <v-list dense>
+                        <v-list-item>
+                          <v-list-item-title @click="deleteCol(item)"
+                            >Löschen</v-list-item-title
+                          >
+                        </v-list-item>
+                        <v-list-item>
+                          <v-list-item-title @click="createCopyColl(item)"
+                            >Kopie erstellen</v-list-item-title
+                          >
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
                   </v-list-item-action>
                 </v-list-item>
               </draggable>
@@ -415,6 +427,21 @@ export default class Playlist extends Vue {
       borderColor: "#000",
       selected: true,
       items: [],
+    };
+    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    this.showAlleBelege = true;
+  }
+
+  createCopyColl(col: Collection) {
+    let newColl: Collection = {
+      id: Math.random() * 1000,
+      preColl: -1,
+      collection_name: "temporal " + col.collection_name,
+      editing: true,
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
+      selected: true,
+      items: col.items,
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
     this.showAlleBelege = true;
