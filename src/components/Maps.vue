@@ -181,6 +181,11 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </template>
+            <template v-slot:no-data>
+              <v-list-item-title class="caption px-3">
+                Suchen Sie nach Orten.
+              </v-list-item-title>
+            </template>
           </v-autocomplete>
         </v-flex>
         <v-flex class="pr-2 pt-1 text-right">
