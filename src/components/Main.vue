@@ -372,19 +372,10 @@ export default class Main extends Vue {
   }
 
   routeToMaps(item: any) {
-    let newColl: Collection = {
-      id: Math.random() * 1000,
-      preColl: -1,
-      collection_name: "Neue Sammlung",
-      editing: true,
-      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-      borderColor: "#000",
-      selected: true,
-      items: [item.value],
-    };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    stateProxy.collections.setLocations([item.value]);
     this.$router.push({
       path: "/maps",
+      params: { "search": item.text }
     });
   }
 
