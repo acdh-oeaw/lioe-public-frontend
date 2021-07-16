@@ -27,7 +27,7 @@ interface Documents {
   }[]
 }
 
-const apiEndpoint = 'https://dboeannotation.acdh-dev.oeaw.ac.at/api'
+const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
 const txtEndpoint = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
 export const localEndpoint = process.env.API_HOST || 'http://localhost:8081'
 const articleEndpoint = localEndpoint + '/api/article'
