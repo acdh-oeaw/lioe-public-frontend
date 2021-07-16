@@ -78,6 +78,7 @@
                       @blur="item.editing = false"
                       v-model="item.collection_name"
                       autofocus
+                      :elevation="6"
                     ></v-text-field>
                   </v-list-item-content>
                   <v-list-item-icon

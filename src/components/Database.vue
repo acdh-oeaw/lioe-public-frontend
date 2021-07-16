@@ -251,17 +251,32 @@
         </div>
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="secondary"
-              :disabled="temp_coll.length === 0"
-              v-bind="attrs"
-              v-on="on"
-              class="white--text"
-              rounded
-              style="float: right"
-            >
-              Zu Sammlung hinzufügen
-            </v-btn>
+            <v-item-group>
+               <v-btn
+                color="secondary"
+                @click="createCollectionWithSelectedDocuments()"
+                class="white--text"
+                rounded
+                style="float: right"
+              >
+                <v-icon>mdi-playlist-plus </v-icon>  {{temp_coll.length === 0 ? "Sammlung erstellen und gewählte Belege hinzufügen" : ""}} 
+              </v-btn>
+              
+
+              <v-btn
+                v-if="temp_coll.length !== 0"
+                color="secondary"
+                v-bind="attrs"
+                v-on="on"
+                class="white--text"
+                rounded
+                style="float: right"
+              >
+                Zu Sammlung hinzufügen
+              </v-btn>
+            </v-item-group>
+
+
           </template>
           <v-list dense>
             <v-list-item
@@ -691,6 +706,22 @@ export default class Database extends Vue {
       col: col.id,
       items: this.mappableSelectionItems,
     });
+  }
+
+  createCollectionWithSelectedDocuments() {
+    let newColl: Collection = {
+      id: Math.random() * 1000,
+      preColl: -1,
+      collection_name: "Neue Sammlung",
+      editing: true,
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
+      selected: true,
+      items: this.mappableSelectionItems,
+    };
+    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+
+    this.sideBar = true;
   }
 
   // set an id for each '+' click
