@@ -129,23 +129,22 @@
               </draggable>
             </v-list-item-group>
           </v-list>
-          <v-tooltip 
-            right
-            max-width="220"
-            min-width="100"
+          <v-tooltip right max-width="220" min-width="100">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                depressed
+                @click="addCollection()"
+                style="width: 98%; margin: 0 auto"
+                v-on="on"
+              >
+                Sammlung anlegen
+              </v-btn>
+            </template>
+            <span
+              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
+              nur so lange, wie die Seite nicht neu geladen wird.</span
             >
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  color="primary"
-                  depressed
-                  @click="addCollection()"
-                  style="width: 98%; margin: 0 auto"
-                  v-on="on"
-                >
-                  Sammlung anlegen
-                </v-btn>
-              </template>
-            <span>Die erstellte Sammlung wird nicht online gespeichert sondern hält nur so lange, wie die Seite nicht neu geladen wird.</span>
           </v-tooltip>
 
           <v-list dense>
@@ -185,6 +184,7 @@
                       v-text="item.collection_desc"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
+
                   <v-list-item-action>
                     <v-menu offset-y>
                       <template v-slot:activator="{ on, attrs }">
@@ -203,6 +203,11 @@
                         <v-list-item>
                           <v-list-item-title @click="deleteCol(item)"
                             >Löschen</v-list-item-title
+                          >
+                        </v-list-item>
+                        <v-list-item>
+                          <v-list-item-title @click="createCopyColl(item)"
+                            >Kopie erstellen</v-list-item-title
                           >
                         </v-list-item>
                       </v-list>
@@ -234,7 +239,9 @@
               </v-list-item>
             </template>
             <template v-slot:item="{ item }">
-              <v-list-item-content @click="getLocationsOfCollections(this.selectedCollections)">
+              <v-list-item-content
+                @click="getLocationsOfCollections(this.selectedCollections)"
+              >
                 <v-list-item-title v-text="item.text"></v-list-item-title>
                 <v-list-item-subtitle
                   v-text="item.description"
@@ -370,19 +377,25 @@ export default class Playlist extends Vue {
           });
         }
       });
-      this.selectedCollections = []
+      this.selectedCollections = [];
     } else {
-      setTimeout(() => this.getLocationsOfCollections(this.selectedCollections), 100);
+      setTimeout(
+        () => this.getLocationsOfCollections(this.selectedCollections),
+        100
+      );
     }
   }
 
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val.trim() !== "") {
-      this.collectionSearchItems = this.sortByTerm((await searchCollections(val)).map((x) => ({
-        ...x,
-        text: x.name,
-      })), val);
+      this.collectionSearchItems = this.sortByTerm(
+        (await searchCollections(val)).map((x) => ({
+          ...x,
+          text: x.name,
+        })),
+        val
+      );
     }
   }
 
@@ -395,12 +408,14 @@ export default class Playlist extends Vue {
   }
 
   //potential Improvement: Levenshtein
-  sortByTerm(data:any, term:any) {
-    return data.sort(function (a:any, b:any) {
-       return a.name.toLowerCase().indexOf(term) < b.name.toLowerCase().indexOf(term) ? -1 : 1;
+  sortByTerm(data: any, term: any) {
+    return data.sort(function (a: any, b: any) {
+      return a.name.toLowerCase().indexOf(term) <
+        b.name.toLowerCase().indexOf(term)
+        ? -1
+        : 1;
     });
-  };
-
+  }
 
   addCollection() {
     let newColl: Collection = {
@@ -412,6 +427,21 @@ export default class Playlist extends Vue {
       borderColor: "#000",
       selected: true,
       items: [],
+    };
+    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    this.showAlleBelege = true;
+  }
+
+  createCopyColl(col: Collection) {
+    let newColl: Collection = {
+      id: Math.random() * 1000,
+      preColl: -1,
+      collection_name: "temporal " + col.collection_name,
+      editing: true,
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
+      selected: true,
+      items: col.items,
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
     this.showAlleBelege = true;

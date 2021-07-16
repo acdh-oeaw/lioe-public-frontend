@@ -85,6 +85,14 @@ export async function getDocumentTotalCount(): Promise<number> {
   return r && r.data && r.data.count ? r.data.count : 0;
 }
 
+// export async function getDocumentTotalCountPerRequest(): Promise<number> {
+//   const r = await (await axios({
+//     method: 'GET',
+//     url: apiEndpoint + '/'
+//   }))
+//   return r && r.data && r.data.count ? r.data.count : 0;
+// }
+
 export async function getDocuments(page = 1, items = 100, sortBy: string[] = [], descending: boolean[] = [true]): Promise<Documents> {
 
   console.log('get docs', sortBy);
@@ -202,8 +210,6 @@ export async function searchDocuments(
 ): Promise<Documents> {
 
   let fuzzlevel = should_fuzzy ? 3 : 0
-
-  console.log('page: ', page, 'items: ', items)
 
   const sort = [];
 

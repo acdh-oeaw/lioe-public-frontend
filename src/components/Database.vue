@@ -39,52 +39,40 @@
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-            <v-btn icon @click="appendArrayReq()" v-on="on"
-              ><v-icon>add_circle_outline</v-icon></v-btn
-            ></template>
-            <span>Suchwort hinzufügen</span>
+                <v-btn icon @click="appendArrayReq()" v-on="on"
+                  ><v-icon>add_circle_outline</v-icon></v-btn
+                ></template
+              >
+              <span>Suchwort hinzufügen</span>
             </v-tooltip>
           </v-col>
           <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-            <v-btn icon @click="removeElementArrayReq(req)" v-on="on"
-              ><v-icon>remove_circle_outline</v-icon></v-btn
-            ></template>
-            <span>Suchwort entfernen</span>
+                <v-btn icon @click="removeElementArrayReq(req)" v-on="on"
+                  ><v-icon>remove_circle_outline</v-icon></v-btn
+                ></template
+              >
+              <span>Suchwort entfernen</span>
             </v-tooltip>
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-                  <v-btn
-                  style="margin-top: 6px"
-                  class="mx-1 text-no-transform"
-                  text
-                  @click="toggleFuzziness"
-                  v-model="extended"
-                >
+            <v-checkbox
+              v-model="checkboxFuzz"
+              @change="toggleFuzziness"
+              label="Fehlertolerante Suche"
+              class=fuzyyCheckbox
               
-                {{ fuzzy === "true" ? 'Fehlertolerante Suche' : 'Exakte Suche' }}
-                
-                </v-btn> 
-          </v-col>
-          <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-            <v-btn
-              style="margin-top: 6px"
-              class="mx-1 text-no-transform"
-              text
-              @click="extended = !extended"
-              v-model="extended"
+              hide-details
             >
-              <v-icon v-if="extended" color="grey">mdi-check</v-icon>
-              Alle Spalten anzeigen
-            </v-btn>
+            </v-checkbox>
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
                   style="margin-top: 6px"
-                  class="mx-1 text-no-transform font-weight-black"
+                  class="mx-1 text-no-transform"
                   text
                   v-on="on"
                   v-bind="attrs"
@@ -98,10 +86,7 @@
                     v-if="type === 'fulltext' && !shouldSearchInAllColumns(req)"
                   >
                     In
-                    {{ 
-                      req.fields ? getStringForHead(req)
-                        : "keiner"
-                    }}
+                    {{ req.fields ? getStringForHead(req) : "keiner" }}
                     Spalte
                   </template>
                   <template v-if="type === 'collection'"> Nach Namen </template>
@@ -112,9 +97,12 @@
                 <v-list-item
                   dense
                   :disabled="type === 'collection'"
-                  @click="selectNoColumnsAndSearch(req)">
+                  @click="selectNoColumnsAndSearch(req)"
+                >
                   <v-list-item-avatar size="15">
-                    <v-icon small v-if="shouldSearchInAllColumns(req)">mdi-check</v-icon>
+                    <v-icon small v-if="shouldSearchInAllColumns(req)"
+                      >mdi-check</v-icon
+                    >
                   </v-list-item-avatar>
                   <v-list-item-title>In allen Spalten suchen</v-list-item-title>
                 </v-list-item>
@@ -127,11 +115,10 @@
                   :disabled="type === 'collection'"
                   :key="h.value"
                   :label="h.text"
-                  @click="toggleOneCol(h, req)">
+                  @click="toggleOneCol(h, req)"
+                >
                   <v-list-item-avatar size="15">
-                    <v-icon
-                      v-if="shouldSearchInColumn(h, req)"
-                      small>
+                    <v-icon v-if="shouldSearchInColumn(h, req)" small>
                       mdi-check
                     </v-icon>
                   </v-list-item-avatar>
@@ -144,7 +131,7 @@
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-dialog max-width="1000" color="#2b2735" scrollable>
-              <template v-slot:activator="{ on }">
+              <template v-if="index === 0" v-slot:activator="{ on }">
                 <v-btn v-on="on" color="accent" icon text>
                   <v-icon>info</v-icon>
                 </v-btn>
@@ -204,9 +191,21 @@
         </template>
         <template v-slot:footer="{ props, on, headers }">
           <v-divider />
-          <v-row>
-            <v-col class="py-0">
-              <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />
+            <v-row>
+          <v-col class="py-0">
+          <v-btn
+              style="margin-top: 10px"
+              class="mx-1 text-no-transform"
+              text
+              @click="extended = !extended"
+              v-model="extended"
+            >
+              <v-icon v-if="extended" color="grey">mdi-check</v-icon>
+              Alle Spalten anzeigen
+            </v-btn>
+          </v-col>
+            <v-col class="py-0">   
+              <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />     
             </v-col>
           </v-row>
         </template>
@@ -313,7 +312,7 @@ import {
   getDocumentsByCollection,
   searchCollections,
   getCollectionByIds,
-  SearchRequest
+  SearchRequest,
 } from "../api";
 import { stateProxy, Collection } from "../store/collections";
 import { geoStore } from "../store/geo";
@@ -323,7 +322,7 @@ import * as xlsx from "xlsx";
 import * as _ from "lodash";
 import { concat } from "lodash";
 
-const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b)
+const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 
 interface Places {
   Ort: string;
@@ -353,21 +352,23 @@ export default class Database extends Vue {
   @Prop({ default: "" }) collection_ids: string | null;
   @Prop({ default: "fulltext" }) type: string | null;
   @Prop({ default: "true" }) fuzzy: "true" | "false";
-  @Prop({ default: "" }) page: string | null
-  @Prop({ default: "" }) itemsPerPage: string | null 
+  @Prop({ default: "" }) page: string | null;
+  @Prop({ default: "" }) itemsPerPage: string | null;
 
   @Prop({ default: "" }) queryFields: string[] | null;
 
-  request_arr: SearchRequest[] = [{
-      query: "", 
+  request_arr: SearchRequest[] = [
+    {
+      query: "",
       fields: null, // string contains null == all | name
       headerStr: "",
-      id: 0, // setting index 
-    }
-  ]
+      id: 0, // setting index
+    },
+  ];
 
   geoStore = geoStore;
   sideBar: Boolean = false;
+  checkboxFuzzy: Boolean = true;
   items: any[] = [];
   searchCollection: string | null = null;
   collectionSearchItems: any[] = [];
@@ -387,7 +388,7 @@ export default class Database extends Vue {
   totalItems = 100;
 
   indexField = 1;
-  stringSpalte = "" // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
+  stringSpalte = ""; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -632,7 +633,8 @@ export default class Database extends Vue {
     await this.changeQueryParam({
       fuzzy: this.fuzzy === "true" ? "false" : "true",
     });
-    this.onChangeQuery(this.request_arr)
+
+    this.onChangeQuery(this.request_arr);
   }
 
   get temp_coll() {
@@ -647,9 +649,13 @@ export default class Database extends Vue {
     return stateProxy.collections.getShowAlleBelege;
   }
 
-  @Watch('showAlleBelege')
+  checkboxFuzz() {
+    return this.fuzzy === "true"; 
+  }
+
+  @Watch("showAlleBelege")
   clearSelection() {
-    this.selected = []
+    this.selected = [];
   }
 
   get showSelectedCollection() {
@@ -664,14 +670,14 @@ export default class Database extends Vue {
 
   updateRequestQuery(index: number, e: string) {
     if (this.request_arr[index] !== undefined) {
-      this.request_arr[index].query = e
+      this.request_arr[index].query = e;
     }
   }
 
-  updateRequestQueryDebounced = _.debounce(this.updateRequestQuery, 150)
+  updateRequestQueryDebounced = _.debounce(this.updateRequestQuery, 150);
 
   changeQueryParam(p: any): Promise<any> {
-    console.log('changeQueryParam')
+    console.log("changeQueryParam");
     return this.$router
       .replace({
         // path: this.$router.currentRoute.path,
@@ -689,45 +695,50 @@ export default class Database extends Vue {
 
   // set an id for each '+' click
   appendArrayReq(): void {
-    this.request_arr.push({query: "", fields: null, headerStr: "", id: this.indexField})
-    this.indexField++
-    console.log(this.indexField,this.request_arr.toString, this.request_arr.length);
+    this.request_arr.push({
+      query: "",
+      fields: null,
+      headerStr: "",
+      id: this.indexField,
+    });
+    this.indexField++;
+    console.log(
+      this.indexField,
+      this.request_arr.toString,
+      this.request_arr.length
+    );
   }
 
   // remove element with each '-' click
   removeElementArrayReq(o: SearchRequest): void {
-    this.request_arr = this.request_arr.filter(r => r.id !== o.id)
+    this.request_arr = this.request_arr.filter((r) => r.id !== o.id);
     // this.request.splice(this.request.indexOf(o), 1)
   }
 
   async toggleOneCol(h: TableHeader, o: SearchRequest): Promise<void> {
-    o.fields = h.value
-  } 
+    o.fields = h.value;
+  }
 
   getStringForHead(o: any): string {
-    this.visibleHeaders.forEach((h) => this.shouldSearchInColumn(h, o) ? o.headerStr = h.text : "")     
-    return o.headerStr
-  }  
-   
+    this.visibleHeaders.forEach((h) =>
+      this.shouldSearchInColumn(h, o) ? (o.headerStr = h.text) : ""
+    );
+    return o.headerStr;
+  }
+
   shouldSearchInColumn(h: TableHeader, o: SearchRequest): boolean {
-    return o.fields !== null && o.fields.includes(h.value) && h.searchable === true
+    return (
+      o.fields !== null && o.fields.includes(h.value) && h.searchable === true
+    );
   }
 
   shouldSearchInAllColumns(s: SearchRequest): boolean {
-    return s.fields === null || s.fields === ''
+    return s.fields === null || s.fields === "";
   }
 
-  // areAllSearchColumsSelectedReqBased(o: SearchRequest): boolean {
-  //   // all columns are either selected, or not searchable
-  //   return this.headers.every(
-  //     (h) => this.shouldSearchInColumnReqBased(h, o) || h.searchable === false
-  //   );
-  // }
-
   async selectAllColumnsAndSearch(o: any) {
+    o.fields = null;
 
-    o.fields = null 
-    
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -735,7 +746,7 @@ export default class Database extends Vue {
 
   async selectNoColumnsAndSearch(o: any) {
     // allow search in no columns
-    o.fields = ""
+    o.fields = "";
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -947,6 +958,16 @@ export default class Database extends Vue {
     }
   }
 
+  @Watch("fuzzy", { immediate: true })
+  synchronizeCheckbox() {
+    if (this.fuzzy === "true" && !this.checkboxFuzzy) {
+      this.checkboxFuzzy = true;
+    }
+    if (this.fuzzy === "false" && this.checkboxFuzzy) {
+      this.checkboxFuzzy = false;
+    }
+  }
+
   selectCollections(colls: any[]) {
     this.changeQueryParam({
       collection_ids: colls.map((x) => x.value).join(),
@@ -1024,15 +1045,15 @@ export default class Database extends Vue {
 
   @Watch("pagination", { deep: true })
   updateResults(newVal: any, oldVal: any) {
-    if (this.request_arr[0] && this.request_arr[0].query !== '') {
+    if (this.request_arr[0] && this.request_arr[0].query !== "") {
       this.changeQueryParam({
-      page: this.pagination.page, itemsPerPage: this.pagination.itemsPerPage 
-    });
+        page: this.pagination.page,
+        itemsPerPage: this.pagination.itemsPerPage,
+      });
 
-
-    // this.$router.replace({
-    //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
-    //   }).catch(() => console.log("route duplicated. "))
+      // this.$router.replace({
+      //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
+      //   }).catch(() => console.log("route duplicated. "))
 
       this.onChangeQuery(this.request_arr);
     } else if (this.collection_ids) {
@@ -1186,93 +1207,108 @@ export default class Database extends Vue {
   }
   */
 
- 
   get filterReqAll(): SearchRequest[] | null {
-      // filtering out all empty fields requests
-     // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
-      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields === null && r.query !== '');
-           
-      if(tmp.length === 0) return null
-      // creating the result array. In case of null fields ( == all fields), appending
-      let i;
-      var res: SearchRequest[] = [];
-      let searchFields = this.headers.filter((h) => h.searchable && h.show).map((h) => h.value).join(',');
+    // filtering out all empty fields requests
+    const tmp = this.request_arr.filter(
+      (r) => r.fields !== "" && r.fields === null && r.query !== ""
+    );
 
+    if (tmp.length === 0) return null;
+    // creating the result array. In case of null fields ( == all fields), appending
+    let i;
+    var res: SearchRequest[] = [];
+    let searchFields = this.headers
+      .filter((h) => h.searchable && h.show)
+      .map((h) => h.value)
+      .join(",");
 
-
-      for(i = 0; i < tmp.length; i++) {
-        res.push({ query: tmp[i].query, fields: searchFields, headerStr: "", id: i})
-      }
+    for (i = 0; i < tmp.length; i++) {
+      res.push({
+        query: tmp[i].query,
+        fields: searchFields,
+        headerStr: "",
+        id: i,
+      });
+    }
 
     return res;
   }
 
   get filterReqSingle(): SearchRequest[] | null {
-      // filtering out all empty fields requests
-     // console.log('our request_arr[0] right now: ' + this.request_arr[0].query +  ' and fields are: ' + this.request_arr[0].fields)
-      const tmp = this.request_arr.filter(r => r.fields !== "" && r.fields !== null && r.query !== '');
+    // filtering out all empty fields requests
+    const tmp = this.request_arr.filter(
+      (r) => r.fields !== "" && r.fields !== null && r.query !== ""
+    );
 
-      if(tmp.length === 0) return null
-           
-      // creating the result array. In case of null fields ( == all fields), appending
-      let i;
-      let j = 0; // for the id in the result array
-      var res: SearchRequest[] = [];
+    if (tmp.length === 0) return null;
 
+    // creating the result array. In case of null fields ( == all fields), appending
+    let i;
+    let j = 0; // for the id in the result array
+    var res: SearchRequest[] = [];
 
-      for(i = 0; i < tmp.length; i++) {  
-          res.push({query: tmp[i].query, fields: tmp[i].fields, headerStr: tmp[i].headerStr, id: j})
-          j++
-        }
-      
-    
+    for (i = 0; i < tmp.length; i++) {
+      res.push({
+        query: tmp[i].query,
+        fields: tmp[i].fields,
+        headerStr: tmp[i].headerStr,
+        id: j,
+      });
+      j++;
+    }
+
     return res;
   }
 
-  @Watch('$route', { immediate: true })
+  @Watch("$route", { immediate: true })
   onChangeRoute() {
     if (this.$route.query !== undefined && this.$route.query.q !== undefined) {
-      const requestList = this.deserializeRequestList(this.$route.query.q as string)
-      this.request_arr = requestList
-      this.performSearch(requestList)
+      const requestList = this.deserializeRequestList(
+        this.$route.query.q as string
+      );
+      this.request_arr = requestList;
+      this.performSearch(requestList);
     }
     if (this.$route.query !== undefined && this.$route.query.p !== undefined) {
       this.changeQueryParam({
-      page: this.$route.query.page, itemsPerPage: this.$route.query.itemsPerPage 
-    });
+        page: this.$route.query.page,
+        itemsPerPage: this.$route.query.itemsPerPage,
+      });
     }
   }
 
-  deserializeRequestList(q: string|null): SearchRequest[] {
+  deserializeRequestList(q: string | null): SearchRequest[] {
     if (q === null) {
-      return []
+      return [];
     } else {
-      return q
-        .split(';')
-        .map((rs, i) => {
-          const chunks = rs.split(',')
-          return {
-            fields: chunks[0] === 'all_fields' ? null : chunks[0],
-            query: chunks[1] === null ? '' : chunks[1],
-            headerStr: chunks[2] === null ? '' : chunks[2],
-            id: i
-          }
-        })
+      return q.split(";").map((rs, i) => {
+        const chunks = rs.split(",");
+        return {
+          fields: chunks[0] === "all_fields" ? null : chunks[0],
+          query: chunks[1] === null ? "" : chunks[1],
+          headerStr: chunks[2] === null ? "" : chunks[2],
+          id: i,
+        };
+      });
     }
   }
 
   serializeRequestList(rl: SearchRequest[]): string {
-    return rl.map(s => {
-      return `${s.fields || 'all_fields'},${s.query === null ? '' : s.query},${s.headerStr}`
-    }).join(';')
+    return rl
+      .map((s) => {
+        return `${s.fields || "all_fields"},${
+          s.query === null ? "" : s.query
+        },${s.headerStr}`;
+      })
+      .join(";");
   }
 
   pageItemList(): string {
-    return `${this.pagination.page},${this.pagination.itemsPerPage}`
+    return `${this.pagination.page},${this.pagination.itemsPerPage}`;
   }
 
   async performSearch(req: SearchRequest[]) {
-    console.log('perf search', req)
+    console.log("perf search", req);
     if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
@@ -1286,10 +1322,11 @@ export default class Database extends Vue {
       );
       this.items = res.documents.map((d) => ({
         ...d,
-        ...this.getPlacesFromSigle(d.ortsSigle)
+        ...this.getPlacesFromSigle(d.ortsSigle),
       }));
       this.totalItems = res.total.value || 0;
       this.searching = false;
+      const work = await getDocumentTotalCount();
     } else {
       this.init();
     }
@@ -1298,11 +1335,16 @@ export default class Database extends Vue {
   @Watch("request_arr", { deep: true })
   async onChangeQuery(req: SearchRequest[], oldVal?: SearchRequest[]) {
     if (req !== undefined) {
-      this.$router.replace({
-        query: { ...this.$router.currentRoute.query, q: this.serializeRequestList(req) }
-      }) .catch(() => console.log("route duplicated. "))
+      this.$router
+        .replace({
+          query: {
+            ...this.$router.currentRoute.query,
+            q: this.serializeRequestList(req),
+          },
+        })
+        .catch(() => console.log("route duplicated. "));
     } else {
-      console.log('request_array is undefined.')
+      console.log("request_array is undefined.");
     }
   }
 
@@ -1357,5 +1399,15 @@ div.v-data-footer {
   cursor: pointer;
   background: #3b89a0;
   color: white;
+}
+
+.fuzyyCheckbox {
+  .v-label {
+    font-size: 14px;
+    color: #000000DE;
+    }
+  margin-top: 8px;
+  margin-left: 16px;
+  margin-right: 16px;
 }
 </style>

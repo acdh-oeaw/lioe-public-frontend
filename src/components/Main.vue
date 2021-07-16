@@ -35,11 +35,15 @@
               <v-list-item
                 :to="
                   item.type === 'article'
-                    ? `/articles/${item.text}`
+                    ? `/articles/${findArticleByTitle(item.text).filename.replace(
+              '.xml',
+              ''
+            )}`
                     : item.type !== 'collection'
                     ? `/db?q=Sigle1,${item.value}`
-                    : `/db?collection_ids=${item.value}&type=collection`
+                    : ``
                 "
+                @click="item.type === 'collection' ? getLocationsOfCollections(item, 'page') : null"
               >
                 <v-list-item-avatar>
                   <v-tooltip top>
@@ -69,20 +73,13 @@
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-btn
+                 <v-btn
                     v-if="item.type === 'place'"
                     color="ci"
                     class="text-no-transform"
                     text
-                    @click.stop.prevent="
-                      $router.push({
-                        path: '/maps',
-                        query: {
-                          col: getColStr(item.value),
-                        },
-                      })
-                    "
-                    >&rarr; Ort auf Karte anzeigen</v-btn
+                    @click.stop.prevent="routeToMaps(item)"
+                    > Ort auf Karte anzeigen</v-btn
                   >
                   <v-btn
                     v-if="item.type === `article`"
@@ -99,7 +96,7 @@
                     v-if="item.type === `collection`"
                     class="text-no-transform"
                     color="ci"
-                    @click.stop.prevent="getLocationsOfCollections(item)"
+                    @click.stop.prevent="getLocationsOfCollections(item, 'btn')"
                     >&rarr; Sammlung auf Karte anzeigen</v-btn
                   >
                 </v-list-item-action>
@@ -275,7 +272,6 @@ export default class Main extends Vue {
   }
 
   get filteredWords() {
-    console.log('We arrived here: ', this.wordsWithWeights.length, this.wordsWithWeights)
     return _(this.wordsWithWeights).sampleSize(25).value();
   }
 
@@ -318,8 +314,12 @@ export default class Main extends Vue {
     return output;
   }
 
-  async getLocationsOfCollections(item:any) {
-    console.log(item)
+  strRouting(item: any) {
+    this.getLocationsOfCollections(item, 'page');
+    return ''
+  }
+
+  async getLocationsOfCollections(item: any, val: string) {
     let colls: Number[] = item.value;
     if (!Array.isArray(colls)) {
       var tmp = new Array();
@@ -358,8 +358,23 @@ export default class Main extends Vue {
       },
       add: true,
     });
+    if (val === 'btn') {
+      this.$router.push({
+        path: "/maps",
+      });
+    } 
+    else if (val === 'page') {
+      this.$router.push({
+        path: "/db",
+      });
+
+    }
+  }
+
+  routeToMaps(item: any) {
+    stateProxy.collections.setLocations([item.value]);
     this.$router.push({
-      path: "/maps",
+      path: "/maps"
     });
   }
 
