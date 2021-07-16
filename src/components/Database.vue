@@ -259,9 +259,18 @@
                 rounded
                 style="float: right"
               >
-                <v-icon>mdi-playlist-plus </v-icon>  {{temp_coll.length === 0 ? "Sammlung erstellen und gewählte Belege hinzufügen" : ""}} 
+                <v-icon>mdi-playlist-plus </v-icon>  {{temp_coll.length === 0 ? "Neue Sammlung" : ""}} 
               </v-btn>
               
+              <v-btn
+                color="secondary"
+                @click="createCollectionWithSelectedDocumentsAndShowOnMap()"
+                class="white--text"
+                rounded
+                style="float: right"
+              >
+                <v-icon>mdi-playlist-plus </v-icon> <v-icon>mdi-map </v-icon> {{temp_coll.length === 0 ? "Neue Sammlung und auf Karte anzeigen" : ""}} 
+              </v-btn>
 
               <v-btn
                 v-if="temp_coll.length !== 0"
@@ -712,7 +721,7 @@ export default class Database extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: "Neue Sammlung",
+      collection_name: "Neue Sammlung aus gewählten Belegen",
       editing: true,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
@@ -722,6 +731,12 @@ export default class Database extends Vue {
     stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
 
     this.sideBar = true;
+  }
+
+  createCollectionWithSelectedDocumentsAndShowOnMap() {
+    this.createCollectionWithSelectedDocuments();
+
+    this.routeToMaps();
   }
 
   // set an id for each '+' click
@@ -1377,6 +1392,12 @@ export default class Database extends Vue {
     } else {
       console.log("request_array is undefined.");
     }
+  }
+
+  routeToMaps() {
+    this.$router.push({
+      path: "/maps",
+    });
   }
 
   saveXLSX() {
