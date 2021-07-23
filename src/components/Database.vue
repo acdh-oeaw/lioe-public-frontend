@@ -1348,7 +1348,15 @@ export default class Database extends Vue {
   }
 
   saveXLSX() {
-    const x = xlsx.utils.json_to_sheet(this.selected || this.items);
+    var localSelect: any[] = [];
+    this.selected.forEach((x) => localSelect.push(x));
+    for (var key in localSelect[0]) {
+      if (Array.isArray(localSelect[0][key])) {
+        localSelect[0][key] = this.selected[0][key].join(" ");
+      }
+    }
+
+    const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
@@ -1366,8 +1374,6 @@ export default class Database extends Vue {
         localSelect[0][key] = this.selected[0][key].join(" ");
       }
     }
-
-    console.log(this.items);
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
