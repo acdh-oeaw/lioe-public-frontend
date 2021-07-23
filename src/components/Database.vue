@@ -1352,7 +1352,7 @@ export default class Database extends Vue {
     this.selected.forEach((x) => localSelect.push(x));
     for (var key in localSelect[0]) {
       if (Array.isArray(localSelect[0][key])) {
-        localSelect[0][key] = this.selected[0][key].join(" ");
+        localSelect[0][key] = localSelect[0][key].join(" ");
       }
     }
 
@@ -1371,7 +1371,7 @@ export default class Database extends Vue {
     this.selected.forEach((x) => localSelect.push(x));
     for (var key in localSelect[0]) {
       if (Array.isArray(localSelect[0][key])) {
-        localSelect[0][key] = this.selected[0][key].join(" ");
+        localSelect[0][key] = localSelect[0][key].join(" ");
       }
     }
 
