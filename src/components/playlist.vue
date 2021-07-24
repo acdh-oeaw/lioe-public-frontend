@@ -4,7 +4,7 @@
       <v-card class="fill-height d-flex flex-column" elevation="0">
         <v-card-title>
           <v-text-field
-            placeholder="Sammlungen filtern..."
+            label="Sammlungen Filtern"
             class="text-body-2"
             rounded
             dense
@@ -78,6 +78,7 @@
                       @blur="item.editing = false"
                       v-model="item.collection_name"
                       autofocus
+                      :elevation="6"
                     ></v-text-field>
                   </v-list-item-content>
                   <v-list-item-icon
