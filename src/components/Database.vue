@@ -249,43 +249,21 @@
           >
           ausgewählt
         </div>
-        <v-menu offset-y>
+
+        
+        <v-menu offset-y
+            v-if="temp_coll.length !== 0">
           <template v-slot:activator="{ on, attrs }">
-            <v-item-group>
-               <v-btn
-                color="secondary"
-                @click="createCollectionWithSelectedDocuments()"
-                class="white--text"
-                rounded
-                style="float: right"
-              >
-                <v-icon>mdi-playlist-plus </v-icon>  {{temp_coll.length === 0 ? "Neue Sammlung" : ""}} 
-              </v-btn>
-              
-              <v-btn
-                color="secondary"
-                @click="createCollectionWithSelectedDocumentsAndShowOnMap()"
-                class="white--text"
-                rounded
-                style="float: right"
-              >
-                <v-icon>mdi-playlist-plus </v-icon> <v-icon>mdi-map </v-icon> {{temp_coll.length === 0 ? "Neue Sammlung und auf Karte anzeigen" : ""}} 
-              </v-btn>
-
-              <v-btn
-                v-if="temp_coll.length !== 0"
-                color="secondary"
-                v-bind="attrs"
-                v-on="on"
-                class="white--text"
-                rounded
-                style="float: right"
-              >
-                Zu Sammlung hinzufügen
-              </v-btn>
-            </v-item-group>
-
-
+            <v-btn
+              color="secondary"
+              v-bind="attrs"
+              v-on="on"
+              class="white--text mx-1"
+              rounded
+              style="float: right"
+            >
+              Zu Sammlung hinzufügen
+            </v-btn>
           </template>
           <v-list dense>
             <v-list-item
@@ -299,6 +277,56 @@
             </v-list-item>
           </v-list>
         </v-menu>
+
+        <!-- Create collection and show on Map -->
+        <v-tooltip top style="width: 100px">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="secondary"
+              @click="createCollectionWithSelectedDocuments()"
+              class="white--text mx-1"
+              rounded
+              style="float: right"
+              v-on="on"
+            >
+              <v-icon>mdi-playlist-plus </v-icon> <span v-if="temp_coll.length === 0" class="pl-1">Neue Sammlung</span> 
+            </v-btn>
+          </template>
+          Erstelle eine neue Sammlung mit den ausgewählten Dokumenten.
+        </v-tooltip>
+
+        <!-- Create collection and show on Map -->
+        <v-tooltip top style="width: 100px">
+          <template v-slot:activator="{ on }">            
+            <v-btn
+              color="secondary"
+              @click="createCollectionWithSelectedDocumentsAndShowOnMap()"
+              class="white--text mx-1"
+              rounded
+              style="float: right"
+              v-on="on"
+            >
+              <v-icon class="pr-1">mdi-playlist-plus </v-icon> <v-icon>mdi-map </v-icon> <span v-if="temp_coll.length === 0" class="pl-1">Neue Sammlung und auf Karte anzeigen</span> 
+            </v-btn>
+
+          </template>
+          Erstelle eine neue Sammlung mit den ausgewählten Dokumenten und zeige sie auf der Karte an.
+        </v-tooltip>
+        
+        <v-tooltip top style="width: 100px">
+          <template v-slot:activator="{ on }">  
+              <v-btn 
+              style="float: right" 
+              v-on="on" color="accent" 
+              icon text
+              @click="downloadFiduz">
+                <v-icon>info</v-icon>
+              </v-btn>
+
+          </template>
+          Die Font Fiduz wird benötigt um die exportierten Einträge anzeigen zu können. Klicke hier um zu dem Downloadlink zu kommen.
+        </v-tooltip>
+
         <v-menu top open-on-hover offset-y>
           <template v-slot:activator="{ on }">
             <v-btn
@@ -306,10 +334,10 @@
               v-on="on"
               small
               text
-              class="pl-3 pr-3"
+              class="pl-1 pr-0"
               rounded
               color="white"
-              style="float: right; margin-top: 3px; margin-right: 20px"
+              style="float: right; margin-top: 3px;"
             >
               Exportieren
             </v-btn>
@@ -319,8 +347,10 @@
             <v-list-item @click="saveJSON">JSON</v-list-item>
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
-        </v-menu>
+        </v-menu> 
+        
       </div>
+
     </v-flex>
   </v-layout>
 </template>
@@ -1425,6 +1455,10 @@ export default class Database extends Vue {
   saveJSON() {
     const blob = JSON.stringify(this.selected || this.items, undefined, 2);
     FileSaver.saveAs(new Blob([blob]), "wboe-lioe-export.json");
+  }
+
+  downloadFiduz() {
+    window.open('https://vawadioe.acdh.oeaw.ac.at/lioetxt/materialien/fiduz/');
   }
 }
 </script>
