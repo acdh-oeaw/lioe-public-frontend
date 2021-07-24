@@ -4,7 +4,7 @@
       <v-card class="fill-height d-flex flex-column" elevation="0">
         <v-card-title>
           <v-text-field
-            placeholder="Sammlungen filtern..."
+            label="Sammlungen Filtern"
             class="text-body-2"
             rounded
             dense
