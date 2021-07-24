@@ -203,7 +203,7 @@
                       <v-list dense>
                         <v-list-item>
                           <v-list-item-title @click="deleteCol(item)"
-                            >Löschen</v-list-item-title
+                            >Entfernen</v-list-item-title
                           >
                         </v-list-item>
                         <v-list-item>
@@ -437,7 +437,7 @@ export default class Playlist extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: "temporal " + col.collection_name,
+      collection_name: "temporär " + col.collection_name,
       editing: true,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",

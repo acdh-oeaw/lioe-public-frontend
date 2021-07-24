@@ -61,8 +61,7 @@
               v-model="checkboxFuzz"
               @change="toggleFuzziness"
               label="Fehlertolerante Suche"
-              class=fuzyyCheckbox
-              
+              class="fuzyyCheckbox"
               hide-details
             >
             </v-checkbox>
@@ -191,21 +190,21 @@
         </template>
         <template v-slot:footer="{ props, on, headers }">
           <v-divider />
-            <v-row>
-          <v-col class="py-0">
-          <v-btn
-              style="margin-top: 10px"
-              class="mx-1 text-no-transform"
-              text
-              @click="extended = !extended"
-              v-model="extended"
-            >
-              <v-icon v-if="extended" color="grey">mdi-check</v-icon>
-              Alle Spalten anzeigen
-            </v-btn>
-          </v-col>
-            <v-col class="py-0">   
-              <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />     
+          <v-row>
+            <v-col class="py-0">
+              <v-btn
+                style="margin-top: 10px"
+                class="mx-1 text-no-transform"
+                text
+                @click="extended = !extended"
+                v-model="extended"
+              >
+                <v-icon v-if="extended" color="grey">mdi-check</v-icon>
+                Alle Spalten anzeigen
+              </v-btn>
+            </v-col>
+            <v-col class="py-0">
+              <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />
             </v-col>
           </v-row>
         </template>
@@ -374,7 +373,7 @@ import { regions } from "../regions";
 import * as FileSaver from "file-saver";
 import * as xlsx from "xlsx";
 import * as _ from "lodash";
-import { concat } from "lodash";
+import { concat, forEach } from "lodash";
 
 const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -704,7 +703,7 @@ export default class Database extends Vue {
   }
 
   checkboxFuzz() {
-    return this.fuzzy === "true"; 
+    return this.fuzzy === "true";
   }
 
   @Watch("showAlleBelege")
@@ -1431,7 +1430,15 @@ export default class Database extends Vue {
   }
 
   saveXLSX() {
-    const x = xlsx.utils.json_to_sheet(this.selected || this.items);
+    var localSelect: any[] = [];
+    this.selected.forEach((x) => localSelect.push(x));
+    for (var key in localSelect[0]) {
+      if (Array.isArray(localSelect[0][key])) {
+        localSelect[0][key] = localSelect[0][key].join(" ");
+      }
+    }
+
+    const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
@@ -1442,7 +1449,15 @@ export default class Database extends Vue {
   }
 
   saveCSV() {
-    const x = xlsx.utils.json_to_sheet(this.selected || this.items);
+    var localSelect: any[] = [];
+    this.selected.forEach((x) => localSelect.push(x));
+    for (var key in localSelect[0]) {
+      if (Array.isArray(localSelect[0][key])) {
+        localSelect[0][key] = localSelect[0][key].join(" ");
+      }
+    }
+
+    const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
@@ -1490,8 +1505,8 @@ div.v-data-footer {
 .fuzyyCheckbox {
   .v-label {
     font-size: 14px;
-    color: #000000DE;
-    }
+    color: #000000de;
+  }
   margin-top: 8px;
   margin-left: 16px;
   margin-right: 16px;
