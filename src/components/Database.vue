@@ -65,6 +65,9 @@
               hide-details
             >
             </v-checkbox>
+            <v-btn v-if="!checkboxFuzz" @click="prefixSearch = !prefixSearch">
+              <v-icon v-if="prefixSearch">check</v-icon> Prefix Suche
+            </v-btn>
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
@@ -422,6 +425,7 @@ export default class Database extends Vue {
   geoStore = geoStore;
   sideBar: Boolean = false;
   checkboxFuzzy: Boolean = true;
+  prefixSearch: Boolean = false;
   items: any[] = [];
   searchCollection: string | null = null;
   collectionSearchItems: any[] = [];
@@ -1119,7 +1123,7 @@ export default class Database extends Vue {
   }
 
   @Watch("pagination", { deep: true })
-  updateResults(newVal: any, oldVal: any) {
+  updateResults() {
     if (this.request_arr[0] && this.request_arr[0].query !== "") {
       this.changeQueryParam({
         page: this.pagination.page,
@@ -1137,6 +1141,12 @@ export default class Database extends Vue {
       this.init();
     }
   }
+
+  @Watch("prefixSearch")
+  updateRequestPrefix() {
+    this.updateResults()
+  }
+
 
   get mappableSelectionItems() {
     return _(
@@ -1383,7 +1393,6 @@ export default class Database extends Vue {
   }
 
   async performSearch(req: SearchRequest[]) {
-    console.log("perf search", req);
     if (req !== undefined && req.length > 0) {
       this.searching = true;
       const res = await searchDocuments(
@@ -1393,7 +1402,8 @@ export default class Database extends Vue {
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
         this.pagination.sortBy,
-        this.fuzzy === "true"
+        this.fuzzy === "true",
+        this.prefixSearch
       );
       this.items = res.documents.map((d) => ({
         ...d,
