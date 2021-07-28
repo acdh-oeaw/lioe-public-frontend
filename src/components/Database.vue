@@ -59,15 +59,21 @@
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
             <v-checkbox
               v-model="checkboxFuzz"
-              @change="toggleFuzziness"
+              @change="toggleFuzziness()"
               label="Fehlertolerante Suche"
-              class="fuzyyCheckbox"
+              class="fuzzyCheckbox"
               hide-details
-            >
-            </v-checkbox>
-            <v-btn v-if="!checkboxFuzz" @click="prefixSearch = !prefixSearch">
-              <v-icon v-if="prefixSearch">check</v-icon> Prefix Suche
-            </v-btn>
+            ></v-checkbox>
+          </v-col>
+          <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
+            <v-checkbox
+              v-model="prefixSearch"
+              v-if="!checkboxFuzz"
+              @change="updateRequestPrefix()"
+              label="Prefix Suche"
+              class="fuzzyCheckbox"
+              hide-details
+            ></v-checkbox>
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
@@ -252,9 +258,7 @@
           ausgewählt
         </div>
 
-        
-        <v-menu offset-y
-            v-if="temp_coll.length !== 0">
+        <v-menu offset-y v-if="temp_coll.length !== 0">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               color="secondary"
@@ -291,7 +295,10 @@
               style="float: right"
               v-on="on"
             >
-              <v-icon>mdi-playlist-plus </v-icon> <span v-if="temp_coll.length === 0" class="pl-1">Neue Sammlung</span> 
+              <v-icon>mdi-playlist-plus </v-icon>
+              <span v-if="temp_coll.length === 0" class="pl-1"
+                >Neue Sammlung</span
+              >
             </v-btn>
           </template>
           Erstelle eine neue Sammlung mit den ausgewählten Dokumenten.
@@ -299,7 +306,7 @@
 
         <!-- Create collection and show on Map -->
         <v-tooltip top style="width: 100px">
-          <template v-slot:activator="{ on }">            
+          <template v-slot:activator="{ on }">
             <v-btn
               color="secondary"
               @click="createCollectionWithSelectedDocumentsAndShowOnMap()"
@@ -308,25 +315,32 @@
               style="float: right"
               v-on="on"
             >
-              <v-icon class="pr-1">mdi-playlist-plus </v-icon> <v-icon>mdi-map </v-icon> <span v-if="temp_coll.length === 0" class="pl-1">Neue Sammlung und auf Karte anzeigen</span> 
+              <v-icon class="pr-1">mdi-playlist-plus </v-icon>
+              <v-icon>mdi-map </v-icon>
+              <span v-if="temp_coll.length === 0" class="pl-1"
+                >Neue Sammlung und auf Karte anzeigen</span
+              >
             </v-btn>
-
           </template>
-          Erstelle eine neue Sammlung mit den ausgewählten Dokumenten und zeige sie auf der Karte an.
+          Erstelle eine neue Sammlung mit den ausgewählten Dokumenten und zeige
+          sie auf der Karte an.
         </v-tooltip>
-        
-        <v-tooltip top style="width: 100px">
-          <template v-slot:activator="{ on }">  
-              <v-btn 
-              style="float: right" 
-              v-on="on" color="accent" 
-              icon text
-              @click="downloadFiduz">
-                <v-icon>info</v-icon>
-              </v-btn>
 
+        <v-tooltip top style="width: 100px">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              style="float: right"
+              v-on="on"
+              color="accent"
+              icon
+              text
+              @click="downloadFiduz"
+            >
+              <v-icon>info</v-icon>
+            </v-btn>
           </template>
-          Die Font Fiduz wird benötigt um die exportierten Einträge anzeigen zu können. Klicke hier um zu dem Downloadlink zu kommen.
+          Die Font Fiduz wird benötigt um die exportierten Einträge anzeigen zu
+          können. Klicke hier um zu dem Downloadlink zu kommen.
         </v-tooltip>
 
         <v-menu top open-on-hover offset-y>
@@ -339,7 +353,7 @@
               class="pl-1 pr-0"
               rounded
               color="white"
-              style="float: right; margin-top: 3px;"
+              style="float: right; margin-top: 3px"
             >
               Exportieren
             </v-btn>
@@ -349,10 +363,8 @@
             <v-list-item @click="saveJSON">JSON</v-list-item>
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
-        </v-menu> 
-        
+        </v-menu>
       </div>
-
     </v-flex>
   </v-layout>
 </template>
@@ -1142,11 +1154,9 @@ export default class Database extends Vue {
     }
   }
 
-  @Watch("prefixSearch")
   updateRequestPrefix() {
-    this.updateResults()
+    this.performSearch(this.request_arr);
   }
-
 
   get mappableSelectionItems() {
     return _(
@@ -1483,7 +1493,7 @@ export default class Database extends Vue {
   }
 
   downloadFiduz() {
-    window.open('https://vawadioe.acdh.oeaw.ac.at/lioetxt/materialien/fiduz/');
+    window.open("https://vawadioe.acdh.oeaw.ac.at/lioetxt/materialien/fiduz/");
   }
 }
 </script>
@@ -1512,7 +1522,7 @@ div.v-data-footer {
   color: white;
 }
 
-.fuzyyCheckbox {
+.fuzzyCheckbox {
   .v-label {
     font-size: 14px;
     color: #000000de;

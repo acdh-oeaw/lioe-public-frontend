@@ -178,7 +178,6 @@ function sigleFromEsRef(ref: Array<{ $: string, '@type': string }>): string | nu
 
 // tslint:disable-next-line:max-line-length
 export async function searchCollections(val: string): Promise<{ name: string, value: string, description: string }[]> {
-  //console.log('are we here?')
 
   const res = await (await fetch(apiEndpoint + '/collections/?page=1&page_size=10&title=' + val)).json()
   return res.results.map((r: any) => {
