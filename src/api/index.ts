@@ -307,8 +307,8 @@ export async function searchDocumentsFromES(place: string, sigle: boolean) {
  * 6 + 7) individual multiple (fuzzy 1 | 3)
  * 
  * === fuzziness level 1 === 
- * search in individual columns is done with a 'prefix' query
- * search in all the columns is done with a 'query_string' query and inner OR for multiple search values, each value is followed by a star *
+ * search in individual columns is done with a 'wildcard' query
+ * search in all the columns is done with a 'query_string' query and inner OR for multiple search values, each value is wrapped with a pre and post star *
  * 
  * === fuzziness level 3 === 
  * search in individual columns is done with a 'fuzzy' query
@@ -373,14 +373,14 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
             })
           });
         }
-        // create a prefix query, add the designed queries under the boolean query 'should'
+        // create a wildcard query, add the designed queries under the boolean query 'should'
         else {
           obj.query.forEach(element => {
             shouldArr.push({
-              prefix:
+              wildcard:
               {
                 [obj.field]: {
-                  value: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element
+                  value: !!element ? '*' + element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() + '*' : '*' + element + '*'
                 }
               }
             })
@@ -444,10 +444,11 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
       // create a query_string query 
       } else {
         let searchStr = searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '').concat('*');
+        searchStr = '*' + searchStr;
         for (var i = 1; i < searchAllMult.length; i++) {
           if (searchAllMult[i].query !== null) {
             let localSearch = searchAllMult[i].query?.replace(/[\(]|[\)]|[-]/g, '');
-            searchStr = searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
+            searchStr = searchStr?.concat(' OR *', localSearch !== undefined ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
           } else continue;
         }
         mustArr.push({
