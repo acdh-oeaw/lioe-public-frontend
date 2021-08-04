@@ -70,7 +70,7 @@
               v-model="prefixSearch"
               v-if="!checkboxFuzz"
               @change="updateRequestPrefix()"
-              label="Prefix Suche"
+              label="Wortanfangsuche"
               class="fuzzyCheckbox"
               hide-details
             ></v-checkbox>
