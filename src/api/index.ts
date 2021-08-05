@@ -380,7 +380,7 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
               wildcard:
               {
                 [obj.field]: {
-                  value: !!element ? '*' + element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() + '*' : '*' + element + '*'
+                  value: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element 
                 }
               }
             })
@@ -417,7 +417,7 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
             wildcard:
             {
               [obj.field]: {
-                value: '*' + obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() + '*'
+                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() 
               }
             }
           })          
@@ -468,12 +468,12 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
         }
       // create a query_string query 
       } else {
-        let searchStr = searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '').concat('*');
-        if (fuzzlevel === 1) searchStr = '*' + searchStr;
+        let searchStr = fuzzlevel === 1 ? searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '') : searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '').concat('*');
+        // if (fuzzlevel === 1) searchStr = '*' + searchStr;
         for (var i = 1; i < searchAllMult.length; i++) {
           if (searchAllMult[i].query !== null) {
             let localSearch = searchAllMult[i].query?.replace(/[\(]|[\)]|[-]/g, '');
-            searchStr = fuzzlevel === 1 ? searchStr?.concat(' OR *', localSearch !== undefined ? localSearch : 'NULL', '*') : searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
+            searchStr = fuzzlevel === 1 ? searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL') : searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
           } else continue;
         }
         mustArr.push({
