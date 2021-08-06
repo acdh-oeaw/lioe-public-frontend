@@ -66,14 +66,22 @@
             ></v-checkbox>
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-            <v-checkbox
-              v-model="prefixSearch"
-              v-if="!checkboxFuzz"
-              @change="updateRequestPrefix()"
-              label="Wortanfangsuche"
-              class="fuzzyCheckbox"
-              hide-details
-            ></v-checkbox>
+            <v-btn-toggle v-model="toggleModel" mandatory v-if="!checkboxFuzz">
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+            <v-btn class="text-no-transform" text v-on="on">Wortanfangsuche</v-btn>
+              </template>
+              <span>Präfix Suche</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+            <v-btn class="text-no-transform" text v-on="on">Wildcards Suche</v-btn>
+              </template>
+              <span>
+                Unterstützt Sonderzeichen * für beliebig viele und ? für genau ein Zeichen an beliebigen Stellen
+              </span>
+            </v-tooltip>
+            </v-btn-toggle>
           </v-col>
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
@@ -437,6 +445,7 @@ export default class Database extends Vue {
   geoStore = geoStore;
   sideBar: Boolean = false;
   checkboxFuzzy: Boolean = true;
+  toggleModel: number = 1;
   prefixSearch: Boolean = false;
   items: any[] = [];
   searchCollection: string | null = null;
@@ -725,6 +734,13 @@ export default class Database extends Vue {
   @Watch("showAlleBelege")
   clearSelection() {
     this.selected = [];
+  }
+
+  @Watch("toggleModel", {deep: true})
+  updateRequestPrefix(){
+    this.prefixSearch = this.toggleModel === 0 ? true : false;
+    this.performSearch(this.request_arr);
+  
   }
 
   get showSelectedCollection() {
@@ -1152,10 +1168,6 @@ export default class Database extends Vue {
     } else {
       this.init();
     }
-  }
-
-  updateRequestPrefix() {
-    this.performSearch(this.request_arr);
   }
 
   get mappableSelectionItems() {
