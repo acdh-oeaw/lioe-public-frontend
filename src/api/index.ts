@@ -178,8 +178,8 @@ function sigleFromEsRef(ref: Array<{ $: string, '@type': string }>): string | nu
 
 // tslint:disable-next-line:max-line-length
 export async function searchCollections(val: string): Promise<{ name: string, value: string, description: string }[]> {
-
-  const res = await (await fetch(apiEndpoint + '/collections/?page=1&page_size=10&title=' + val)).json()
+  let page_size = val.length > 2 ? '' : 'page_size=25&' // a request with a size limit is sent only if the input string is short, namely one or two letters
+  const res = await (await fetch(apiEndpoint + '/collections/?page=1&' + page_size + 'title=' + val)).json()
   return res.results.map((r: any) => {
     return {
       name: r.title,
