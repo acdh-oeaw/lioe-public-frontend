@@ -67,18 +67,22 @@
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
             <v-btn-toggle v-model="toggleModel" mandatory v-if="!checkboxFuzz">
-            <v-btn class="text-no-transform" text>Wortanfangsuche</v-btn>
-            <v-btn class="text-no-transform" text>Wildcards Suche</v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+            <v-btn class="text-no-transform" text v-on="on">Wortanfangsuche</v-btn>
+              </template>
+              <span>Präfix Suche</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+            <v-btn class="text-no-transform" text v-on="on">Wildcards Suche</v-btn>
+              </template>
+              <span>
+                Unterstützt Sonderzeichen * für beliebig viele und ? für genau ein Zeichen an beliebigen Stellen
+              </span>
+            </v-tooltip>
             </v-btn-toggle>
           </v-col>
-            <!-- <v-checkbox
-              v-model="prefixSearch"
-              v-if="!checkboxFuzz"
-              @change="updateRequestPrefix()"
-              label="Wortanfangsuche"
-              class="fuzzyCheckbox"
-              hide-details
-            ></v-checkbox> -->
           <v-col cols="auto" class="pa-0 divider-left">
             <v-menu max-height="80vh" offset-y :close-on-content-click="false">
               <template v-slot:activator="{ on, attrs }">
