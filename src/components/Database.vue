@@ -57,16 +57,7 @@
             </v-tooltip>
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-            <v-checkbox
-              v-model="checkboxFuzz"
-              @change="toggleFuzziness()"
-              label="Fehlertolerante Suche"
-              class="fuzzyCheckbox"
-              hide-details
-            ></v-checkbox>
-          </v-col>
-          <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-            <v-btn-toggle v-model="toggleModel" mandatory v-if="!checkboxFuzz">
+            <v-btn-toggle v-model="toggleModel" mandatory>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
             <v-btn class="text-no-transform" text v-on="on">Wortanfangsuche</v-btn>
@@ -79,6 +70,14 @@
               </template>
               <span>
                 Unterstützt Sonderzeichen * für beliebig viele und ? für genau ein Zeichen an beliebigen Stellen
+              </span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+            <v-btn class="text-no-transform" text v-on="on">Fehlertolerante Suche</v-btn>
+              </template>
+              <span>
+                Fuzzy Suche
               </span>
             </v-tooltip>
             </v-btn-toggle>
@@ -444,8 +443,7 @@ export default class Database extends Vue {
 
   geoStore = geoStore;
   sideBar: Boolean = false;
-  checkboxFuzzy: Boolean = true;
-  toggleModel: number = 1;
+  toggleModel: number = 2;
   prefixSearch: Boolean = false;
   items: any[] = [];
   searchCollection: string | null = null;
@@ -707,14 +705,6 @@ export default class Database extends Vue {
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
 
-  async toggleFuzziness() {
-    await this.changeQueryParam({
-      fuzzy: this.fuzzy === "true" ? "false" : "true",
-    });
-
-    this.onChangeQuery(this.request_arr);
-  }
-
   get temp_coll() {
     return stateProxy.collections.temp_coll;
   }
@@ -727,10 +717,6 @@ export default class Database extends Vue {
     return stateProxy.collections.getShowAlleBelege;
   }
 
-  checkboxFuzz() {
-    return this.fuzzy === "true";
-  }
-
   @Watch("showAlleBelege")
   clearSelection() {
     this.selected = [];
@@ -738,7 +724,9 @@ export default class Database extends Vue {
 
   @Watch("toggleModel", {deep: true})
   updateRequestPrefix(){
-    this.prefixSearch = this.toggleModel === 0 ? true : false;
+    this.prefixSearch = this.toggleModel === 0 ? true : false;5
+    this.changeQueryParam({fuzzy : this.toggleModel === 2 ? "true" : "false"});
+    // this.fuzzy = this.toggleModel === 2 ? "true" : "false";
     this.performSearch(this.request_arr);
   
   }
@@ -1067,11 +1055,11 @@ export default class Database extends Vue {
 
   @Watch("fuzzy", { immediate: true })
   synchronizeCheckbox() {
-    if (this.fuzzy === "true" && !this.checkboxFuzzy) {
-      this.checkboxFuzzy = true;
+    if (this.fuzzy === "true" && this.toggleModel !== 2) {
+      this.toggleModel = 2;
     }
-    if (this.fuzzy === "false" && this.checkboxFuzzy) {
-      this.checkboxFuzzy = false;
+    if (this.fuzzy === "false" && this.toggleModel === 2) {
+      this.toggleModel = 0;
     }
   }
 
