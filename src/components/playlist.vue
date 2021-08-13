@@ -62,6 +62,9 @@
                       v-model="item.selected"
                       @click.prevent=""
                       color="primary"
+                      :on-icon="'mdi-eye'"
+                      :off-icon="'mdi-eye-off'"
+                      dense
                     ></v-checkbox>
                   </v-list-item-action>
                   <v-list-item-content
@@ -175,6 +178,9 @@
                       :input-value="item.selected"
                       @click.prevent=""
                       color="primary"
+                      :on-icon="'mdi-eye'"
+                      :off-icon="'mdi-eye-off'"
+                      dense
                     ></v-checkbox>
                   </v-list-item-action>
                   <v-list-item-content style="margin-left: 5px">
