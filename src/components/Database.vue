@@ -1121,7 +1121,8 @@ export default class Database extends Vue {
       coll.items.forEach((beleg) => {
         beleg.colSourceName = coll.collection_name;
         beleg.colSourceColor = coll.fillColor;
-        allItems.push(beleg);
+        if(!allItems.includes(beleg))
+          allItems.push(beleg);
       })
     })
     return allItems;
