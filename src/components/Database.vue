@@ -1093,7 +1093,7 @@ export default class Database extends Vue {
 
   get shownItems() {
     if (this.showSelectedCollection) {
-      return this.collItems;
+      return this.shownItemsWithSource;
     }
     return this._items;
   }
