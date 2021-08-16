@@ -165,18 +165,33 @@
       </v-card>
     </v-flex>
     <v-flex>
+      
+      <!-- Visible Collections -->
       <v-banner
         elevation="2"
       >
-      Gezeigte Belege aus:
-      <v-chip
-        v-for="(col, index) in visibleCollections"
-        :key="index"
-        :color="col.fillColor"
-        >
-        {{col.collection_name}}
-      </v-chip>
-        <!-- Showing entries from: {{visibleCollectionNames()}} -->
+        Gezeigte Belege aus:
+
+        <template
+          v-if="showSelectedCollection"
+          >
+          <v-chip
+            v-for="(col, index) in visibleCollections"
+            :key="index"
+            :color="col.fillColor"
+            >
+            {{col.collection_name}}
+          </v-chip>
+        </template>
+
+        <template
+          v-if="!showSelectedCollection"
+          >
+          <v-chip
+            >
+            Alle Belege
+          </v-chip>
+        </template>
       </v-banner>
       <v-data-table
         class="mt-2"
@@ -765,6 +780,7 @@ export default class Database extends Vue {
   
   }
 
+  // To-Do: Potentially change so that when nothing is selected nothing is shown
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     let allBelege = this.showAlleBelege;
