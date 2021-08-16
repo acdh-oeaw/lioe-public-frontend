@@ -49,6 +49,19 @@ class CollectionModule extends VuexModule {
         return this.wboe_collections;
     }
 
+    get visibleCollections() {
+        const selColls: Array<Collection> = []
+        this.temp_collections.forEach(col => {
+            if(col.selected)
+                selColls.push(col);
+        });
+        this.wboe_collections.forEach(col => {
+            if(col.selected)
+                selColls.push(col);
+        });
+        return selColls;
+    }
+
     @mutation
     setTemp_coll(colls: Collection[]) {
         this.temp_collections = colls

@@ -165,6 +165,19 @@
       </v-card>
     </v-flex>
     <v-flex>
+      <v-banner
+        elevation="2"
+      >
+      Gezeigte Belege aus:
+      <v-chip
+        v-for="(col, index) in visibleCollections"
+        :key="index"
+        :color="col.fillColor"
+        >
+        {{col.collection_name}}
+      </v-chip>
+        <!-- Showing entries from: {{visibleCollectionNames()}} -->
+      </v-banner>
       <v-data-table
         class="mt-2"
         v-model="selected"
@@ -204,6 +217,7 @@
             </v-card>
           </v-menu>
         </template>
+        <!-- Bottom line -->
         <template v-slot:footer="{ props, on, headers }">
           <v-divider />
           <v-row>
@@ -224,6 +238,8 @@
             </v-col>
           </v-row>
         </template>
+
+        <!-- Entries of the Belege -->
         <template v-slot:item="{ item, index, isSelected }">
           <tr @click="customSelect(item)">
             <td>
@@ -717,6 +733,24 @@ export default class Database extends Vue {
     return stateProxy.collections.getShowAlleBelege;
   }
 
+  get visibleCollections() {
+    return stateProxy.collections.visibleCollections;
+  }
+
+  @Watch('stateProxy.collections.visibleCollections')
+  visibleCollectionNames() :String[]{
+    console.log('visible collections: ', stateProxy.collections.visibleCollections);
+    
+    if(stateProxy.collections.visibleCollections.length > 0) {
+      const temp: String[] = [];
+      stateProxy.collections.visibleCollections.forEach(col => {
+        temp.push(col.collection_name.toString()); 
+      })
+      return temp;
+    }
+    return ['None'];
+  }
+
   @Watch("showAlleBelege")
   clearSelection() {
     this.selected = [];
@@ -1026,14 +1060,16 @@ export default class Database extends Vue {
     return this._items;
   }
 
+  // TO-DO: Fix Same Beleg (Item) shown multiple times if it is in multiple collections
+  // To-DO: Potentially get collections from collections store .visibleCollections
   get collItems() {
     let allItems: any[] = [];
-    this.wboeColl.forEach((beleg) => {
+    this.wboeColl.forEach((beleg) => { // Should probably be called collection/col, not beleg
       if (beleg.selected) {
         allItems = [...allItems, ...beleg.items];
       }
     });
-    this.temp_coll.forEach((beleg) => {
+    this.temp_coll.forEach((beleg) => { // Should probably be called collection/col, not beleg
       if (beleg.selected) {
         allItems = [...allItems, ...beleg.items];
       }
