@@ -266,10 +266,13 @@
             </td>
             <td v-if="showSelectedCollection">
               <v-chip
-                :color="item.colSourceColor"
+                v-for="(colSource,index) in item.colSources"
+                :key="index"
+                :color="colSource.fillColor"
                 >
-                {{item.colSourceName}}
+                {{colSource.collection_name}}
               </v-chip>
+              
             </td>
 
             <template v-for="header in visibleHeaders">
@@ -1119,12 +1122,32 @@ export default class Database extends Vue {
     let allItems: any[] = [];
     this.visibleCollections.forEach((coll) => {
       coll.items.forEach((beleg) => {
-        beleg.colSourceName = coll.collection_name;
-        beleg.colSourceColor = coll.fillColor;
-        if(!allItems.includes(beleg))
+        if(allItems.includes(beleg)) {
+          if(beleg.colSources) {
+            for (let i = 0; i < beleg.colSources.length; i++) {
+              const colSource = beleg.colSources[i];
+              if(colSource.collection_name === coll.collection_name)
+                break; 
+              
+              if(i === beleg.colSources.length -1) { // Does not contain the collection already, therefore add it.
+                beleg.colSources.push(coll);
+              }
+            }
+          } else {
+            beleg.colSources = [];
+            beleg.colSources.push(coll);
+          }
+        } else {
+          beleg.colSources = [];
+          beleg.colSources.push(coll);
+        }
+        if(!allItems.includes(beleg)) 
           allItems.push(beleg);
       })
     })
+
+    console.log('belege: ', allItems);
+    
     return allItems;
   }
 
