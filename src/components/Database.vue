@@ -264,6 +264,14 @@
                 @click.prevent=""
               ></v-checkbox>
             </td>
+            <td v-if="showSelectedCollection">
+              <v-chip
+                :color="item.colSourceColor"
+                >
+                {{item.colSourceName}}
+              </v-chip>
+            </td>
+
             <template v-for="header in visibleHeaders">
               <td
                 class="line-clamp"
@@ -285,6 +293,7 @@
           </tr>
         </template>
       </v-data-table>
+      <!-- Collection edit options (Add Beleg to collection,...) -->
       <div v-if="mappableSelectionItems.length !== 0" class="collBox">
         <div
           style="color: white; margin-left: 40px; margin-top: 8px; float: left"
@@ -499,6 +508,14 @@ export default class Database extends Vue {
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
+    {
+        searchable: false,
+        show: false,
+        text: "Sammlung",
+        value: "Sammlung",
+        infoUrl: "",
+        sortable: false,
+    },
     {
       searchable: true,
       show: false,
@@ -789,6 +806,11 @@ export default class Database extends Vue {
       return true;
     }
     return false;
+  }
+
+  @Watch('showSelectedCollection') 
+  showBelgeCollectionSource() {
+    this.headers[0].show = this.showSelectedCollection;
   }
 
   updateRequestQuery(index: number, e: string) {
@@ -1090,6 +1112,18 @@ export default class Database extends Vue {
         allItems = [...allItems, ...beleg.items];
       }
     });
+    return allItems;
+  }
+
+  get shownItemsWithSource() {
+    let allItems: any[] = [];
+    this.visibleCollections.forEach((coll) => {
+      coll.items.forEach((beleg) => {
+        beleg.colSourceName = coll.collection_name;
+        beleg.colSourceColor = coll.fillColor;
+        allItems.push(beleg);
+      })
+    })
     return allItems;
   }
 
