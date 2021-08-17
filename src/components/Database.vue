@@ -291,6 +291,33 @@
           </v-list>
         </v-menu>
 
+        <v-menu offset-y v-if="temp_coll.length !== 0">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="secondary"
+              v-bind="attrs"
+              v-on="on"
+              class="white--text mx-1"
+              rounded
+              style="float: right"
+            >
+              Aus Sammlung entfernen
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item
+              class="addToCollectionItem"
+              v-for="(item, index) in temp_coll"
+              :key="index"
+            >
+              <v-list-item-title @click="removeBelegeFromCollection(item)">{{
+                item.collection_name
+              }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+
         <!-- Create collection and show on Map -->
         <v-tooltip top style="width: 100px">
           <template v-slot:activator="{ on }">
@@ -764,6 +791,15 @@ export default class Database extends Vue {
       col: col.id,
       items: this.mappableSelectionItems,
     });
+  }
+
+  removeBelegeFromCollection(col: Collection) {
+    const selectedItems = this.mappableSelectionItems;
+    stateProxy.collections.removeEntriesFromCollection({
+      col: col.id,
+      items: selectedItems,
+    });
+    this.selected = selectedItems;
   }
 
   createCollectionWithSelectedDocuments() {
