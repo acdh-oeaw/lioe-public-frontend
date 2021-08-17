@@ -214,7 +214,7 @@
           v-slot:[`header.${h.value}`]="{ header }"
         >
           <v-menu
-            :disabled="h.infoUrl === undefined"
+            :disabled="h.infoUrl === undefined || h.infoUrl === ''"
             :key="h.value"
             open-on-hover
             max-width="400"
@@ -264,16 +264,6 @@
                 @click.prevent=""
               ></v-checkbox>
             </td>
-            <td v-if="showSelectedCollection">
-              <v-chip
-                v-for="(colSource,index) in item.colSources"
-                :key="index"
-                :color="colSource.fillColor"
-                >
-                {{colSource.collection_name}}
-              </v-chip>
-              
-            </td>
 
             <template v-for="header in visibleHeaders">
               <td
@@ -291,6 +281,16 @@
                   <template v-else> {{ header.renderFnc(item) }} </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
+
+                <template v-if="showSelectedCollection && header.text === 'Sammlung'">
+                  <v-chip
+                    v-for="(colSource,index) in item.colSources"
+                    :key="index"
+                    :color="colSource.fillColor"
+                    >
+                    {{colSource.collection_name}}
+                  </v-chip>
+                </template>
               </td>
             </template>
           </tr>
@@ -515,8 +515,8 @@ export default class Database extends Vue {
         searchable: false,
         show: false,
         text: "Sammlung",
-        value: "Sammlung",
-        infoUrl: "",
+        value: "",
+        infoUrl: '',
         sortable: false,
     },
     {
