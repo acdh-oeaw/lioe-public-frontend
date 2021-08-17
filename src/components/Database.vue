@@ -168,9 +168,10 @@
       
       <!-- Visible Collections -->
       <v-banner
-        elevation="2"
+        class="mt-2 pa-0"
       >
-        Gezeigte Belege aus:
+        
+          Gezeigte Belege aus: 
 
         <template
           v-if="showSelectedCollection"
@@ -185,7 +186,7 @@
         </template>
 
         <template
-          v-if="!showSelectedCollection"
+          v-else
           >
           <v-chip
             >
