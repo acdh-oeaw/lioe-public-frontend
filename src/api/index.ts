@@ -178,9 +178,8 @@ function sigleFromEsRef(ref: Array<{ $: string, '@type': string }>): string | nu
 
 // tslint:disable-next-line:max-line-length
 export async function searchCollections(val: string): Promise<{ name: string, value: string, description: string }[]> {
-  //console.log('are we here?')
-
-  const res = await (await fetch(apiEndpoint + '/collections/?page=1&page_size=10&title=' + val)).json()
+  let page_size = val.length > 2 ? '' : 'page_size=25&' // a request with a size limit is sent only if the input string is short, namely one or two letters
+  const res = await (await fetch(apiEndpoint + '/collections/?page=1&' + page_size + 'title=' + val)).json()
   return res.results.map((r: any) => {
     return {
       name: r.title,
@@ -206,10 +205,11 @@ export async function searchDocuments(
   items = 100,
   descending: boolean[] = [true],
   sortBy: any[] = [null],
-  should_fuzzy: boolean = false
+  should_fuzzy: boolean = false,
+  prefix: Boolean = false
 ): Promise<Documents> {
 
-  let fuzzlevel = should_fuzzy ? 3 : 0
+  let fuzzlevel = should_fuzzy ? 3 : prefix ? 2 : 1
 
   const sort = [];
 
@@ -307,8 +307,8 @@ export async function searchDocumentsFromES(place: string, sigle: boolean) {
  * 6 + 7) individual multiple (fuzzy 1 | 3)
  * 
  * === fuzziness level 1 === 
- * search in individual columns is done with a 'prefix' query
- * search in all the columns is done with a 'query_string' query and inner OR for multiple search values, each value is followed by a star *
+ * search in individual columns is done with a 'wildcard' query
+ * search in all the columns is done with a 'query_string' query and inner OR for multiple search values, each value is wrapped with a pre and post star *
  * 
  * === fuzziness level 3 === 
  * search in individual columns is done with a 'fuzzy' query
@@ -373,7 +373,20 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
             })
           });
         }
-        // create a prefix query, add the designed queries under the boolean query 'should'
+        // create a wildcard query, add the designed queries under the boolean query 'should'
+        else if (fuzzlevel === 1) {
+          obj.query.forEach(element => {
+            shouldArr.push({
+              wildcard:
+              {
+                [obj.field]: {
+                  value: !!element ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : element 
+                }
+              }
+            })
+          });
+        }
+        // fuzzlevel is 2 and there is a prefix query search 
         else {
           obj.query.forEach(element => {
             shouldArr.push({
@@ -385,6 +398,7 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
               }
             })
           });
+          
         }
         // handle non - array object, same scheme
       } else {
@@ -398,15 +412,26 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
               }
             }
           })
-        } else {
+        } else if (fuzzlevel === 1) {
           shouldArr.push({
-            fuzzy:
+            wildcard:
             {
               [obj.field]: {
-                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() 
               }
             }
           })          
+        }
+        else { // fuzzlevel is 2
+          shouldArr.push({
+            prefix:
+            {
+              [obj.field]: {
+                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() 
+              }
+            }
+          })          
+
         }
       }
       // add the designed query under the boolean query 'should'
@@ -443,11 +468,12 @@ function getFinalQuery(searchAllMult: SearchRequest[] | null,
         }
       // create a query_string query 
       } else {
-        let searchStr = searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '').concat('*');
+        let searchStr = fuzzlevel === 1 ? searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '') : searchAllMult[0].query?.replace(/[\(]|[\)]|[-]/g, '').concat('*');
+        // if (fuzzlevel === 1) searchStr = '*' + searchStr;
         for (var i = 1; i < searchAllMult.length; i++) {
           if (searchAllMult[i].query !== null) {
             let localSearch = searchAllMult[i].query?.replace(/[\(]|[\)]|[-]/g, '');
-            searchStr = searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
+            searchStr = fuzzlevel === 1 ? searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL') : searchStr?.concat(' OR ', localSearch !== undefined ? localSearch : 'NULL', '*'); // we will never reach the 'NULL' assignment
           } else continue;
         }
         mustArr.push({

@@ -65,7 +65,7 @@
     "vuex-class": "^0.3.2",
     "vuex-class-component": "^2.3.5",
     "webfontloader": "^1.6.28",
-    "xlsx": "^0.14.5"
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
