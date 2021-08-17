@@ -726,7 +726,6 @@ export default class Database extends Vue {
   updateRequestPrefix(){
     this.prefixSearch = this.toggleModel === 0 ? true : false;5
     this.changeQueryParam({fuzzy : this.toggleModel === 2 ? "true" : "false"});
-    // this.fuzzy = this.toggleModel === 2 ? "true" : "false";
     this.performSearch(this.request_arr);
   
   }

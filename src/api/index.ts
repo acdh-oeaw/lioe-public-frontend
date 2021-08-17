@@ -189,6 +189,17 @@ export async function searchCollections(val: string): Promise<{ name: string, va
   })
 }
 // tslint:disable-next-line:max-line-length
+export async function searchCollectionsAppending(val: string, page: number): Promise<{ name: string, value: string, description: string }[]> {
+  const res = await (await fetch(apiEndpoint + '/collections/?page=' + page + '&page_size=25&title=' + val)).json()
+  return res.results.map((r: any) => {
+    return {
+      name: r.title,
+      value: _.last(r.url.match(/(\d+)/)),
+      description: r.description
+    }
+  })
+}
+// tslint:disable-next-line:max-line-length
 export async function getCollectionByIds(ids: string[]): Promise<{ name: string, value: string, description: string }[]> {
   const ress = await Promise.all(ids.map(async (id) => (await fetch(apiEndpoint + '/collections/' + id)).json()))
   return ress.map((r: any) => ({
