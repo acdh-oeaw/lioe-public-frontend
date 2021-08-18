@@ -497,8 +497,8 @@ export default class Database extends Vue {
   items: any[] = [];
   searchCollection: string | null = null;
   collectionSearchItems: any[] = [];
-  selectedCollections: any[] = [];
-  selected: any[] = [];
+  selectedCollections: any[] = []; // the selected collections that are shown
+  selected: any[] = []; // the selected table entries ("Belege") that are selected within the table 
   loading = false;
   searching = false;
   showFilterOptions = false;
@@ -790,11 +790,6 @@ export default class Database extends Vue {
       return temp;
     }
     return ['None'];
-  }
-
-  @Watch("showAlleBelege")
-  clearSelection() {
-    this.selected = [];
   }
 
   @Watch('toggleModel', { deep: true })
