@@ -71,6 +71,7 @@
                       v-if="item.editing === false"
                       v-text="item.collection_name"
                     ></v-list-item-title>
+                    <!-- :style="{ color: item.fillColor }" -->
                     <v-text-field
                       dense
                       v-if="item.editing === true"
@@ -81,6 +82,40 @@
                       :elevation="6"
                     ></v-text-field>
                   </v-list-item-content>
+                                    <v-list-item-action>
+                    <div :color="item.borderColor" style="width: 18px; height: 18px">
+                        <v-menu :close-on-content-click="false" offset-y top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn
+                              v-on="on"
+                              :color="item.borderColor"
+                              elevation="1"
+                              fab
+                              style="width: 18px; height: 18px; margin-bottom: 20px"
+                            >
+                              <v-btn
+                                :color="item.fillColor"
+                                elevation="1"
+                                fab
+                                style="width: 15px; height: 15px"
+                              ></v-btn>
+                            </v-btn>
+                          </template>
+                          <div id="menuItem">
+                            Farbe des Rahmens
+                            <v-color-picker
+                              hide-inputs
+                              v-model="item.borderColor"
+                            ></v-color-picker>
+                            Farbe des Inhalts
+                            <v-color-picker
+                              hide-inputs
+                              v-model="item.fillColor"
+                            ></v-color-picker>
+                          </div>
+                        </v-menu>
+                      </div>
+                  </v-list-item-action>  
                   <v-list-item-icon
                     style="margin: auto 0px"
                     v-if="onMapPage && item.items.length === 0"
@@ -185,6 +220,41 @@
                       v-text="item.collection_desc"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
+                  <v-list-item-action> <!-- Collection Color Picker -->
+                    <div :color="item.borderColor" style="width: 18px; height: 18px">
+                        <v-menu :close-on-content-click="false" offset-y top>
+                          <template v-slot:activator="{ on }">
+                            <v-btn
+                              v-on="on"
+                              :color="item.borderColor"
+                              elevation="1"
+                              fab
+                              style="width: 18px; height: 18px; margin-bottom: 20px"
+                            >
+                              <v-btn
+                                :color="item.fillColor"
+                                elevation="1"
+                                fab
+                                style="width: 15px; height: 15px"
+                              ></v-btn>
+                            </v-btn>
+                          </template>
+                          <div id="menuItem">
+                            Farbe des Rahmens
+                            <v-color-picker
+                              hide-inputs
+                              v-model="item.borderColor"
+                            ></v-color-picker>
+                            Farbe des Inhalts
+                            <v-color-picker
+                              hide-inputs
+                              v-model="item.fillColor"
+                            ></v-color-picker>
+                          </div>
+                        </v-menu>
+                      </div>
+                  </v-list-item-action>  
+
 
                   <v-list-item-action>
                     <v-menu offset-y>

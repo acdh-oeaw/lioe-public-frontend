@@ -170,6 +170,35 @@
       </v-card>
     </v-flex>
     <v-flex>
+      
+      <!-- Visible Collections -->
+      <v-banner
+        class="mt-2 pa-0"
+      >
+        
+          Gezeigte Belege aus: 
+
+        <template
+          v-if="showSelectedCollection"
+          >
+          <v-chip
+            v-for="(col, index) in visibleCollections"
+            :key="index"
+            :color="col.fillColor"
+            >
+            {{col.collection_name}}
+          </v-chip>
+        </template>
+
+        <template
+          v-else
+          >
+          <v-chip
+            >
+            Alle Belege
+          </v-chip>
+        </template>
+      </v-banner>
       <v-data-table
         class="mt-2"
         v-model="selected"
@@ -191,7 +220,7 @@
           v-slot:[`header.${h.value}`]="{ header }"
         >
           <v-menu
-            :disabled="h.infoUrl === undefined"
+            :disabled="h.infoUrl === undefined || h.infoUrl === ''"
             :key="h.value"
             open-on-hover
             max-width="400"
@@ -209,6 +238,7 @@
             </v-card>
           </v-menu>
         </template>
+        <!-- Bottom line -->
         <template v-slot:footer="{ props, on, headers }">
           <v-divider />
           <v-row>
@@ -229,6 +259,8 @@
             </v-col>
           </v-row>
         </template>
+
+        <!-- Entries of the Belege -->
         <template v-slot:item="{ item, index, isSelected }">
           <tr @click="customSelect(item)">
             <td>
@@ -238,6 +270,7 @@
                 @click.prevent=""
               ></v-checkbox>
             </td>
+
             <template v-for="header in visibleHeaders">
               <td
                 class="line-clamp"
@@ -254,11 +287,22 @@
                   <template v-else> {{ header.renderFnc(item) }} </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
+
+                <template v-if="showSelectedCollection && header.text === 'Sammlung'">
+                  <v-chip
+                    v-for="(colSource,index) in item.colSources"
+                    :key="index"
+                    :color="colSource.fillColor"
+                    >
+                    {{colSource.collection_name}}
+                  </v-chip>
+                </template>
               </td>
             </template>
           </tr>
         </template>
       </v-data-table>
+      <!-- Collection edit options (Add Beleg to collection,...) -->
       <div v-if="mappableSelectionItems.length !== 0" class="collBox">
         <div
           style="color: white; margin-left: 40px; margin-top: 8px; float: left"
@@ -473,6 +517,14 @@ export default class Database extends Vue {
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
+    {
+        searchable: false,
+        show: false,
+        text: "Sammlung",
+        value: "",
+        infoUrl: '',
+        sortable: false,
+    },
     {
       searchable: true,
       show: false,
@@ -722,7 +774,25 @@ export default class Database extends Vue {
     return stateProxy.collections.getShowAlleBelege;
   }
 
-  @Watch('showAlleBelege')
+  get visibleCollections() {
+    return stateProxy.collections.visibleCollections;
+  }
+
+  @Watch('stateProxy.collections.visibleCollections')
+  visibleCollectionNames() :String[]{
+    console.log('visible collections: ', stateProxy.collections.visibleCollections);
+    
+    if(stateProxy.collections.visibleCollections.length > 0) {
+      const temp: String[] = [];
+      stateProxy.collections.visibleCollections.forEach(col => {
+        temp.push(col.collection_name.toString()); 
+      })
+      return temp;
+    }
+    return ['None'];
+  }
+
+  @Watch("showAlleBelege")
   clearSelection() {
     this.selected = [];
   }
@@ -735,6 +805,7 @@ export default class Database extends Vue {
     this.performSearch(this.request_arr);
   }
 
+  // To-Do: Potentially change so that when nothing is selected nothing is shown
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     let allBelege = this.showAlleBelege;
@@ -743,6 +814,11 @@ export default class Database extends Vue {
       return true;
     }
     return false;
+  }
+
+  @Watch('showSelectedCollection') 
+  showBelgeCollectionSource() {
+    this.headers[0].show = this.showSelectedCollection;
   }
 
   updateRequestQuery(index: number, e: string) {
@@ -1025,19 +1101,21 @@ export default class Database extends Vue {
 
   get shownItems() {
     if (this.showSelectedCollection) {
-      return this.collItems;
+      return this.shownItemsWithSource;
     }
     return this._items;
   }
 
+  // TO-DO: Fix Same Beleg (Item) shown multiple times if it is in multiple collections
+  // To-DO: Potentially get collections from collections store .visibleCollections
   get collItems() {
     let allItems: any[] = [];
-    this.wboeColl.forEach((beleg) => {
+    this.wboeColl.forEach((beleg) => { // Should probably be called collection/col, not beleg
       if (beleg.selected) {
         allItems = [...allItems, ...beleg.items];
       }
     });
-    this.temp_coll.forEach((beleg) => {
+    this.temp_coll.forEach((beleg) => { // Should probably be called collection/col, not beleg
       if (beleg.selected) {
         allItems = [...allItems, ...beleg.items];
       }
@@ -1045,7 +1123,40 @@ export default class Database extends Vue {
     return allItems;
   }
 
-  @Watch('searchCollection')
+  get shownItemsWithSource() {
+    let allItems: any[] = [];
+    this.visibleCollections.forEach((coll) => {
+      coll.items.forEach((beleg) => {
+        if(allItems.includes(beleg)) {
+          if(beleg.colSources) {
+            for (let i = 0; i < beleg.colSources.length; i++) {
+              const colSource = beleg.colSources[i];
+              if(colSource.collection_name === coll.collection_name)
+                break; 
+              
+              if(i === beleg.colSources.length -1) { // Does not contain the collection already, therefore add it.
+                beleg.colSources.push(coll);
+              }
+            }
+          } else {
+            beleg.colSources = [];
+            beleg.colSources.push(coll);
+          }
+        } else {
+          beleg.colSources = [];
+          beleg.colSources.push(coll);
+        }
+        if(!allItems.includes(beleg)) 
+          allItems.push(beleg);
+      })
+    })
+
+    console.log('belege: ', allItems);
+    
+    return allItems;
+  }
+
+  @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
     if (val !== null && val !== undefined && val.trim() !== '') {
       this.searching = true;
