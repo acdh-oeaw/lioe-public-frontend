@@ -304,7 +304,7 @@
           >
             <template v-slot:no-data>
               <v-list-item>
-                <v-list-item-title>
+                <v-list-item-title class="caption grey--text text-center">
                   Zu tippen beginnen, um nach Sammlungen zu suchen
                 </v-list-item-title>
               </v-list-item>
@@ -321,6 +321,23 @@
             </template>
             <template v-slot:selection="{ item }">
               <span v-if="false"> {{ item.text }} </span>
+            </template>
+            <template v-slot:append-item="">
+              <v-lazy
+                v-if="
+                  searchCollection !== '' &&
+                  searchCollection !== null &&
+                  collectionSearchItems.length > 0 &&
+                  collectionSearchHasNextPage
+                "
+              >
+                <load-more-items
+                  @render="loadAndAppendNextPageCollections"
+                  :page="collectionSearchCurrentPage"
+                >
+                  <v-progress-linear class="mx-5" indeterminate />
+                </load-more-items>
+              </v-lazy>
             </template>
           </v-autocomplete>
         </v-card-text>
@@ -340,14 +357,16 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { stateProxy, Collection } from "../store/collections";
-import { getDocumentsByCollection, searchCollections } from "@src/api";
-import draggable from "vuedraggable";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { stateProxy, Collection } from '../store/collections';
+import { getDocumentsByCollection, searchCollections } from '@src/api';
+import LoadMoreItems from './LoadMoreItems.vue';
+import draggable from 'vuedraggable';
 
 @Component({
   components: {
     draggable,
+    LoadMoreItems,
   },
 })
 export default class Playlist extends Vue {
@@ -355,7 +374,30 @@ export default class Playlist extends Vue {
   collectionSearchItems: any[] = [];
   selectedCollections: any[] = [];
   searchCollection: string | null = null;
-  filterCollection: string = "";
+  filterCollection: string = '';
+  collectionSearchHasNextPage: boolean = false;
+  collectionSearchCurrentPage = 1;
+
+  async loadAndAppendNextPageCollections() {
+    if (this.searchCollection !== null) {
+      const searchResult = await searchCollections(
+        this.searchCollection,
+        this.collectionSearchCurrentPage + 1
+      );
+      this.collectionSearchItems = this.collectionSearchItems.concat(
+        searchResult.results.map((r) => ({ ...r, text: r.name }))
+      );
+      this.collectionSearchCurrentPage = this.collectionSearchCurrentPage + 1;
+      this.collectionSearchHasNextPage = searchResult.next !== null;
+      if (this.collectionSearchHasNextPage === true) {
+        // a pretty ugly trick to make the v-lazy component update,
+        // so it triggers the next time we scroll down.
+        this.collectionSearchHasNextPage = false;
+        await this.$nextTick();
+        this.collectionSearchHasNextPage = true;
+      }
+    }
+  }
 
   get showAlleBelege() {
     return stateProxy.collections.getShowAlleBelege;
@@ -383,13 +425,13 @@ export default class Playlist extends Vue {
 
   routeToMaps() {
     this.$router.push({
-      path: "/maps",
+      path: '/maps',
     });
   }
 
   routeToDB() {
     this.$router.push({
-      path: "/db",
+      path: '/db',
     });
   }
 
@@ -401,7 +443,7 @@ export default class Playlist extends Vue {
 
   async getLocationsOfCollections(colls: any[]) {
     // i should really change this at some point to be more efficient
-    if (typeof colls === "object" && colls !== []) {
+    if (typeof colls === 'object' && colls !== []) {
       colls.forEach(async (coll) => {
         let shownInGeo;
         this.wboe_coll.forEach((CollInGeo) => {
@@ -418,13 +460,13 @@ export default class Playlist extends Vue {
           res.documents.forEach((document) => {
             let sigle: string = document.ortsSigle;
             if (sigle) {
-              if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
-                CollLocation.push(document.ortsSigle.split(" ")[0]);
+              if (!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
+                CollLocation.push(document.ortsSigle.split(' ')[0]);
               }
             }
           });
-          let collName = "";
-          let collDescription = "";
+          let collName = '';
+          let collDescription = '';
           this.collectionSearchItems.forEach((iterColl) => {
             if (coll === iterColl.value) {
               collName = iterColl.name;
@@ -440,8 +482,8 @@ export default class Playlist extends Vue {
               collection_desc: collDescription,
               editing: false,
               fillColor:
-                "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-              borderColor: "#000",
+                '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+              borderColor: '#000',
               items: CollLocation,
             },
             add: true,
@@ -457,16 +499,20 @@ export default class Playlist extends Vue {
     }
   }
 
-  @Watch("searchCollection")
+  @Watch('searchCollection')
   async onSearchCollection(val: string | null) {
-    if (val !== null && val.trim() !== "") {
+    this.collectionSearchHasNextPage = false;
+    this.collectionSearchCurrentPage = 1;
+    if (val !== null && val.trim() !== '') {
+      const searchResult = await searchCollections(val);
+      this.collectionSearchHasNextPage = searchResult.next !== null;
       this.collectionSearchItems = this.sortByTerm(
-        (await searchCollections(val)).map((x) => ({
-          ...x,
-          text: x.name,
-        })),
+        searchResult.results.map((x) => ({ ...x, text: x.name })),
         val
       );
+    } else {
+      this.collectionSearchHasNextPage = false;
+      this.collectionSearchItems = [];
     }
   }
 
@@ -492,10 +538,10 @@ export default class Playlist extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: "Neue Sammlung",
+      collection_name: 'Neue Sammlung',
       editing: true,
-      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-      borderColor: "#000",
+      fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+      borderColor: '#000',
       selected: true,
       items: [],
     };
@@ -507,10 +553,10 @@ export default class Playlist extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: "temporär " + col.collection_name,
+      collection_name: 'temporär ' + col.collection_name,
       editing: true,
-      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-      borderColor: "#000",
+      fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+      borderColor: '#000',
       selected: true,
       items: col.items,
     };
