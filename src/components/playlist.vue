@@ -318,9 +318,14 @@ export default class Playlist extends Vue {
         searchResult.results.map((r) => ({ ...r, text: r.name }))
       );
       this.collectionSearchCurrentPage = this.collectionSearchCurrentPage + 1;
-      this.collectionSearchHasNextPage = false;
-      await this.$nextTick();
-      this.collectionSearchHasNextPage = true;
+      this.collectionSearchHasNextPage = searchResult.next !== null;
+      if (this.collectionSearchHasNextPage === true) {
+        // a pretty ugly trick to make the v-lazy component update,
+        // so it triggers the next time we scroll down.
+        this.collectionSearchHasNextPage = false;
+        await this.$nextTick();
+        this.collectionSearchHasNextPage = true;
+      }
     }
   }
 
