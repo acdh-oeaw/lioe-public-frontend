@@ -331,10 +331,7 @@
                   collectionSearchHasNextPage
                 "
               >
-                <load-more-items
-                  @render="loadAndAppendNextPageCollections"
-                  :page="collectionSearchCurrentPage"
-                >
+                <load-more-items @render="loadAndAppendNextPageCollections">
                   <v-progress-linear class="mx-5" indeterminate />
                 </load-more-items>
               </v-lazy>

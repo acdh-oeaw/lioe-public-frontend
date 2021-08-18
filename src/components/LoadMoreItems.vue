@@ -8,7 +8,6 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 
 @Component
 export default class LoadMoreItems extends Vue {
-  @Prop({ required: true }) page!: number;
 
   mounted() {
     this.$emit('render');
