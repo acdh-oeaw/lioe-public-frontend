@@ -767,6 +767,7 @@ export default class Database extends Vue {
   }
 
   get wboeColl() {
+    console.log('wboe_coll', stateProxy.collections.wboe_coll)
     return stateProxy.collections.wboe_coll;
   }
 
@@ -1145,8 +1146,6 @@ export default class Database extends Vue {
           allItems.push(beleg);
       })
     })
-
-    console.log('belege: ', allItems);
     
     return allItems;
   }
@@ -1272,7 +1271,7 @@ export default class Database extends Vue {
 
   get mappableSelectionItems() {
     return _(
-      this._items.filter(
+      this.shownItems.filter(
         (i, index) =>
           !!i &&
           this.selected.find((item) => item.id === i.id) &&
