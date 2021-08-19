@@ -195,7 +195,6 @@ export async function searchCollections(
   next: string | null
   results: { name: string; value: string; description: string }[]
 }> {
-  // let page_size = val.length > 2 ? '' : 'page_size=25&' // a request with a size limit is sent only if the input string is short, namely one or two letters
   const res = await (
     await fetch(
       `${apiEndpoint}/collections/?page=${page}&page_size=25&title=` + val
@@ -204,7 +203,7 @@ export async function searchCollections(
   return {
     count: res.count as number,
     next: res.next as string | null,
-    results: res.results.map((r: any) => {
+    results: res.next === undefined ? [] : res.results.map((r: any) => {
       return {
         name: r.title,
         value: _.last(r.url.match(/(\d+)/)),
@@ -212,24 +211,6 @@ export async function searchCollections(
       }
     }),
   }
-}
-// tslint:disable-next-line:max-line-length
-export async function searchCollectionsAppending(
-  val: string,
-  page: number
-): Promise<{ name: string; value: string; description: string }[]> {
-  const res = await (
-    await fetch(
-      apiEndpoint + '/collections/?page=' + page + '&page_size=25&title=' + val
-    )
-  ).json()
-  return res.results.map((r: any) => {
-    return {
-      name: r.title,
-      value: _.last(r.url.match(/(\d+)/)),
-      description: r.description,
-    }
-  })
 }
 // tslint:disable-next-line:max-line-length
 export async function getCollectionByIds(

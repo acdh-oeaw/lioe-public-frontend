@@ -82,40 +82,47 @@
                       :elevation="6"
                     ></v-text-field>
                   </v-list-item-content>
-                                    <v-list-item-action>
-                    <div :color="item.borderColor" style="width: 18px; height: 18px">
-                        <v-menu :close-on-content-click="false" offset-y top>
-                          <template v-slot:activator="{ on }">
+                  <v-list-item-action>
+                    <div
+                      :color="item.borderColor"
+                      style="width: 18px; height: 18px"
+                    >
+                      <v-menu :close-on-content-click="false" offset-y top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            v-on="on"
+                            :color="item.borderColor"
+                            elevation="1"
+                            fab
+                            style="
+                              width: 18px;
+                              height: 18px;
+                              margin-bottom: 20px;
+                            "
+                          >
                             <v-btn
-                              v-on="on"
-                              :color="item.borderColor"
+                              :color="item.fillColor"
                               elevation="1"
                               fab
-                              style="width: 18px; height: 18px; margin-bottom: 20px"
-                            >
-                              <v-btn
-                                :color="item.fillColor"
-                                elevation="1"
-                                fab
-                                style="width: 15px; height: 15px"
-                              ></v-btn>
-                            </v-btn>
-                          </template>
-                          <div id="menuItem">
-                            Farbe des Rahmens
-                            <v-color-picker
-                              hide-inputs
-                              v-model="item.borderColor"
-                            ></v-color-picker>
-                            Farbe des Inhalts
-                            <v-color-picker
-                              hide-inputs
-                              v-model="item.fillColor"
-                            ></v-color-picker>
-                          </div>
-                        </v-menu>
-                      </div>
-                  </v-list-item-action>  
+                              style="width: 15px; height: 15px"
+                            ></v-btn>
+                          </v-btn>
+                        </template>
+                        <div id="menuItem">
+                          Farbe des Rahmens
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.borderColor"
+                          ></v-color-picker>
+                          Farbe des Inhalts
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.fillColor"
+                          ></v-color-picker>
+                        </div>
+                      </v-menu>
+                    </div>
+                  </v-list-item-action>
                   <v-list-item-icon
                     style="margin: auto 0px"
                     v-if="onMapPage && item.items.length === 0"
@@ -220,41 +227,48 @@
                       v-text="item.collection_desc"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
-                  <v-list-item-action> <!-- Collection Color Picker -->
-                    <div :color="item.borderColor" style="width: 18px; height: 18px">
-                        <v-menu :close-on-content-click="false" offset-y top>
-                          <template v-slot:activator="{ on }">
+                  <v-list-item-action>
+                    <!-- Collection Color Picker -->
+                    <div
+                      :color="item.borderColor"
+                      style="width: 18px; height: 18px"
+                    >
+                      <v-menu :close-on-content-click="false" offset-y top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            v-on="on"
+                            :color="item.borderColor"
+                            elevation="1"
+                            fab
+                            style="
+                              width: 18px;
+                              height: 18px;
+                              margin-bottom: 20px;
+                            "
+                          >
                             <v-btn
-                              v-on="on"
-                              :color="item.borderColor"
+                              :color="item.fillColor"
                               elevation="1"
                               fab
-                              style="width: 18px; height: 18px; margin-bottom: 20px"
-                            >
-                              <v-btn
-                                :color="item.fillColor"
-                                elevation="1"
-                                fab
-                                style="width: 15px; height: 15px"
-                              ></v-btn>
-                            </v-btn>
-                          </template>
-                          <div id="menuItem">
-                            Farbe des Rahmens
-                            <v-color-picker
-                              hide-inputs
-                              v-model="item.borderColor"
-                            ></v-color-picker>
-                            Farbe des Inhalts
-                            <v-color-picker
-                              hide-inputs
-                              v-model="item.fillColor"
-                            ></v-color-picker>
-                          </div>
-                        </v-menu>
-                      </div>
-                  </v-list-item-action>  
-
+                              style="width: 15px; height: 15px"
+                            ></v-btn>
+                          </v-btn>
+                        </template>
+                        <div id="menuItem">
+                          Farbe des Rahmens
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.borderColor"
+                          ></v-color-picker>
+                          Farbe des Inhalts
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.fillColor"
+                          ></v-color-picker>
+                        </div>
+                      </v-menu>
+                    </div>
+                  </v-list-item-action>
 
                   <v-list-item-action>
                     <v-menu offset-y>
@@ -303,9 +317,19 @@
             multiple
           >
             <template v-slot:no-data>
-              <v-list-item>
+              <v-list-item v-if="isSearching">
                 <v-list-item-title class="caption grey--text text-center">
-                  Zu tippen beginnen, um nach Sammlungen zu suchen
+                  Lade...
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else-if="searchCollection === null || searchCollection === ''">
+                <v-list-item-title class="caption grey--text text-center">
+                Zu tippen beginnen, um nach Sammlungen zu suchen
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else>
+                <v-list-item-title class="caption grey--text text-center">
+                  Keine Sammlung gefudnen
                 </v-list-item-title>
               </v-list-item>
             </template>
@@ -354,11 +378,11 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import { stateProxy, Collection } from '../store/collections';
-import { getDocumentsByCollection, searchCollections } from '@src/api';
-import LoadMoreItems from './LoadMoreItems.vue';
-import draggable from 'vuedraggable';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { stateProxy, Collection } from "../store/collections";
+import { getDocumentsByCollection, searchCollections } from "@src/api";
+import LoadMoreItems from "./LoadMoreItems.vue";
+import draggable from "vuedraggable";
 
 @Component({
   components: {
@@ -371,28 +395,37 @@ export default class Playlist extends Vue {
   collectionSearchItems: any[] = [];
   selectedCollections: any[] = [];
   searchCollection: string | null = null;
-  filterCollection: string = '';
+  filterCollection: string = "";
   collectionSearchHasNextPage: boolean = false;
   collectionSearchCurrentPage = 1;
+  isSearching = false;
 
   async loadAndAppendNextPageCollections() {
     if (this.searchCollection !== null) {
+      this.isSearching = true;
       const searchResult = await searchCollections(
         this.searchCollection,
         this.collectionSearchCurrentPage + 1
       );
-      this.collectionSearchItems = this.collectionSearchItems.concat(
-        searchResult.results.map((r) => ({ ...r, text: r.name }))
-      );
+      if (searchResult.results.length === 0) {
+        this.collectionSearchHasNextPage = false;
+        this.collectionSearchItems = [];
+        this.collectionSearchCurrentPage = 0;
+      } else {
+        this.collectionSearchItems = this.collectionSearchItems.concat(
+          searchResult.results.map((r) => ({ ...r, text: r.name }))
+        );
+      }
       this.collectionSearchCurrentPage = this.collectionSearchCurrentPage + 1;
       this.collectionSearchHasNextPage = searchResult.next !== null;
-      if (this.collectionSearchHasNextPage === true) {
+      if (this.collectionSearchHasNextPage === true && searchResult.results.length !== 0) {
         // a pretty ugly trick to make the v-lazy component update,
         // so it triggers the next time we scroll down.
         this.collectionSearchHasNextPage = false;
         await this.$nextTick();
         this.collectionSearchHasNextPage = true;
       }
+      this.isSearching = false;
     }
   }
 
@@ -422,13 +455,13 @@ export default class Playlist extends Vue {
 
   routeToMaps() {
     this.$router.push({
-      path: '/maps',
+      path: "/maps",
     });
   }
 
   routeToDB() {
     this.$router.push({
-      path: '/db',
+      path: "/db",
     });
   }
 
@@ -440,7 +473,7 @@ export default class Playlist extends Vue {
 
   async getLocationsOfCollections(colls: any[]) {
     // i should really change this at some point to be more efficient
-    if (typeof colls === 'object' && colls !== []) {
+    if (typeof colls === "object" && colls !== []) {
       colls.forEach(async (coll) => {
         let shownInGeo;
         this.wboe_coll.forEach((CollInGeo) => {
@@ -457,13 +490,13 @@ export default class Playlist extends Vue {
           res.documents.forEach((document) => {
             let sigle: string = document.ortsSigle;
             if (sigle) {
-              if (!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
-                CollLocation.push(document.ortsSigle.split(' ')[0]);
+              if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
+                CollLocation.push(document.ortsSigle.split(" ")[0]);
               }
             }
           });
-          let collName = '';
-          let collDescription = '';
+          let collName = "";
+          let collDescription = "";
           this.collectionSearchItems.forEach((iterColl) => {
             if (coll === iterColl.value) {
               collName = iterColl.name;
@@ -479,8 +512,8 @@ export default class Playlist extends Vue {
               collection_desc: collDescription,
               editing: false,
               fillColor:
-                '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-              borderColor: '#000',
+                "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+              borderColor: "#000",
               items: CollLocation,
             },
             add: true,
@@ -496,21 +529,28 @@ export default class Playlist extends Vue {
     }
   }
 
-  @Watch('searchCollection')
+  @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
+    this.isSearching = true;
     this.collectionSearchHasNextPage = false;
     this.collectionSearchCurrentPage = 1;
-    if (val !== null && val.trim() !== '') {
+    if (val !== null && val.trim() !== "") {
       const searchResult = await searchCollections(val);
       this.collectionSearchHasNextPage = searchResult.next !== null;
-      this.collectionSearchItems = this.sortByTerm(
-        searchResult.results.map((x) => ({ ...x, text: x.name })),
-        val
-      );
+      if (searchResult.results.length === 0) {
+        this.collectionSearchHasNextPage = false;
+        this.collectionSearchItems = [];
+      } else {
+        this.collectionSearchItems = this.sortByTerm(
+          searchResult.results.map((x) => ({ ...x, text: x.name })),
+          val
+        );
+      }
     } else {
       this.collectionSearchHasNextPage = false;
       this.collectionSearchItems = [];
     }
+    this.isSearching = false;
   }
 
   deleteCol(col: Collection) {
@@ -535,10 +575,10 @@ export default class Playlist extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: 'Neue Sammlung',
+      collection_name: "Neue Sammlung",
       editing: true,
-      fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-      borderColor: '#000',
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
       selected: true,
       items: [],
     };
@@ -550,10 +590,10 @@ export default class Playlist extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: 'temporär ' + col.collection_name,
+      collection_name: "temporär " + col.collection_name,
       editing: true,
-      fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-      borderColor: '#000',
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
       selected: true,
       items: col.items,
     };

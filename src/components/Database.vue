@@ -767,7 +767,6 @@ export default class Database extends Vue {
   }
 
   get wboeColl() {
-    console.log('wboe_coll', stateProxy.collections.wboe_coll)
     return stateProxy.collections.wboe_coll;
   }
 
