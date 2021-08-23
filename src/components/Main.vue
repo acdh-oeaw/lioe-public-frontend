@@ -35,26 +35,33 @@
               <v-list-item
                 :to="
                   item.type === 'article'
-                    ? `/articles/${findArticleByTitle(item.text).filename.replace(
-              '.xml',
-              ''
-            )}`
+                    ? `/articles/${findArticleByTitle(
+                        item.text
+                      ).filename.replace('.xml', '')}`
                     : item.type !== 'collection'
                     ? `/db?q=Sigle1,${item.value}`
                     : ``
                 "
-                @click="item.type === 'collection' ? getLocationsOfCollections(item, 'page') : null"
+                @click="
+                  item.type === 'collection'
+                    ? getLocationsOfCollections(item, 'page')
+                    : null
+                "
               >
                 <v-list-item-avatar>
                   <v-tooltip top>
                     <template v-slot:activator="{ on }">
-                  <v-icon v-if="item.type === 'article'" v-on="on">mdi-newspaper</v-icon>
+                      <v-icon v-if="item.type === 'article'" v-on="on"
+                        >mdi-newspaper</v-icon
+                      >
                     </template>
                     <span>Artikel anzeigen</span>
                   </v-tooltip>
                   <v-tooltip top>
                     <template v-slot:activator="{ on }">
-                  <v-icon v-if="item.type === 'place'" v-on="on">map</v-icon>
+                      <v-icon v-if="item.type === 'place'" v-on="on"
+                        >map</v-icon
+                      >
                     </template>
                     <span>Ort in Datenbank anzeigen</span>
                   </v-tooltip>
@@ -73,13 +80,14 @@
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
-                 <v-btn
+                  <v-btn
                     v-if="item.type === 'place'"
                     color="ci"
                     class="text-no-transform"
                     text
                     @click.stop.prevent="routeToMaps(item)"
-                    > Ort auf Karte anzeigen</v-btn
+                  >
+                    Ort auf Karte anzeigen</v-btn
                   >
                   <v-btn
                     v-if="item.type === `article`"
@@ -117,9 +125,7 @@
                   Weitersuchen in der Belegdatenbank:
                 </v-list-item-title>
                 <v-list-item-action>
-                  <v-btn text color="ci">
-                    &rarr; {{ searchTerm }}
-                  </v-btn>
+                  <v-btn text color="ci"> &rarr; {{ searchTerm }} </v-btn>
                 </v-list-item-action>
               </v-list-item>
               <v-list-item v-else>
@@ -133,7 +139,6 @@
       </v-flex>
     </v-layout>
 
-
     <v-flex style="height: 40vh" xs12>
       <!-- <v-progress-linear
         height="1"
@@ -142,9 +147,7 @@
         indeterminate
       /> -->
       <vue-word-cloud
-        style="
-        height: 360px;
-        "
+        style="height: 360px"
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
         :rotation="0.875"
         :words="filteredWords"
@@ -154,7 +157,7 @@
         @update:progress="updateWordProgress"
         font-weight="800"
         font-family="fiduz"
-      > 
+      >
         <template slot-scope="{ text, weight, word }">
           <router-link
             class="word-cloud-link"
@@ -170,7 +173,7 @@
     </v-flex>
     <div v-if="loading" class="text-center grey--text mt-5">Laden…</div>
     <div v-else class="text-center grey--text mt-5">
-      {{ articles ? articles.length.toLocaleString() : "?" }} WBÖ-Artikel
+      {{ articles ? articles.length.toLocaleString() : '?' }} WBÖ-Artikel
     </div>
 
     <v-flex class="pt-4">
@@ -179,17 +182,17 @@
   </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import * as _ from "lodash";
-import InfoText from "@components/InfoText.vue";
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import * as _ from 'lodash';
+import InfoText from '@components/InfoText.vue';
 import {
   getArticles,
   searchCollections,
   getDocumentsByCollection,
-} from "../api";
-import { stateProxy, Collection } from "../store/collections";
-import InfoBox from "@components/InfoBox.vue";
-import { geoStore } from "../store/geo";
+} from '../api';
+import { stateProxy, Collection } from '../store/collections';
+import InfoBox from '@components/InfoBox.vue';
+import { geoStore } from '../store/geo';
 
 @Component({
   components: {
@@ -199,10 +202,10 @@ import { geoStore } from "../store/geo";
 })
 export default class Main extends Vue {
   wordProgress: number | null = null;
-  searchTerm: string = "";
-  searchOrt: string = "";
-  searchedItem: string = "";
-  searchLemma: string = "";
+  searchTerm: string = '';
+  searchOrt: string = '';
+  searchedItem: string = '';
+  searchLemma: string = '';
   articles: Array<{ title: string; filename: string }> = [];
   articlesPlus: Array<{ title: string; filename: string; ort: string }> = []; //extended articles list
   loading = false;
@@ -223,26 +226,26 @@ export default class Main extends Vue {
   debouncedPerformSearch = _.debounce(this.performSearch, 300);
 
   async performSearch(s: string | null) {
-    if (s !== null && s.trim() !== "") {
+    if (s !== null && s.trim() !== '') {
       this.searchTerm = s;
       this.isSearching = true;
-      const collections = (await searchCollections(s)).map((c) => ({
-        type: "collection",
+      const collections = (await searchCollections(s)).results.map((c) => ({
+        type: 'collection',
         text: c.name,
         value: c.value,
         description: c.description,
       }));
       const articles = this.articles.map((a) => ({
-        type: "article",
+        type: 'article',
         text: a.title,
         value: a.filename,
-        description: "",
+        description: '',
       }));
       const places = this.geoStore.ortslisteGeo.map((f: any) => ({
-        type: "place",
+        type: 'place',
         text: f.name,
         value: f.sigle,
-        description: "",
+        description: '',
       }));
       const results = [...articles, ...places, ...collections].filter(
         (i) => i !== null
@@ -283,10 +286,10 @@ export default class Main extends Vue {
 
   selectLocations(locs: string[]) {
     if (locs.length === 0) {
-      this.loc = "";
+      this.loc = '';
     } else {
       this.$router.push({
-        path: "/maps",
+        path: '/maps',
         query: {
           loc: locs,
         },
@@ -303,11 +306,11 @@ export default class Main extends Vue {
       {
         id: 0,
         tempColl: -1,
-        collection_name: "Sammlung Neu",
+        collection_name: 'Sammlung Neu',
         editing: false,
         fillColor:
-          "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-        borderColor: "#000",
+          '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+        borderColor: '#000',
         items: [val],
       },
     ]);
@@ -316,7 +319,7 @@ export default class Main extends Vue {
 
   strRouting(item: any) {
     this.getLocationsOfCollections(item, 'page');
-    return ''
+    return '';
   }
 
   async getLocationsOfCollections(item: any, val: string) {
@@ -331,14 +334,18 @@ export default class Main extends Vue {
       return;
     }
 
-    const res: any = await getDocumentsByCollection([colls[0].toString()], 1, 1000);
+    const res: any = await getDocumentsByCollection(
+      [colls[0].toString()],
+      1,
+      1000
+    );
     let CollLocation: any[] = [];
     //@ts-ignore
     res.documents.forEach((document) => {
       let sigle: string = document.ortsSigle;
       if (sigle) {
-        if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
-          CollLocation.push(document.ortsSigle.split(" ")[0]);
+        if (!CollLocation.includes(document.ortsSigle.split(' ')[0])) {
+          CollLocation.push(document.ortsSigle.split(' ')[0]);
         }
       }
     });
@@ -352,35 +359,33 @@ export default class Main extends Vue {
         collection_desc: item.description,
         editing: false,
         fillColor:
-          "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-        borderColor: "#000",
+          '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
+        borderColor: '#000',
         items: CollLocation,
       },
       add: true,
     });
     if (val === 'btn') {
       this.$router.push({
-        path: "/maps",
+        path: '/maps',
       });
-    } 
-    else if (val === 'page') {
+    } else if (val === 'page') {
       this.$router.push({
-        path: "/db",
+        path: '/db',
       });
-
     }
   }
 
   routeToMaps(item: any) {
     stateProxy.collections.setLocations([item.value]);
     this.$router.push({
-      path: "/maps"
+      path: '/maps',
     });
   }
 
-  @Watch("$route")
+  @Watch('$route')
   siteChanged(to: any, from: any) {
-    if (from.path === "/") {
+    if (from.path === '/') {
       this.visited = true;
     }
   }

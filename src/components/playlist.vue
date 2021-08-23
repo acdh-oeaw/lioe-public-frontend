@@ -71,6 +71,7 @@
                       v-if="item.editing === false"
                       v-text="item.collection_name"
                     ></v-list-item-title>
+                    <!-- :style="{ color: item.fillColor }" -->
                     <v-text-field
                       dense
                       v-if="item.editing === true"
@@ -81,6 +82,47 @@
                       :elevation="6"
                     ></v-text-field>
                   </v-list-item-content>
+                  <v-list-item-action>
+                    <div
+                      :color="item.borderColor"
+                      style="width: 18px; height: 18px"
+                    >
+                      <v-menu :close-on-content-click="false" offset-y top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            v-on="on"
+                            :color="item.borderColor"
+                            elevation="1"
+                            fab
+                            style="
+                              width: 18px;
+                              height: 18px;
+                              margin-bottom: 20px;
+                            "
+                          >
+                            <v-btn
+                              :color="item.fillColor"
+                              elevation="1"
+                              fab
+                              style="width: 15px; height: 15px"
+                            ></v-btn>
+                          </v-btn>
+                        </template>
+                        <div id="menuItem">
+                          Farbe des Rahmens
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.borderColor"
+                          ></v-color-picker>
+                          Farbe des Inhalts
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.fillColor"
+                          ></v-color-picker>
+                        </div>
+                      </v-menu>
+                    </div>
+                  </v-list-item-action>
                   <v-list-item-icon
                     style="margin: auto 0px"
                     v-if="onMapPage && item.items.length === 0"
@@ -185,6 +227,48 @@
                       v-text="item.collection_desc"
                     ></v-list-item-subtitle>
                   </v-list-item-content>
+                  <v-list-item-action>
+                    <!-- Collection Color Picker -->
+                    <div
+                      :color="item.borderColor"
+                      style="width: 18px; height: 18px"
+                    >
+                      <v-menu :close-on-content-click="false" offset-y top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            v-on="on"
+                            :color="item.borderColor"
+                            elevation="1"
+                            fab
+                            style="
+                              width: 18px;
+                              height: 18px;
+                              margin-bottom: 20px;
+                            "
+                          >
+                            <v-btn
+                              :color="item.fillColor"
+                              elevation="1"
+                              fab
+                              style="width: 15px; height: 15px"
+                            ></v-btn>
+                          </v-btn>
+                        </template>
+                        <div id="menuItem">
+                          Farbe des Rahmens
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.borderColor"
+                          ></v-color-picker>
+                          Farbe des Inhalts
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.fillColor"
+                          ></v-color-picker>
+                        </div>
+                      </v-menu>
+                    </div>
+                  </v-list-item-action>
 
                   <v-list-item-action>
                     <v-menu offset-y>
@@ -233,9 +317,19 @@
             multiple
           >
             <template v-slot:no-data>
-              <v-list-item>
-                <v-list-item-title>
-                  Zu tippen beginnen, um nach Sammlungen zu suchen
+              <v-list-item v-if="isSearching">
+                <v-list-item-title class="caption grey--text text-center">
+                  Lade...
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else-if="searchCollection === null || searchCollection === ''">
+                <v-list-item-title class="caption grey--text text-center">
+                Zu tippen beginnen, um nach Sammlungen zu suchen
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else>
+                <v-list-item-title class="caption grey--text text-center">
+                  Keine Sammlung gefudnen
                 </v-list-item-title>
               </v-list-item>
             </template>
@@ -251,6 +345,20 @@
             </template>
             <template v-slot:selection="{ item }">
               <span v-if="false"> {{ item.text }} </span>
+            </template>
+            <template v-slot:append-item="">
+              <v-lazy
+                v-if="
+                  searchCollection !== '' &&
+                  searchCollection !== null &&
+                  collectionSearchItems.length > 0 &&
+                  collectionSearchHasNextPage
+                "
+              >
+                <load-more-items @render="loadAndAppendNextPageCollections">
+                  <v-progress-linear class="mx-5" indeterminate />
+                </load-more-items>
+              </v-lazy>
             </template>
           </v-autocomplete>
         </v-card-text>
@@ -273,11 +381,13 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { stateProxy, Collection } from "../store/collections";
 import { getDocumentsByCollection, searchCollections } from "@src/api";
+import LoadMoreItems from "./LoadMoreItems.vue";
 import draggable from "vuedraggable";
 
 @Component({
   components: {
     draggable,
+    LoadMoreItems,
   },
 })
 export default class Playlist extends Vue {
@@ -286,6 +396,38 @@ export default class Playlist extends Vue {
   selectedCollections: any[] = [];
   searchCollection: string | null = null;
   filterCollection: string = "";
+  collectionSearchHasNextPage: boolean = false;
+  collectionSearchCurrentPage = 1;
+  isSearching = false;
+
+  async loadAndAppendNextPageCollections() {
+    if (this.searchCollection !== null) {
+      this.isSearching = true;
+      const searchResult = await searchCollections(
+        this.searchCollection,
+        this.collectionSearchCurrentPage + 1
+      );
+      if (searchResult.results.length === 0) {
+        this.collectionSearchHasNextPage = false;
+        this.collectionSearchItems = [];
+        this.collectionSearchCurrentPage = 0;
+      } else {
+        this.collectionSearchItems = this.collectionSearchItems.concat(
+          searchResult.results.map((r) => ({ ...r, text: r.name }))
+        );
+      }
+      this.collectionSearchCurrentPage = this.collectionSearchCurrentPage + 1;
+      this.collectionSearchHasNextPage = searchResult.next !== null;
+      if (this.collectionSearchHasNextPage === true && searchResult.results.length !== 0) {
+        // a pretty ugly trick to make the v-lazy component update,
+        // so it triggers the next time we scroll down.
+        this.collectionSearchHasNextPage = false;
+        await this.$nextTick();
+        this.collectionSearchHasNextPage = true;
+      }
+      this.isSearching = false;
+    }
+  }
 
   get showAlleBelege() {
     return stateProxy.collections.getShowAlleBelege;
@@ -389,15 +531,26 @@ export default class Playlist extends Vue {
 
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
+    this.isSearching = true;
+    this.collectionSearchHasNextPage = false;
+    this.collectionSearchCurrentPage = 1;
     if (val !== null && val.trim() !== "") {
-      this.collectionSearchItems = this.sortByTerm(
-        (await searchCollections(val)).map((x) => ({
-          ...x,
-          text: x.name,
-        })),
-        val
-      );
+      const searchResult = await searchCollections(val);
+      this.collectionSearchHasNextPage = searchResult.next !== null;
+      if (searchResult.results.length === 0) {
+        this.collectionSearchHasNextPage = false;
+        this.collectionSearchItems = [];
+      } else {
+        this.collectionSearchItems = this.sortByTerm(
+          searchResult.results.map((x) => ({ ...x, text: x.name })),
+          val
+        );
+      }
+    } else {
+      this.collectionSearchHasNextPage = false;
+      this.collectionSearchItems = [];
     }
+    this.isSearching = false;
   }
 
   deleteCol(col: Collection) {
