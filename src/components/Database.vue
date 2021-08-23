@@ -1155,18 +1155,20 @@ export default class Database extends Vue {
   }
 
   get shownItemsWithSource() {
+
     let allItems: any[] = [];
     this.visibleCollections.forEach((coll) => {
       coll.items.forEach((beleg) => {
-        if(allItems.includes(beleg)) {
-          if(beleg.colSources) {
-            for (let i = 0; i < beleg.colSources.length; i++) {
-              const colSource = beleg.colSources[i];
-              if(colSource.collection_name === coll.collection_name)
+        const index = allItems.findIndex(item => item.ID === beleg.ID);
+        if(index > -1) {
+          if(allItems[index].colSources) {
+            for (let i = 0; i < allItems[index].colSources.length; i++) {
+              const colSource = allItems[index].colSources[i];
+              if(colSource.id === coll.id)
                 break; 
               
-              if(i === beleg.colSources.length -1) { // Does not contain the collection already, therefore add it.
-                beleg.colSources.push(coll);
+              if(i === allItems[index].colSources.length -1) { // Does not contain the collection already, therefore add it.
+                allItems[index].colSources.push(coll);
               }
             }
           } else {
@@ -1176,12 +1178,10 @@ export default class Database extends Vue {
         } else {
           beleg.colSources = [];
           beleg.colSources.push(coll);
-        }
-        if(!allItems.includes(beleg)) 
           allItems.push(beleg);
+        }
       })
     })
-    
     return allItems;
   }
 
