@@ -1,6 +1,19 @@
 <template>
   <div class="fill-height">
     <v-flex class="fill-height" xs12>
+      <v-card class="d-flex flex-column" elevation="0">
+        <span>
+          <v-card-text><h1>Sammlungen<v-btn
+              @click="togglePlaylistSidebar()"
+              color="secondary"
+              text
+              rounded
+            >
+            <v-icon>mdi-close</v-icon>
+          </v-btn></h1></v-card-text>
+          
+        </span>
+      </v-card>
       <v-card class="fill-height d-flex flex-column" elevation="0">
         <v-card-title>
           <v-text-field
@@ -451,6 +464,10 @@ export default class Playlist extends Vue {
 
   set wboe_coll(colls: Collection[]) {
     stateProxy.collections.setWboe_coll(colls);
+  }
+
+  togglePlaylistSidebar() {
+    stateProxy.collections.toggleSidebar();
   }
 
   routeToMaps() {

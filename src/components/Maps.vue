@@ -2,11 +2,11 @@
   <div>
     <v-navigation-drawer
       class="drawer"
-      :value="playlistBar"
+      :value="showPlaylistSidebar"
       left
       app
       permanent
-      v-if="playlistBar"
+      v-if="showPlaylistSidebar"
     >
       <playlist :onMapPage="true"> </playlist>
     </v-navigation-drawer>
@@ -145,7 +145,7 @@
       <v-layout>
         <v-flex>
           <v-btn
-            @click="playlistBar = !playlistBar"
+            @click="togglePlaylistSidebar"
             depressed
             style="margin-left: 5px; margin-top: 5px"
           >
@@ -544,6 +544,16 @@ export default class Maps extends Vue {
   printPlugin: any = null;
   layerGeoJson: any = null;
   map: any = null;
+
+  get showPlaylistSidebar() {
+    return stateProxy.collections.showSidebar;
+  }
+
+  togglePlaylistSidebar() {
+    stateProxy.collections.toggleSidebar();
+    this.playlistBar = this.showPlaylistSidebar;
+  }
+
 
   get geoCollections() {
     let allItems = [

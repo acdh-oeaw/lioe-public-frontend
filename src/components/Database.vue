@@ -1,6 +1,15 @@
 <template>
   <v-layout column>
-    <v-navigation-drawer :value="sideBar" left app permanent v-if="sideBar">
+          <v-btn
+            @click="togglePlaylistSidebar()"
+            color="primary"
+            left
+            fab
+            fixed
+          >
+            <v-icon>mdi-playlist-edit</v-icon>
+          </v-btn>
+    <v-navigation-drawer :value="showPlaylistSidebar" left app permanent v-if="showPlaylistSidebar">
       <playlist :onMapPage="false"> </playlist>
     </v-navigation-drawer>
     <v-flex>
@@ -11,14 +20,6 @@
         width="100%"
       >
         <v-row no-gutters>
-          <v-btn
-            @click="sideBar = !sideBar"
-            depressed
-            style="margin-left: 5px; margin-top: 5px"
-            v-if="index === 0"
-          >
-            Sammlungen
-          </v-btn>
           <v-col class="pa-0 flex-grow-1" style="margin-left: 5px">
             <v-text-field
               @click.stop=""
@@ -185,6 +186,7 @@
             v-for="(col, index) in visibleCollections"
             :key="index"
             :color="col.fillColor"
+            style="margin-top: 4px; margin-bottom: 4px; margin-right: 4px;"
             >
             {{col.collection_name}}
           </v-chip>
@@ -293,6 +295,7 @@
                     v-for="(colSource,index) in item.colSources"
                     :key="index"
                     :color="colSource.fillColor"
+                    style="margin-top: 2px; margin-bottom: 2px; margin-right: 4px;"
                     >
                     {{colSource.collection_name}}
                   </v-chip>
@@ -776,6 +779,14 @@ export default class Database extends Vue {
 
   get visibleCollections() {
     return stateProxy.collections.visibleCollections;
+  }
+
+  get showPlaylistSidebar() {
+    return stateProxy.collections.showSidebar;
+  }
+
+  togglePlaylistSidebar() {
+    stateProxy.collections.toggleSidebar();
   }
 
   @Watch('stateProxy.collections.visibleCollections')
