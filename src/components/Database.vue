@@ -305,7 +305,7 @@
       <!-- Collection edit options (Add Beleg to collection,...) -->
       <div v-if="mappableSelectionItems.length !== 0" class="collBox">
         <div
-          style="color: white; margin-left: 40px; margin-top: 8px; float: left"
+          style="color: white; margin-right: 40px; margin-top: 8px; float: right"
         >
           {{ mappableSelectionItems.length }} Beleg<span
             v-if="mappableSelectionItems.length > 1"
@@ -322,7 +322,7 @@
               v-on="on"
               class="white--text mx-1"
               rounded
-              style="float: right"
+              style="float: left"
             >
               Zu Sammlung hinzufügen
             </v-btn>
@@ -348,7 +348,7 @@
               @click="createCollectionWithSelectedDocuments()"
               class="white--text mx-1"
               rounded
-              style="float: right"
+              style="float: left"
               v-on="on"
             >
               <v-icon>mdi-playlist-plus </v-icon>
@@ -368,7 +368,7 @@
               @click="createCollectionWithSelectedDocumentsAndShowOnMap()"
               class="white--text mx-1"
               rounded
-              style="float: right"
+              style="float: left"
               v-on="on"
             >
               <v-icon class="pr-1">mdi-playlist-plus </v-icon>
@@ -385,7 +385,7 @@
         <v-tooltip top style="width: 100px">
           <template v-slot:activator="{ on }">
             <v-btn
-              style="float: right"
+              style="float: left"
               v-on="on"
               color="accent"
               icon
@@ -409,7 +409,7 @@
               class="pl-1 pr-0"
               rounded
               color="white"
-              style="float: right; margin-top: 3px"
+              style="float: left; margin-top: 3px"
             >
               Exportieren
             </v-btn>
