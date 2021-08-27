@@ -494,7 +494,6 @@ export default class Database extends Vue {
   ];
 
   geoStore = geoStore;
-  sideBar: Boolean = false;
   toggleModel: number = 2;
   prefixSearch: Boolean = false;
   items: any[] = [];
@@ -865,7 +864,8 @@ export default class Database extends Vue {
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
 
-    this.sideBar = true;
+    if(!this.showPlaylistSidebar)
+      this.togglePlaylistSidebar();
     this.selected = []; // initialize all selected elements. Initializartion does not take place if the items are added to an already existing collection
   }
 
