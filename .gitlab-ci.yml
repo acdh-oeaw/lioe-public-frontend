@@ -10,7 +10,11 @@
 # This template uses one generic job with conditional builds
 # for the default branch and all other (MR) branches.
 
-image: docker:19-dind
+image: docker:latest
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://localhost:2375
 
 docker-build:
   # Use the official docker image.
