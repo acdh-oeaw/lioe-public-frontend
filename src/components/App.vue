@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-content>
-      <v-container fill-height class="pa-0" app>
+      <v-container fill-height class="py-0 px-2" app>
         <v-layout column>
           <v-flex class="header-navigation">
             <!-- <v-flex class="text-xs-right" xs12>
