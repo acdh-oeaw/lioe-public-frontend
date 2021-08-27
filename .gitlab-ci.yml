@@ -8,6 +8,7 @@ variables:
   DOCKER_DRIVER: overlay2
   ROLLOUT_RESOURCE_TYPE: deployment
   DOCKER_TLS_CERTDIR: ""  # https://gitlab.com/gitlab-org/gitlab-runner/issues/4501
+  GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
   - build
