@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "concurrently \"NODE_PORT=8080 npm run start\" \"npx cypress run --port=8080\"",
     "dev": "concurrently \"npm run dev-frontend\" \"npm run dev-server\"",
     "dev-frontend": "cross-env-shell NODE_ENV=development webpack-dev-server",
     "dev-server": "cross-env-shell NODE_PORT=8081 nodemon ./server/index.js",
@@ -34,6 +34,7 @@
     "copy-webpack-plugin": "^4.3.1",
     "cors": "^2.8.5",
     "cross-env": "^5.2.1",
+    "cypress": "^8.3.0",
     "date-fns": "^1.30.1",
     "dom-to-image": "^2.6.0",
     "dotenv": "^4.0.0",
