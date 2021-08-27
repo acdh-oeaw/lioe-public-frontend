@@ -3,15 +3,16 @@
     <v-content>
       <v-container fill-height class="py-0 px-2" app>
         <v-layout column>
-          <v-flex class="header-navigation">
+          <v-flex class="header-navigation pb-3">
             <!-- <v-flex class="text-xs-right" xs12>
               <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
               <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
             </v-flex> -->
             <v-layout>
                 <v-flex xs12 :class="['text-center', 'logo-container', $route.name === 'maps' && 'logo-hidden']">
-                  <router-link to="/"><img class="logo mt-2" src="/static/img/logo.svg" /></router-link>
-                  <div class="project-name">Lexikalisches Informationssystem Österreich</div>
+                  <router-link to="/"><img class="logo mt-5" src="/static/img/logo.svg" 
+                    height="100" width="250" /></router-link>
+                  <!-- <div class="project-name">Lexikalisches Informationssystem Österreich</div> -->
                 </v-flex>
             </v-layout>
           </v-flex>

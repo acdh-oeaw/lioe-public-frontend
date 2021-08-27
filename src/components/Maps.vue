@@ -243,7 +243,7 @@
             color="primary"
             fab
             fixed
-            style="top: 78px"
+            style="top: 88px"
             :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
           >
             <v-icon>mdi-playlist-edit</v-icon>
@@ -1181,6 +1181,8 @@ export default class Maps extends Vue {
   bottom: 0vh;
   right: 0vw;
   opacity: 0.8;
+  padding-left: 15px;
+  padding-bottom: 15px;
 }
 
 .logo-container.logo-hidden {
