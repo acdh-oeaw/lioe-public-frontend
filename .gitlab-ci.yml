@@ -1,51 +1,58 @@
+image: alpine:latest
+
 variables:
-  DOCKER_HOST: tcp://docker:2375/
+  # KUBE_INGRESS_BASE_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
+  # KUBE_INGRESS_BASE_DOMAIN: domain.example.com
+
+  POSTGRES_ENABLED: "false"
   DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
- 
+  ROLLOUT_RESOURCE_TYPE: deployment
+  DOCKER_TLS_CERTDIR: ""  # https://gitlab.com/gitlab-org/gitlab-runner/issues/4501
+
 stages:
   - build
-  - push
+  - test
+  - deploy  # dummy stage to follow the template guidelines
+  - review
+  - dast
+  - staging
+  - canary
+  - production
+  - incremental rollout 10%
+  - incremental rollout 25%
+  - incremental rollout 50%
+  - incremental rollout 100%
+  - performance
+  - cleanup
 
-build:
-  image: docker:19-dind
-  services:
-    - name: docker:19-dind
-      command: 
-      - --mtu=1450
+workflow:
+  rules:
+    # https://github.com/heroku/heroku-buildpack-nodejs
+    - exists:
+        - package.json
 
-  only:
-      refs:
-        - pipelines
-        - triggers
-        - master
 
-  stage: build
-  tags:
-    - cluster
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:latest || true
-    - docker build --pull --cache-from $CI_REGISTRY_IMAGE:latest --build-arg CI_JOB_TOKEN=${CI_JOB_TOKEN} -t $CI_REGISTRY_IMAGE:latest .
-    - docker push $CI_REGISTRY_IMAGE:latest
+# template: Jobs/Test.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Test.gitlab-ci.yml
+# is not suitable for cypress
 
-Push tag:
-  image: docker:19-dind
-  services:
-    - name: docker:19-dind
-      command: 
-      - --mtu=1450
-  tags:
-     - cluster
-  variables:
-    # Again, we do not need the source code here. Just playing with Docker.
-    GIT_STRATEGY: none
-  stage: push
-  only:
-    # We want this job to be run on tags only.
-    - tags
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:latest
-    - docker tag $CI_REGISTRY_IMAGE:latest $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+# NOTE: These links point to the latest templates for development in GitLab canonical project,
+# therefore the actual templates that were included for Auto DevOps pipelines
+# could be different from the contents in the links.
+# To view the actual templates, please replace `master` to the specific GitLab version when
+# the Auto DevOps pipeline started running e.g. `v13.0.2-ee`.
+include:
+  # - remote: 'https://gitlab.com/acdh-oeaw/docker/herokuish-for-cypress/-/blob/master/Test.gitlab-ci.yml'
+  # this does not work as long as this repository is private
+  - local: Test.gitlab-ci.yml
+  - template: Jobs/Build.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Build.gitlab-ci.yml
+  - template: Jobs/Code-Quality.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Code-Quality.gitlab-ci.yml
+  - template: Jobs/Deploy.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml
+  - template: Jobs/Deploy/ECS.gitlab-ci.yml # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Deploy/ECS.gitlab-ci.yml
+  - template: Jobs/DAST-Default-Branch-Deploy.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/DAST-Default-Branch-Deploy.gitlab-ci.yml
+  - template: Jobs/Browser-Performance-Testing.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Jobs/Browser-Performance-Testing.gitlab-ci.yml
+  - template: Security/DAST.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/DAST.gitlab-ci.yml
+  - template: Security/Container-Scanning.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/License-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml  # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml # https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Secret-Detection.gitlab-ci.yml
