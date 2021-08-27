@@ -866,6 +866,7 @@ export default class Database extends Vue {
     stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
 
     this.sideBar = true;
+    this.selected = []; // initialize all selected elements. Initializartion does not take place if the items are added to an already existing collection
   }
 
   createCollectionWithSelectedDocumentsAndShowOnMap() {
