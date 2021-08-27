@@ -141,17 +141,10 @@
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
-    <v-card class="sticky-card" width="100%">
+    <v-card class="sticky-card" 
+    :style="{ 'left': showPlaylistSidebar === true ? '655px' : '0px', 
+          width: showPlaylistSidebar === true ? '96.5%' : '100%' }">
       <v-layout>
-        <v-flex>
-          <v-btn
-            @click="togglePlaylistSidebar"
-            depressed
-            style="margin-left: 5px; margin-top: 5px"
-          >
-            Sammlungen
-          </v-btn>
-        </v-flex>
         <v-flex xs12>
           <v-autocomplete
             :loading="isLoading"
@@ -242,6 +235,19 @@
         <v-btn style="margin-top: 5px" fab @click="sideBar = !sideBar">
           <v-icon>layers</v-icon>
         </v-btn>
+      </v-flex>
+
+      <v-flex class="text-xs-left" >
+        <v-btn
+            @click="togglePlaylistSidebar()"
+            color="primary"
+            fab
+            fixed
+            style="top: 78px"
+            :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+          >
+            <v-icon>mdi-playlist-edit</v-icon>
+          </v-btn>
       </v-flex>
 
       <router-link to="/">

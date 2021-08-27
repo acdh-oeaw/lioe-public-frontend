@@ -1,14 +1,17 @@
 <template>
   <v-layout column>
-          <v-btn
+      <v-flex class="text-xs-left" >
+        <v-btn
             @click="togglePlaylistSidebar()"
             color="primary"
-            left
             fab
             fixed
+            :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
           >
             <v-icon>mdi-playlist-edit</v-icon>
           </v-btn>
+      </v-flex>
+          
     <v-navigation-drawer :value="showPlaylistSidebar" left app permanent v-if="showPlaylistSidebar">
       <playlist :onMapPage="false"> </playlist>
     </v-navigation-drawer>
@@ -17,10 +20,13 @@
         class="sticky-card mt-2"
         v-for="(req, index) in request_arr"
         :key="index"
-        width="100%"
+        :style="{ 'left': showPlaylistSidebar === true && index === 0 ? '55px' : '0px', 
+                  width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%' }"
       >
         <v-row no-gutters>
-          <v-col class="pa-0 flex-grow-1" style="margin-left: 5px">
+          <v-col class="pa-0 flex-grow-1" 
+          style="margin-left: 5px"
+          >
             <v-text-field
               @click.stop=""
               v-if="type === 'fulltext'"
