@@ -15,8 +15,8 @@
     "load-swagger": "curl https://dboeannotation.acdh.oeaw.ac.at > ./swagger.json && swagger-ts-client-generator < swagger.json > ./src/api/swagger.ts"
   },
   "engines": {
-    "node": "14.x",
-    "npm": "7.x"
+    "node": "12.x",
+    "npm": "6.14.x"
   },
   "keywords": [],
   "author": {
