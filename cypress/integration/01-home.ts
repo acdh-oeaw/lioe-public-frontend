@@ -21,5 +21,7 @@ describe('The LiÖ landing page', () => {
     cy.get('[test-id=omni-search-result]')
       .contains('karte anzeigen', { matchCase: false })
       .click()
+    waitForIdleNetwork()
+    assert(true)
   })
 })
