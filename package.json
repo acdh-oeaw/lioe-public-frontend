@@ -6,10 +6,11 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "test": "concurrently \"NODE_PORT=8080 npm run start\" \"npx cypress run --port=8080\"",
-    "dev": "concurrently \"npm run dev-frontend\" \"npm run dev-server\"",
-    "dev-frontend": "cross-env-shell NODE_ENV=development webpack-dev-server",
-    "dev-server": "cross-env-shell NODE_PORT=8081 nodemon ./server/index.js",
+    "test": "concurrently \"NODE_PORT=8080 npm run start\" \"npx cypress run\"",
+    "test:interactive": "concurrently \"NODE_PORT=8080 npm run start\" \"npx cypress open\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:server\"",
+    "dev:frontend": "cross-env-shell NODE_ENV=development webpack-dev-server",
+    "dev:server": "cross-env-shell NODE_PORT=8081 nodemon ./server/index.js",
     "start": "node server/index.js",
     "load-swagger": "curl https://dboeannotation.acdh.oeaw.ac.at > ./swagger.json && swagger-ts-client-generator < swagger.json > ./src/api/swagger.ts"
   },
