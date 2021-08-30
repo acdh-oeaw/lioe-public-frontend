@@ -14,6 +14,9 @@
     "start": "node server/index.js",
     "load-swagger": "curl https://dboeannotation.acdh.oeaw.ac.at > ./swagger.json && swagger-ts-client-generator < swagger.json > ./src/api/swagger.ts"
   },
+  "engines": {
+    "node": "10.x"
+  },
   "keywords": [],
   "author": {
     "name": "Austrian Academy of Sciences, WBOE"
