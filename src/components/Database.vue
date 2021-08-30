@@ -1,6 +1,18 @@
 <template>
   <v-layout column>
-    <v-navigation-drawer :value="sideBar" left app permanent v-if="sideBar">
+      <v-flex class="text-xs-left" >
+        <v-btn
+            @click="togglePlaylistSidebar()"
+            color="primary"
+            fab
+            fixed
+            :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+          >
+            <v-icon>mdi-playlist-edit</v-icon>
+          </v-btn>
+      </v-flex>
+          
+    <v-navigation-drawer :value="showPlaylistSidebar" left app permanent v-if="showPlaylistSidebar">
       <playlist :onMapPage="false"> </playlist>
     </v-navigation-drawer>
     <v-flex>
@@ -8,18 +20,13 @@
         class="sticky-card mt-2"
         v-for="(req, index) in request_arr"
         :key="index"
-        width="100%"
+        :style="{ 'left': showPlaylistSidebar === true && index === 0 ? '55px' : '0px', 
+                  width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%' }"
       >
         <v-row no-gutters>
-          <v-btn
-            @click="sideBar = !sideBar"
-            depressed
-            style="margin-left: 5px; margin-top: 5px"
-            v-if="index === 0"
+          <v-col class="pa-0 flex-grow-1" 
+          style="margin-left: 5px"
           >
-            Sammlungen
-          </v-btn>
-          <v-col class="pa-0 flex-grow-1" style="margin-left: 5px">
             <v-text-field
               @click.stop=""
               v-if="type === 'fulltext'"
@@ -185,6 +192,7 @@
             v-for="(col, index) in visibleCollections"
             :key="index"
             :color="col.fillColor"
+            style="margin-top: 4px; margin-bottom: 4px; margin-right: 4px;"
             >
             {{col.collection_name}}
           </v-chip>
@@ -293,6 +301,7 @@
                     v-for="(colSource,index) in item.colSources"
                     :key="index"
                     :color="colSource.fillColor"
+                    style="margin-top: 2px; margin-bottom: 2px; margin-right: 4px;"
                     >
                     {{colSource.collection_name}}
                   </v-chip>
@@ -305,7 +314,7 @@
       <!-- Collection edit options (Add Beleg to collection,...) -->
       <div v-if="mappableSelectionItems.length !== 0" class="collBox">
         <div
-          style="color: white; margin-left: 40px; margin-top: 8px; float: left"
+          style="color: white; margin-right: 40px; margin-top: 8px; float: right"
         >
           {{ mappableSelectionItems.length }} Beleg<span
             v-if="mappableSelectionItems.length > 1"
@@ -322,7 +331,7 @@
               v-on="on"
               class="white--text mx-1"
               rounded
-              style="float: right"
+              style="float: left"
             >
               Zu Sammlung hinzufügen
             </v-btn>
@@ -375,7 +384,7 @@
               @click="createCollectionWithSelectedDocuments()"
               class="white--text mx-1"
               rounded
-              style="float: right"
+              style="float: left"
               v-on="on"
             >
               <v-icon>mdi-playlist-plus </v-icon>
@@ -395,7 +404,7 @@
               @click="createCollectionWithSelectedDocumentsAndShowOnMap()"
               class="white--text mx-1"
               rounded
-              style="float: right"
+              style="float: left"
               v-on="on"
             >
               <v-icon class="pr-1">mdi-playlist-plus </v-icon>
@@ -412,7 +421,7 @@
         <v-tooltip top style="width: 100px">
           <template v-slot:activator="{ on }">
             <v-btn
-              style="float: right"
+              style="float: left"
               v-on="on"
               color="accent"
               icon
@@ -436,7 +445,7 @@
               class="pl-1 pr-0"
               rounded
               color="white"
-              style="float: right; margin-top: 3px"
+              style="float: left; margin-top: 3px"
             >
               Exportieren
             </v-btn>
@@ -518,7 +527,6 @@ export default class Database extends Vue {
   ];
 
   geoStore = geoStore;
-  sideBar: Boolean = false;
   toggleModel: number = 2;
   prefixSearch: Boolean = false;
   items: any[] = [];
@@ -805,6 +813,14 @@ export default class Database extends Vue {
     return stateProxy.collections.visibleCollections;
   }
 
+  get showPlaylistSidebar() {
+    return stateProxy.collections.showSidebar;
+  }
+
+  togglePlaylistSidebar() {
+    stateProxy.collections.toggleSidebar();
+  }
+
   @Watch('stateProxy.collections.visibleCollections')
   visibleCollectionNames() :String[]{
     console.log('visible collections: ', stateProxy.collections.visibleCollections);
@@ -890,7 +906,9 @@ export default class Database extends Vue {
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
 
-    this.sideBar = true;
+    if(!this.showPlaylistSidebar)
+      this.togglePlaylistSidebar();
+    this.selected = []; // initialize all selected elements. Initializartion does not take place if the items are added to an already existing collection
   }
 
   createCollectionWithSelectedDocumentsAndShowOnMap() {

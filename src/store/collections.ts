@@ -28,6 +28,16 @@ class CollectionModule extends VuexModule {
     private wboe_collections: Array<Collection> = []
     private locations: Array<any> = []
     private showAlleBelege: Boolean = false
+    private visibleSidebar: boolean = false;
+
+    get showSidebar() {
+        return this.visibleSidebar;
+    }
+
+    @mutation
+    toggleSidebar() {
+        this.visibleSidebar = !this.visibleSidebar;
+    }
 
     get getLocations() {
         return this. locations

@@ -2,11 +2,11 @@
   <div>
     <v-navigation-drawer
       class="drawer"
-      :value="playlistBar"
+      :value="showPlaylistSidebar"
       left
       app
       permanent
-      v-if="playlistBar"
+      v-if="showPlaylistSidebar"
     >
       <playlist :onMapPage="true"> </playlist>
     </v-navigation-drawer>
@@ -141,17 +141,10 @@
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
-    <v-card class="sticky-card" width="100%">
+    <v-card class="sticky-card" 
+    :style="{ 'left': showPlaylistSidebar === true ? '655px' : '0px', 
+          width: showPlaylistSidebar === true ? '96.5%' : '100%' }">
       <v-layout>
-        <v-flex>
-          <v-btn
-            @click="playlistBar = !playlistBar"
-            depressed
-            style="margin-left: 5px; margin-top: 5px"
-          >
-            Sammlungen
-          </v-btn>
-        </v-flex>
         <v-flex xs12>
           <v-autocomplete
             :loading="isLoading"
@@ -242,6 +235,19 @@
         <v-btn style="margin-top: 5px" fab @click="sideBar = !sideBar">
           <v-icon>layers</v-icon>
         </v-btn>
+      </v-flex>
+
+      <v-flex class="text-xs-left" >
+        <v-btn
+            @click="togglePlaylistSidebar()"
+            color="primary"
+            fab
+            fixed
+            style="top: 88px"
+            :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+          >
+            <v-icon>mdi-playlist-edit</v-icon>
+          </v-btn>
       </v-flex>
 
       <router-link to="/">
@@ -544,6 +550,16 @@ export default class Maps extends Vue {
   printPlugin: any = null;
   layerGeoJson: any = null;
   map: any = null;
+
+  get showPlaylistSidebar() {
+    return stateProxy.collections.showSidebar;
+  }
+
+  togglePlaylistSidebar() {
+    stateProxy.collections.toggleSidebar();
+    this.playlistBar = this.showPlaylistSidebar;
+  }
+
 
   get geoCollections() {
     let allItems = [
@@ -1165,6 +1181,8 @@ export default class Maps extends Vue {
   bottom: 0vh;
   right: 0vw;
   opacity: 0.8;
+  padding-left: 15px;
+  padding-bottom: 15px;
 }
 
 .logo-container.logo-hidden {
