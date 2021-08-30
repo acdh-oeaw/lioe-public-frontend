@@ -7,17 +7,19 @@ describe('The LiÖ landing page', () => {
   })
   it('finds a populous austrian place in the Omni Search Box', () => {
     const placename = 'Wien'
-    waitForIdleNetwork()
+    cy.intercept('/static/Gemeinden.geojson.json').as('Gemeinden')
+    cy.intercept('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json').as('Orte')
+    cy.wait('@Gemeinden')
+    cy.wait('@Orte')
     cy.get('[test-id=omni-search]')
       .type(placename)
-    waitForIdleNetwork()
     cy.get('[test-id=omni-search-result]')
       .contains(placename)
       .should('exist')
   })
-  // it('can open a place in the map', () => {
-  //   cy.get('[test-id=omni-search-result]')
-  //     .contains('karte anzeigen', { matchCase: false })
-  //     .click()
-  // })
+  it('can open a place in the map', () => {
+    cy.get('[test-id=omni-search-result]')
+      .contains('karte anzeigen', { matchCase: false })
+      .click()
+  })
 })
