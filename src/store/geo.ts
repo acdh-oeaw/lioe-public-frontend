@@ -2,8 +2,6 @@
 import * as geojson from 'geojson'
 import * as _ from 'lodash'
 
-let i = 1;
-
 export const geoStore = {
   gemeindenPoints: null as geojson.FeatureCollection|null,
   gemeindenArea: null as geojson.FeatureCollection|null,
@@ -13,7 +11,7 @@ export const geoStore = {
   dialektregionen: null as geojson.FeatureCollection|null,
   ortslistenDaten: null as any|null,
   ortsliste: null as any|null,
-  ortslisteGeo: null as any|null
+  ortslisteGeo: [] as any[]
 }
 
 async function init() {
@@ -24,8 +22,14 @@ async function init() {
   geoStore.bundeslaender = await (await fetch('/static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
   geoStore.dialektregionen = addIDToDialekt(await (await fetch('/static/SFB_Dialektregionen.geojson')).json() as geojson.FeatureCollection)
   geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json')).json() as geojson.FeatureCollection)
-  geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || null : null
-  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeindenPoints!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features, ...geoStore.kleinregionen!.features])?.sort(orderByName("name"))
+  geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || [] : []
+  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(
+    geoStore.ortsliste,
+    [
+      ...geoStore.gemeindenPoints!.features,
+      ...geoStore.grossregionen!.features,
+      ...geoStore.bundeslaender!.features,
+      ...geoStore.kleinregionen!.features])?.sort(orderByName("name")) || []
 }
 
 function addIDToDialekt(dialekt: any) {
