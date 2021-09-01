@@ -341,8 +341,9 @@
               class="addToCollectionItem"
               v-for="(item, index) in temp_coll"
               :key="index"
+              @click="addBelegtoCollection(item)"
             >
-              <v-list-item-title @click="addBelegtoCollection(item)">{{
+              <v-list-item-title >{{
                 item.collection_name
               }}</v-list-item-title>
             </v-list-item>
