@@ -3,15 +3,18 @@
     <v-flex class="fill-height" xs12>
       <v-card class="d-flex flex-column" elevation="0">
         <span>
-          <v-card-text><h1>Sammlungen<v-btn
-              @click="togglePlaylistSidebar()"
-              color="secondary"
-              text
-              rounded
-            >
-            <v-icon>mdi-close</v-icon>
-          </v-btn></h1></v-card-text>
-          
+          <v-card-text
+            ><h1>
+              Sammlungen<v-btn
+                @click="togglePlaylistSidebar()"
+                color="secondary"
+                text
+                rounded
+              >
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </h1></v-card-text
+          >
         </span>
       </v-card>
       <v-card class="fill-height d-flex flex-column" elevation="0">
@@ -34,8 +37,8 @@
           <v-list dense>
             <v-subheader>Belegdatenbank</v-subheader>
             <v-list-item
-              :disabled="onMapPage"
-              @click="showAlleBelege = !showAlleBelege"
+              :disabled="onMapPage || !extra_colls_exist"
+              @click="toggleSelectedCollShowAll()"
             >
               <v-list-item-action style="margin-right: 0px">
                 <v-checkbox
@@ -169,14 +172,10 @@
                       </template>
                       <v-list dense>
                         <v-list-item @click="item.editing = true">
-                          <v-list-item-title 
-                            >Umbennenen</v-list-item-title
-                          >
+                          <v-list-item-title>Umbennenen</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="deleteCol(item)">
-                          <v-list-item-title 
-                            >Löschen</v-list-item-title
-                          >
+                          <v-list-item-title>Löschen</v-list-item-title>
                         </v-list-item>
                       </v-list>
                     </v-menu>
@@ -299,14 +298,10 @@
                       </template>
                       <v-list dense>
                         <v-list-item @click="deleteCol(item)">
-                          <v-list-item-title 
-                            >Entfernen</v-list-item-title
-                          >
+                          <v-list-item-title>Entfernen</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="createCopyColl(item)">
-                          <v-list-item-title 
-                            >Kopie erstellen</v-list-item-title
-                          >
+                          <v-list-item-title>Kopie erstellen</v-list-item-title>
                         </v-list-item>
                       </v-list>
                     </v-menu>
@@ -335,9 +330,11 @@
                   Lade...
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-else-if="searchCollection === null || searchCollection === ''">
+              <v-list-item
+                v-else-if="searchCollection === null || searchCollection === ''"
+              >
                 <v-list-item-title class="caption grey--text text-center">
-                Zu tippen beginnen, um nach Sammlungen zu suchen
+                  Zu tippen beginnen, um nach Sammlungen zu suchen
                 </v-list-item-title>
               </v-list-item>
               <v-list-item v-else>
@@ -466,6 +463,10 @@ export default class Playlist extends Vue {
     stateProxy.collections.setWboe_coll(colls);
   }
 
+  get extra_colls_exist() {
+    return this.temp_coll.length > 0 || this.wboe_coll.length > 0
+  }
+
   togglePlaylistSidebar() {
     stateProxy.collections.toggleSidebar();
   }
@@ -570,6 +571,49 @@ export default class Playlist extends Vue {
     this.isSearching = false;
   }
 
+  toggleSelectedCollShowAll() {
+    this.showAlleBelege = !this.showAlleBelege;
+    if (this.showAlleBelege) {
+      // if all showAlleBelege was clicked, all temp_coll entries should be deselected
+      if (this.temp_coll.length > 0) {
+        this.temp_coll.forEach((item) => {
+          item.selected = false
+        });
+      }
+          // if all showAlleBelege was clicked, all temp_coll entries should be deselected
+      if (this.wboe_coll.length > 0) {
+        this.wboe_coll.forEach((item) => {
+          item.selected = false          
+        });
+      }
+    }
+    else { // will get to this condition only if there exists a wboe or temp_coll, because the btn is otherwise disabled
+      this.temp_coll.forEach((item) => {
+        item.selected = true;
+      });
+
+      this.wboe_coll.forEach((item) => {
+        item.selected = true;
+      });
+    }
+  }
+
+  @Watch("wboe_coll", { deep: true}) 
+  cancelShowAlleBelegeWboe() {
+    if (this.wboe_coll.length > 0) {
+      if (this.wboe_coll.filter(item => item.selected).length > 0) {
+        this.showAlleBelege = false;
+      }
+    }
+  }
+
+  @Watch("temp_coll", { deep: true} ) 
+  cancelShowAlleBelegeTemp() {
+    if (this.temp_coll.filter(item => item.selected).length > 0) {
+      this.showAlleBelege = false;
+    }
+  }
+
   deleteCol(col: Collection) {
     if (col.preColl !== -1) {
       stateProxy.collections.addWBOE_coll({ changedColl: col, add: false });
@@ -615,7 +659,6 @@ export default class Playlist extends Vue {
       items: col.items,
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl});
-    this.showAlleBelege = true;
   }
 }
 </script>

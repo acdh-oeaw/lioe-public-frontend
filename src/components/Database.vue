@@ -841,7 +841,6 @@ export default class Database extends Vue {
   updateRequestQueryDebounced = _.debounce(this.updateRequestQuery, 150);
 
   changeQueryParam(p: any): Promise<any> {
-    console.log('changeQueryParam');
     return this.$router
       .replace({
         // path: this.$router.currentRoute.path,
@@ -851,6 +850,7 @@ export default class Database extends Vue {
   }
 
   addBelegtoCollection(col: Collection) {
+    console.log('got clicked')
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
       items: this.mappableSelectionItems,
