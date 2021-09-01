@@ -574,7 +574,7 @@ export default class Playlist extends Vue {
     if (col.preColl !== -1) {
       stateProxy.collections.addWBOE_coll({ changedColl: col, add: false });
     } else {
-      stateProxy.collections.addTemp_coll({ changedColl: col, add: false });
+      stateProxy.collections.removeTemp_coll({ changedColl: col});
     }
   }
 
@@ -592,14 +592,14 @@ export default class Playlist extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: "Neue Sammlung",
+      collection_name: "Sammlung " + stateProxy.collections.collectionNameNr,
       editing: true,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
       selected: true,
       items: [],
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    stateProxy.collections.addTemp_coll({ changedColl: newColl});
     this.showAlleBelege = true;
   }
 
@@ -614,7 +614,7 @@ export default class Playlist extends Vue {
       selected: true,
       items: col.items,
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    stateProxy.collections.addTemp_coll({ changedColl: newColl});
     this.showAlleBelege = true;
   }
 }

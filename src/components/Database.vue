@@ -861,14 +861,14 @@ export default class Database extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: 'Sammlung ' + this.temp_coll.length + 1,
+      collection_name: 'Sammlung ' + stateProxy.collections.collectionNameNr,
       editing: true,
       fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
       borderColor: '#000',
       selected: true,
       items: this.mappableSelectionItems,
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    stateProxy.collections.addTemp_coll({ changedColl: newColl});
 
     if(!this.showPlaylistSidebar)
       this.togglePlaylistSidebar();
