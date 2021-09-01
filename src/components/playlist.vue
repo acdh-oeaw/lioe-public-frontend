@@ -168,13 +168,13 @@
                         </v-btn>
                       </template>
                       <v-list dense>
-                        <v-list-item>
-                          <v-list-item-title @click="item.editing = true"
+                        <v-list-item @click="item.editing = true">
+                          <v-list-item-title 
                             >Umbennenen</v-list-item-title
                           >
                         </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title @click="deleteCol(item)"
+                        <v-list-item @click="deleteCol(item)">
+                          <v-list-item-title 
                             >Löschen</v-list-item-title
                           >
                         </v-list-item>
@@ -298,13 +298,13 @@
                         </v-btn>
                       </template>
                       <v-list dense>
-                        <v-list-item>
-                          <v-list-item-title @click="deleteCol(item)"
+                        <v-list-item @click="deleteCol(item)">
+                          <v-list-item-title 
                             >Entfernen</v-list-item-title
                           >
                         </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title @click="createCopyColl(item)"
+                        <v-list-item @click="createCopyColl(item)">
+                          <v-list-item-title 
                             >Kopie erstellen</v-list-item-title
                           >
                         </v-list-item>
