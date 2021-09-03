@@ -303,6 +303,20 @@
                         <v-list-item @click="createCopyColl(item)">
                           <v-list-item-title>Kopie erstellen</v-list-item-title>
                         </v-list-item>
+                        <v-list-item>
+                          <v-menu right open-on-hover offset-x>
+                            <template v-slot:activator="{ on }">
+                              <v-btn v-on="on" medium text class="pl-1 pe-0"
+                                >Exportieren</v-btn
+                              >
+                            </template>
+                            <v-list-item @click="saveXLSX(item)"
+                              >Microsoft Excel</v-list-item
+                            >
+                            <v-list-item @click="saveJSON(item)">JSON</v-list-item>
+                            <v-list-item @click="saveCSV(item)">CSV</v-list-item>
+                          </v-menu>
+                        </v-list-item>
                       </v-list>
                     </v-menu>
                   </v-list-item-action>
@@ -393,6 +407,9 @@ import { stateProxy, Collection } from "../store/collections";
 import { getDocumentsByCollection, searchCollections } from "@src/api";
 import LoadMoreItems from "./LoadMoreItems.vue";
 import draggable from "vuedraggable";
+import * as FileSaver from 'file-saver';
+import * as xlsx from 'xlsx';
+
 
 @Component({
   components: {
@@ -428,7 +445,10 @@ export default class Playlist extends Vue {
       }
       this.collectionSearchCurrentPage = this.collectionSearchCurrentPage + 1;
       this.collectionSearchHasNextPage = searchResult.next !== null;
-      if (this.collectionSearchHasNextPage === true && searchResult.results.length !== 0) {
+      if (
+        this.collectionSearchHasNextPage === true &&
+        searchResult.results.length !== 0
+      ) {
         // a pretty ugly trick to make the v-lazy component update,
         // so it triggers the next time we scroll down.
         this.collectionSearchHasNextPage = false;
@@ -464,7 +484,7 @@ export default class Playlist extends Vue {
   }
 
   get extra_colls_exist() {
-    return this.temp_coll.length > 0 || this.wboe_coll.length > 0
+    return this.temp_coll.length > 0 || this.wboe_coll.length > 0;
   }
 
   togglePlaylistSidebar() {
@@ -577,17 +597,17 @@ export default class Playlist extends Vue {
       // if all showAlleBelege was clicked, all temp_coll entries should be deselected
       if (this.temp_coll.length > 0) {
         this.temp_coll.forEach((item) => {
-          item.selected = false
+          item.selected = false;
         });
       }
-          // if all showAlleBelege was clicked, all temp_coll entries should be deselected
+      // if all showAlleBelege was clicked, all temp_coll entries should be deselected
       if (this.wboe_coll.length > 0) {
         this.wboe_coll.forEach((item) => {
-          item.selected = false          
+          item.selected = false;
         });
       }
-    }
-    else { // will get to this condition only if there exists a wboe or temp_coll, because the btn is otherwise disabled
+    } else {
+      // will get to this condition only if there exists a wboe or temp_coll, because the btn is otherwise disabled
       this.temp_coll.forEach((item) => {
         item.selected = true;
       });
@@ -598,18 +618,18 @@ export default class Playlist extends Vue {
     }
   }
 
-  @Watch("wboe_coll", { deep: true}) 
+  @Watch("wboe_coll", { deep: true })
   cancelShowAlleBelegeWboe() {
     if (this.wboe_coll.length > 0) {
-      if (this.wboe_coll.filter(item => item.selected).length > 0) {
+      if (this.wboe_coll.filter((item) => item.selected).length > 0) {
         this.showAlleBelege = false;
       }
     }
   }
 
-  @Watch("temp_coll", { deep: true} ) 
+  @Watch("temp_coll", { deep: true })
   cancelShowAlleBelegeTemp() {
-    if (this.temp_coll.filter(item => item.selected).length > 0) {
+    if (this.temp_coll.filter((item) => item.selected).length > 0) {
       this.showAlleBelege = false;
     }
   }
@@ -618,7 +638,7 @@ export default class Playlist extends Vue {
     if (col.preColl !== -1) {
       stateProxy.collections.addWBOE_coll({ changedColl: col, add: false });
     } else {
-      stateProxy.collections.removeTemp_coll({ changedColl: col});
+      stateProxy.collections.removeTemp_coll({ changedColl: col });
     }
   }
 
@@ -643,7 +663,7 @@ export default class Playlist extends Vue {
       selected: true,
       items: [],
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl});
+    stateProxy.collections.addTemp_coll({ changedColl: newColl });
     this.showAlleBelege = true;
   }
 
@@ -658,7 +678,63 @@ export default class Playlist extends Vue {
       selected: true,
       items: col.items,
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl});
+    stateProxy.collections.addTemp_coll({ changedColl: newColl });
+  }
+
+  saveXLSX(col: Collection) {
+    var localItems: any[] = [];
+    col.items.forEach((x) => localItems.push(x));
+    
+    for (let i = 0; i < localItems.length; i++) {
+      for (var key in localItems[i]) {
+        if (Array.isArray(localItems[i][key])) {
+          localItems[0][key] = localItems[i][key].join(' ');
+        }
+    }
+    }
+
+    const x = xlsx.utils.json_to_sheet(localItems);
+    const y = xlsx.writeFile(
+      {
+        Sheets: { sheet: x },
+        SheetNames: ['sheet'],
+      },
+      'wboe-lioe-export.xlsx'
+    );
+    localItems = [];
+  }
+
+  saveJSON(col: Collection) {
+    // let localItems: any[] = [];
+    // col.items.forEach((x) => localItems.push(x));
+    // localItems.forEach((x) => {
+    //     x = x.filter()
+    // });
+    const blob = JSON.stringify(col.items, undefined, 2);
+    FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
+  }
+
+  saveCSV(col: Collection) {
+    var localItems: any[] = [];
+    col.items.forEach((x) => localItems.push(x));
+    
+    for (let i = 0; i < localItems.length; i++) {
+      for (var key in localItems[i]) {
+        if (Array.isArray(localItems[i][key])) {
+          localItems[i][key] = localItems[i][key].join(' ');
+        }
+      }
+    }
+
+    const x = xlsx.utils.json_to_sheet(localItems);
+    const y = xlsx.writeFile(
+      {
+        Sheets: { sheet: x },
+        SheetNames: ['sheet'],
+      },
+      'wboe-lioe-export.csv'
+    );
+
   }
 }
 </script>

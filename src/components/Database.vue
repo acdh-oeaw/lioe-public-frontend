@@ -1581,9 +1581,11 @@ export default class Database extends Vue {
   saveXLSX() {
     var localSelect: any[] = [];
     this.selected.forEach((x) => localSelect.push(x));
-    for (var key in localSelect[0]) {
-      if (Array.isArray(localSelect[0][key])) {
-        localSelect[0][key] = localSelect[0][key].join(' ');
+    for (let i = 0; i < localSelect.length; i++) {
+      for (var key in localSelect[i]) {
+        if (Array.isArray(localSelect[i][key])) {
+          localSelect[i][key] = localSelect[i][key].join(' ');
+        }
       }
     }
 
@@ -1600,12 +1602,13 @@ export default class Database extends Vue {
   saveCSV() {
     var localSelect: any[] = [];
     this.selected.forEach((x) => localSelect.push(x));
-    for (var key in localSelect[0]) {
-      if (Array.isArray(localSelect[0][key])) {
-        localSelect[0][key] = localSelect[0][key].join(' ');
+    for (let i = 0; i < localSelect.length; i++) {
+      for (var key in localSelect[i]) {
+        if (Array.isArray(localSelect[i][key])) {
+          localSelect[i][key] = localSelect[i][key].join(' ');
+        }
       }
     }
-
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
