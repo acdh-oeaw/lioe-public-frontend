@@ -706,37 +706,37 @@ export default class Playlist extends Vue {
     localItems = [];
   }
 
-  saveJSON(col: Collection) {
-    // let localItems: any[] = [];
-    // col.items.forEach((x) => localItems.push(x));
-    // localItems.forEach((x) => {
-    //     x = x.filter()
-    // });
-    const blob = JSON.stringify(col.items, undefined, 2);
-    FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
-  }
-
   saveCSV(col: Collection) {
-    var localItems: any[] = [];
-    col.items.forEach((x) => localItems.push(x));
-    
-    for (let i = 0; i < localItems.length; i++) {
-      for (var key in localItems[i]) {
-        if (Array.isArray(localItems[i][key])) {
-          localItems[i][key] = localItems[i][key].join(' ');
+    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
+
+    localItems.forEach((x) => {
+      delete x['colSources']; // excluding the colSources from the excel sheet
+      delete x['entry']; // excluding the entry from the excel sheet 
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(' ');
         }
       }
-    }
-
+    });
+    
     const x = xlsx.utils.json_to_sheet(localItems);
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
         SheetNames: ['sheet'],
       },
-      'wboe-lioe-export.csv'
+      'wboe-lioe-export-' + col.collection_name + '.csv'
     );
-
+  }
+  
+  saveJSON(col: Collection) {
+    var localItems: any[] = _.cloneDeep(col.items);
+    localItems.forEach((x) => {
+      delete x['colSources'];
+      delete x['entry'];
+    });
+    const blob = JSON.stringify(localItems, undefined, 2);
+    FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export-collection' + col.collection_name + '.json');
   }
 }
 </script>
