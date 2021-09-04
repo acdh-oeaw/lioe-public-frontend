@@ -408,6 +408,7 @@ import { getDocumentsByCollection, searchCollections } from "@src/api";
 import LoadMoreItems from "./LoadMoreItems.vue";
 import draggable from "vuedraggable";
 import * as FileSaver from 'file-saver';
+import * as _ from "lodash"
 import * as xlsx from 'xlsx';
 
 
@@ -682,16 +683,17 @@ export default class Playlist extends Vue {
   }
 
   saveXLSX(col: Collection) {
-    var localItems: any[] = [];
-    col.items.forEach((x) => localItems.push(x));
+    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
     
-    for (let i = 0; i < localItems.length; i++) {
-      for (var key in localItems[i]) {
-        if (Array.isArray(localItems[i][key])) {
-          localItems[0][key] = localItems[i][key].join(' ');
-        }
-    }
-    }
+    localItems.forEach((x) => {
+      delete x['colSources']; // excluding the colSources from the excel sheet
+      delete x['entry']; // excluding the entry from the excel sheet
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(' ');
+        } 
+      }
+    });
 
     const x = xlsx.utils.json_to_sheet(localItems);
     const y = xlsx.writeFile(
@@ -699,7 +701,7 @@ export default class Playlist extends Vue {
         Sheets: { sheet: x },
         SheetNames: ['sheet'],
       },
-      'wboe-lioe-export.xlsx'
+      'wboe-lioe-export-collection-' + col.collection_name + '.xlsx'
     );
     localItems = [];
   }
