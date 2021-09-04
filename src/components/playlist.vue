@@ -306,15 +306,17 @@
                         <v-list-item>
                           <v-menu right open-on-hover offset-x>
                             <template v-slot:activator="{ on }">
-                              <v-btn v-on="on" medium text class="pl-1 pe-0"
-                                >Exportieren</v-btn
+                              <v-btn v-on="on" @click.prevent="" style="padding-left: 0px" class="export-btn" text>
+                              Exportieren</v-btn
                               >
                             </template>
                             <v-list-item @click="saveXLSX(item)"
-                              >Microsoft Excel</v-list-item
+                              >
+                              <v-list-item-title> Microsoft Excel</v-list-item-title>
+                              </v-list-item
                             >
-                            <v-list-item @click="saveJSON(item)">JSON</v-list-item>
-                            <v-list-item @click="saveCSV(item)">CSV</v-list-item>
+                            <v-list-item @click="saveJSON(item)"><v-list-item-title>JSON</v-list-item-title></v-list-item>
+                            <v-list-item @click="saveCSV(item)"><v-list-item-title>CSV</v-list-item-title></v-list-item>
                           </v-menu>
                         </v-list-item>
                       </v-list>
@@ -750,5 +752,9 @@ export default class Playlist extends Vue {
 .v-btn {
   letter-spacing: 0;
   text-transform: none;
+}
+
+.export-btn {
+  font-size: 13px;
 }
 </style>
