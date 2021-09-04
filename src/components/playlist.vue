@@ -710,8 +710,8 @@ export default class Playlist extends Vue {
     var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
 
     localItems.forEach((x) => {
-      delete x['colSources']; // excluding the colSources from the excel sheet
-      delete x['entry']; // excluding the entry from the excel sheet 
+      delete x['colSources']; // excluding the colSources from the CSV file
+      delete x['entry']; // excluding the entry from the CSV file 
       for (var key in x) {
         if (Array.isArray(x[key])) {
           x[key] = x[key].join(' ');
@@ -732,8 +732,8 @@ export default class Playlist extends Vue {
   saveJSON(col: Collection) {
     var localItems: any[] = _.cloneDeep(col.items);
     localItems.forEach((x) => {
-      delete x['colSources'];
-      delete x['entry'];
+      delete x['colSources']; // excluding the colSources field from the JSON object
+      delete x['entry']; // excluding the entry field from the JSON object
     });
     const blob = JSON.stringify(localItems, undefined, 2);
     FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export-collection' + col.collection_name + '.json');

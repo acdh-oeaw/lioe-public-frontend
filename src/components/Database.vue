@@ -1620,7 +1620,12 @@ export default class Database extends Vue {
   }
 
   saveJSON() {
-    const blob = JSON.stringify(this.selected || this.items, undefined, 2);
+    var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
+    localSelected.forEach((x) => {
+      delete x['colSources'];
+      delete x['entry'];
+    })
+    const blob = JSON.stringify(localSelected, undefined, 2);
     FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
   }
 
