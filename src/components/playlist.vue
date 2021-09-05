@@ -190,21 +190,23 @@
                                 Exportieren
                               </v-btn>
                             </template>
-                            <v-list-item @click="saveXLSX(item)">
-                              <v-list-item-title class="export-btn">
-                                Microsoft Excel</v-list-item-title
-                              >
-                            </v-list-item>
-                            <v-list-item @click="saveJSON(item)">
-                              <v-list-item-title class="export-btn">
-                                JSON</v-list-item-title
-                              >
-                            </v-list-item>
-                            <v-list-item @click="saveCSV(item)">
-                              <v-list-item-title class="export-btn">
-                                CSV</v-list-item-title
-                              >
-                            </v-list-item>
+                            <v-list dense>
+                              <v-list-item @click="saveXLSX(item)">
+                                <v-list-item-title class="export-btn">
+                                  Microsoft Excel</v-list-item-title
+                                >
+                              </v-list-item>
+                              <v-list-item @click="saveJSON(item)">
+                                <v-list-item-title class="export-btn">
+                                  JSON</v-list-item-title
+                                >
+                              </v-list-item>
+                              <v-list-item @click="saveCSV(item)">
+                                <v-list-item-title class="export-btn">
+                                  CSV</v-list-item-title
+                                >
+                              </v-list-item>
+                            </v-list>
                           </v-menu>
                         </v-list-item>
                       </v-list>
@@ -361,6 +363,31 @@
                                 >CSV</v-list-item-title
                               ></v-list-item
                             >
+                          </v-menu>
+                        </v-list-item>
+                        <v-list-item v-if="temp_coll.length > 0">
+                          <v-menu right open-on-hover offset-x>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                v-on="on"
+                                @click.prevent=""
+                                style="padding-left: 0px"
+                                class="export-btn"
+                                text
+                                >Zu Sammlung hinzufügen</v-btn
+                              >
+                            </template>
+                            <v-list dense>
+                              <v-list-item
+                                v-for="(coll, index) in temp_coll"
+                                :key="index"
+                                @click="addBelegeToCollection(item, coll)"
+                              >
+                                <v-list-item-titel class="export-btn">
+                                  {{ coll.collection_name }}
+                                </v-list-item-titel>
+                              </v-list-item>
+                            </v-list>
                           </v-menu>
                         </v-list-item>
                       </v-list>
@@ -711,6 +738,13 @@ export default class Playlist extends Vue {
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl });
     this.showAlleBelege = true;
+  }
+
+  addBelegeToCollection(col: Collection, add_to: Collection) {
+    stateProxy.collections.addPlacesToCollection({
+      col: add_to.id,
+      items: col.items,
+    });
   }
 
   createCopyColl(col: Collection) {
