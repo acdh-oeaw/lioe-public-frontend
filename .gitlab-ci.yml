@@ -14,7 +14,7 @@ stages:
   - build
   - test
   - deploy  # dummy stage to follow the template guidelines
-  - review
+  # - review
   - dast
   - staging
   - canary
