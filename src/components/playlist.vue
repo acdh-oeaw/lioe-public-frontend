@@ -3,15 +3,18 @@
     <v-flex class="fill-height" xs12>
       <v-card class="d-flex flex-column" elevation="0">
         <span>
-          <v-card-text><h1>Sammlungen<v-btn
-              @click="togglePlaylistSidebar()"
-              color="secondary"
-              text
-              rounded
-            >
-            <v-icon>mdi-close</v-icon>
-          </v-btn></h1></v-card-text>
-          
+          <v-card-text
+            ><h1>
+              Sammlungen<v-btn
+                @click="togglePlaylistSidebar()"
+                color="secondary"
+                text
+                rounded
+              >
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </h1></v-card-text
+          >
         </span>
       </v-card>
       <v-card class="fill-height d-flex flex-column" elevation="0">
@@ -34,8 +37,8 @@
           <v-list dense>
             <v-subheader>Belegdatenbank</v-subheader>
             <v-list-item
-              :disabled="onMapPage"
-              @click="showAlleBelege = !showAlleBelege"
+              :disabled="onMapPage || !extra_colls_exist"
+              @click="toggleSelectedCollShowAll()"
             >
               <v-list-item-action style="margin-right: 0px">
                 <v-checkbox
@@ -168,15 +171,43 @@
                         </v-btn>
                       </template>
                       <v-list dense>
-                        <v-list-item>
-                          <v-list-item-title @click="item.editing = true"
-                            >Umbennenen</v-list-item-title
-                          >
+                        <v-list-item @click="item.editing = true">
+                          <v-list-item-title>Umbennenen</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click="deleteCol(item)">
+                          <v-list-item-title>Löschen</v-list-item-title>
                         </v-list-item>
                         <v-list-item>
-                          <v-list-item-title @click="deleteCol(item)"
-                            >Löschen</v-list-item-title
-                          >
+                          <v-menu right open-on-hover offset-x>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                v-on="on"
+                                @click.prevent=""
+                                style="padding-left: 0px"
+                                class="export-btn"
+                                text
+                              >
+                                Exportieren
+                              </v-btn>
+                            </template>
+                            <v-list dense>
+                              <v-list-item @click="saveXLSX(item)">
+                                <v-list-item-title class="export-btn">
+                                  Microsoft Excel</v-list-item-title
+                                >
+                              </v-list-item>
+                              <v-list-item @click="saveJSON(item)">
+                                <v-list-item-title class="export-btn">
+                                  JSON</v-list-item-title
+                                >
+                              </v-list-item>
+                              <v-list-item @click="saveCSV(item)">
+                                <v-list-item-title class="export-btn">
+                                  CSV</v-list-item-title
+                                >
+                              </v-list-item>
+                            </v-list>
+                          </v-menu>
                         </v-list-item>
                       </v-list>
                     </v-menu>
@@ -298,15 +329,66 @@
                         </v-btn>
                       </template>
                       <v-list dense>
-                        <v-list-item>
-                          <v-list-item-title @click="deleteCol(item)"
-                            >Entfernen</v-list-item-title
-                          >
+                        <v-list-item @click="deleteCol(item)">
+                          <v-list-item-title>Entfernen</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click="createCopyColl(item)">
+                          <v-list-item-title>Kopie erstellen</v-list-item-title>
                         </v-list-item>
                         <v-list-item>
-                          <v-list-item-title @click="createCopyColl(item)"
-                            >Kopie erstellen</v-list-item-title
-                          >
+                          <v-menu right open-on-hover offset-x>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                v-on="on"
+                                @click.prevent=""
+                                style="padding-left: 0px"
+                                class="export-btn"
+                                text
+                              >
+                                Exportieren</v-btn
+                              >
+                            </template>
+                            <v-list-item @click="saveXLSX(item)">
+                              <v-list-item-title class="export-btn">
+                                Microsoft Excel</v-list-item-title
+                              >
+                            </v-list-item>
+                            <v-list-item @click="saveJSON(item)"
+                              ><v-list-item-title class="export-btn"
+                                >JSON</v-list-item-title
+                              ></v-list-item
+                            >
+                            <v-list-item @click="saveCSV(item)"
+                              ><v-list-item-title class="export-btn"
+                                >CSV</v-list-item-title
+                              ></v-list-item
+                            >
+                          </v-menu>
+                        </v-list-item>
+                        <v-list-item v-if="temp_coll.length > 0">
+                          <v-menu right open-on-hover offset-x>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                v-on="on"
+                                @click.prevent=""
+                                style="padding-left: 0px"
+                                class="export-btn"
+                                text
+                                >Zu Sammlung hinzufügen</v-btn
+                              >
+                            </template>
+                            <v-list dense>
+                              <v-list-item
+                                v-for="(coll, index) in temp_coll"
+                                :key="index"
+                                @click="addBelegeToCollection(item, coll)"
+                              >
+                                <v-list-item-titel class="export-btn">
+                                  {{ coll.collection_name }}
+                                </v-list-item-titel>
+                              </v-list-item>
+                            </v-list>
+                          </v-menu>
                         </v-list-item>
                       </v-list>
                     </v-menu>
@@ -335,9 +417,11 @@
                   Lade...
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-else-if="searchCollection === null || searchCollection === ''">
+              <v-list-item
+                v-else-if="searchCollection === null || searchCollection === ''"
+              >
                 <v-list-item-title class="caption grey--text text-center">
-                Zu tippen beginnen, um nach Sammlungen zu suchen
+                  Zu tippen beginnen, um nach Sammlungen zu suchen
                 </v-list-item-title>
               </v-list-item>
               <v-list-item v-else>
@@ -396,6 +480,9 @@ import { stateProxy, Collection } from "../store/collections";
 import { getDocumentsByCollection, searchCollections } from "@src/api";
 import LoadMoreItems from "./LoadMoreItems.vue";
 import draggable from "vuedraggable";
+import * as FileSaver from "file-saver";
+import * as _ from "lodash";
+import * as xlsx from "xlsx";
 
 @Component({
   components: {
@@ -431,7 +518,10 @@ export default class Playlist extends Vue {
       }
       this.collectionSearchCurrentPage = this.collectionSearchCurrentPage + 1;
       this.collectionSearchHasNextPage = searchResult.next !== null;
-      if (this.collectionSearchHasNextPage === true && searchResult.results.length !== 0) {
+      if (
+        this.collectionSearchHasNextPage === true &&
+        searchResult.results.length !== 0
+      ) {
         // a pretty ugly trick to make the v-lazy component update,
         // so it triggers the next time we scroll down.
         this.collectionSearchHasNextPage = false;
@@ -464,6 +554,10 @@ export default class Playlist extends Vue {
 
   set wboe_coll(colls: Collection[]) {
     stateProxy.collections.setWboe_coll(colls);
+  }
+
+  get extra_colls_exist() {
+    return this.temp_coll.length > 0 || this.wboe_coll.length > 0;
   }
 
   togglePlaylistSidebar() {
@@ -570,11 +664,54 @@ export default class Playlist extends Vue {
     this.isSearching = false;
   }
 
+  toggleSelectedCollShowAll() {
+    this.showAlleBelege = !this.showAlleBelege;
+    if (this.showAlleBelege) {
+      // if all showAlleBelege was clicked, all temp_coll entries should be deselected
+      if (this.temp_coll.length > 0) {
+        this.temp_coll.forEach((item) => {
+          item.selected = false;
+        });
+      }
+      // if all showAlleBelege was clicked, all temp_coll entries should be deselected
+      if (this.wboe_coll.length > 0) {
+        this.wboe_coll.forEach((item) => {
+          item.selected = false;
+        });
+      }
+    } else {
+      // will get to this condition only if there exists a wboe or temp_coll, because the btn is otherwise disabled
+      this.temp_coll.forEach((item) => {
+        item.selected = true;
+      });
+
+      this.wboe_coll.forEach((item) => {
+        item.selected = true;
+      });
+    }
+  }
+
+  @Watch("wboe_coll", { deep: true })
+  cancelShowAlleBelegeWboe() {
+    if (this.wboe_coll.length > 0) {
+      if (this.wboe_coll.filter((item) => item.selected).length > 0) {
+        this.showAlleBelege = false;
+      }
+    }
+  }
+
+  @Watch("temp_coll", { deep: true })
+  cancelShowAlleBelegeTemp() {
+    if (this.temp_coll.filter((item) => item.selected).length > 0) {
+      this.showAlleBelege = false;
+    }
+  }
+
   deleteCol(col: Collection) {
     if (col.preColl !== -1) {
       stateProxy.collections.addWBOE_coll({ changedColl: col, add: false });
     } else {
-      stateProxy.collections.addTemp_coll({ changedColl: col, add: false });
+      stateProxy.collections.removeTemp_coll({ changedColl: col });
     }
   }
 
@@ -592,15 +729,22 @@ export default class Playlist extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: "Neue Sammlung",
+      collection_name: "Sammlung " + stateProxy.collections.collectionNameNr,
       editing: true,
       fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
       borderColor: "#000",
       selected: true,
       items: [],
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    stateProxy.collections.addTemp_coll({ changedColl: newColl });
     this.showAlleBelege = true;
+  }
+
+  addBelegeToCollection(col: Collection, add_to: Collection) {
+    stateProxy.collections.addPlacesToCollection({
+      col: add_to.id,
+      items: col.items,
+    });
   }
 
   createCopyColl(col: Collection) {
@@ -614,8 +758,67 @@ export default class Playlist extends Vue {
       selected: true,
       items: col.items,
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
-    this.showAlleBelege = true;
+    stateProxy.collections.addTemp_coll({ changedColl: newColl });
+  }
+
+  saveXLSX(col: Collection) {
+    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
+
+    localItems.forEach((x) => {
+      delete x["colSources"]; // excluding the colSources from the excel sheet
+      delete x["entry"]; // excluding the entry from the excel sheet
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(" ");
+        }
+      }
+    });
+
+    const x = xlsx.utils.json_to_sheet(localItems);
+    const y = xlsx.writeFile(
+      {
+        Sheets: { sheet: x },
+        SheetNames: ["sheet"],
+      },
+      "wboe-lioe-export-collection-" + col.collection_name + ".xlsx"
+    );
+    localItems = [];
+  }
+
+  saveCSV(col: Collection) {
+    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
+
+    localItems.forEach((x) => {
+      delete x["colSources"]; // excluding the colSources from the CSV file
+      delete x["entry"]; // excluding the entry from the CSV file
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(" ");
+        }
+      }
+    });
+
+    const x = xlsx.utils.json_to_sheet(localItems);
+    const y = xlsx.writeFile(
+      {
+        Sheets: { sheet: x },
+        SheetNames: ["sheet"],
+      },
+      "wboe-lioe-export-" + col.collection_name + ".csv"
+    );
+  }
+
+  saveJSON(col: Collection) {
+    var localItems: any[] = _.cloneDeep(col.items);
+    localItems.forEach((x) => {
+      delete x["colSources"]; // excluding the colSources field from the JSON object
+      delete x["entry"]; // excluding the entry field from the JSON object
+    });
+    const blob = JSON.stringify(localItems, undefined, 2);
+    FileSaver.saveAs(
+      new Blob([blob]),
+      "wboe-lioe-export-collection" + col.collection_name + ".json"
+    );
   }
 }
 </script>
@@ -629,5 +832,9 @@ export default class Playlist extends Vue {
 .v-btn {
   letter-spacing: 0;
   text-transform: none;
+}
+
+.export-btn {
+  font-size: 13px;
 }
 </style>

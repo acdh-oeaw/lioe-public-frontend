@@ -1,14 +1,17 @@
 <template>
   <v-layout column>
-          <v-btn
+      <v-flex class="text-xs-left" >
+        <v-btn
             @click="togglePlaylistSidebar()"
             color="primary"
-            left
             fab
             fixed
+            :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
           >
             <v-icon>mdi-playlist-edit</v-icon>
           </v-btn>
+      </v-flex>
+          
     <v-navigation-drawer :value="showPlaylistSidebar" left app permanent v-if="showPlaylistSidebar">
       <playlist :onMapPage="false"> </playlist>
     </v-navigation-drawer>
@@ -17,10 +20,13 @@
         class="sticky-card mt-2"
         v-for="(req, index) in request_arr"
         :key="index"
-        width="100%"
+        :style="{ 'left': showPlaylistSidebar === true && index === 0 ? '55px' : '0px', 
+                  width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%' }"
       >
         <v-row no-gutters>
-          <v-col class="pa-0 flex-grow-1" style="margin-left: 5px">
+          <v-col class="pa-0 flex-grow-1" 
+          style="margin-left: 5px"
+          >
             <v-text-field
               @click.stop=""
               v-if="type === 'fulltext'"
@@ -335,8 +341,9 @@
               class="addToCollectionItem"
               v-for="(item, index) in temp_coll"
               :key="index"
+              @click="addBelegtoCollection(item)"
             >
-              <v-list-item-title @click="addBelegtoCollection(item)">{{
+              <v-list-item-title >{{
                 item.collection_name
               }}</v-list-item-title>
             </v-list-item>
@@ -494,7 +501,6 @@ export default class Database extends Vue {
   ];
 
   geoStore = geoStore;
-  sideBar: Boolean = false;
   toggleModel: number = 2;
   prefixSearch: Boolean = false;
   items: any[] = [];
@@ -836,7 +842,6 @@ export default class Database extends Vue {
   updateRequestQueryDebounced = _.debounce(this.updateRequestQuery, 150);
 
   changeQueryParam(p: any): Promise<any> {
-    console.log('changeQueryParam');
     return this.$router
       .replace({
         // path: this.$router.currentRoute.path,
@@ -846,6 +851,7 @@ export default class Database extends Vue {
   }
 
   addBelegtoCollection(col: Collection) {
+    console.log('got clicked')
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
       items: this.mappableSelectionItems,
@@ -856,16 +862,17 @@ export default class Database extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: 'Sammlung ' + this.temp_coll.length + 1,
+      collection_name: 'Sammlung ' + stateProxy.collections.collectionNameNr,
       editing: true,
       fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
       borderColor: '#000',
       selected: true,
       items: this.mappableSelectionItems,
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl, add: true });
+    stateProxy.collections.addTemp_coll({ changedColl: newColl});
 
-    this.sideBar = true;
+    if(!this.showPlaylistSidebar)
+      this.togglePlaylistSidebar();
     this.selected = []; // initialize all selected elements. Initializartion does not take place if the items are added to an already existing collection
   }
 
@@ -1574,9 +1581,11 @@ export default class Database extends Vue {
   saveXLSX() {
     var localSelect: any[] = [];
     this.selected.forEach((x) => localSelect.push(x));
-    for (var key in localSelect[0]) {
-      if (Array.isArray(localSelect[0][key])) {
-        localSelect[0][key] = localSelect[0][key].join(' ');
+    for (let i = 0; i < localSelect.length; i++) {
+      for (var key in localSelect[i]) {
+        if (Array.isArray(localSelect[i][key])) {
+          localSelect[i][key] = localSelect[i][key].join(' ');
+        }
       }
     }
 
@@ -1593,12 +1602,13 @@ export default class Database extends Vue {
   saveCSV() {
     var localSelect: any[] = [];
     this.selected.forEach((x) => localSelect.push(x));
-    for (var key in localSelect[0]) {
-      if (Array.isArray(localSelect[0][key])) {
-        localSelect[0][key] = localSelect[0][key].join(' ');
+    for (let i = 0; i < localSelect.length; i++) {
+      for (var key in localSelect[i]) {
+        if (Array.isArray(localSelect[i][key])) {
+          localSelect[i][key] = localSelect[i][key].join(' ');
+        }
       }
     }
-
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
@@ -1610,7 +1620,12 @@ export default class Database extends Vue {
   }
 
   saveJSON() {
-    const blob = JSON.stringify(this.selected || this.items, undefined, 2);
+    var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
+    localSelected.forEach((x) => {
+      delete x['colSources'];
+      delete x['entry'];
+    })
+    const blob = JSON.stringify(localSelected, undefined, 2);
     FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
   }
 
