@@ -855,9 +855,33 @@ export default class Database extends Vue {
     return false;
   }
 
+  @Watch('visibleCollections')
+  onVisibleColledtionChangeUpdates() {
+    this.updateSelection();
+  }
+
   @Watch('showSelectedCollection') 
+  showCollectionUpdates() {
+    this.showBelgeCollectionSource();
+    this.updateSelection();
+  }
+
   showBelgeCollectionSource() {
     this.headers[0].show = this.showSelectedCollection;
+  }
+
+  updateSelection() {
+    baseLoop: for (let index = this.selected.length - 1; index >= 0 ; index -= 1) {
+      const entry: any = this.selected[index];
+      for (let j = 0; j < this.shownItems.length; j++) {
+        const beleg: any = this.shownItems[j];
+        if(beleg.ID === entry.ID) {
+          this.selected[index] = beleg;
+          continue baseLoop;
+        }
+      }
+      this.selected.splice(index, 1);
+    }
   }
 
   updateRequestQuery(index: number, e: string) {
@@ -1154,23 +1178,6 @@ export default class Database extends Vue {
       return this.shownItemsWithSource;
     }
     return this._items;
-  }
-
-  // TO-DO: Fix Same Beleg (Item) shown multiple times if it is in multiple collections
-  // To-DO: Potentially get collections from collections store .visibleCollections
-  get collItems() {
-    let allItems: any[] = [];
-    this.wboeColl.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    this.temp_coll.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    return allItems;
   }
 
   get shownItemsWithSource() {
