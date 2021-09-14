@@ -29,6 +29,11 @@ class CollectionModule extends VuexModule {
     private locations: Array<any> = []
     private showAlleBelege: Boolean = false
     private visibleSidebar: boolean = false;
+    private collectionNameNumber: number = 1;
+
+    get collectionNameNr() {
+        return this.collectionNameNumber;
+    }
 
     get showSidebar() {
         return this.visibleSidebar;
@@ -88,16 +93,18 @@ class CollectionModule extends VuexModule {
     }
 
     @mutation
-    addTemp_coll(coll: { changedColl: Collection, add: boolean }) {
-        if (coll.add) {
-            this.temp_collections.push(coll.changedColl);
-        } else {
-            this.temp_collections.forEach(collLoop => {
-                if (coll.changedColl.id == collLoop.id) {
-                    this.temp_collections.splice(this.temp_collections.indexOf(collLoop), 1)
-                }
-            });
-        }
+    addTemp_coll(coll: { changedColl: Collection}) {
+        this.temp_collections.push(coll.changedColl);
+        this.collectionNameNumber += 1;
+    }
+
+    @mutation
+    removeTemp_coll(coll: { changedColl: Collection}) {
+        this.temp_collections.forEach(collLoop => {
+            if (coll.changedColl.id == collLoop.id) {
+                this.temp_collections.splice(this.temp_collections.indexOf(collLoop), 1)
+            }
+        });
     }
 
     @action

@@ -20,6 +20,7 @@
             :loading="loading"
             :items="searchItems"
             @input="selectItems"
+            test-id="omni-search"
             label="Alle Ressourcen durchsuchen..."
             autofocus
             @update:search-input="debouncedPerformSearch"
@@ -33,6 +34,7 @@
           >
             <template v-slot:item="{ item }">
               <v-list-item
+                test-id="omni-search-result"
                 :to="
                   item.type === 'article'
                     ? `/articles/${findArticleByTitle(
