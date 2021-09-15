@@ -483,6 +483,7 @@ import draggable from "vuedraggable";
 import * as FileSaver from "file-saver";
 import * as _ from "lodash";
 import * as xlsx from "xlsx";
+import { regions } from "@src/regions";
 
 @Component({
   components: {
@@ -762,17 +763,7 @@ export default class Playlist extends Vue {
   }
 
   saveXLSX(col: Collection) {
-    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
-
-    localItems.forEach((x) => {
-      delete x["colSources"]; // excluding the colSources from the excel sheet
-      delete x["entry"]; // excluding the entry from the excel sheet
-      for (var key in x) {
-        if (Array.isArray(x[key])) {
-          x[key] = x[key].join(" ");
-        }
-      }
-    });
+    var localItems: any[] = this.editValuesForExport(col); // _.cloneDeep(col.items); // creating a deep copy
 
     const x = xlsx.utils.json_to_sheet(localItems);
     const y = xlsx.writeFile(
@@ -786,17 +777,7 @@ export default class Playlist extends Vue {
   }
 
   saveCSV(col: Collection) {
-    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
-
-    localItems.forEach((x) => {
-      delete x["colSources"]; // excluding the colSources from the CSV file
-      delete x["entry"]; // excluding the entry from the CSV file
-      for (var key in x) {
-        if (Array.isArray(x[key])) {
-          x[key] = x[key].join(" ");
-        }
-      }
-    });
+    var localItems: any[] = this.editValuesForExport(col); 
 
     const x = xlsx.utils.json_to_sheet(localItems);
     const y = xlsx.writeFile(
@@ -809,17 +790,67 @@ export default class Playlist extends Vue {
   }
 
   saveJSON(col: Collection) {
-    var localItems: any[] = _.cloneDeep(col.items);
-    localItems.forEach((x) => {
-      delete x["colSources"]; // excluding the colSources field from the JSON object
-      delete x["entry"]; // excluding the entry field from the JSON object
-    });
+    var localItems: any[] = this.editValuesForExport(col);
+    
     const blob = JSON.stringify(localItems, undefined, 2);
     FileSaver.saveAs(
       new Blob([blob]),
       "wboe-lioe-export-collection" + col.collection_name + ".json"
     );
   }
+
+    editValuesForExport(col: Collection): any[] {
+    
+    var localSelect: any[] = _.cloneDeep(col.items);  // creating a deep copy
+
+    localSelect.forEach((x) => {
+      // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
+      delete x["colSources"]; 
+      delete x["entry"];
+      delete x["Bundesland"];
+      delete x["Großregion"];
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(' ');
+        }
+        switch (key) {
+          case 'Kleinregion1':
+            x[key] = regions.mapKleinreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Großregion1':
+            x[key] = regions.mapGrossreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+              ).trim() + ' (' + x[key] + ')'        
+            break;
+          case 'Bundesland1':
+            x[key] = regions.mapBundeslaender(
+              x[key]
+              .replace(/\d[A-Z]?[\.]?[\d]?/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Gemeinde1':
+            x[key] = x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+            break;    
+          default:
+            break;
+        }
+      }
+    });
+    return localSelect;
+  }
+
 }
 </script>
 <style lang="scss" scoped>
