@@ -1603,18 +1603,61 @@ export default class Database extends Vue {
     });
   }
 
-  saveXLSX() {
-    var localSelect: any[] = _.cloneDeep(this.selected);
+
+  editValuesForExport(): any[] {
+    
+    var localSelect: any[] = _.cloneDeep(this.selected);  // creating a deep copy
 
     localSelect.forEach((x) => {
-      delete x["colSources"];
+      // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
+      delete x["colSources"]; 
       delete x["entry"];
+      delete x["Bundesland"];
+      delete x["Großregion"];
       for (var key in x) {
         if (Array.isArray(x[key])) {
           x[key] = x[key].join(' ');
         }
+        switch (key) {
+          case 'Kleinregion1':
+            x[key] = regions.mapKleinreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Großregion1':
+            x[key] = regions.mapGrossreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+              ).trim() + ' (' + x[key] + ')'        
+            break;
+          case 'Bundesland1':
+            x[key] = regions.mapBundeslaender(
+              x[key]
+              .replace(/\d[A-Z]?[\.]?[\d]?/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Gemeinde1':
+            x[key] = x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+            break;    
+          default:
+            break;
+        }
       }
     });
+    return localSelect;
+  }
+
+  saveXLSX() {
+    var localSelect: any[] = this.editValuesForExport();
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
@@ -1627,17 +1670,7 @@ export default class Database extends Vue {
   }
 
   saveCSV() {
-    var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
-
-    localSelect.forEach((x) => {
-      delete x["colSources"]; // excluding the colSources from the excel sheet
-      delete x["entry"]; // excluding the entry from the excel sheet
-      for (var key in x) {
-        if (Array.isArray(x[key])) {
-          x[key] = x[key].join(" ");
-        }
-      }
-    });
+    var localSelect: any[] = this.editValuesForExport(); 
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
@@ -1650,11 +1683,12 @@ export default class Database extends Vue {
   }
 
   saveJSON() {
-    var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
-    localSelected.forEach((x) => {
-      delete x['colSources'];
-      delete x['entry'];
-    })
+    var localSelected = this.editValuesForExport();
+    // var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
+    // localSelected.forEach((x) => {
+    //   delete x['colSources'];
+    //   delete x['entry'];
+    // })
     const blob = JSON.stringify(localSelected, undefined, 2);
     FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
   }
