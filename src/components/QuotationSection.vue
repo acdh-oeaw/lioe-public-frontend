@@ -33,7 +33,7 @@ export default class QuotationSection extends Vue {
     ns.unshift(",");
     ns.unshift(ns[ns.length - 1]);
     ns.pop();
-    return ns.join(" ").replace(/ , /, ", ");
+    return ns.join(' ').replace(/ , /, ", ");
   }
 
   get content() {

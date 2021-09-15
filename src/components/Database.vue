@@ -1604,15 +1604,17 @@ export default class Database extends Vue {
   }
 
   saveXLSX() {
-    var localSelect: any[] = [];
-    this.selected.forEach((x) => localSelect.push(x));
-    for (let i = 0; i < localSelect.length; i++) {
-      for (var key in localSelect[i]) {
-        if (Array.isArray(localSelect[i][key])) {
-          localSelect[i][key] = localSelect[i][key].join(' ');
+    var localSelect: any[] = _.cloneDeep(this.selected);
+
+    localSelect.forEach((x) => {
+      delete x["colSources"];
+      delete x["entry"];
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(' ');
         }
       }
-    }
+    });
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
@@ -1625,15 +1627,18 @@ export default class Database extends Vue {
   }
 
   saveCSV() {
-    var localSelect: any[] = [];
-    this.selected.forEach((x) => localSelect.push(x));
-    for (let i = 0; i < localSelect.length; i++) {
-      for (var key in localSelect[i]) {
-        if (Array.isArray(localSelect[i][key])) {
-          localSelect[i][key] = localSelect[i][key].join(' ');
+    var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
+
+    localSelect.forEach((x) => {
+      delete x["colSources"]; // excluding the colSources from the excel sheet
+      delete x["entry"]; // excluding the entry from the excel sheet
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(" ");
         }
       }
-    }
+    });
+
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
