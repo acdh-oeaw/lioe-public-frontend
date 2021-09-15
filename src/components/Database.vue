@@ -524,6 +524,31 @@ export default class Database extends Vue {
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
+  sortedHeaders: string[] = [
+    'ID',
+    'HL',
+    'NL',
+    'HL2',
+    'POS',
+    'BD/KT',
+    'NR',
+    'NR2',
+    'LT1_teuthonista',  
+    'BD/LT*',
+    'Ort/LT',
+    'BD/KT1',
+    'BD/KT*',
+    'QU',
+    'BIBL',
+    'Sigle1',
+    'Sigle10',
+    'Bundesland1',
+    'Großregion1',
+    'Kleinregion1',
+    'Gemeinde1'
+    // ...
+  ]
+
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
     {
