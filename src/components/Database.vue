@@ -524,6 +524,31 @@ export default class Database extends Vue {
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
+  sortedHeaders: string[] = [
+    'ID',
+    'HL',
+    'NL',
+    'HL2',
+    'POS',
+    'BD/KT',
+    'NR',
+    'NR2',
+    'LT1_teuthonista',  
+    'BD/LT*',
+    'Ort/LT',
+    'BD/KT1',
+    'BD/KT*',
+    'QU',
+    'BIBL',
+    'Sigle1',
+    'Sigle10',
+    'Bundesland1',
+    'Großregion1',
+    'Kleinregion1',
+    'Gemeinde1'
+    // ...
+  ]
+
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
     {
@@ -797,7 +822,6 @@ export default class Database extends Vue {
 
   @Watch('stateProxy.collections.visibleCollections')
   visibleCollectionNames() :String[]{
-    console.log('visible collections: ', stateProxy.collections.visibleCollections);
     
     if(stateProxy.collections.visibleCollections.length > 0) {
       const temp: String[] = [];
@@ -891,11 +915,6 @@ export default class Database extends Vue {
       id: this.indexField,
     });
     this.indexField++;
-    console.log(
-      this.indexField,
-      this.request_arr.toString,
-      this.request_arr.length
-    );
   }
 
   // remove element with each '-' click
@@ -1031,13 +1050,12 @@ export default class Database extends Vue {
       return '';
     }
 
-    const regexSources = /[≈›|›|≈]?LT\d?/;
+    const regexSources = /[≈›|›|≈]?LT\d?/g;
     if (Array.isArray(lt)) {
-      return lt[0].replace(regexSources, '');
+      return lt[0].replace(regexSources, '').replace(/(  )( )*/g, ' ');
     } else {
-      return lt.replace(regexSources, '');
+      return lt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
     }
-    return lt;
   }
 
   renderBedeutungBelegsaetze(val: any) {
@@ -1050,11 +1068,11 @@ export default class Database extends Vue {
     if (Array.isArray(kt)) {
       var i;
       for (i = 0; i < kt.length; i++) {
-        kt[i] = kt[i].replace(regexSources, '');
+        kt[i] = kt[i].replace(regexSources, '').replace(/(  )( )*/g, ' ');
       }
       return _(kt).flatten(); //replace(regexSources, '')
     } else {
-      return kt.replace(regexSources, '');
+      return kt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
     }
   }
 
@@ -1068,7 +1086,7 @@ export default class Database extends Vue {
         res.push(val[t]);
       }
     });
-    return _(res).flatten().join(', ');
+    return _(res).flatten().join(', ').replace(/(  )( )*/g, ' ');
   }
 
   renderLautung(val: any) {
@@ -1578,16 +1596,91 @@ export default class Database extends Vue {
     });
   }
 
-  saveXLSX() {
-    var localSelect: any[] = [];
-    this.selected.forEach((x) => localSelect.push(x));
-    for (let i = 0; i < localSelect.length; i++) {
-      for (var key in localSelect[i]) {
-        if (Array.isArray(localSelect[i][key])) {
-          localSelect[i][key] = localSelect[i][key].join(' ');
+
+  editValuesForExport(): any[] {
+    
+    var localSelect: any[] = _.cloneDeep(this.selected);  // creating a deep copy
+
+    localSelect.forEach((x) => {
+      // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
+      delete x["colSources"]; 
+      delete x["entry"];
+      delete x["Bundesland"];
+      delete x["Großregion"];
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(' ');
+        }
+        switch (key) {
+          case 'Kleinregion1':
+            x[key] = regions.mapKleinreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Großregion1':
+            x[key] = regions.mapGrossreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+              ).trim() + ' (' + x[key] + ')'        
+            break;
+          case 'Bundesland1':
+            x[key] = regions.mapBundeslaender(
+              x[key]
+              .replace(/\d[A-Z]?[\.]?[\d]?/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Gemeinde1':
+            x[key] = x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+            break;
+          case 'HL':
+            if (Array.isArray(x[key]) && x[key].length > 1) {
+              x[key] = x[key][1].replace('≈', '')
+            }
+            break;
+          case 'BD/KT':
+            x[key] = this.renderGrammatikAngabe(x);
+            break;      
+          case 'NR':
+            x[key] = this.renderFragenummer(x);
+            break;      
+          case 'NR2':
+            x[key] = this.renderGefragterAusdruck(x);
+            break;
+          case 'LT1_teuthonista':
+            x[key] = this.renderLautung(x);
+            break;      
+          case 'BD/LT*':
+            x[key] = this.renderBedeutung(x);
+            break;      
+          case 'BD/KT1':
+            x[key] = this.renderBelegsaetze(x);
+            break;      
+          case 'BD/KT*':
+            x[key] = this.renderBedeutungBelegsaetze(x);
+            break;
+          case 'Sigle1':
+            x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, ''); 
+          case 'KT1':
+            x[key] = x[key].replace(/(  )( )*/, ' ');     
+          default:
+            break;
         }
       }
-    }
+    });
+    return localSelect;
+  }
+
+  saveXLSX() {
+    var localSelect: any[] = this.editValuesForExport();
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
@@ -1600,15 +1693,8 @@ export default class Database extends Vue {
   }
 
   saveCSV() {
-    var localSelect: any[] = [];
-    this.selected.forEach((x) => localSelect.push(x));
-    for (let i = 0; i < localSelect.length; i++) {
-      for (var key in localSelect[i]) {
-        if (Array.isArray(localSelect[i][key])) {
-          localSelect[i][key] = localSelect[i][key].join(' ');
-        }
-      }
-    }
+    var localSelect: any[] = this.editValuesForExport(); 
+
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
@@ -1620,11 +1706,12 @@ export default class Database extends Vue {
   }
 
   saveJSON() {
-    var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
-    localSelected.forEach((x) => {
-      delete x['colSources'];
-      delete x['entry'];
-    })
+    var localSelected = this.editValuesForExport();
+    // var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
+    // localSelected.forEach((x) => {
+    //   delete x['colSources'];
+    //   delete x['entry'];
+    // })
     const blob = JSON.stringify(localSelected, undefined, 2);
     FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
   }
