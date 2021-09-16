@@ -822,7 +822,6 @@ export default class Database extends Vue {
 
   @Watch('stateProxy.collections.visibleCollections')
   visibleCollectionNames() :String[]{
-    console.log('visible collections: ', stateProxy.collections.visibleCollections);
     
     if(stateProxy.collections.visibleCollections.length > 0) {
       const temp: String[] = [];
@@ -916,11 +915,6 @@ export default class Database extends Vue {
       id: this.indexField,
     });
     this.indexField++;
-    console.log(
-      this.indexField,
-      this.request_arr.toString,
-      this.request_arr.length
-    );
   }
 
   // remove element with each '-' click
@@ -1056,13 +1050,12 @@ export default class Database extends Vue {
       return '';
     }
 
-    const regexSources = /[≈›|›|≈]?LT\d?/;
+    const regexSources = /[≈›|›|≈]?LT\d?/g;
     if (Array.isArray(lt)) {
-      return lt[0].replace(regexSources, '');
+      return lt[0].replace(regexSources, '').replace(/(  )( )*/g, ' ');
     } else {
-      return lt.replace(regexSources, '');
+      return lt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
     }
-    return lt;
   }
 
   renderBedeutungBelegsaetze(val: any) {
@@ -1075,11 +1068,11 @@ export default class Database extends Vue {
     if (Array.isArray(kt)) {
       var i;
       for (i = 0; i < kt.length; i++) {
-        kt[i] = kt[i].replace(regexSources, '');
+        kt[i] = kt[i].replace(regexSources, '').replace(/(  )( )*/g, ' ');
       }
       return _(kt).flatten(); //replace(regexSources, '')
     } else {
-      return kt.replace(regexSources, '');
+      return kt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
     }
   }
 
@@ -1093,7 +1086,7 @@ export default class Database extends Vue {
         res.push(val[t]);
       }
     });
-    return _(res).flatten().join(', ');
+    return _(res).flatten().join(', ').replace(/(  )( )*/g, ' ');
   }
 
   renderLautung(val: any) {
@@ -1647,7 +1640,37 @@ export default class Database extends Vue {
             x[key] = x[key]
               .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
               .replace(/[›]?[L|K]T[\d]?/g, '')
-            break;    
+            break;
+          case 'HL':
+            if (Array.isArray(x[key]) && x[key].length > 1) {
+              x[key] = x[key][1].replace('≈', '')
+            }
+            break;
+          case 'BD/KT':
+            x[key] = this.renderGrammatikAngabe(x);
+            break;      
+          case 'NR':
+            x[key] = this.renderFragenummer(x);
+            break;      
+          case 'NR2':
+            x[key] = this.renderGefragterAusdruck(x);
+            break;
+          case 'LT1_teuthonista':
+            x[key] = this.renderLautung(x);
+            break;      
+          case 'BD/LT*':
+            x[key] = this.renderBedeutung(x);
+            break;      
+          case 'BD/KT1':
+            x[key] = this.renderBelegsaetze(x);
+            break;      
+          case 'BD/KT*':
+            x[key] = this.renderBedeutungBelegsaetze(x);
+            break;
+          case 'Sigle1':
+            x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, ''); 
+          case 'KT1':
+            x[key] = x[key].replace(/(  )( )*/, ' ');     
           default:
             break;
         }
