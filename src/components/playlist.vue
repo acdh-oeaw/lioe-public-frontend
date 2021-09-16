@@ -777,7 +777,7 @@ export default class Playlist extends Vue {
   }
 
   saveCSV(col: Collection) {
-    var localItems: any[] = this.editValuesForExport(col); 
+    var localItems: any[] = this.editValuesForExport(col);
 
     const x = xlsx.utils.json_to_sheet(localItems);
     const y = xlsx.writeFile(
@@ -791,7 +791,7 @@ export default class Playlist extends Vue {
 
   saveJSON(col: Collection) {
     var localItems: any[] = this.editValuesForExport(col);
-    
+
     const blob = JSON.stringify(localItems, undefined, 2);
     FileSaver.saveAs(
       new Blob([blob]),
@@ -799,50 +799,177 @@ export default class Playlist extends Vue {
     );
   }
 
-    editValuesForExport(col: Collection): any[] {
-    
-    var localSelect: any[] = _.cloneDeep(col.items);  // creating a deep copy
+  editValuesForExport(col: Collection): any[] {
+    var localSelect: any[] = _.cloneDeep(col.items); // creating a deep copy
 
     localSelect.forEach((x) => {
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
-      delete x["colSources"]; 
+      delete x["colSources"];
       delete x["entry"];
       delete x["Bundesland"];
       delete x["Großregion"];
       for (var key in x) {
         if (Array.isArray(x[key])) {
-          x[key] = x[key].join(' ');
+          x[key] = x[key].join(" ");
         }
         switch (key) {
-          case 'Kleinregion1':
+          case "Kleinregion1":
             x[key] = regions.mapKleinreg(
-              x[key]
-              .replace(/\d[A-Z]?[\.]\d[a-z]/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
-              .replace(/ ,/g, ',')
-            ).trim() + ' (' + x[key] + ')'
+                  x[key]
+                  .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
+                  .replace(/[›]?[L|K]T[\d]?/g, "")
+                  .replace(/ ,/g, ",")
+                ).trim() + " (" + x[key] + ")";
             break;
-          case 'Großregion1':
+          case "Großregion1":
             x[key] = regions.mapGrossreg(
-              x[key]
-              .replace(/\d[A-Z]?[\.]\d/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
-              .replace(/ ,/g, ',')
-              ).trim() + ' (' + x[key] + ')'        
+                  x[key]
+                  .replace(/\d[A-Z]?[\.]\d/g, "")
+                  .replace(/[›]?[L|K]T[\d]?/g, "")
+                  .replace(/ ,/g, ",")
+                ).trim() + " (" + x[key] + ")";
             break;
-          case 'Bundesland1':
+          case "Bundesland1":
             x[key] = regions.mapBundeslaender(
-              x[key]
-              .replace(/\d[A-Z]?[\.]?[\d]?/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
-              .replace(/ ,/g, ',')
-            ).trim() + ' (' + x[key] + ')'
+                  x[key]
+                  .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
+                  .replace(/[›]?[L|K]T[\d]?/g, "")
+                  .replace(/ ,/g, ",")
+                ).trim() + " (" + x[key] + ")";
             break;
-          case 'Gemeinde1':
+          case "Gemeinde1":
             x[key] = x[key]
-              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
-            break;    
+              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")
+              .replace(/[›]?[L|K]T[\d]?/g, "");
+            break;
+          case "HL":
+            if (Array.isArray(x[key]) && x[key].length > 1) {
+              x[key] = x[key][1].replace("≈", "");
+            }
+            break;
+          case "BD/KT":
+            const bd: string[] = [];
+            for (let i = 1; i < 10; i += 1) {
+              const b = x[`GRAM/LT${i}`];
+              if (!b) {
+                continue;
+              }
+              bd.push(b);
+            }
+            const bdnew: string[] = [];
+            for (let i = 0; i < bd.length; i += 1) {
+              bdnew.push(bd[i][0]);
+            }
+            x[key] = _(bdnew).flatten().join(", ");
+            break;
+          case "NR":
+            if (x[key]) {
+              const fragenummerRegex = /.* (\(.*\)){0,1}:/;
+              if (Array.isArray(x[key])) {
+                x[key] = x[key].map((n: string) => {
+                  const m = n.match(fragenummerRegex);
+                  return m ? m[0] : null;
+                });
+              } else {
+                const m = x[key].match(fragenummerRegex);
+                return m ? m[0] : "";
+              }
+              x[key] = _(x[key].filter((n: any) => n)).flatten();
+            }
+            break;
+          case "NR2":
+            if (x[key]) {
+              const fragenummerRegex = /.*(\(.*\)){0,1}:/;
+              if (Array.isArray(x[key])) {
+                x[key] = x[key][0].replace(fragenummerRegex, "");
+              } else {
+                x[key] = x[key].replace(fragenummerRegex, "");
+              }
+            }
+            break;
+          case "LT1_teuthonista":
+            const tauts = [
+              "LT1_teuthonista",
+              "LT2_theutonista",
+              "LT3_theutonista",
+              "LT4_theutonista",
+              "LT5_theutonista",
+              "LT6_theutonista",
+              "LT7_theutonista",
+              "LT8_theutonista",
+              "LT9_theutonista",
+            ];
+
+            const res: string[] = [];
+            tauts.forEach((t) => {
+              if (Array.isArray(x[t]) && x[t].length > 0) {
+                res.push(x[t][0]);
+              } else if (x[t]) {
+                res.push(x[t]);
+              }
+            });
+            x[key] = _(res).flatten().join(", ");
+            break;
+          case "BD/LT*":
+            if (x[key]) {
+              const regexSources = /[≈›|›|≈]?LT\d?/g;
+              if (Array.isArray(x[key])) {
+                x[key] = x[key][0]
+                  .replace(regexSources, "")
+                  .replace(/(  )( )*/g, " ");
+              } else {
+                x[key] = x[key]
+                  .replace(regexSources, "")
+                  .replace(/(  )( )*/g, " ");
+              }
+            }
+            break;
+          case "BD/KT1":
+            const kts = [
+              "KT1",
+              "KT2",
+              "KT3",
+              "KT4",
+              "KT5",
+              "KT6",
+              "KT7",
+              "KT8",
+            ];
+            const tmp: string[] = [];
+            kts.forEach((t) => {
+              if (Array.isArray(x[t]) && x[t].length > 0) {
+                tmp.push(x[t][0]);
+              } else if (x[t]) {
+                tmp.push(x[t]);
+              }
+            });
+            x[key] = _(tmp)
+              .flatten()
+              .join(", ")
+              .replace(/(  )( )*/g, " ");
+            break;
+          case "BD/KT*":
+            if (x[key]) {
+              const regexSources = /›KT\d/;
+              if (Array.isArray(x[key])) {
+                var i;
+                for (i = 0; i < x[key].length; i++) {
+                  x[key][i] = x[key][i]
+                    .replace(regexSources, "")
+                    .replace(/(  )( )*/g, " ");
+                }
+                x[key] = _(x[key]).flatten();
+              } else {
+                x[key] = x[key]
+                  .replace(regexSources, "")
+                  .replace(/(  )( )*/g, " ");
+              }
+            }
+            break;
+          case "Sigle1":
+            x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, "");
+          case "KT1":
+            x[key] = x[key].replace(/(  )( )*/, " ");
           default:
             break;
         }
@@ -850,7 +977,6 @@ export default class Playlist extends Vue {
     });
     return localSelect;
   }
-
 }
 </script>
 <style lang="scss" scoped>
