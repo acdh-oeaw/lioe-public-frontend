@@ -520,6 +520,7 @@ export default class Database extends Vue {
   };
   extended = false;
   totalItems = 100;
+  absoluteTotalItems = 100; // the constant static total number in the whole database. Value is assigned in the init function
 
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
@@ -1247,7 +1248,8 @@ export default class Database extends Vue {
   async init() {
     this.loading = true;
     const countDocument = await getDocumentTotalCount();
-    this.totalItems = countDocument || 0;
+    this.totalItems = countDocument || 0; // this value is updated along the way and is used in the footbar
+    this.absoluteTotalItems = countDocument || 0; // from now on this value is not going to be changed
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
@@ -1317,6 +1319,33 @@ export default class Database extends Vue {
             i.Ort !== '')
       )
     ).value();
+  }
+
+  @Watch("shownItems", { immediate: true })
+  refreshCountingFoot() {
+    if (this.numberOfShownCollEntries !== -1) this.totalItems = this.numberOfShownCollEntries;
+  }
+
+
+  get numberOfShownCollEntries() {
+    let number_entries: number = 0;
+    
+    this.wboeColl.forEach((x) => {
+      if (x.selected) {
+        number_entries += x.items.length;
+      }
+    });
+
+    this.temp_coll.forEach((x) => {
+      if (x.selected) {
+        number_entries += x.items.length;
+      }
+    })    
+
+    // TODO decrease total number in case of intersections between the collections 
+    
+    if (this.showAlleBelege) number_entries = this.absoluteTotalItems;
+    return number_entries > 0 ? number_entries : -1;
   }
 
   showSelectionOnMap() {
