@@ -2,6 +2,7 @@ import { createModule, mutation, action, extractVuexModule, Module, createProxy,
 import { getDocumentsByCollection } from "../api";
 import Vuex from 'vuex'
 import Vue from 'vue'
+import { $addNotification } from "@src/utilities/notifications";
 Vue.use(Vuex)
 
 const VuexModule = createModule({
@@ -125,11 +126,16 @@ class CollectionModule extends VuexModule {
 
     @mutation
     addPlacesToCollection(input: { col: Number, items: any }) {
+        let addingSuccesfull = false;
         this.temp_collections.forEach(collectionLoop => {
             if (collectionLoop.id === input.col) {
                 collectionLoop.items = [...collectionLoop.items, ...input.items]
+                addingSuccesfull = true;
             }
         });
+        if(addingSuccesfull) 
+            $addNotification(this.$bus, {})
+        // TODO: Look at event bus option
     }
 
     @mutation

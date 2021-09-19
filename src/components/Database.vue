@@ -350,6 +350,33 @@
           </v-list>
         </v-menu>
 
+        <v-menu offset-y v-if="temp_coll.length !== 0">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="secondary"
+              v-bind="attrs"
+              v-on="on"
+              class="white--text mx-1"
+              rounded
+              style="float: right"
+            >
+              Aus Sammlung entfernen
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item
+              class="addToCollectionItem"
+              v-for="(item, index) in temp_coll"
+              :key="index"
+            >
+              <v-list-item-title @click="removeBelegeFromCollection(item)">{{
+                item.collection_name
+              }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+
         <!-- Create collection and show on Map -->
         <v-tooltip top style="width: 100px">
           <template v-slot:activator="{ on }">
@@ -455,6 +482,7 @@ import * as FileSaver from 'file-saver';
 import * as xlsx from 'xlsx';
 import * as _ from 'lodash';
 import { concat, forEach } from 'lodash';
+import { $addNotification } from '@src/utilities/notifications';
 
 const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -828,9 +856,33 @@ export default class Database extends Vue {
     return false;
   }
 
+  @Watch('visibleCollections')
+  onVisibleColledtionChangeUpdates() {
+    this.updateSelection();
+  }
+
   @Watch('showSelectedCollection') 
+  showCollectionUpdates() {
+    this.showBelgeCollectionSource();
+    this.updateSelection();
+  }
+
   showBelgeCollectionSource() {
     this.headers[0].show = this.showSelectedCollection;
+  }
+
+  updateSelection() {
+    baseLoop: for (let index = this.selected.length - 1; index >= 0 ; index -= 1) {
+      const entry: any = this.selected[index];
+      for (let j = 0; j < this.shownItems.length; j++) {
+        const beleg: any = this.shownItems[j];
+        if(beleg.ID === entry.ID) {
+          this.selected[index] = beleg;
+          continue baseLoop;
+        }
+      }
+      this.selected.splice(index, 1);
+    }
   }
 
   updateRequestQuery(index: number, e: string) {
@@ -1118,23 +1170,6 @@ export default class Database extends Vue {
       return this.shownItemsWithSource;
     }
     return this._items;
-  }
-
-  // TO-DO: Fix Same Beleg (Item) shown multiple times if it is in multiple collections
-  // To-DO: Potentially get collections from collections store .visibleCollections
-  get collItems() {
-    let allItems: any[] = [];
-    this.wboeColl.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    this.temp_coll.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    return allItems;
   }
 
   get shownItemsWithSource() {

@@ -42,7 +42,6 @@ if (window) {
   })
 }
 
-
 /* tslint:disable */
 window.onload = () => {
   new Vue({
@@ -52,3 +51,4 @@ window.onload = () => {
     router
   }).$mount('#app')
 }
+

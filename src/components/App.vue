@@ -43,7 +43,9 @@
               <router-view />
             </keep-alive>
           </v-flex>
-          <lioe-footer v-if="$route.name !== 'maps'" />
+          <lioe-footer v-if="$route.name !== 'maps'" /> 
+          <notifications-module>
+          </notifications-module>
         </v-layout>
       </v-container>
     </v-content>
@@ -53,10 +55,12 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { initialize as initGeo } from '../store/geo'
 import LioeFooter from './LioeFooter.vue'
+import NotificationsModule from './NotificationsModule.vue'
 
 @Component({
   components: {
-    LioeFooter
+    LioeFooter,
+    NotificationsModule
   }
 })
 export default class App extends Vue {
