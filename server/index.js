@@ -77,11 +77,18 @@ app.post('/es-query', async (req, res) => {
 })
 
 app.get('/es-count', async (req, res) => {
+  const q = req.body
+  const rdata = {
+    method: 'GET',
+    url: 'https://walk-want-grew.acdh.oeaw.ac.at/dboe/_count'
+  }
+  if (q) {
+    rdata['data'] = q;
+  }
   try {
-    const r = (await axios({
-      method: 'GET',
-      url: 'https://walk-want-grew.acdh.oeaw.ac.at/dboe/_count'
-    })).data
+    const r = (await axios(
+      rdata
+    )).data
     res.send(r)
   } catch (e) {
     console.log(e)
