@@ -525,11 +525,10 @@ export default class Database extends Vue {
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
-  sortedHeaders: string[] = [
+  sortedHeaders: any[] = [
     'ID',
     'HL',
     'NL',
-    'HL2',
     'POS',
     'BD/KT',
     'NR',
@@ -542,12 +541,11 @@ export default class Database extends Vue {
     'QU',
     'BIBL',
     'Sigle1',
-    'Sigle10',
+    // 'Sigle10', is for the Staat column
     'Bundesland1',
     'Großregion1',
     'Kleinregion1',
     'Gemeinde1'
-    // ...
   ]
 
   headers: TableHeader[] = [
@@ -1630,7 +1628,11 @@ export default class Database extends Vue {
     
     var localSelect: any[] = _.cloneDeep(this.selected);  // creating a deep copy
 
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = [];
+
     localSelect.forEach((x) => {
+      var localOrdered: any = {};
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
       delete x["colSources"]; 
       delete x["entry"];
@@ -1668,7 +1670,7 @@ export default class Database extends Vue {
           case 'Gemeinde1':
             x[key] = x[key]
               .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '').trim()
             break;
           case 'HL':
             if (Array.isArray(x[key]) && x[key].length > 1) {
@@ -1704,8 +1706,26 @@ export default class Database extends Vue {
             break;
         }
       }
+    
+    // creating a local ordered copy per selected item
+    this.sortedHeaders.forEach((key) => {
+      if (x[key] !== undefined) {
+        localOrdered[key] = x[key];
+      }
+    })
+
+    // adding the values that are not included in the DB table
+    for (var key in x) {
+      if (!(key in orderedSelect)) {
+        localOrdered[key] = x[key];
+      }
+    }
+
+    // updating the exported object
+    orderedSelect.push(localOrdered);
     });
-    return localSelect;
+    
+    return orderedSelect;
   }
 
   saveXLSX() {
