@@ -447,6 +447,7 @@ import {
   searchCollections,
   getCollectionByIds,
   SearchRequest,
+  getDocumentTotalCountPerRequest,
 } from '../api';
 import { stateProxy, Collection } from '../store/collections';
 import { geoStore } from '../store/geo';
@@ -1595,7 +1596,11 @@ export default class Database extends Vue {
       }));
       this.totalItems = res.total.value || 0;
       this.searching = false;
-      const work = await getDocumentTotalCount();
+      // const work = await getDocumentTotalCount();
+      if (this.totalItems === 10000) {
+        const work = await getDocumentTotalCountPerRequest();
+        this.totalItems = work;
+      } 
     } else {
       this.init();
     }
