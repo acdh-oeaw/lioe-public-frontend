@@ -1,9 +1,12 @@
-export function $addNotification(context:any, notification:Notification) {
-    context.$root.$emit('notify', notification);
+import { $bus } from "..";
+
+export function $addNotification( notification:Notification) {
+    $bus.$emit('notify', notification);
   }
   
   export interface Notification {
       message: String;
       type?: String;
+      timeout?: Number;
   };
   

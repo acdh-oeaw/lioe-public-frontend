@@ -11,6 +11,10 @@ import VueLazyload from 'vue-lazyload'
 
 // useful comment here
 
+export const $bus = new Vue();
+
+Vue.prototype.$bus = $bus;
+
 Vue.config.productionTip = true
 // Vue.directive('line-clamp', lineClamp)
 Vue.use(Vuex)

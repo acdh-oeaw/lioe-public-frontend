@@ -1,33 +1,27 @@
 <template>
-  <div>
-    <v-snackbar
-      vertical
+  <v-snackbar
       bottom
       right
-      :timeout="2000"
-      time
+      :max-width="notificationMaxWidth"
+      :timeout="notificationTimeout"
       v-model="showNotification"
     >
-    
       {{ activeNotivication.message }}
+      <v-btn
+        color="red"
+        text
+        v-bind="attrs"
+        @click="showNotification = false"
+      >
+        Dismiss
+      </v-btn>
 
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          color="red"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-        >
-          Close
-        </v-btn>
-      </template>
     </v-snackbar>
-  </div>
 </template>
 <script lang="ts">
 import { Notification } from '@src/utilities/notifications';
 import { Component, Vue, Watch } from 'vue-property-decorator';
-
+import { $bus } from '..';
 
 @Component({
   name: 'NotificationModule'
@@ -40,8 +34,15 @@ export default class NotificationsModule extends Vue {
 
   showNotification: boolean = false;
 
+  notificationMaxWidth = 10;
+   
+
+  get notificationTimeout(){
+      return this.activeNotivication.timeout || 4000;
+  }
+
   notify(notification: Notification) {
-    console.log('Notify', notification.message);
+    this.showNotification = true;
   }
 
   addNotfication(notification: Notification) {
@@ -50,12 +51,11 @@ export default class NotificationsModule extends Vue {
 
   @Watch('activeNotivication')
   onActiveNotificationChanged() {
-    this.showNotification = true;
     this.notify(this.activeNotivication);
   }
 
   mounted() {
-    this.$root.$on('notify', (notification: Notification) => {
+    $bus.$on('notify', (notification: Notification) => {
       this.addNotfication(notification);
     });
   }
