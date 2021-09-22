@@ -546,7 +546,7 @@ export default class Database extends Vue {
     'Großregion1',
     'Kleinregion1',
     'Gemeinde1'
-  ]
+  ];
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -1712,11 +1712,11 @@ export default class Database extends Vue {
       if (x[key] !== undefined) {
         localOrdered[key] = x[key];
       }
-    })
+    });
 
     // adding the values that are not included in the DB table
     for (var key in x) {
-      if (!(key in orderedSelect)) {
+      if (!(key in localOrdered)) {
         localOrdered[key] = x[key];
       }
     }

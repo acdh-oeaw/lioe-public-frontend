@@ -501,6 +501,29 @@ export default class Playlist extends Vue {
   collectionSearchCurrentPage = 1;
   isSearching = false;
 
+  sortedHeaders: any[] = [
+    'ID',
+    'HL',
+    'NL',
+    'POS',
+    'BD/KT',
+    'NR',
+    'NR2',
+    'LT1_teuthonista',  
+    'BD/LT*',
+    'Ort/LT',
+    'BD/KT1',
+    'BD/KT*',
+    'QU',
+    'BIBL',
+    'Sigle1',
+    // 'Sigle10', is for the Staat column
+    'Bundesland1',
+    'Großregion1',
+    'Kleinregion1',
+    'Gemeinde1'
+  ];
+
   async loadAndAppendNextPageCollections() {
     if (this.searchCollection !== null) {
       this.isSearching = true;
@@ -802,7 +825,11 @@ export default class Playlist extends Vue {
   editValuesForExport(col: Collection): any[] {
     var localSelect: any[] = _.cloneDeep(col.items); // creating a deep copy
 
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = [];
+
     localSelect.forEach((x) => {
+      var localOrdered: any = {};
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
       delete x["colSources"];
       delete x["entry"];
@@ -974,8 +1001,24 @@ export default class Playlist extends Vue {
             break;
         }
       }
+
+      this.sortedHeaders.forEach((key) => {
+        if (x[key] !== undefined) {
+          console.log(x[key])
+          localOrdered[key] = x[key];
+        }
+      });
+
+      for (var key in x) {
+        if (!(key in localOrdered)) {
+          localOrdered[key] = x[key];
+        }
+      }
+
+      orderedSelect.push(localOrdered);
     });
-    return localSelect;
+
+    return orderedSelect;
   }
 }
 </script>
