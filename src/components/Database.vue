@@ -520,15 +520,15 @@ export default class Database extends Vue {
   };
   extended = false;
   totalItems = 100;
+  absoluteTotalItems = 100; // the constant static total number in the whole database. Value is assigned in the init function
 
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
-  sortedHeaders: string[] = [
+  sortedHeaders: any[] = [
     'ID',
     'HL',
     'NL',
-    'HL2',
     'POS',
     'BD/KT',
     'NR',
@@ -541,13 +541,12 @@ export default class Database extends Vue {
     'QU',
     'BIBL',
     'Sigle1',
-    'Sigle10',
+    // 'Sigle10', is for the Staat column
     'Bundesland1',
     'Großregion1',
     'Kleinregion1',
     'Gemeinde1'
-    // ...
-  ]
+  ];
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -1247,7 +1246,8 @@ export default class Database extends Vue {
   async init() {
     this.loading = true;
     const countDocument = await getDocumentTotalCount();
-    this.totalItems = countDocument || 0;
+    this.totalItems = countDocument || 0; // this value is updated along the way and is used in the footbar
+    this.absoluteTotalItems = countDocument || 0; // from now on this value is not going to be changed
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
@@ -1317,6 +1317,33 @@ export default class Database extends Vue {
             i.Ort !== '')
       )
     ).value();
+  }
+
+  @Watch("shownItems", { immediate: true })
+  refreshCountingFoot() {
+    if (this.numberOfShownCollEntries !== -1) this.totalItems = this.numberOfShownCollEntries;
+  }
+
+
+  get numberOfShownCollEntries() {
+    let number_entries: number = 0;
+    
+    this.wboeColl.forEach((x) => {
+      if (x.selected) {
+        number_entries += x.items.length;
+      }
+    });
+
+    this.temp_coll.forEach((x) => {
+      if (x.selected) {
+        number_entries += x.items.length;
+      }
+    })    
+
+    // TODO decrease total number in case of intersections between the collections 
+    
+    if (this.showAlleBelege) number_entries = this.absoluteTotalItems;
+    return number_entries > 0 ? number_entries : -1;
   }
 
   showSelectionOnMap() {
@@ -1601,7 +1628,11 @@ export default class Database extends Vue {
     
     var localSelect: any[] = _.cloneDeep(this.selected);  // creating a deep copy
 
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = [];
+
     localSelect.forEach((x) => {
+      var localOrdered: any = {};
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
       delete x["colSources"]; 
       delete x["entry"];
@@ -1639,7 +1670,7 @@ export default class Database extends Vue {
           case 'Gemeinde1':
             x[key] = x[key]
               .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '').trim()
             break;
           case 'HL':
             if (Array.isArray(x[key]) && x[key].length > 1) {
@@ -1675,8 +1706,26 @@ export default class Database extends Vue {
             break;
         }
       }
+    
+    // creating a local ordered copy per selected item
+    this.sortedHeaders.forEach((key) => {
+      if (x[key] !== undefined) {
+        localOrdered[key] = x[key];
+      }
     });
-    return localSelect;
+
+    // adding the values that are not included in the DB table
+    for (var key in x) {
+      if (!(key in localOrdered)) {
+        localOrdered[key] = x[key];
+      }
+    }
+
+    // updating the exported object
+    orderedSelect.push(localOrdered);
+    });
+    
+    return orderedSelect;
   }
 
   saveXLSX() {
