@@ -92,11 +92,12 @@ export async function getDocumentTotalCount(): Promise<number> {
 }
 
 export async function getDocumentTotalCountPerRequest(): Promise<number> {
+  
+  const params = {query: finalQuery}
+
   const r = (await axios(localEndpoint + '/es-count', {
     method: 'GET',
-    data: {
-      query: finalQuery,
-    },
+    params: params
   })
   ).data
 
