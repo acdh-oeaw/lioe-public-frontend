@@ -877,9 +877,10 @@ export default class Database extends Vue {
   addBelegtoCollection(col: Collection) {
     console.log('got clicked')
     const itemsID = col.items.map(item => item.ID); // local array of the items
-    const addedItems = this.mappableSelectionItems.filter((item) => { // filtered items, does not include already existing items
+    console.log('itemsID', itemsID, 'mappableSelectionItems: ', this.mappableSelectionItems.map(x => x.ID))
+    const addedItems = this.mappableSelectionItems.filter((item) =>  // filtered items, does not include already existing items
       !itemsID.includes(item.ID)
-    })
+    )
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
       items: addedItems,
@@ -1326,27 +1327,20 @@ export default class Database extends Vue {
 
   @Watch("shownItems", { immediate: true })
   refreshCountingFoot() {
-    if (this.numberOfShownCollEntries !== -1) this.totalItems = this.numberOfShownCollEntries;
+    const updatedCount = this.numberOfShownCollEntries;
+    if (updatedCount !== -1) this.totalItems = updatedCount;
   }
 
 
   get numberOfShownCollEntries() {
     let number_entries: number = 0;
-    
-    this.wboeColl.forEach((x) => {
-      if (x.selected) {
-        number_entries += x.items.length;
-      }
-    });
 
-    this.temp_coll.forEach((x) => {
-      if (x.selected) {
-        number_entries += x.items.length;
-      }
-    })    
-
-    // TODO decrease total number in case of intersections between the collections 
+    let tempID: any[] = []; 
+    this.wboeColl.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
+    this.temp_coll.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
     
+    number_entries = tempID.length;
+
     if (this.showAlleBelege) number_entries = this.absoluteTotalItems;
     return number_entries > 0 ? number_entries : -1;
   }

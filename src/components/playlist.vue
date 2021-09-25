@@ -766,9 +766,10 @@ export default class Playlist extends Vue {
 
   addBelegeToCollection(col: Collection, add_to: Collection) {
     const itemsID = add_to.items.map(x => x.ID);
-    const addedItems = col.items.filter((item) => {
-      !itemsID.includes(item);
-    })
+    const addedItems = col.items.filter((item) => 
+      !itemsID.includes(item)
+    );
+    
     stateProxy.collections.addPlacesToCollection({
       col: add_to.id,
       items: addedItems,
