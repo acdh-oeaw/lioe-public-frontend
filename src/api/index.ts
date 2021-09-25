@@ -101,8 +101,6 @@ export async function getDocumentTotalCountPerRequest(): Promise<number> {
   })
   ).data
 
-  console.log(finalQuery, r)
-  finalQuery = {} // initialization
   
   
   return r.count ? r.count : 0; // && r.data && r.data.count ? r.data.count : 0;
