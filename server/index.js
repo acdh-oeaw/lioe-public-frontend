@@ -78,14 +78,14 @@ app.post('/es-query', async (req, res) => {
 })
 
 app.get('/es-count', async (req, res) => {
-  const q = req.body
-  console.log('q is: ', req.body, req.data)
+  const q = req.body.query || JSON.parse(req.query.query)
+  const data = {query:q}
   const rdata = {
     method: 'GET',
     url: 'https://walk-want-grew.acdh.oeaw.ac.at/dboe/_count'
   }
   if (q) {
-    rdata['data'] = q;
+    rdata['data'] = data;
   }
   try {
     const r = (await axios(

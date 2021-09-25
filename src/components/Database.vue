@@ -1594,13 +1594,14 @@ export default class Database extends Vue {
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
-      this.totalItems = res.total.value || 0;
-      this.searching = false;
-      // const work = await getDocumentTotalCount();
-      if (this.totalItems === 10000) {
+      if (res.total.value === 10000) {
         const work = await getDocumentTotalCountPerRequest();
-        this.totalItems = work;
-      } 
+        if (work !== this.totalItems) {
+          this.totalItems = work;
+        }
+      } else {
+        this.totalItems = res.total.value || 0;
+      }
     } else {
       this.init();
     }
