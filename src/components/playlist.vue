@@ -1009,7 +1009,6 @@ export default class Playlist extends Vue {
 
       this.sortedHeaders.forEach((key) => {
         if (x[key] !== undefined) {
-          console.log(x[key])
           localOrdered[key] = x[key];
         }
       });

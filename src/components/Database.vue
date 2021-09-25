@@ -877,7 +877,6 @@ export default class Database extends Vue {
   addBelegtoCollection(col: Collection) {
     console.log('got clicked')
     const itemsID = col.items.map(item => item.ID); // local array of the items
-    console.log('itemsID', itemsID, 'mappableSelectionItems: ', this.mappableSelectionItems.map(x => x.ID))
     const addedItems = this.mappableSelectionItems.filter((item) =>  // filtered items, does not include already existing items
       !itemsID.includes(item.ID)
     )
