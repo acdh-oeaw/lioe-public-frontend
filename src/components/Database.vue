@@ -846,7 +846,6 @@ export default class Database extends Vue {
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     let allBelege = this.showAlleBelege;
-    //console.log(activeCollections, allBelege)
     if (activeCollections > 0 && !allBelege) {
       return true;
     }
@@ -856,7 +855,6 @@ export default class Database extends Vue {
   @Watch('visibleCollections')
   onVisibleColledtionChangeUpdates() {
     this.updateSelection();
-    console.log('Updated selection');
   }
 
   @Watch('showSelectedCollection') 
@@ -904,7 +902,6 @@ export default class Database extends Vue {
   }
 
   addBelegtoCollection(col: Collection) {
-    console.log('got clicked')
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
       items: this.mappableSelectionItems,
@@ -990,7 +987,6 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
-    // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id)
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
