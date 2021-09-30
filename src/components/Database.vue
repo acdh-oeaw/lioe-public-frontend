@@ -214,6 +214,7 @@
         show-select
         return-object
         :footer-props="footerProps"
+        :items-per-page="10"
         :options.sync="pagination"
         :server-items-length="totalItems"
         :headers="visibleHeaders"
@@ -1135,9 +1136,13 @@ export default class Database extends Vue {
     );
   }
 
+  get _shownItemsWithSource() {
+    return this.shownItemsWithSource.slice(this.pagination.page - 1, this.pagination.page - 1 + this.pagination.itemsPerPage); // returns the current relevant pagination
+  }
+
   get shownItems() {
     if (this.showSelectedCollection) {
-      return this.shownItemsWithSource;
+      return this._shownItemsWithSource; //this.shownItemsWithSource.slice(10);
     }
     return this._items;
   }
