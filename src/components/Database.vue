@@ -36,7 +36,7 @@
               prepend-inner-icon="search"
               :value="req.query"
               @input="updateRequestQueryDebounced(index, $event)"
-              :disabled="this.showSelectedCollection"
+              :disabled="showSelectedCollection"
               :loading="searching"
               hide-details
               solo
@@ -46,7 +46,7 @@
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="appendArrayReq()" v-on="on"
+                <v-btn icon @click="appendArrayReq()" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>add_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -56,7 +56,7 @@
           <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="removeElementArrayReq(req)" v-on="on"
+                <v-btn icon @click="removeElementArrayReq(req)" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>remove_circle_outline</v-icon></v-btn
                 ></template
               >

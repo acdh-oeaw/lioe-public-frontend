@@ -63,7 +63,6 @@ app.get('/api/article/:article', async (req, res) => {
 
 app.post('/es-query', async (req, res) => {
   const q = req.body
-  console.log('search q: ', q)
   try {
     const r = (await axios({
       method: 'POST',
