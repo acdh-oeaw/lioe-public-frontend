@@ -1137,12 +1137,15 @@ export default class Database extends Vue {
   }
 
   get _shownItemsWithSource() {
-    return this.shownItemsWithSource.slice(this.pagination.page - 1, this.pagination.page - 1 + this.pagination.itemsPerPage); // returns the current relevant pagination
+    var startCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage;
+    var lastCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage + this.pagination.itemsPerPage + 1;
+    if (lastCount > this.shownItemsWithSource.length) lastCount = this.shownItemsWithSource.length;
+    return this.shownItemsWithSource.slice(startCount, lastCount); // returns the current relevant pagination
   }
 
   get shownItems() {
     if (this.showSelectedCollection) {
-      return this._shownItemsWithSource; //this.shownItemsWithSource.slice(10);
+      return this._shownItemsWithSource; //this.shownItemsWithSource;
     }
     return this._items;
   }
@@ -1297,22 +1300,24 @@ export default class Database extends Vue {
 
   @Watch('pagination', { deep: true })
   updateResults() {
-    if (this.request_arr[0] && this.request_arr[0].query !== '') {
-      this.changeQueryParam({
-        page: this.pagination.page,
+    if (!this.showSelectedCollection) {
+      if (this.request_arr[0] && this.request_arr[0].query !== '') {
+        this.changeQueryParam({
+          page: this.pagination.page,
         itemsPerPage: this.pagination.itemsPerPage,
       });
 
       // this.$router.replace({
-      //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
+        //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
       //   }).catch(() => console.log("route duplicated. "))
 
-      this.onChangeQuery(this.request_arr);
-    } else if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList);
-    } else {
-      this.init();
-    }
+        this.onChangeQuery(this.request_arr);
+      } else if (this.collection_ids) {
+        this.loadCollectionIds(this.collectionIdList);
+      } else {
+        this.init();
+      }
+    } 
   }
 
   get mappableSelectionItems() {
