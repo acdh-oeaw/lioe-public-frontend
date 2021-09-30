@@ -133,29 +133,6 @@ class CollectionModule extends VuexModule {
     }
 
     @mutation
-    removeEntriesFromCollection(input: { col: Number, items: any }) {
-        this.temp_collections.forEach(collectionLoop => {
-            if (collectionLoop.id === input.col) {
-                collectionLoop.items = collectionLoop.items.filter(function(item){
-                    const ind = input.items.indexOf(item);
-                    if(ind < 0) {
-                        return true;
-                    }
-                    else {
-                        input.items.splice(ind,1); 
-                        return false
-                    }
-                })
-            }
-        });
-
-        if(input.items.length > 0) {
-            console.log('Couldn\'t delete all items: ', input.items);
-            // To-Do Pop up info or throw error 
-        } 
-    }
-
-    @mutation
     swapShow(item: Collection) {
         if (item.preColl === -1) {
             this.temp_collections.forEach(itemLoop => {
