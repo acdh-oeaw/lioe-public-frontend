@@ -1,6 +1,6 @@
 <template>
-  <div class="fill-height">
-    <v-flex class="fill-height" xs12>
+  <div>
+    <v-flex class="fill-height" xs12 style="margin-bottom: 100px">
       <v-card class="d-flex flex-column" elevation="0">
         <span>
           <v-card-text
@@ -460,17 +460,27 @@
           </v-autocomplete>
         </v-card-text>
         <v-divider />
-        <v-card-actions>
-          <v-btn block v-if="onMapPage" elevation="0" @click="routeToDB()">
-            <v-icon left>mdi-database</v-icon>
-            In Datenbank zeigen
-          </v-btn>
-          <v-btn block v-else elevation="0" @click="routeToMaps()">
-            <v-icon left>mdi-map</v-icon>
-            Auf Karte zeigen
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+
+      </v-card>    
+      
+      <v-container 
+        style="position:absolute;
+              bottom: 0px;
+              padding-right: 20px"
+        >
+        <v-card elevation="1">
+          <v-card-actions>
+            <v-btn block v-if="onMapPage" elevation="0" @click="routeToDB()">
+              <v-icon left>mdi-database</v-icon>
+              In Datenbank zeigen
+            </v-btn>
+            <v-btn block v-else elevation="0" @click="routeToMaps()">
+              <v-icon left>mdi-map</v-icon>
+              Auf Karte zeigen
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-container>
     </v-flex>
   </div>
 </template>
@@ -509,7 +519,7 @@ export default class Playlist extends Vue {
     'BD/KT',
     'NR',
     'NR2',
-    'LT1_teuthonista',  
+    'LT1_teuthonista',
     'BD/LT*',
     'Ort/LT',
     'BD/KT1',
