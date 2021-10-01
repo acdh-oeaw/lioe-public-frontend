@@ -472,11 +472,11 @@
         >
         <v-card elevation="1">
           <v-card-actions>
-            <v-btn block v-if="onMapPage" elevation="0" @click="routeToDB()">
+            <v-btn block v-if="onMapPage" elevation="0" @click="routeToDB()" color="primary">
               <v-icon left>mdi-database</v-icon>
               In Datenbank zeigen
             </v-btn>
-            <v-btn block v-else elevation="0" @click="routeToMaps()">
+            <v-btn block v-else elevation="0" @click="routeToMaps()" color="primary">
               <v-icon left>mdi-map</v-icon>
               Auf Karte zeigen
             </v-btn>
