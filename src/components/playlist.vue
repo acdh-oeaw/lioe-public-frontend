@@ -53,6 +53,24 @@
               </v-list-item-content>
             </v-list-item>
             <v-subheader>Meine Sammlungen</v-subheader>
+
+            <v-tooltip right max-width="220" min-width="100">
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  color="primary"
+                  depressed
+                  @click="addCollection()"
+                  style="width: 98%; margin: 0 auto"
+                  v-on="on"
+                >
+                  Sammlung anlegen
+                </v-btn>
+              </template>
+              <span
+                >Die erstellte Sammlung wird nicht online gespeichert sondern hält
+                nur so lange, wie die Seite nicht neu geladen wird.</span
+              >
+            </v-tooltip>
             <v-list-item-group>
               <draggable
                 v-model="temp_coll"
@@ -216,26 +234,70 @@
               </draggable>
             </v-list-item-group>
           </v-list>
-          <v-tooltip right max-width="220" min-width="100">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                color="primary"
-                depressed
-                @click="addCollection()"
-                style="width: 98%; margin: 0 auto"
-                v-on="on"
-              >
-                Sammlung anlegen
-              </v-btn>
-            </template>
-            <span
-              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
-              nur so lange, wie die Seite nicht neu geladen wird.</span
-            >
-          </v-tooltip>
 
+          <v-subheader>WBÖ Sammlungen</v-subheader>
+          <v-autocomplete
+            :items="collectionSearchItems"
+            v-model="selectedCollections"
+            :search-input.sync="searchCollection"
+            label="WBÖ-Sammlungen hinzufügen..."
+            hide-details
+            style="width: 98%"
+            dense
+            flat
+            rounded
+            filled
+            hide-selected
+            multiple
+          >
+            <template v-slot:no-data>
+              <v-list-item v-if="isSearching">
+                <v-list-item-title class="caption grey--text text-center">
+                  Lade...
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                v-else-if="searchCollection === null || searchCollection === ''"
+              >
+                <v-list-item-title class="caption grey--text text-center">
+                  Zu tippen beginnen, um nach Sammlungen zu suchen
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else>
+                <v-list-item-title class="caption grey--text text-center">
+                  Keine Sammlung gefudnen
+                </v-list-item-title>
+              </v-list-item>
+            </template>
+            <template v-slot:item="{ item }">
+              <v-list-item-content
+                @click="getLocationsOfCollections(this.selectedCollections)"
+              >
+                <v-list-item-title v-text="item.text"></v-list-item-title>
+                <v-list-item-subtitle
+                  v-text="item.description"
+                ></v-list-item-subtitle>
+              </v-list-item-content>
+            </template>
+            <template v-slot:selection="{ item }">
+              <span v-if="false"> {{ item.text }} </span>
+            </template>
+            <template v-slot:append-item="">
+              <v-lazy
+                v-if="
+                  searchCollection !== '' &&
+                  searchCollection !== null &&
+                  collectionSearchItems.length > 0 &&
+                  collectionSearchHasNextPage
+                "
+              >
+                <load-more-items @render="loadAndAppendNextPageCollections">
+                  <v-progress-linear class="mx-5" indeterminate />
+                </load-more-items>
+              </v-lazy>
+            </template>
+          </v-autocomplete>
           <v-list dense>
-            <v-subheader>WBÖ Sammlungen</v-subheader>
             <v-list-item-group>
               <draggable
                 v-model="wboe_coll"
@@ -397,67 +459,7 @@
               </draggable>
             </v-list-item-group>
           </v-list>
-          <v-autocomplete
-            :items="collectionSearchItems"
-            v-model="selectedCollections"
-            :search-input.sync="searchCollection"
-            label="WBÖ-Sammlungen hinzufügen..."
-            hide-details
-            style="width: 98%"
-            dense
-            flat
-            rounded
-            filled
-            hide-selected
-            multiple
-          >
-            <template v-slot:no-data>
-              <v-list-item v-if="isSearching">
-                <v-list-item-title class="caption grey--text text-center">
-                  Lade...
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                v-else-if="searchCollection === null || searchCollection === ''"
-              >
-                <v-list-item-title class="caption grey--text text-center">
-                  Zu tippen beginnen, um nach Sammlungen zu suchen
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-else>
-                <v-list-item-title class="caption grey--text text-center">
-                  Keine Sammlung gefudnen
-                </v-list-item-title>
-              </v-list-item>
-            </template>
-            <template v-slot:item="{ item }">
-              <v-list-item-content
-                @click="getLocationsOfCollections(this.selectedCollections)"
-              >
-                <v-list-item-title v-text="item.text"></v-list-item-title>
-                <v-list-item-subtitle
-                  v-text="item.description"
-                ></v-list-item-subtitle>
-              </v-list-item-content>
-            </template>
-            <template v-slot:selection="{ item }">
-              <span v-if="false"> {{ item.text }} </span>
-            </template>
-            <template v-slot:append-item="">
-              <v-lazy
-                v-if="
-                  searchCollection !== '' &&
-                  searchCollection !== null &&
-                  collectionSearchItems.length > 0 &&
-                  collectionSearchHasNextPage
-                "
-              >
-                <load-more-items @render="loadAndAppendNextPageCollections">
-                  <v-progress-linear class="mx-5" indeterminate />
-                </load-more-items>
-              </v-lazy>
-            </template>
-          </v-autocomplete>
+
         </v-card-text>
         <v-divider />
 
