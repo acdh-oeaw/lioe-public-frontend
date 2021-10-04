@@ -1,19 +1,22 @@
 <template>
   <v-snackbar
-      bottom
-      right
       :max-width="notificationMaxWidth"
       :timeout="notificationTimeout"
       v-model="showNotification"
+
+      bottom
+      right
+      outlined
+      elevation="4"
+      :color="notificationStyle.color"
     >
-      {{ activeNotivication.message }}
+      {{ activeNotification.message }}
       <v-btn
-        color="red"
         text
         v-bind="attrs"
         @click="showNotification = false"
       >
-        Dismiss
+        <v-icon>close</v-icon>
       </v-btn>
 
     </v-snackbar>
@@ -30,28 +33,47 @@ export default class NotificationsModule extends Vue {
 
   pendingNotifications: Notification[] = [];
 
-  activeNotivication: Notification = {message:''};
+  activeNotification: Notification = {message:''};
 
   showNotification: boolean = false;
 
   notificationMaxWidth = 10;
    
+  activeNotificationStyle: NotificationStyle = {
+    color: 'success',
+  }
 
   get notificationTimeout(){
-      return this.activeNotivication.timeout || 4000;
+      return this.activeNotification.timeout || 4000;
+  }
+
+  get notificationStyle(){
+    switch (this.activeNotification.type) {
+      case 'success':
+        this.activeNotificationStyle.color = 'success'
+        break;
+      case 'error':
+        this.activeNotificationStyle.color = 'error'
+        break;
+      default:
+        this.activeNotificationStyle.color = 'grey'
+        break;
+    }
+    return this.activeNotificationStyle;
   }
 
   notify(notification: Notification) {
+    this.showNotification = false;
     this.showNotification = true;
   }
 
   addNotfication(notification: Notification) {
-    this.activeNotivication = notification;
+    this.activeNotification = notification;
   }
 
-  @Watch('activeNotivication')
+  @Watch('activeNotification')
   onActiveNotificationChanged() {
-    this.notify(this.activeNotivication);
+    this.notify(this.activeNotification);
   }
 
   mounted() {
@@ -61,6 +83,10 @@ export default class NotificationsModule extends Vue {
   }
 }
 
+interface NotificationStyle {
+  color: string;
+  
+}
 
 
 </script>

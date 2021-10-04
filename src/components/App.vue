@@ -44,8 +44,7 @@
             </keep-alive>
           </v-flex>
           <lioe-footer v-if="$route.name !== 'maps'" /> 
-          <notifications-module>
-          </notifications-module>
+          <notifications-module/>
         </v-layout>
       </v-container>
     </v-content>

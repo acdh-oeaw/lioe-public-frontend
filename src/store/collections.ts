@@ -106,7 +106,7 @@ class CollectionModule extends VuexModule {
         this.temp_collections.forEach(collLoop => {
             if (coll.changedColl.id == collLoop.id) {
                 this.temp_collections.splice(this.temp_collections.indexOf(collLoop), 1)
-                $addNotification({message: 'Die Sammlung ' + coll.changedColl.collection_name + ' wurde erfolgreich angelegt', type: 'success'});
+                $addNotification({message: 'Die Sammlung ' + coll.changedColl.collection_name + ' wurde erfolgreich entfernt', type: 'success'});
             }
         });
     }
