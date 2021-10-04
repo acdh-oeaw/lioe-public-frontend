@@ -30,6 +30,7 @@
             hide-details
             style="width: 98%"
             v-model="filterCollection"
+            :disabled="this.wboe_coll.length === 0 && this.temp_coll.length === 0"
           ></v-text-field>
         </v-card-title>
         <v-divider />
