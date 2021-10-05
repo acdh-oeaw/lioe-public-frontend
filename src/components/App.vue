@@ -45,8 +45,8 @@
           </v-flex>
           <lioe-footer id="logo" v-if="$route.name !== 'maps'"/>
           <v-tour 
-            name="BaseTour" 
-            :steps="baseTour_steps" 
+            name="databaseTour" 
+            :steps="databaseTour_Steps" 
             :options="{ 
               useKeyboardNavigation: true,
               debug: true, // TODO: Remove
@@ -97,30 +97,67 @@ export default class App extends Vue {
   mounted() {
     initGeo();
     // @ts-ignore
-    this.$tours['BaseTour'].start();
+    this.$tours['databaseTour'].start();
   }
 
-  baseTour_steps = [
+  databaseTour_Steps = [
     {
-      target:'#logo',
+      target:'#dbSearchbar',
       header: {
-        title: 'Logo',
+        title: 'Suchleiste',
       },
-      content: 'This is the Logo',
+      content: 'Hier kannst du die Belegdatenbank durchsuchen. Beachte: Dies geht nur wenn du dir alle Belege und nicht wenn du dir Sammlungen anschaust.',
       params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegTable',
+      header: {
+        title: 'Beleg Datenbank',
+      },
+      content: 'Hier siehst du die Belege aus allen Quellen, die du momentan ausgewählt hast (standardmäßig sind das alle Belege).',
+      params: {
+        enableScrolling: false,
         placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }
     },
     {
-      target:'#tabs',
-      header: {
-        title: 'Tab',
-      },
-      content: 'These Tabs Show the available pages',
+      target:'#dbBelegTableRow-0',
+      content: 'Das ist ein Beleg, klicke entweder auf den Eintrag oder die Checkbox um ihn aus-/abzuwählen.',
       params: {
-        placement: 'bottom-start' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }
-    }
+    },
+    {
+      target:'#dbPagination',
+      content: 'Hier kannst du zwischen unterschiedlichen Seiten wechseln um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
+      params: {
+        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegSourceBanner',
+      header: {
+        title: 'Beleg Quellen',
+      },
+      content: 'Hier siehst du aus welchen Quellen dir gerade Belege angezeigt werden.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbPlaylistToggleBtn',
+      content: 'Klicke hier um die Sammlungsübersicht zu öffnen.',
+      params: {
+        enableScrolling: false,
+        placement: 'right'       
+      }
+    },
+
   ]
 }
 </script>

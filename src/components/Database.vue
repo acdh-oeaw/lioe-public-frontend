@@ -7,6 +7,7 @@
             fab
             fixed
             :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+            id="dbPlaylistToggleBtn"
           >
             <v-icon>mdi-playlist-edit</v-icon>
           </v-btn>
@@ -23,7 +24,7 @@
         :style="{ 'left': showPlaylistSidebar === true && index === 0 ? '55px' : '0px', 
                   width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%' }"
       >
-        <v-row no-gutters>
+        <v-row no-gutters id="dbSearchbar">
           <v-col class="pa-0 flex-grow-1" 
           style="margin-left: 5px"
           >
@@ -180,6 +181,7 @@
       
       <!-- Visible Collections -->
       <v-banner
+        id="dbBelegSourceBanner"
         class="mt-2 pa-0"
       >
         
@@ -208,6 +210,7 @@
         </template>
       </v-banner>
       <v-data-table
+        id="dbBelegTable"
         class="mt-2"
         v-model="selected"
         dense
@@ -264,14 +267,14 @@
               </v-btn>
             </v-col>
             <v-col class="py-0">
-              <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />
+              <v-data-footer id="dbPagination" style="border-top: 0" v-bind="props" v-on="on" />
             </v-col>
           </v-row>
         </template>
 
         <!-- Entries of the Belege -->
         <template v-slot:item="{ item, index, isSelected }">
-          <tr @click="customSelect(item)">
+          <tr @click="customSelect(item)" v-bind:id="'dbBelegTableRow-' + index">
             <td>
               <v-checkbox
                 :value="isSelected"
