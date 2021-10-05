@@ -19,6 +19,7 @@
           <v-flex class="pl-3 pr-3 header-navigation">
             <v-flex>
               <v-tabs
+                id="footer"
                 show-arrows
                 active-class="active-tab"
                 grow
@@ -43,7 +44,8 @@
               <router-view />
             </keep-alive>
           </v-flex>
-          <lioe-footer v-if="$route.name !== 'maps'" />
+          <lioe-footer v-if="$route.name !== 'maps'"/>
+          <v-tour name="BaseTour" :steps="baseTour_steps"></v-tour>
         </v-layout>
       </v-container>
     </v-content>
@@ -61,8 +63,20 @@ import LioeFooter from './LioeFooter.vue'
 })
 export default class App extends Vue {
   mounted() {
-    initGeo()
+    initGeo();
+    // @ts-ignore
+    this.$tours['BaseTour'].start();
   }
+
+  baseTour_steps = [
+    {
+      target:'#footer',
+      header: {
+        title: 'Test',
+      },
+      content: 'Bkalajkslsjfl sadfjsl jwlfjewwewf  sdfjlj',
+    }
+  ]
 }
 </script>
 
