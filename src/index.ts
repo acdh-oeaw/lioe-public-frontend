@@ -11,7 +11,6 @@ import 'vuetify/dist/vuetify.min.css'
 import VueLazyload from 'vue-lazyload'
 
 import VueTour from 'vue-tour'
-import 'vue-tour/dist/vue-tour.css'
 
 // useful comment here
 

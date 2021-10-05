@@ -10,7 +10,7 @@
             </v-flex> -->
             <v-layout>
                 <v-flex xs12 :class="['text-center', 'logo-container', $route.name === 'maps' && 'logo-hidden']">
-                  <router-link to="/"><img class="logo mt-5" src="/static/img/logo.svg" 
+                  <router-link to="/"><img  class="logo mt-5" src="/static/img/logo.svg" 
                     height="100" width="250" /></router-link>
                   <!-- <div class="project-name">Lexikalisches Informationssystem Österreich</div> -->
                 </v-flex>
@@ -19,7 +19,6 @@
           <v-flex class="pl-3 pr-3 header-navigation">
             <v-flex>
               <v-tabs
-                id="footer"
                 show-arrows
                 active-class="active-tab"
                 grow
@@ -33,7 +32,7 @@
                 slider-color="white">
                 <v-tab to="/"><div><v-icon color="white">mdi-home-outline</v-icon>Home</div></v-tab>
                 <v-tab to="/articles"><div><v-icon color="white">mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
-                <v-tab to="/db"><div><v-icon color="white">mdi-database</v-icon>Belegdatenbank</div></v-tab>
+                <v-tab to="/db" id="tabs"><div><v-icon color="white">mdi-database</v-icon>Belegdatenbank</div></v-tab>
                 <v-tab to="/maps"><div><v-icon color="white">mdi-map</v-icon>Karten</div></v-tab>
                 <v-tab to="/resources"><div><v-icon color="white">mdi-folder-open</v-icon>Materialien</div></v-tab>
               </v-tabs>
@@ -44,8 +43,41 @@
               <router-view />
             </keep-alive>
           </v-flex>
-          <lioe-footer v-if="$route.name !== 'maps'"/>
-          <v-tour name="BaseTour" :steps="baseTour_steps"></v-tour>
+          <lioe-footer id="logo" v-if="$route.name !== 'maps'"/>
+          <v-tour 
+            name="BaseTour" 
+            :steps="baseTour_steps" 
+            :options="{ 
+              useKeyboardNavigation: true,
+              debug: true, // TODO: Remove
+              highlight: true
+            }"
+          >
+            <!-- <template slot-scope="tour">
+              <transition name="fade">
+                <v-step
+                  v-if="tour.steps[tour.currentStep]"
+                  :key="tour.currentStep"
+                  :step="tour.steps[tour.currentStep]"
+                  :previous-step="tour.previousStep"
+                  :next-step="tour.nextStep"
+                  :stop="tour.stop"
+                  :skip="tour.skip"
+                  :is-first="tour.isFirst"
+                  :is-last="tour.isLast"
+                  :labels="tour.labels"
+                  :highlight="tour.highlight"
+                >
+                  <template>
+                    <div slot="actions">
+                      <v-btn @click="tour.previousStep" color="primary">Previous step</v-btn>
+                      <v-btn @click="tour.nextStep" color="primary">Next step</v-btn>
+                    </div>
+                  </template>
+                </v-step>
+              </transition>
+            </template> -->
+          </v-tour>
         </v-layout>
       </v-container>
     </v-content>
@@ -70,11 +102,24 @@ export default class App extends Vue {
 
   baseTour_steps = [
     {
-      target:'#footer',
+      target:'#logo',
       header: {
-        title: 'Test',
+        title: 'Logo',
       },
-      content: 'Bkalajkslsjfl sadfjsl jwlfjewwewf  sdfjlj',
+      content: 'This is the Logo',
+      params: {
+        placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#tabs',
+      header: {
+        title: 'Tab',
+      },
+      content: 'These Tabs Show the available pages',
+      params: {
+        placement: 'bottom-start' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
     }
   ]
 }
@@ -86,6 +131,7 @@ export default class App extends Vue {
   @import '../../node_modules/vuetify/dist/vuetify.min.css';
   @import '../styles/fonts.scss';
   @import '../styles/global.scss';
+  @import '../../node_modules/vue-tour/dist/vue-tour.css'; /* Neede to make vue-tour work! */
   .tabs-top .v-slide-group__prev.v-slide-group__prev--disabled {
     display: none!important;
   }
