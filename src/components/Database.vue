@@ -36,7 +36,7 @@
               prepend-inner-icon="search"
               :value="req.query"
               @input="updateRequestQueryDebounced(index, $event)"
-              :disabled="this.showSelectedCollection"
+              :disabled="showSelectedCollection"
               :loading="searching"
               hide-details
               solo
@@ -46,7 +46,7 @@
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="appendArrayReq()" v-on="on"
+                <v-btn icon @click="appendArrayReq()" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>add_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -56,7 +56,7 @@
           <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="removeElementArrayReq(req)" v-on="on"
+                <v-btn icon @click="removeElementArrayReq(req)" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>remove_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -214,6 +214,7 @@
         show-select
         return-object
         :footer-props="footerProps"
+        :items-per-page="10"
         :options.sync="pagination"
         :server-items-length="totalItems"
         :headers="visibleHeaders"
@@ -448,6 +449,7 @@ import {
   searchCollections,
   getCollectionByIds,
   SearchRequest,
+  getDocumentTotalCountPerRequest,
 } from '../api';
 import { stateProxy, Collection } from '../store/collections';
 import { geoStore } from '../store/geo';
@@ -521,15 +523,15 @@ export default class Database extends Vue {
   };
   extended = false;
   totalItems = 100;
+  absoluteTotalItems = 100; // the constant static total number in the whole database. Value is assigned in the init function
 
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
-  sortedHeaders: string[] = [
+  sortedHeaders: any[] = [
     'ID',
     'HL',
     'NL',
-    'HL2',
     'POS',
     'BD/KT',
     'NR',
@@ -542,13 +544,12 @@ export default class Database extends Vue {
     'QU',
     'BIBL',
     'Sigle1',
-    'Sigle10',
+    // 'Sigle10', is for the Staat column
     'Bundesland1',
     'Großregion1',
     'Kleinregion1',
     'Gemeinde1'
-    // ...
-  ]
+  ];
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -902,9 +903,14 @@ export default class Database extends Vue {
   }
 
   addBelegtoCollection(col: Collection) {
+    console.log('got clicked')
+    const itemsID = col.items.map(item => item.ID); // local array of the items
+    const addedItems = this.mappableSelectionItems.filter((item) =>  // filtered items, does not include already existing items
+      !itemsID.includes(item.ID)
+    )
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
-      items: this.mappableSelectionItems,
+      items: addedItems,
     });
   }
 
@@ -1156,9 +1162,16 @@ export default class Database extends Vue {
     );
   }
 
+  get _shownItemsWithSource() {
+    var startCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage;
+    var lastCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage + this.pagination.itemsPerPage + 1;
+    if (lastCount > this.shownItemsWithSource.length) lastCount = this.shownItemsWithSource.length;
+    return this.shownItemsWithSource.slice(startCount, lastCount); // returns the current relevant pagination
+  }
+
   get shownItems() {
     if (this.showSelectedCollection) {
-      return this.shownItemsWithSource;
+      return this._shownItemsWithSource; //this.shownItemsWithSource;
     }
     return this._items;
   }
@@ -1255,7 +1268,8 @@ export default class Database extends Vue {
   async init() {
     this.loading = true;
     const countDocument = await getDocumentTotalCount();
-    this.totalItems = countDocument || 0;
+    this.totalItems = countDocument || 0; // this value is updated along the way and is used in the footbar
+    this.absoluteTotalItems = countDocument || 0; // from now on this value is not going to be changed
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
@@ -1295,22 +1309,24 @@ export default class Database extends Vue {
 
   @Watch('pagination', { deep: true })
   updateResults() {
-    if (this.request_arr[0] && this.request_arr[0].query !== '') {
-      this.changeQueryParam({
-        page: this.pagination.page,
+    if (!this.showSelectedCollection) {
+      if (this.request_arr[0] && this.request_arr[0].query !== '') {
+        this.changeQueryParam({
+          page: this.pagination.page,
         itemsPerPage: this.pagination.itemsPerPage,
       });
 
       // this.$router.replace({
-      //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
+        //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
       //   }).catch(() => console.log("route duplicated. "))
 
-      this.onChangeQuery(this.request_arr);
-    } else if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList);
-    } else {
-      this.init();
-    }
+        this.onChangeQuery(this.request_arr);
+      } else if (this.collection_ids) {
+        this.loadCollectionIds(this.collectionIdList);
+      } else {
+        this.init();
+      }
+    } 
   }
 
   get mappableSelectionItems() {
@@ -1325,6 +1341,26 @@ export default class Database extends Vue {
             i.Ort !== '')
       )
     ).value();
+  }
+
+  @Watch("shownItems", { immediate: true })
+  refreshCountingFoot() {
+    const updatedCount = this.numberOfShownCollEntries;
+    if (updatedCount !== -1) this.totalItems = updatedCount;
+  }
+
+
+  get numberOfShownCollEntries() {
+    let number_entries: number = 0;
+
+    let tempID: any[] = []; 
+    this.wboeColl.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
+    this.temp_coll.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
+    
+    number_entries = tempID.length;
+
+    if (this.showAlleBelege) number_entries = this.absoluteTotalItems;
+    return number_entries > 0 ? number_entries : -1;
   }
 
   showSelectionOnMap() {
@@ -1574,9 +1610,14 @@ export default class Database extends Vue {
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
-      this.totalItems = res.total.value || 0;
-      this.searching = false;
-      const work = await getDocumentTotalCount();
+      if (res.total.value === 10000) {
+        const work = await getDocumentTotalCountPerRequest();
+        if (work !== this.totalItems) {
+          this.totalItems = work;
+        }
+      } else {
+        this.totalItems = res.total.value || 0;
+      }
     } else {
       this.init();
     }
@@ -1609,7 +1650,11 @@ export default class Database extends Vue {
     
     var localSelect: any[] = _.cloneDeep(this.selected);  // creating a deep copy
 
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = [];
+
     localSelect.forEach((x) => {
+      var localOrdered: any = {};
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
       delete x["colSources"]; 
       delete x["entry"];
@@ -1647,7 +1692,7 @@ export default class Database extends Vue {
           case 'Gemeinde1':
             x[key] = x[key]
               .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '').trim()
             break;
           case 'HL':
             if (Array.isArray(x[key]) && x[key].length > 1) {
@@ -1683,8 +1728,26 @@ export default class Database extends Vue {
             break;
         }
       }
+    
+    // creating a local ordered copy per selected item
+    this.sortedHeaders.forEach((key) => {
+      if (x[key] !== undefined) {
+        localOrdered[key] = x[key];
+      }
     });
-    return localSelect;
+
+    // adding the values that are not included in the DB table
+    for (var key in x) {
+      if (!(key in localOrdered)) {
+        localOrdered[key] = x[key];
+      }
+    }
+
+    // updating the exported object
+    orderedSelect.push(localOrdered);
+    });
+    
+    return orderedSelect;
   }
 
   saveXLSX() {

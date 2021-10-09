@@ -56,6 +56,8 @@ const localUrls: { [remoteUrl: string]: string } = {
   '/lioetxt/belegdatenbank/': '/db',
 }
 
+var finalQuery: Object = {};
+
 export async function getWebsiteHtml(path: string): Promise<string> {
   path =
     txtEndpoint === path.substr(0, txtEndpoint.length)
@@ -91,13 +93,20 @@ export async function getDocumentTotalCount(): Promise<number> {
   return r && r.data && r.data.count ? r.data.count : 0
 }
 
-// export async function getDocumentTotalCountPerRequest(): Promise<number> {
-//   const r = await (await axios({
-//     method: 'GET',
-//     url: apiEndpoint + '/'
-//   }))
-//   return r && r.data && r.data.count ? r.data.count : 0;
-// }
+export async function getDocumentTotalCountPerRequest(): Promise<number> {
+  
+  const params = {query: finalQuery}
+
+  const r = (await axios(localEndpoint + '/es-count', {
+    method: 'GET',
+    params: params
+  })
+  ).data
+
+  
+  
+  return r.count ? r.count : 0; // && r.data && r.data.count ? r.data.count : 0;
+}
 
 export async function getDocuments(
   page = 1,
@@ -254,6 +263,8 @@ export async function searchDocuments(
     }
   }
 
+  finalQuery = getFinalQuery(searchAllMult, searchInd, fuzzlevel);
+
   const ds = (
     await axios(localEndpoint + '/es-query', {
       method: 'POST',
@@ -261,7 +272,7 @@ export async function searchDocuments(
         sort,
         from: (page - 1) * items,
         size: items,
-        query: getFinalQuery(searchAllMult, searchInd, fuzzlevel),
+        query: finalQuery,
 
         // multi_match: {
         //   fields: searchFields,
@@ -466,13 +477,13 @@ function getFinalQuery(
 
     // if no multiple search field is needed, wrap up the should queries with one 'must' boolean query and return
     if (searchAllMult === null) {
-      const finalQuery = {
+      const finalQueryObj = {
         bool: {
           must: mustArr,
         },
       }
 
-      return finalQuery
+      return finalQueryObj
     }
   }
 
@@ -508,14 +519,14 @@ function getFinalQuery(
             searchStr =
               fuzzlevel === 1
                 ? searchStr?.concat(
-                    ' OR ',
-                    localSearch !== undefined ? localSearch : 'NULL'
-                  )
+                  ' OR ',
+                  localSearch !== undefined ? localSearch : 'NULL'
+                )
                 : searchStr?.concat(
-                    ' OR ',
-                    localSearch !== undefined ? localSearch : 'NULL',
-                    '*'
-                  ) // we will never reach the 'NULL' assignment
+                  ' OR ',
+                  localSearch !== undefined ? localSearch : 'NULL',
+                  '*'
+                ) // we will never reach the 'NULL' assignment
           } else continue
         }
         mustArr.push({
@@ -547,9 +558,9 @@ export async function getDocumentsByCollection(
   const r = await (
     await fetch(
       apiEndpoint +
-        `/documents/?${ids
-          .map((id) => 'in_collections=' + id)
-          .join('&')}&page_size=${items}&page=${page}`
+      `/documents/?${ids
+        .map((id) => 'in_collections=' + id)
+        .join('&')}&page_size=${items}&page=${page}`
     )
   ).json()
   const ds = await (
@@ -588,10 +599,10 @@ export async function getArticles(
     const r = await (
       await fetch(
         articleEndpoint +
-          '?initial=' +
-          search +
-          '&status=' +
-          userStore.articleStatus.join('|')
+        '?initial=' +
+        search +
+        '&status=' +
+        userStore.articleStatus.join('|')
       )
     ).json()
     return r.results.article
