@@ -36,7 +36,7 @@
               prepend-inner-icon="search"
               :value="req.query"
               @input="updateRequestQueryDebounced(index, $event)"
-              :disabled="this.showSelectedCollection"
+              :disabled="showSelectedCollection"
               :loading="searching"
               hide-details
               solo
@@ -46,7 +46,7 @@
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="appendArrayReq()" v-on="on"
+                <v-btn icon @click="appendArrayReq()" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>add_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -56,7 +56,7 @@
           <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="removeElementArrayReq(req)" v-on="on"
+                <v-btn icon @click="removeElementArrayReq(req)" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>remove_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -214,6 +214,7 @@
         show-select
         return-object
         :footer-props="footerProps"
+        :items-per-page="10"
         :options.sync="pagination"
         :server-items-length="totalItems"
         :headers="visibleHeaders"
@@ -430,6 +431,7 @@
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
         </v-menu>
+
       </div>
     </v-flex>
   </v-layout>
@@ -447,6 +449,7 @@ import {
   searchCollections,
   getCollectionByIds,
   SearchRequest,
+  getDocumentTotalCountPerRequest,
 } from '../api';
 import { stateProxy, Collection } from '../store/collections';
 import { geoStore } from '../store/geo';
@@ -844,16 +847,42 @@ export default class Database extends Vue {
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     let allBelege = this.showAlleBelege;
-    //console.log(activeCollections, allBelege)
     if (activeCollections > 0 && !allBelege) {
       return true;
     }
     return false;
   }
 
+  @Watch('visibleCollections')
+  onVisibleColledtionChangeUpdates() {
+    this.updateSelection();
+  }
+
   @Watch('showSelectedCollection') 
+  showCollectionUpdates() {
+    this.showBelgeCollectionSource();
+    this.updateSelection();
+  }
+
   showBelgeCollectionSource() {
     this.headers[0].show = this.showSelectedCollection;
+  }
+
+  updateSelection() {
+    // Attempt of manually updating the selection to circumvent 'invisible' selections
+    // baseLoop: for (let index = this.selected.length - 1; index >= 0 ; index -= 1) {
+    //   const entry: any = this.selected[index];
+    //   for (let j = 0; j < this.shownItems.length; j++) {
+    //     const beleg: any = this.shownItems[j];
+    //     if(beleg.ID === entry.ID) {
+    //       this.selected[index] = beleg;
+    //       continue baseLoop;
+    //     }
+    //   }
+    //   this.selected.splice(index, 1);
+    // }
+
+    this.selected = [];
   }
 
   updateRequestQuery(index: number, e: string) {
@@ -875,9 +904,13 @@ export default class Database extends Vue {
 
   addBelegtoCollection(col: Collection) {
     console.log('got clicked')
+    const itemsID = col.items.map(item => item.ID); // local array of the items
+    const addedItems = this.mappableSelectionItems.filter((item) =>  // filtered items, does not include already existing items
+      !itemsID.includes(item.ID)
+    )
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
-      items: this.mappableSelectionItems,
+      items: addedItems,
     });
   }
 
@@ -960,7 +993,6 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
-    // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id)
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
@@ -1130,28 +1162,18 @@ export default class Database extends Vue {
     );
   }
 
-  get shownItems() {
-    if (this.showSelectedCollection) {
-      return this.shownItemsWithSource;
-    }
-    return this._items;
+  get _shownItemsWithSource() {
+    var startCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage;
+    var lastCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage + this.pagination.itemsPerPage + 1;
+    if (lastCount > this.shownItemsWithSource.length) lastCount = this.shownItemsWithSource.length;
+    return this.shownItemsWithSource.slice(startCount, lastCount); // returns the current relevant pagination
   }
 
-  // TO-DO: Fix Same Beleg (Item) shown multiple times if it is in multiple collections
-  // To-DO: Potentially get collections from collections store .visibleCollections
-  get collItems() {
-    let allItems: any[] = [];
-    this.wboeColl.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    this.temp_coll.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    return allItems;
+  get shownItems() {
+    if (this.showSelectedCollection) {
+      return this._shownItemsWithSource; //this.shownItemsWithSource;
+    }
+    return this._items;
   }
 
   get shownItemsWithSource() {
@@ -1287,22 +1309,24 @@ export default class Database extends Vue {
 
   @Watch('pagination', { deep: true })
   updateResults() {
-    if (this.request_arr[0] && this.request_arr[0].query !== '') {
-      this.changeQueryParam({
-        page: this.pagination.page,
+    if (!this.showSelectedCollection) {
+      if (this.request_arr[0] && this.request_arr[0].query !== '') {
+        this.changeQueryParam({
+          page: this.pagination.page,
         itemsPerPage: this.pagination.itemsPerPage,
       });
 
       // this.$router.replace({
-      //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
+        //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
       //   }).catch(() => console.log("route duplicated. "))
 
-      this.onChangeQuery(this.request_arr);
-    } else if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList);
-    } else {
-      this.init();
-    }
+        this.onChangeQuery(this.request_arr);
+      } else if (this.collection_ids) {
+        this.loadCollectionIds(this.collectionIdList);
+      } else {
+        this.init();
+      }
+    } 
   }
 
   get mappableSelectionItems() {
@@ -1321,27 +1345,20 @@ export default class Database extends Vue {
 
   @Watch("shownItems", { immediate: true })
   refreshCountingFoot() {
-    if (this.numberOfShownCollEntries !== -1) this.totalItems = this.numberOfShownCollEntries;
+    const updatedCount = this.numberOfShownCollEntries;
+    if (updatedCount !== -1) this.totalItems = updatedCount;
   }
 
 
   get numberOfShownCollEntries() {
     let number_entries: number = 0;
-    
-    this.wboeColl.forEach((x) => {
-      if (x.selected) {
-        number_entries += x.items.length;
-      }
-    });
 
-    this.temp_coll.forEach((x) => {
-      if (x.selected) {
-        number_entries += x.items.length;
-      }
-    })    
-
-    // TODO decrease total number in case of intersections between the collections 
+    let tempID: any[] = []; 
+    this.wboeColl.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
+    this.temp_coll.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
     
+    number_entries = tempID.length;
+
     if (this.showAlleBelege) number_entries = this.absoluteTotalItems;
     return number_entries > 0 ? number_entries : -1;
   }
@@ -1593,9 +1610,14 @@ export default class Database extends Vue {
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
-      this.totalItems = res.total.value || 0;
-      this.searching = false;
-      const work = await getDocumentTotalCount();
+      if (res.total.value === 10000) {
+        const work = await getDocumentTotalCountPerRequest();
+        if (work !== this.totalItems) {
+          this.totalItems = work;
+        }
+      } else {
+        this.totalItems = res.total.value || 0;
+      }
     } else {
       this.init();
     }
