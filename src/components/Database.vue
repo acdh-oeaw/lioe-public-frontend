@@ -855,6 +855,7 @@ export default class Database extends Vue {
 
   @Watch('visibleCollections')
   onVisibleColledtionChangeUpdates() {
+    this.pagination.page = 1;
     this.updateSelection();
   }
 
