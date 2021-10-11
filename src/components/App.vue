@@ -50,7 +50,13 @@
             :options="{ 
               useKeyboardNavigation: true,
               debug: true, // TODO: Remove
-              highlight: true
+              highlight: true,
+              labels: {
+                buttonSkip: 'Überspringen',
+                buttonPrevious: 'Zurück',
+                buttonNext: 'Weiter',
+                buttonStop: 'Tour beenden'
+              }
             }"
           >
             <!-- <template slot-scope="tour">
@@ -195,6 +201,17 @@ export default class App extends Vue {
     opacity: 0;
   }
 </style>
+
+<style>
+.v-step[data-v-54f9a632]{
+    background: #89b1bd;
+}
+.v-step__arrow--dark[data-v-54f9a632]:before{background:#2C6374}
+.v-step__header[data-v-54f9a632]{
+    background-color:#2C6374;
+}
+</style>
+
 <style>
 html{
   font-size: 16px;
