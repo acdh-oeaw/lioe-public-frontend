@@ -30,6 +30,9 @@ const vuetifyOptions = {
         secondary: '#2C6374',
         accent: '#88DBDF'
       }
+    },
+    options: {
+      customProperties: true,
     }
   }
 }

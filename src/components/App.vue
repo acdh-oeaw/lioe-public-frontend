@@ -204,11 +204,11 @@ export default class App extends Vue {
 
 <style>
 .v-step[data-v-54f9a632]{
-    background: #89b1bd;
+    background: var(--v-ci-base, #3B89A0);
 }
-.v-step__arrow--dark[data-v-54f9a632]:before{background:#2C6374}
+.v-step__arrow--dark[data-v-54f9a632]:before{background:var(--v-secondary-base,#2C6374)}
 .v-step__header[data-v-54f9a632]{
-    background-color:#2C6374;
+    background-color: var(--v-secondary-base, #2C6374);
 }
 </style>
 
