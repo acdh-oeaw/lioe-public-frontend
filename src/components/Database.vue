@@ -468,22 +468,21 @@
       </div>
     </v-flex>
     <v-tour 
-            name="databaseTour" 
-            :steps="databaseTour_Steps" 
-            :options="{ 
-              useKeyboardNavigation: true,
-              debug: true, // TODO: Remove
-              highlight: true,
-              labels: {
-                buttonSkip: 'Tour schließen',
-                buttonPrevious: 'Zurück',
-                buttonNext: 'Weiter',
-                buttonStop: 'Tour beenden'
-              }
-            }"
-            :callbacks="tourCallbacks"
-          >
-          </v-tour>
+      name="databaseTour" 
+      :steps="databaseTour_Steps" 
+      :options="{ 
+        useKeyboardNavigation: true,
+        highlight: true,
+        labels: {
+          buttonSkip: 'Tour schließen',
+          buttonPrevious: 'Zurück',
+          buttonNext: 'Weiter',
+          buttonStop: 'Tour beenden'
+        }
+      }"
+      :callbacks="tourCallbacks"
+    >
+    </v-tour>
   </v-layout>
 </template>
 <script lang="ts">
@@ -586,7 +585,7 @@ export default class Database extends Vue {
       header: {
         title: 'Suchleiste',
       },
-      content: 'Hier kannst du die Belegdatenbank durchsuchen. Beachte: Dies geht nur wenn du dir alle Belege und nicht wenn du dir Sammlungen anschaust.',
+      content: 'Hier können Sie die Belegdatenbank durchsuchen. Achtung: Dies geht nur wenn Sie sich alle Belege und nicht die Sammlungen anschauen.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -597,7 +596,7 @@ export default class Database extends Vue {
       header: {
         title: 'Beleg Datenbank',
       },
-      content: 'Hier siehst du die Belege aus allen Quellen, die du momentan ausgewählt hast (standardmäßig sind das alle Belege).',
+      content: 'Hier sehen Sie die Belege aus allen Quellen, die Sie momentan ausgewählt haben (standardmäßig alle Belege).',
       params: {
         enableScrolling: false,
         placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -605,7 +604,7 @@ export default class Database extends Vue {
     },
     {
       target:'#dbBelegTableRow-0',
-      content: 'Das ist ein Beleg, klicke entweder auf den Eintrag oder die Checkbox um ihn aus-/abzuwählen.',
+      content: 'Das ist ein Beleg, klicken Sie entweder auf den Eintrag oder die Checkbox um ihn aus-/abzuwählen.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -613,7 +612,7 @@ export default class Database extends Vue {
     },
     {
       target:'#dbPagination',
-      content: 'Hier kannst du zwischen unterschiedlichen Seiten wechseln um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
+      content: 'Hier könnens sie zwischen unterschiedlichen Seiten wechseln um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
       params: {
         placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }
@@ -623,7 +622,7 @@ export default class Database extends Vue {
       header: {
         title: 'Beleg Quellen',
       },
-      content: 'Hier siehst du aus welchen Quellen dir gerade Belege angezeigt werden.',
+      content: 'Hier sehen sie aus welchen Quellen gerade Belege angezeigt werden.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -631,7 +630,7 @@ export default class Database extends Vue {
     },
     {
       target:'#dbPlaylistToggleBtn',
-      content: 'Klicke hier um die Sammlungsübersicht zu öffnen.',
+      content: 'Klicken Sie hier um die Sammlungsübersicht zu öffnen.',
       params: {
         enableScrolling: false,
         placement: 'right'       
@@ -651,6 +650,15 @@ export default class Database extends Vue {
 
   enableTourOnLoad(currentStep?: any) {
     this.localStorage.setItem('belegDBTourEnabled', 'true');
+  }
+
+    onLandingTourHandler() {
+    if(!localStorage.getItem('belegDBTourEnabled')) {
+      this.enableTourOnLoad();
+    }
+    if(localStorage.getItem('belegDBTourEnabled') === 'true') {
+      this.startTour();
+    }
   }
 
 
@@ -1260,12 +1268,7 @@ export default class Database extends Vue {
     if (this.type === 'collection' && this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
     }
-    if(!localStorage.getItem('belegDBTourEnabled')) {
-      this.enableTourOnLoad();
-    }
-    if(localStorage.getItem('belegDBTourEnabled') === 'true') {
-      this.startTour();
-    }
+    this.onLandingTourHandler();
   }
 
   get _items() {
