@@ -30,11 +30,11 @@
                 color="accent"
                 hide-slider
                 slider-color="white">
-                <v-tab to="/"><div><v-icon color="white">mdi-home-outline</v-icon>Home</div></v-tab>
-                <v-tab to="/articles"><div><v-icon color="white" id="tabWBOE">mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
-                <v-tab to="/db" id="tabs"><div><v-icon color="white" id="tabBelegDB">mdi-database</v-icon>Belegdatenbank</div></v-tab>
-                <v-tab to="/maps"><div><v-icon color="white" id="tabMap">mdi-map</v-icon>Karten</div></v-tab>
-                <v-tab to="/resources"><div><v-icon color="white" id="tabMaterialien">mdi-folder-open</v-icon>Materialien</div></v-tab>
+                <v-tab to="/" id="tabHome"><div><v-icon color="white">mdi-home-outline</v-icon>Home</div></v-tab>
+                <v-tab to="/articles"  id="tabWBOE"><div><v-icon color="white">mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
+                <v-tab to="/db" id="tabBelegDB"><div><v-icon color="white">mdi-database</v-icon>Belegdatenbank</div></v-tab>
+                <v-tab to="/maps" id="tabMap"><div><v-icon color="white">mdi-map</v-icon>Karten</div></v-tab>
+                <v-tab to="/resources" id="tabMaterialien"><div><v-icon color="white">mdi-folder-open</v-icon>Materialien</div></v-tab>
               </v-tabs>
             </v-flex>
           </v-flex>

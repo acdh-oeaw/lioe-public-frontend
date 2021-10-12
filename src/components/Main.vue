@@ -267,7 +267,7 @@ export default class Main extends Vue {
     },
     {
       target:'#tabBelegDB',
-      content: 'Hier können Sie alle Belege durchsuchen, die für das Wörterbuch gesammelt worden sind. Sie können hier auch eigene Analysen machen.',
+      content: 'Hier können Sie alle Belege durchsuchen, die für das Wörterbuch gesammelt worden sind. Sie können auch eigene Analysen machen.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
