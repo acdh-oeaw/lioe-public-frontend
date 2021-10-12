@@ -158,22 +158,53 @@
             </v-menu>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-dialog max-width="1000" color="#2b2735" scrollable>
-              <template v-if="index === 0" v-slot:activator="{ on }">
-                <v-btn v-on="on" color="accent" icon text>
+            <v-menu offset-y> 
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="accent"
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                >
                   <v-icon>info</v-icon>
                 </v-btn>
               </template>
-              <v-card text class="fill-height pa-4">
-                <v-card-text class="pa-0 fill-height">
-                  <info-text
-                    class="pt-4 white fill-height"
-                    path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </v-col>
+              <v-list>
+                <v-list-item
+                  v-for="(item, index) in [
+                    { btn: 'tour'},
+                    { btn: 'dialogue'},
+                  ]"
+                  :key="index"
+                >
+                  <v-btn
+                    v-if="index === 0"
+                    color="accent"
+                    icon
+                    @click="startTour()"
+                  >
+                    <v-icon>info</v-icon>
+                  </v-btn>
+
+                  <v-dialog max-width="1000" color="#2b2735" scrollable v-if="index === 1">
+                    <template v-slot:activator="{ on }">
+                      <v-btn v-on="on" color="accent" icon text >
+                        <v-icon>mdi-tooltip-text</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-card text class="fill-height pa-4">
+                      <v-card-text class="pa-0 fill-height">
+                        <info-text
+                          class="pt-4 white fill-height"
+                          path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
+                        />
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+                      </v-col>
         </v-row>
       </v-card>
     </v-flex>
@@ -436,6 +467,23 @@
         </v-menu>
       </div>
     </v-flex>
+    <v-tour 
+            name="databaseTour" 
+            :steps="databaseTour_Steps" 
+            :options="{ 
+              useKeyboardNavigation: true,
+              debug: true, // TODO: Remove
+              highlight: true,
+              labels: {
+                buttonSkip: 'Tour schließen',
+                buttonPrevious: 'Zurück',
+                buttonNext: 'Weiter',
+                buttonStop: 'Tour beenden'
+              }
+            }"
+            :callbacks="tourCallbacks"
+          >
+          </v-tour>
   </v-layout>
 </template>
 <script lang="ts">
@@ -529,6 +577,87 @@ export default class Database extends Vue {
 
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
+
+  localStorage = window.localStorage;
+
+  databaseTour_Steps = [
+    {
+      target:'#dbSearchbar',
+      header: {
+        title: 'Suchleiste',
+      },
+      content: 'Hier kannst du die Belegdatenbank durchsuchen. Beachte: Dies geht nur wenn du dir alle Belege und nicht wenn du dir Sammlungen anschaust.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegTable',
+      header: {
+        title: 'Beleg Datenbank',
+      },
+      content: 'Hier siehst du die Belege aus allen Quellen, die du momentan ausgewählt hast (standardmäßig sind das alle Belege).',
+      params: {
+        enableScrolling: false,
+        placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegTableRow-0',
+      content: 'Das ist ein Beleg, klicke entweder auf den Eintrag oder die Checkbox um ihn aus-/abzuwählen.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbPagination',
+      content: 'Hier kannst du zwischen unterschiedlichen Seiten wechseln um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
+      params: {
+        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegSourceBanner',
+      header: {
+        title: 'Beleg Quellen',
+      },
+      content: 'Hier siehst du aus welchen Quellen dir gerade Belege angezeigt werden.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbPlaylistToggleBtn',
+      content: 'Klicke hier um die Sammlungsübersicht zu öffnen.',
+      params: {
+        enableScrolling: false,
+        placement: 'right'       
+      }
+    },
+
+  ]
+
+  tourCallbacks = {
+    onSkip: this.disableTourOnLoad,
+    onFinish: this.disableTourOnLoad,
+  }
+
+  disableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('belegDBTourEnabled', 'false');
+  }
+
+  enableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('belegDBTourEnabled', 'true');
+  }
+
+
+  startTour() {
+    // @ts-ignore
+    this.$tours['databaseTour'].start();
+  }
 
   sortedHeaders: any[] = [
     'ID',
@@ -1130,6 +1259,12 @@ export default class Database extends Vue {
   async mounted() {
     if (this.type === 'collection' && this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
+    }
+    if(!localStorage.getItem('belegDBTourEnabled')) {
+      this.enableTourOnLoad();
+    }
+    if(localStorage.getItem('belegDBTourEnabled') === 'true') {
+      this.startTour();
     }
   }
 
