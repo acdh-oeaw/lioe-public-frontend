@@ -30,7 +30,9 @@
             hide-details
             style="width: 98%"
             v-model="filterCollection"
-            :disabled="this.wboe_coll.length === 0 && this.temp_coll.length === 0"
+            :disabled="
+              this.wboe_coll.length === 0 && this.temp_coll.length === 0
+            "
           ></v-text-field>
         </v-card-title>
         <v-divider />
@@ -54,24 +56,6 @@
               </v-list-item-content>
             </v-list-item>
             <v-subheader>Meine Sammlungen</v-subheader>
-
-            <v-tooltip right max-width="220" min-width="100">
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  color="primary"
-                  depressed
-                  @click="addCollection()"
-                  style="width: 98%; margin: 0 auto"
-                  v-on="on"
-                >
-                  Sammlung anlegen
-                </v-btn>
-              </template>
-              <span
-                >Die erstellte Sammlung wird nicht online gespeichert sondern hält
-                nur so lange, wie die Seite nicht neu geladen wird.</span
-              >
-            </v-tooltip>
             <v-list-item-group>
               <draggable
                 v-model="temp_coll"
@@ -97,6 +81,9 @@
                       v-model="item.selected"
                       @click.prevent=""
                       color="primary"
+                      :on-icon="'mdi-eye'"
+                      :off-icon="'mdi-eye-off'"
+                      dense
                     ></v-checkbox>
                   </v-list-item-action>
                   <v-list-item-content
@@ -235,70 +222,89 @@
               </draggable>
             </v-list-item-group>
           </v-list>
+          <v-tooltip right max-width="220" min-width="100">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                depressed
+                @click="addCollection()"
+                style="width: 98%; margin: 0 auto"
+                v-on="on"
+              >
+                Sammlung anlegen
+              </v-btn>
+            </template>
+            <span
+              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
+              nur so lange, wie die Seite nicht neu geladen wird.</span
+            >
+          </v-tooltip>
 
-          <v-subheader>WBÖ Sammlungen</v-subheader>
-          <v-autocomplete
-            :items="collectionSearchItems"
-            v-model="selectedCollections"
-            :search-input.sync="searchCollection"
-            label="WBÖ-Sammlungen hinzufügen..."
-            hide-details
-            style="width: 98%"
-            dense
-            flat
-            rounded
-            filled
-            hide-selected
-            multiple
-          >
-            <template v-slot:no-data>
-              <v-list-item v-if="isSearching">
-                <v-list-item-title class="caption grey--text text-center">
-                  Lade...
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                v-else-if="searchCollection === null || searchCollection === ''"
-              >
-                <v-list-item-title class="caption grey--text text-center">
-                  Zu tippen beginnen, um nach Sammlungen zu suchen
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-else>
-                <v-list-item-title class="caption grey--text text-center">
-                  Keine Sammlung gefudnen
-                </v-list-item-title>
-              </v-list-item>
-            </template>
-            <template v-slot:item="{ item }">
-              <v-list-item-content
-                @click="getLocationsOfCollections(this.selectedCollections)"
-              >
-                <v-list-item-title v-text="item.text"></v-list-item-title>
-                <v-list-item-subtitle
-                  v-text="item.description"
-                ></v-list-item-subtitle>
-              </v-list-item-content>
-            </template>
-            <template v-slot:selection="{ item }">
-              <span v-if="false"> {{ item.text }} </span>
-            </template>
-            <template v-slot:append-item="">
-              <v-lazy
-                v-if="
-                  searchCollection !== '' &&
-                  searchCollection !== null &&
-                  collectionSearchItems.length > 0 &&
-                  collectionSearchHasNextPage
-                "
-              >
-                <load-more-items @render="loadAndAppendNextPageCollections">
-                  <v-progress-linear class="mx-5" indeterminate />
-                </load-more-items>
-              </v-lazy>
-            </template>
-          </v-autocomplete>
           <v-list dense>
+            <v-subheader>WBÖ Sammlungen</v-subheader>
+            <v-autocomplete
+              :items="collectionSearchItems"
+              v-model="selectedCollections"
+              :search-input.sync="searchCollection"
+              label="WBÖ-Sammlungen hinzufügen..."
+              hide-details
+              style="width: 98%"
+              dense
+              flat
+              rounded
+              filled
+              hide-selected
+              multiple
+            >
+              <template v-slot:no-data>
+                <v-list-item v-if="isSearching">
+                  <v-list-item-title class="caption grey--text text-center">
+                    Lade...
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  v-else-if="
+                    searchCollection === null || searchCollection === ''
+                  "
+                >
+                  <v-list-item-title class="caption grey--text text-center">
+                    Zu tippen beginnen, um nach Sammlungen zu suchen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item v-else>
+                  <v-list-item-title class="caption grey--text text-center">
+                    Keine Sammlung gefudnen
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+              <template v-slot:item="{ item }">
+                <v-list-item-content
+                  @click="getLocationsOfCollections(this.selectedCollections)"
+                >
+                  <v-list-item-title v-text="item.text"></v-list-item-title>
+                  <v-list-item-subtitle
+                    v-text="item.description"
+                  ></v-list-item-subtitle>
+                </v-list-item-content>
+              </template>
+              <template v-slot:selection="{ item }">
+                <span v-if="false"> {{ item.text }} </span>
+              </template>
+              <template v-slot:append-item="">
+                <v-lazy
+                  v-if="
+                    searchCollection !== '' &&
+                    searchCollection !== null &&
+                    collectionSearchItems.length > 0 &&
+                    collectionSearchHasNextPage
+                  "
+                >
+                  <load-more-items @render="loadAndAppendNextPageCollections">
+                    <v-progress-linear class="mx-5" indeterminate />
+                  </load-more-items>
+                </v-lazy>
+              </template>
+            </v-autocomplete>
             <v-list-item-group>
               <draggable
                 v-model="wboe_coll"
@@ -321,14 +327,16 @@
                 >
                   <v-tooltip right max-width="220" min-width="100">
                     <template v-slot:activator="{ on }">
-                      <v-list-item-action style="margin-right: 0px" v-on="on">
+                      <v-list-item-action style="margin-right: 0px">
                         <v-checkbox
                           :input-value="item.selected"
                           @click.prevent=""
                           color="primary"
+                          :on-icon="'mdi-eye'"
+                          :off-icon="'mdi-eye-off'"
+                          dense
                         ></v-checkbox>
                       </v-list-item-action>
-
                       <!-- Collection Context Menu -->
                       <v-list-item-action v-on="on">
                         <v-menu offset-y>
@@ -349,7 +357,9 @@
                               <v-list-item-title>Entfernen</v-list-item-title>
                             </v-list-item>
                             <v-list-item @click="createCopyColl(item)">
-                              <v-list-item-title>Kopie erstellen</v-list-item-title>
+                              <v-list-item-title
+                                >Kopie erstellen</v-list-item-title
+                              >
                             </v-list-item>
                             <v-list-item>
                               <v-menu right open-on-hover offset-x>
@@ -409,9 +419,7 @@
                           </v-list>
                         </v-menu>
                       </v-list-item-action>
-
-                      <!-- Collection Color Picker -->
-                      <v-list-item-action v-on="on">
+                      <v-list-item-action>
                         <!-- Collection Color Picker -->
                         <div
                           :color="item.borderColor"
@@ -453,47 +461,50 @@
                           </v-menu>
                         </div>
                       </v-list-item-action>
-
                       <!-- Collection Name & Description -->
                       <v-list-item-content style="margin-left: 5px" v-on="on">
                         <v-list-item-title
                           v-text="item.collection_name"
                         ></v-list-item-title>
-                        <v-list-item-subtitle >
-                          {{item.collection_desc}}
-                          </v-list-item-subtitle>
+                        <v-list-item-subtitle>
+                          {{ item.collection_desc }}
+                        </v-list-item-subtitle>
                       </v-list-item-content>
-
                     </template>
-                    <span> 
-                      <h5> {{item.collection_name}} </h5>
-                      {{item.collection_desc}}
+                    <span>
+                      <h5>{{ item.collection_name }}</h5>
+                      {{ item.collection_desc }}
                     </span>
                   </v-tooltip>
-
                 </v-list-item>
               </draggable>
             </v-list-item-group>
           </v-list>
-
         </v-card-text>
         <v-divider />
+      </v-card>
 
-      </v-card>    
-      
       <!-- To Map/DB button -->
-      <v-container 
-        style="position:absolute;
-              bottom: 0px;
-              padding-right: 20px"
-        >
+      <v-container style="position: absolute; bottom: 0px; padding-right: 20px">
         <v-card elevation="1">
           <v-card-actions>
-            <v-btn block v-if="onMapPage" elevation="0" @click="routeToDB()" color="primary">
+            <v-btn
+              block
+              v-if="onMapPage"
+              elevation="0"
+              @click="routeToDB()"
+              color="primary"
+            >
               <v-icon left>mdi-database</v-icon>
               In Datenbank zeigen
             </v-btn>
-            <v-btn block v-else elevation="0" @click="routeToMaps()" color="primary">
+            <v-btn
+              block
+              v-else
+              elevation="0"
+              @click="routeToMaps()"
+              color="primary"
+            >
               <v-icon left>mdi-map</v-icon>
               Auf Karte zeigen
             </v-btn>
@@ -531,26 +542,26 @@ export default class Playlist extends Vue {
   isSearching = false;
 
   sortedHeaders: any[] = [
-    'ID',
-    'HL',
-    'NL',
-    'POS',
-    'BD/KT',
-    'NR',
-    'NR2',
-    'LT1_teuthonista',
-    'BD/LT*',
-    'Ort/LT',
-    'BD/KT1',
-    'BD/KT*',
-    'QU',
-    'BIBL',
-    'Sigle1',
+    "ID",
+    "HL",
+    "NL",
+    "POS",
+    "BD/KT",
+    "NR",
+    "NR2",
+    "LT1_teuthonista",
+    "BD/LT*",
+    "Ort/LT",
+    "BD/KT1",
+    "BD/KT*",
+    "QU",
+    "BIBL",
+    "Sigle1",
     // 'Sigle10', is for the Staat column
-    'Bundesland1',
-    'Großregion1',
-    'Kleinregion1',
-    'Gemeinde1'
+    "Bundesland1",
+    "Großregion1",
+    "Kleinregion1",
+    "Gemeinde1",
   ];
 
   async loadAndAppendNextPageCollections() {
@@ -794,11 +805,9 @@ export default class Playlist extends Vue {
   }
 
   addBelegeToCollection(col: Collection, add_to: Collection) {
-    const itemsID = add_to.items.map(x => x.ID);
-    const addedItems = col.items.filter((item) => 
-      !itemsID.includes(item)
-    );
-    
+    const itemsID = add_to.items.map((x) => x.ID);
+    const addedItems = col.items.filter((item) => !itemsID.includes(item));
+
     stateProxy.collections.addPlacesToCollection({
       col: add_to.id,
       items: addedItems,
@@ -875,28 +884,46 @@ export default class Playlist extends Vue {
         }
         switch (key) {
           case "Kleinregion1":
-            x[key] = regions.mapKleinreg(
+            x[key] =
+              regions
+                .mapKleinreg(
                   x[key]
-                  .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
-                  .replace(/[›]?[L|K]T[\d]?/g, "")
-                  .replace(/ ,/g, ",")
-                ).trim() + " (" + x[key] + ")";
+                    .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
             break;
           case "Großregion1":
-            x[key] = regions.mapGrossreg(
+            x[key] =
+              regions
+                .mapGrossreg(
                   x[key]
-                  .replace(/\d[A-Z]?[\.]\d/g, "")
-                  .replace(/[›]?[L|K]T[\d]?/g, "")
-                  .replace(/ ,/g, ",")
-                ).trim() + " (" + x[key] + ")";
+                    .replace(/\d[A-Z]?[\.]\d/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
             break;
           case "Bundesland1":
-            x[key] = regions.mapBundeslaender(
+            x[key] =
+              regions
+                .mapBundeslaender(
                   x[key]
-                  .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
-                  .replace(/[›]?[L|K]T[\d]?/g, "")
-                  .replace(/ ,/g, ",")
-                ).trim() + " (" + x[key] + ")";
+                    .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
             break;
           case "Gemeinde1":
             x[key] = x[key]

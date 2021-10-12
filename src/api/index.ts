@@ -1,3 +1,4 @@
+import { Collection } from '@src/store/collections'
 import axios from 'axios'
 import * as _ from 'lodash'
 import { concat, isNull } from 'lodash'
@@ -15,6 +16,7 @@ interface Documents {
     relation: string
   }
   documents: {
+    colSources: null | Collection[]
     Bedeutung: string
     Fragebogennummer: string
     Hauptlemma: string

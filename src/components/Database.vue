@@ -465,6 +465,7 @@
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
         </v-menu>
+
       </div>
     </v-flex>
     <v-tour 
@@ -986,16 +987,43 @@ export default class Database extends Vue {
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     let allBelege = this.showAlleBelege;
-    //console.log(activeCollections, allBelege)
     if (activeCollections > 0 && !allBelege) {
       return true;
     }
     return false;
   }
 
+  @Watch('visibleCollections')
+  onVisibleColledtionChangeUpdates() {
+    this.pagination.page = 1;
+    this.updateSelection();
+  }
+
   @Watch('showSelectedCollection') 
+  showCollectionUpdates() {
+    this.showBelgeCollectionSource();
+    this.updateSelection();
+  }
+
   showBelgeCollectionSource() {
     this.headers[0].show = this.showSelectedCollection;
+  }
+
+  updateSelection() {
+    // Attempt of manually updating the selection to circumvent 'invisible' selections
+    // baseLoop: for (let index = this.selected.length - 1; index >= 0 ; index -= 1) {
+    //   const entry: any = this.selected[index];
+    //   for (let j = 0; j < this.shownItems.length; j++) {
+    //     const beleg: any = this.shownItems[j];
+    //     if(beleg.ID === entry.ID) {
+    //       this.selected[index] = beleg;
+    //       continue baseLoop;
+    //     }
+    //   }
+    //   this.selected.splice(index, 1);
+    // }
+
+    this.selected = [];
   }
 
   updateRequestQuery(index: number, e: string) {
@@ -1106,7 +1134,6 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
-    // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id)
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
@@ -1289,23 +1316,6 @@ export default class Database extends Vue {
       return this._shownItemsWithSource; //this.shownItemsWithSource;
     }
     return this._items;
-  }
-
-  // TO-DO: Fix Same Beleg (Item) shown multiple times if it is in multiple collections
-  // To-DO: Potentially get collections from collections store .visibleCollections
-  get collItems() {
-    let allItems: any[] = [];
-    this.wboeColl.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    this.temp_coll.forEach((beleg) => { // Should probably be called collection/col, not beleg
-      if (beleg.selected) {
-        allItems = [...allItems, ...beleg.items];
-      }
-    });
-    return allItems;
   }
 
   get shownItemsWithSource() {
