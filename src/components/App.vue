@@ -34,7 +34,7 @@
                 <v-tab to="/articles"  id="tabWBOE"><div><v-icon color="white">mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
                 <v-tab to="/db" id="tabBelegDB"><div><v-icon color="white">mdi-database</v-icon>Belegdatenbank</div></v-tab>
                 <v-tab to="/maps" id="tabMap"><div><v-icon color="white">mdi-map</v-icon>Karten</div></v-tab>
-                <v-tab to="/resources" id="tabMaterialien"><div><v-icon color="white">mdi-folder-open</v-icon>Materialien</div></v-tab>
+                <v-tab to="/resources" id="tabInformationen"><div><v-icon color="white">mdi-information-variant</v-icon>Informationen</div></v-tab>
               </v-tabs>
             </v-flex>
           </v-flex>

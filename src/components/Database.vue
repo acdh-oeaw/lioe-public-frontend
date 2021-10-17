@@ -1930,7 +1930,7 @@ export default class Database extends Vue {
   }
 
   downloadFiduz() {
-    window.open('https://vawadioe.acdh.oeaw.ac.at/lioetxt/materialien/fiduz/');
+    window.open('https://vawadioe.acdh.oeaw.ac.at/lioetxt/informationen/fiduz/');
   }
 }
 </script>
