@@ -586,7 +586,7 @@ export default class Database extends Vue {
       header: {
         title: 'Suchleiste',
       },
-      content: 'Hier können Sie die Belegdatenbank durchsuchen. Achtung: Dies geht nur wenn Sie sich alle Belege und nicht die Sammlungen anschauen.',
+      content: 'Hier können Sie die Belegdatenbank durchsuchen. Achtung: Dies geht nur, wenn Sie sich alle Belege und nicht die Sammlungen anschauen.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -613,7 +613,7 @@ export default class Database extends Vue {
     },
     {
       target:'#dbPagination',
-      content: 'Hier könnens sie zwischen unterschiedlichen Seiten wechseln um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
+      content: 'Hier können Sie zwischen unterschiedlichen Seiten wechseln, um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
       params: {
         placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }
@@ -623,7 +623,7 @@ export default class Database extends Vue {
       header: {
         title: 'Beleg Quellen',
       },
-      content: 'Hier sehen sie aus welchen Quellen gerade Belege angezeigt werden.',
+      content: 'Hier sehen Sie, aus welchen Quellen gerade Belege angezeigt werden.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -631,7 +631,7 @@ export default class Database extends Vue {
     },
     {
       target:'#dbPlaylistToggleBtn',
-      content: 'Klicken Sie hier um die Sammlungsübersicht zu öffnen.',
+      content: 'Klicken Sie hier, um die Sammlungsübersicht zu öffnen.',
       params: {
         enableScrolling: false,
         placement: 'right'       
