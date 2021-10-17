@@ -282,7 +282,7 @@ export default class Main extends Vue {
       }
     },
     {
-      target:'#tabMaterialien',
+      target:'#tabInformationen',
       content: 'Hier finden Sie Informationen rund um das Projekt und die Plattform.',
       params: {
         enableScrolling: false,
