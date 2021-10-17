@@ -240,7 +240,7 @@ export default class Main extends Vue {
       header: {
         title: 'Hilfe',
       },
-      content: 'Wenn Sie zum ersten Mal hier sind, soll Ihnen diese Tour dabei helfen sich zurecht zu finden. Mit "Tour schließen" können Sie die Tour überspringen. Wenn Sie die Tour später doch anschauen wollen können sie einfach auf dieses Icon klicken. ',
+      content: 'Wenn Sie zum ersten Mal hier sind, soll Ihnen diese Tour dabei helfen sich zurechtzufinden. Mit "Tour schließen" können Sie die Tour überspringen. Wenn Sie die Tour später doch anschauen wollen, können Sie einfach auf dieses Icon klicken. ',
       params: {
         enableScrolling: false,
         placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -251,7 +251,7 @@ export default class Main extends Vue {
       header: {
         title: 'Omnisearch',
       },
-      content: 'Hier können Sie alles finden was wir in unseren Ressourcen zu Ihrem Suchbegriff bereit haben.',
+      content: 'Hier können Sie alles finden, was wir in unseren Ressourcen zu Ihrem Suchbegriff bereit haben.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -267,7 +267,7 @@ export default class Main extends Vue {
     },
     {
       target:'#tabBelegDB',
-      content: 'Hier können Sie alle Belege durchsuchen, die für das Wörterbuch gesammelt worden sind. Sie können auch eigene Analysen machen.',
+      content: 'Hier können Sie alle Belege durchsuchen, die für das Wörterbuch gesammelt wurden. Sie können auch eigene Analysen machen.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -275,7 +275,7 @@ export default class Main extends Vue {
     },
     {
       target:'#tabMap',
-      content: 'Hier können Belege zu einem Ort gesucht oder die in der Datenbank erstellten Sammlungen auf eine Karte angezeigt werden .',
+      content: 'Hier können Belege zu einem Ort gesucht oder die in der Datenbank erstellten Sammlungen auf einer Karte angezeigt werden.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
