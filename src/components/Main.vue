@@ -31,6 +31,8 @@
             prepend-inner-icon="search"
             solo
             clearable
+            append-icon='$dropdown'
+            id="mainOmnisearch"
           >
             <template v-slot:item="{ item }">
               <v-list-item
@@ -136,7 +138,18 @@
                 </v-list-item-title>
               </v-list-item>
             </template>
+            <template v-slot:append>
+              <v-btn
+                color="accent"
+                icon
+                @click="startTour()"
+                id='mainInfoButton'
+              >
+                <v-icon>info</v-icon>
+              </v-btn>
+            </template>
           </v-autocomplete>
+
         </v-col>
       </v-flex>
     </v-layout>
@@ -181,6 +194,22 @@
     <v-flex class="pt-4">
       <info-text subDialog="true" path="home/einleitungstext/" />
     </v-flex>
+        <v-tour 
+      name="mainTour" 
+      :steps="mainTour_Steps" 
+      :options="{ 
+        useKeyboardNavigation: true,
+        highlight: true,
+        labels: {
+          buttonSkip: 'Tour schließen',
+          buttonPrevious: 'Zurück',
+          buttonNext: 'Weiter',
+          buttonStop: 'Tour beenden'
+        }
+      }"
+      :callbacks="tourCallbacks"
+    >
+    </v-tour>
   </v-layout>
 </template>
 <script lang="ts">
@@ -203,6 +232,93 @@ import { geoStore } from '../store/geo';
   },
 })
 export default class Main extends Vue {
+  localStorage = window.localStorage;
+
+  mainTour_Steps = [
+    {
+      target:'#mainInfoButton',
+      header: {
+        title: 'Hilfe',
+      },
+      content: 'Wenn Sie zum ersten Mal hier sind, soll Ihnen diese Tour dabei helfen sich zurechtzufinden. Mit "Tour schließen" können Sie die Tour überspringen. Wenn Sie die Tour später doch anschauen wollen, können Sie einfach auf dieses Icon klicken. ',
+      params: {
+        enableScrolling: false,
+        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#mainOmnisearch',
+      header: {
+        title: 'Omnisearch',
+      },
+      content: 'Hier können Sie alles finden, was wir in unseren Ressourcen zu Ihrem Suchbegriff bereit haben.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#tabWBOE',
+      content: 'Hier geht es zu unseren fertigen Wörterbuchartikel.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#tabBelegDB',
+      content: 'Hier können Sie alle Belege durchsuchen, die für das Wörterbuch gesammelt wurden. Sie können auch eigene Analysen machen.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#tabMap',
+      content: 'Hier können Belege zu einem Ort gesucht oder die in der Datenbank erstellten Sammlungen auf einer Karte angezeigt werden.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#tabMaterialien',
+      content: 'Hier finden Sie Informationen rund um das Projekt und die Plattform.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom'       
+      }
+    },
+
+  ]
+
+  tourCallbacks = {
+    onSkip: this.disableTourOnLoad,
+    onFinish: this.disableTourOnLoad,
+  }
+
+  disableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('mainTourEnabled', 'false');
+  }
+
+  enableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('mainTourEnabled', 'true');
+  }
+
+  onLandingTourHandler() {
+    if(!localStorage.getItem('mainTourEnabled')) {
+      this.enableTourOnLoad();
+    }
+    if(localStorage.getItem('mainTourEnabled') === 'true') {
+      this.startTour();
+    }
+  }
+
+  startTour() {
+    // @ts-ignore
+    this.$tours['mainTour'].start();
+  }
+
   wordProgress: number | null = null;
   searchTerm: string = '';
   searchOrt: string = '';
@@ -396,6 +512,8 @@ export default class Main extends Vue {
     this.loading = true;
     this.articles = await getArticles();
     this.loading = false;
+    this.onLandingTourHandler();
+    
   }
 }
 </script>

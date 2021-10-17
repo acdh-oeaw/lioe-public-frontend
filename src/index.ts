@@ -4,10 +4,13 @@ import Vuex from 'vuex'
 import router from '@src/router'
 import VueRouter from 'vue-router'
 import * as fontLoader from 'webfontloader'
+
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 // import { lineClamp } from 'vue-line-clamp-extended'
 import VueLazyload from 'vue-lazyload'
+
+import VueTour from 'vue-tour'
 
 // useful comment here
 
@@ -27,6 +30,9 @@ const vuetifyOptions = {
         secondary: '#2C6374',
         accent: '#88DBDF'
       }
+    },
+    options: {
+      customProperties: true,
     }
   }
 }
@@ -42,6 +48,11 @@ if (window) {
   })
 }
 
+
+// @ts-ignore
+// Ts Ignore needed since VueTour has a different (non exposed part (.util) which breaks the compilation)
+// See: https://github.com/getsentry/sentry-javascript/issues/2633
+Vue.use(VueTour)
 
 /* tslint:disable */
 window.onload = () => {

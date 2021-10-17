@@ -7,6 +7,7 @@
             fab
             fixed
             :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+            id="dbPlaylistToggleBtn"
           >
             <v-icon>mdi-playlist-edit</v-icon>
           </v-btn>
@@ -23,7 +24,7 @@
         :style="{ 'left': showPlaylistSidebar === true && index === 0 ? '55px' : '0px', 
                   width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%' }"
       >
-        <v-row no-gutters>
+        <v-row no-gutters id="dbSearchbar">
           <v-col class="pa-0 flex-grow-1" 
           style="margin-left: 5px"
           >
@@ -157,22 +158,53 @@
             </v-menu>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-dialog max-width="1000" color="#2b2735" scrollable>
-              <template v-if="index === 0" v-slot:activator="{ on }">
-                <v-btn v-on="on" color="accent" icon text>
+            <v-menu offset-y> 
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="accent"
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                >
                   <v-icon>info</v-icon>
                 </v-btn>
               </template>
-              <v-card text class="fill-height pa-4">
-                <v-card-text class="pa-0 fill-height">
-                  <info-text
-                    class="pt-4 white fill-height"
-                    path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </v-col>
+              <v-list>
+                <v-list-item
+                  v-for="(item, index) in [
+                    { btn: 'tour'},
+                    { btn: 'dialogue'},
+                  ]"
+                  :key="index"
+                >
+                  <v-btn
+                    v-if="index === 0"
+                    color="accent"
+                    icon
+                    @click="startTour()"
+                  >
+                    <v-icon>info</v-icon>
+                  </v-btn>
+
+                  <v-dialog max-width="1000" color="#2b2735" scrollable v-if="index === 1">
+                    <template v-slot:activator="{ on }">
+                      <v-btn v-on="on" color="accent" icon text >
+                        <v-icon>mdi-tooltip-text</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-card text class="fill-height pa-4">
+                      <v-card-text class="pa-0 fill-height">
+                        <info-text
+                          class="pt-4 white fill-height"
+                          path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
+                        />
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+                      </v-col>
         </v-row>
       </v-card>
     </v-flex>
@@ -180,6 +212,7 @@
       
       <!-- Visible Collections -->
       <v-banner
+        id="dbBelegSourceBanner"
         class="mt-2 pa-0"
       >
         
@@ -208,6 +241,7 @@
         </template>
       </v-banner>
       <v-data-table
+        id="dbBelegTable"
         class="mt-2"
         v-model="selected"
         dense
@@ -264,14 +298,14 @@
               </v-btn>
             </v-col>
             <v-col class="py-0">
-              <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />
+              <v-data-footer id="dbPagination" style="border-top: 0" v-bind="props" v-on="on" />
             </v-col>
           </v-row>
         </template>
 
         <!-- Entries of the Belege -->
         <template v-slot:item="{ item, index, isSelected }">
-          <tr @click="customSelect(item)">
+          <tr @click="customSelect(item)" v-bind:id="'dbBelegTableRow-' + index">
             <td>
               <v-checkbox
                 :value="isSelected"
@@ -434,6 +468,22 @@
 
       </div>
     </v-flex>
+    <v-tour 
+      name="databaseTour" 
+      :steps="databaseTour_Steps" 
+      :options="{ 
+        useKeyboardNavigation: true,
+        highlight: true,
+        labels: {
+          buttonSkip: 'Tour schließen',
+          buttonPrevious: 'Zurück',
+          buttonNext: 'Weiter',
+          buttonStop: 'Tour beenden'
+        }
+      }"
+      :callbacks="tourCallbacks"
+    >
+    </v-tour>
   </v-layout>
 </template>
 <script lang="ts">
@@ -527,6 +577,96 @@ export default class Database extends Vue {
 
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
+
+  localStorage = window.localStorage;
+
+  databaseTour_Steps = [
+    {
+      target:'#dbSearchbar',
+      header: {
+        title: 'Suchleiste',
+      },
+      content: 'Hier können Sie die Belegdatenbank durchsuchen. Achtung: Dies geht nur wenn Sie sich alle Belege und nicht die Sammlungen anschauen.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegTable',
+      header: {
+        title: 'Beleg Datenbank',
+      },
+      content: 'Hier sehen Sie die Belege aus allen Quellen, die Sie momentan ausgewählt haben (standardmäßig alle Belege).',
+      params: {
+        enableScrolling: false,
+        placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegTableRow-0',
+      content: 'Das ist ein Beleg, klicken Sie entweder auf den Eintrag oder die Checkbox um ihn aus-/abzuwählen.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbPagination',
+      content: 'Hier könnens sie zwischen unterschiedlichen Seiten wechseln um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
+      params: {
+        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegSourceBanner',
+      header: {
+        title: 'Beleg Quellen',
+      },
+      content: 'Hier sehen sie aus welchen Quellen gerade Belege angezeigt werden.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbPlaylistToggleBtn',
+      content: 'Klicken Sie hier um die Sammlungsübersicht zu öffnen.',
+      params: {
+        enableScrolling: false,
+        placement: 'right'       
+      }
+    },
+
+  ]
+
+  tourCallbacks = {
+    onSkip: this.disableTourOnLoad,
+    onFinish: this.disableTourOnLoad,
+  }
+
+  disableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('belegDBTourEnabled', 'false');
+  }
+
+  enableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('belegDBTourEnabled', 'true');
+  }
+
+    onLandingTourHandler() {
+    if(!localStorage.getItem('belegDBTourEnabled')) {
+      this.enableTourOnLoad();
+    }
+    if(localStorage.getItem('belegDBTourEnabled') === 'true') {
+      this.startTour();
+    }
+  }
+
+
+  startTour() {
+    // @ts-ignore
+    this.$tours['databaseTour'].start();
+  }
 
   sortedHeaders: any[] = [
     'ID',
@@ -1155,6 +1295,7 @@ export default class Database extends Vue {
     if (this.type === 'collection' && this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
     }
+    this.onLandingTourHandler();
   }
 
   get _items() {
