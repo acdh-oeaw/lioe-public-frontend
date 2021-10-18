@@ -1,7 +1,7 @@
 <template>
   <v-snackbar
       :max-width="notificationMaxWidth"
-      :timeout="notificationTimeout"
+      :timeout="0"
       v-model="showNotification"
 
       bottom
@@ -13,7 +13,6 @@
       {{ activeNotification.message }}
       <v-btn
         text
-        v-bind="attrs"
         @click="showNotification = false"
       >
         <v-icon>close</v-icon>
@@ -43,6 +42,10 @@ export default class NotificationsModule extends Vue {
     color: 'success',
   }
 
+  timeouts: boolean[] = []
+
+  
+
   get notificationTimeout(){
       return this.activeNotification.timeout || 4000;
   }
@@ -63,8 +66,20 @@ export default class NotificationsModule extends Vue {
   }
 
   notify(notification: Notification) {
-    this.showNotification = false;
     this.showNotification = true;
+    this.timeouts.push(true);
+    setTimeout(() => { this.timeouts.pop();}, this.notificationTimeout);
+  }
+
+  @Watch('timeouts')
+  timeoutWatcher() {
+    this.timeouts.length > 0 
+      ? this.showNotification = true 
+      : this.showNotification = false;
+  }
+
+  onClose() {
+    this.timeouts.length = 0;
   }
 
   addNotfication(notification: Notification) {

@@ -7,6 +7,6 @@ export function $addNotification( notification:Notification) {
   export interface Notification {
       message: String;
       type?: String;
-      timeout?: Number;
+      timeout?: number;
   };
   
