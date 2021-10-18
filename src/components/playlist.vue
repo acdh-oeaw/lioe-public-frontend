@@ -324,157 +324,157 @@
                   )"
                   @click="switchShow(item)"
                   :key="i"
+                  :id="'wboeCollection-'+ i"
                 >
-                  <v-tooltip right max-width="220" min-width="100">
-                    <template v-slot:activator="{ on }">
-                      <v-list-item-action style="margin-right: 0px">
-                        <v-checkbox
-                          :input-value="item.selected"
-                          @click.prevent=""
-                          color="primary"
-                          :on-icon="'mdi-eye'"
-                          :off-icon="'mdi-eye-off'"
-                          dense
-                        ></v-checkbox>
-                      </v-list-item-action>
-                      <!-- Collection Context Menu -->
-                      <v-list-item-action v-on="on">
-                        <v-menu offset-y>
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                              x-small
-                              fab
-                              text
-                              depressed
-                              v-bind="attrs"
-                              v-on="on"
-                            >
-                              <span class="mdi mdi-dots-horizontal"></span>
-                            </v-btn>
-                          </template>
-                          <v-list dense>
-                            <v-list-item @click="deleteCol(item)">
-                              <v-list-item-title>Entfernen</v-list-item-title>
-                            </v-list-item>
-                            <v-list-item @click="createCopyColl(item)">
-                              <v-list-item-title
-                                >Kopie erstellen</v-list-item-title
-                              >
-                            </v-list-item>
-                            <v-list-item>
-                              <v-menu right open-on-hover offset-x>
-                                <template v-slot:activator="{ on }">
-                                  <v-btn
-                                    v-on="on"
-                                    @click.prevent=""
-                                    style="padding-left: 0px"
-                                    class="export-btn"
-                                    text
-                                  >
-                                    Exportieren</v-btn
-                                  >
-                                </template>
-                                <v-list-item @click="saveXLSX(item)">
-                                  <v-list-item-title class="export-btn">
-                                    Microsoft Excel</v-list-item-title
-                                  >
-                                </v-list-item>
-                                <v-list-item @click="saveJSON(item)"
-                                  ><v-list-item-title class="export-btn"
-                                    >JSON</v-list-item-title
-                                  ></v-list-item
-                                >
-                                <v-list-item @click="saveCSV(item)"
-                                  ><v-list-item-title class="export-btn"
-                                    >CSV</v-list-item-title
-                                  ></v-list-item
-                                >
-                              </v-menu>
-                            </v-list-item>
-                            <v-list-item v-if="temp_coll.length > 0">
-                              <v-menu right open-on-hover offset-x>
-                                <template v-slot:activator="{ on }">
-                                  <v-btn
-                                    v-on="on"
-                                    @click.prevent=""
-                                    style="padding-left: 0px"
-                                    class="export-btn"
-                                    text
-                                    >Zu Sammlung hinzufügen</v-btn
-                                  >
-                                </template>
-                                <v-list dense>
-                                  <v-list-item
-                                    v-for="(coll, index) in temp_coll"
-                                    :key="index"
-                                    @click="addBelegeToCollection(item, coll)"
-                                  >
-                                    <v-list-item-titel class="export-btn">
-                                      {{ coll.collection_name }}
-                                    </v-list-item-titel>
-                                  </v-list-item>
-                                </v-list>
-                              </v-menu>
-                            </v-list-item>
-                          </v-list>
-                        </v-menu>
-                      </v-list-item-action>
-                      <v-list-item-action>
-                        <!-- Collection Color Picker -->
-                        <div
-                          :color="item.borderColor"
-                          style="width: 18px; height: 18px"
+                  <v-list-item-action style="margin-right: 0px">
+                    <v-checkbox
+                      :input-value="item.selected"
+                      @click.prevent=""
+                      color="primary"
+                      :on-icon="'mdi-eye'"
+                      :off-icon="'mdi-eye-off'"
+                      dense
+                    ></v-checkbox>
+                  </v-list-item-action>
+                  <!-- Collection Name & Description -->
+                  <v-list-item-content style="margin-left: 5px" >
+                    <v-list-item-title
+                      v-text="item.collection_name"
+                    ></v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ item.collection_desc }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                                        <!-- Collection Context Menu -->
+                  <v-list-item-action >
+                    <v-menu offset-y>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          x-small
+                          fab
+                          text
+                          depressed
+                          v-bind="attrs"
+                          v-on="on"
                         >
-                          <v-menu :close-on-content-click="false" offset-y top>
+                          <span class="mdi mdi-dots-horizontal"></span>
+                        </v-btn>
+                      </template>
+                      <v-list dense>
+                        <v-list-item @click="deleteCol(item)">
+                          <v-list-item-title>Entfernen</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click="createCopyColl(item)">
+                          <v-list-item-title
+                            >Kopie erstellen</v-list-item-title
+                          >
+                        </v-list-item>
+                        <v-list-item>
+                          <v-menu right open-on-hover offset-x>
                             <template v-slot:activator="{ on }">
                               <v-btn
                                 v-on="on"
-                                :color="item.borderColor"
-                                elevation="1"
-                                fab
-                                style="
-                                  width: 18px;
-                                  height: 18px;
-                                  margin-bottom: 20px;
-                                "
+                                @click.prevent=""
+                                style="padding-left: 0px"
+                                class="export-btn"
+                                text
                               >
-                                <v-btn
-                                  :color="item.fillColor"
-                                  elevation="1"
-                                  fab
-                                  style="width: 15px; height: 15px"
-                                ></v-btn>
-                              </v-btn>
+                                Exportieren</v-btn
+                              >
                             </template>
-                            <div id="menuItem">
-                              Farbe des Rahmens
-                              <v-color-picker
-                                hide-inputs
-                                v-model="item.borderColor"
-                              ></v-color-picker>
-                              Farbe des Inhalts
-                              <v-color-picker
-                                hide-inputs
-                                v-model="item.fillColor"
-                              ></v-color-picker>
-                            </div>
+                            <v-list-item @click="saveXLSX(item)">
+                              <v-list-item-title class="export-btn">
+                                Microsoft Excel</v-list-item-title
+                              >
+                            </v-list-item>
+                            <v-list-item @click="saveJSON(item)"
+                              ><v-list-item-title class="export-btn"
+                                >JSON</v-list-item-title
+                              ></v-list-item
+                            >
+                            <v-list-item @click="saveCSV(item)"
+                              ><v-list-item-title class="export-btn"
+                                >CSV</v-list-item-title
+                              ></v-list-item
+                            >
                           </v-menu>
+                        </v-list-item>
+                        <v-list-item v-if="temp_coll.length > 0">
+                          <v-menu right open-on-hover offset-x>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                v-on="on"
+                                @click.prevent=""
+                                style="padding-left: 0px"
+                                class="export-btn"
+                                text
+                                >Zu Sammlung hinzufügen</v-btn
+                              >
+                            </template>
+                            <v-list dense>
+                              <v-list-item
+                                v-for="(coll, index) in temp_coll"
+                                :key="index"
+                                @click="addBelegeToCollection(item, coll)"
+                              >
+                                <v-list-item-titel class="export-btn">
+                                  {{ coll.collection_name }}
+                                </v-list-item-titel>
+                              </v-list-item>
+                            </v-list>
+                          </v-menu>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-list-item-action>
+                  <v-list-item-action>
+                    <!-- Collection Color Picker -->
+                    <div
+                      :color="item.borderColor"
+                      style="width: 18px; height: 18px"
+                    >
+                      <v-menu :close-on-content-click="false" offset-y top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            v-on="on"
+                            :color="item.borderColor"
+                            elevation="1"
+                            fab
+                            style="
+                              width: 18px;
+                              height: 18px;
+                              margin-bottom: 20px;
+                            "
+                          >
+                            <v-btn
+                              :color="item.fillColor"
+                              elevation="1"
+                              fab
+                              style="width: 15px; height: 15px"
+                            ></v-btn>
+                          </v-btn>
+                        </template>
+                        <div id="menuItem">
+                          Farbe des Rahmens
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.borderColor"
+                          ></v-color-picker>
+                          Farbe des Inhalts
+                          <v-color-picker
+                            hide-inputs
+                            v-model="item.fillColor"
+                          ></v-color-picker>
                         </div>
-                      </v-list-item-action>
-                      <!-- Collection Name & Description -->
-                      <v-list-item-content style="margin-left: 5px" v-on="on">
-                        <v-list-item-title
-                          v-text="item.collection_name"
-                        ></v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ item.collection_desc }}
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                    </template>
+                      </v-menu>
+                    </div>
+                  </v-list-item-action>
+                
+                  <v-tooltip right max-width="300" min-width="100" :activator="'#wboeCollection-'+ i">
                     <span>
-                      <h5>{{ item.collection_name }}</h5>
+                      <h5 >{{ item.collection_name }}</h5>
                       {{ item.collection_desc }}
-                    </span>
+                    </span>  
                   </v-tooltip>
                 </v-list-item>
               </draggable>
