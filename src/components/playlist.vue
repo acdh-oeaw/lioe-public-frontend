@@ -105,45 +105,11 @@
                     ></v-text-field>
                   </v-list-item-content>
                   <v-list-item-action>
-                    <div
-                      :color="item.borderColor"
-                      style="width: 18px; height: 18px"
-                    >
-                      <v-menu :close-on-content-click="false" offset-y top>
-                        <template v-slot:activator="{ on }">
-                          <v-btn
-                            v-on="on"
-                            :color="item.borderColor"
-                            elevation="1"
-                            fab
-                            style="
-                              width: 18px;
-                              height: 18px;
-                              margin-bottom: 20px;
-                            "
-                          >
-                            <v-btn
-                              :color="item.fillColor"
-                              elevation="1"
-                              fab
-                              style="width: 15px; height: 15px"
-                            ></v-btn>
-                          </v-btn>
-                        </template>
-                        <div id="menuItem">
-                          Farbe des Rahmens
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.borderColor"
-                          ></v-color-picker>
-                          Farbe des Inhalts
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.fillColor"
-                          ></v-color-picker>
-                        </div>
-                      </v-menu>
-                    </div>
+                    <colorPickerCollections
+                      :borderColor.sync="item.borderColor"
+                      :fillColor.sync="item.fillColor"
+                      >
+                    </colorPickerCollections>
                   </v-list-item-action>
                   <v-list-item-icon
                     style="margin: auto 0px"
@@ -345,7 +311,7 @@
                       {{ item.collection_desc }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
-                                        <!-- Collection Context Menu -->
+                  <!-- Collection Context Menu -->
                   <v-list-item-action >
                     <v-menu offset-y>
                       <template v-slot:activator="{ on, attrs }">
@@ -429,45 +395,11 @@
                   </v-list-item-action>
                   <v-list-item-action>
                     <!-- Collection Color Picker -->
-                    <div
-                      :color="item.borderColor"
-                      style="width: 18px; height: 18px"
-                    >
-                      <v-menu :close-on-content-click="false" offset-y top>
-                        <template v-slot:activator="{ on }">
-                          <v-btn
-                            v-on="on"
-                            :color="item.borderColor"
-                            elevation="1"
-                            fab
-                            style="
-                              width: 18px;
-                              height: 18px;
-                              margin-bottom: 20px;
-                            "
-                          >
-                            <v-btn
-                              :color="item.fillColor"
-                              elevation="1"
-                              fab
-                              style="width: 15px; height: 15px"
-                            ></v-btn>
-                          </v-btn>
-                        </template>
-                        <div id="menuItem">
-                          Farbe des Rahmens
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.borderColor"
-                          ></v-color-picker>
-                          Farbe des Inhalts
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.fillColor"
-                          ></v-color-picker>
-                        </div>
-                      </v-menu>
-                    </div>
+                    <colorPickerCollections
+                      :borderColor.sync="item.borderColor"
+                      :fillColor.sync="item.fillColor"
+                      >
+                    </colorPickerCollections>
                   </v-list-item-action>
                 
                   <v-tooltip right max-width="300" min-width="100" :activator="'#wboeCollection-'+ i">
@@ -524,11 +456,13 @@ import * as FileSaver from "file-saver";
 import * as _ from "lodash";
 import * as xlsx from "xlsx";
 import { regions } from "@src/regions";
+import colorPickerCollections from "../components/colorPickerCollections.vue"
 
 @Component({
   components: {
     draggable,
     LoadMoreItems,
+    colorPickerCollections,
   },
 })
 export default class Playlist extends Vue {
