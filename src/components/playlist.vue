@@ -1,6 +1,6 @@
 <template>
-  <div class="fill-height">
-    <v-flex class="fill-height" xs12>
+  <div>
+    <v-flex class="fill-height" xs12 style="margin-bottom: 100px">
       <v-card class="d-flex flex-column" elevation="0">
         <span>
           <v-card-text
@@ -30,6 +30,9 @@
             hide-details
             style="width: 98%"
             v-model="filterCollection"
+            :disabled="
+              this.wboe_coll.length === 0 && this.temp_coll.length === 0
+            "
           ></v-text-field>
         </v-card-title>
         <v-divider />
@@ -78,6 +81,9 @@
                       v-model="item.selected"
                       @click.prevent=""
                       color="primary"
+                      :on-icon="'mdi-eye'"
+                      :off-icon="'mdi-eye-off'"
+                      dense
                     ></v-checkbox>
                   </v-list-item-action>
                   <v-list-item-content
@@ -99,45 +105,11 @@
                     ></v-text-field>
                   </v-list-item-content>
                   <v-list-item-action>
-                    <div
-                      :color="item.borderColor"
-                      style="width: 18px; height: 18px"
-                    >
-                      <v-menu :close-on-content-click="false" offset-y top>
-                        <template v-slot:activator="{ on }">
-                          <v-btn
-                            v-on="on"
-                            :color="item.borderColor"
-                            elevation="1"
-                            fab
-                            style="
-                              width: 18px;
-                              height: 18px;
-                              margin-bottom: 20px;
-                            "
-                          >
-                            <v-btn
-                              :color="item.fillColor"
-                              elevation="1"
-                              fab
-                              style="width: 15px; height: 15px"
-                            ></v-btn>
-                          </v-btn>
-                        </template>
-                        <div id="menuItem">
-                          Farbe des Rahmens
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.borderColor"
-                          ></v-color-picker>
-                          Farbe des Inhalts
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.fillColor"
-                          ></v-color-picker>
-                        </div>
-                      </v-menu>
-                    </div>
+                    <colorPickerCollections
+                      :borderColor.sync="item.borderColor"
+                      :fillColor.sync="item.fillColor"
+                      >
+                    </colorPickerCollections>
                   </v-list-item-action>
                   <v-list-item-icon
                     style="margin: auto 0px"
@@ -236,6 +208,69 @@
 
           <v-list dense>
             <v-subheader>WBÖ Sammlungen</v-subheader>
+            <v-autocomplete
+              :items="collectionSearchItems"
+              v-model="selectedCollections"
+              :search-input.sync="searchCollection"
+              label="WBÖ-Sammlungen hinzufügen..."
+              hide-details
+              style="width: 98%"
+              dense
+              flat
+              rounded
+              filled
+              hide-selected
+              multiple
+            >
+              <template v-slot:no-data>
+                <v-list-item v-if="isSearching">
+                  <v-list-item-title class="caption grey--text text-center">
+                    Lade...
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  v-else-if="
+                    searchCollection === null || searchCollection === ''
+                  "
+                >
+                  <v-list-item-title class="caption grey--text text-center">
+                    Zu tippen beginnen, um nach Sammlungen zu suchen
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item v-else>
+                  <v-list-item-title class="caption grey--text text-center">
+                    Keine Sammlung gefudnen
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+              <template v-slot:item="{ item }">
+                <v-list-item-content
+                  @click="getLocationsOfCollections(this.selectedCollections)"
+                >
+                  <v-list-item-title v-text="item.text"></v-list-item-title>
+                  <v-list-item-subtitle
+                    v-text="item.description"
+                  ></v-list-item-subtitle>
+                </v-list-item-content>
+              </template>
+              <template v-slot:selection="{ item }">
+                <span v-if="false"> {{ item.text }} </span>
+              </template>
+              <template v-slot:append-item="">
+                <v-lazy
+                  v-if="
+                    searchCollection !== '' &&
+                    searchCollection !== null &&
+                    collectionSearchItems.length > 0 &&
+                    collectionSearchHasNextPage
+                  "
+                >
+                  <load-more-items @render="loadAndAppendNextPageCollections">
+                    <v-progress-linear class="mx-5" indeterminate />
+                  </load-more-items>
+                </v-lazy>
+              </template>
+            </v-autocomplete>
             <v-list-item-group>
               <draggable
                 v-model="wboe_coll"
@@ -255,66 +290,29 @@
                   )"
                   @click="switchShow(item)"
                   :key="i"
+                  :id="'wboeCollection-'+ i"
                 >
                   <v-list-item-action style="margin-right: 0px">
                     <v-checkbox
                       :input-value="item.selected"
                       @click.prevent=""
                       color="primary"
+                      :on-icon="'mdi-eye'"
+                      :off-icon="'mdi-eye-off'"
+                      dense
                     ></v-checkbox>
                   </v-list-item-action>
-                  <v-list-item-content style="margin-left: 5px">
+                  <!-- Collection Name & Description -->
+                  <v-list-item-content style="margin-left: 5px" >
                     <v-list-item-title
                       v-text="item.collection_name"
                     ></v-list-item-title>
-                    <v-list-item-subtitle
-                      v-text="item.collection_desc"
-                    ></v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      {{ item.collection_desc }}
+                    </v-list-item-subtitle>
                   </v-list-item-content>
-                  <v-list-item-action>
-                    <!-- Collection Color Picker -->
-                    <div
-                      :color="item.borderColor"
-                      style="width: 18px; height: 18px"
-                    >
-                      <v-menu :close-on-content-click="false" offset-y top>
-                        <template v-slot:activator="{ on }">
-                          <v-btn
-                            v-on="on"
-                            :color="item.borderColor"
-                            elevation="1"
-                            fab
-                            style="
-                              width: 18px;
-                              height: 18px;
-                              margin-bottom: 20px;
-                            "
-                          >
-                            <v-btn
-                              :color="item.fillColor"
-                              elevation="1"
-                              fab
-                              style="width: 15px; height: 15px"
-                            ></v-btn>
-                          </v-btn>
-                        </template>
-                        <div id="menuItem">
-                          Farbe des Rahmens
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.borderColor"
-                          ></v-color-picker>
-                          Farbe des Inhalts
-                          <v-color-picker
-                            hide-inputs
-                            v-model="item.fillColor"
-                          ></v-color-picker>
-                        </div>
-                      </v-menu>
-                    </div>
-                  </v-list-item-action>
-
-                  <v-list-item-action>
+                  <!-- Collection Context Menu -->
+                  <v-list-item-action >
                     <v-menu offset-y>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
@@ -333,7 +331,9 @@
                           <v-list-item-title>Entfernen</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="createCopyColl(item)">
-                          <v-list-item-title>Kopie erstellen</v-list-item-title>
+                          <v-list-item-title
+                            >Kopie erstellen</v-list-item-title
+                          >
                         </v-list-item>
                         <v-list-item>
                           <v-menu right open-on-hover offset-x>
@@ -393,84 +393,56 @@
                       </v-list>
                     </v-menu>
                   </v-list-item-action>
+                  <v-list-item-action>
+                    <!-- Collection Color Picker -->
+                    <colorPickerCollections
+                      :borderColor.sync="item.borderColor"
+                      :fillColor.sync="item.fillColor"
+                      >
+                    </colorPickerCollections>
+                  </v-list-item-action>
+                
+                  <v-tooltip right max-width="300" min-width="100" :activator="'#wboeCollection-'+ i">
+                    <span>
+                      <h5 >{{ item.collection_name }}</h5>
+                      {{ item.collection_desc }}
+                    </span>  
+                  </v-tooltip>
                 </v-list-item>
               </draggable>
             </v-list-item-group>
           </v-list>
-          <v-autocomplete
-            :items="collectionSearchItems"
-            v-model="selectedCollections"
-            :search-input.sync="searchCollection"
-            label="WBÖ-Sammlungen hinzufügen..."
-            hide-details
-            style="width: 98%"
-            dense
-            flat
-            rounded
-            filled
-            hide-selected
-            multiple
-          >
-            <template v-slot:no-data>
-              <v-list-item v-if="isSearching">
-                <v-list-item-title class="caption grey--text text-center">
-                  Lade...
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                v-else-if="searchCollection === null || searchCollection === ''"
-              >
-                <v-list-item-title class="caption grey--text text-center">
-                  Zu tippen beginnen, um nach Sammlungen zu suchen
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-else>
-                <v-list-item-title class="caption grey--text text-center">
-                  Keine Sammlung gefudnen
-                </v-list-item-title>
-              </v-list-item>
-            </template>
-            <template v-slot:item="{ item }">
-              <v-list-item-content
-                @click="getLocationsOfCollections(this.selectedCollections)"
-              >
-                <v-list-item-title v-text="item.text"></v-list-item-title>
-                <v-list-item-subtitle
-                  v-text="item.description"
-                ></v-list-item-subtitle>
-              </v-list-item-content>
-            </template>
-            <template v-slot:selection="{ item }">
-              <span v-if="false"> {{ item.text }} </span>
-            </template>
-            <template v-slot:append-item="">
-              <v-lazy
-                v-if="
-                  searchCollection !== '' &&
-                  searchCollection !== null &&
-                  collectionSearchItems.length > 0 &&
-                  collectionSearchHasNextPage
-                "
-              >
-                <load-more-items @render="loadAndAppendNextPageCollections">
-                  <v-progress-linear class="mx-5" indeterminate />
-                </load-more-items>
-              </v-lazy>
-            </template>
-          </v-autocomplete>
         </v-card-text>
         <v-divider />
-        <v-card-actions>
-          <v-btn block v-if="onMapPage" elevation="0" @click="routeToDB()">
-            <v-icon left>mdi-database</v-icon>
-            In Datenbank zeigen
-          </v-btn>
-          <v-btn block v-else elevation="0" @click="routeToMaps()">
-            <v-icon left>mdi-map</v-icon>
-            Auf Karte zeigen
-          </v-btn>
-        </v-card-actions>
       </v-card>
+
+      <!-- To Map/DB button -->
+      <v-container style="position: absolute; bottom: 0px; padding-right: 20px">
+        <v-card elevation="1">
+          <v-card-actions>
+            <v-btn
+              block
+              v-if="onMapPage"
+              elevation="0"
+              @click="routeToDB()"
+              color="primary"
+            >
+              <v-icon left>mdi-database</v-icon>
+              In Datenbank zeigen
+            </v-btn>
+            <v-btn
+              block
+              v-else
+              elevation="0"
+              @click="routeToMaps()"
+              color="primary"
+            >
+              <v-icon left>mdi-map</v-icon>
+              Auf Karte zeigen
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-container>
     </v-flex>
   </div>
 </template>
@@ -483,11 +455,14 @@ import draggable from "vuedraggable";
 import * as FileSaver from "file-saver";
 import * as _ from "lodash";
 import * as xlsx from "xlsx";
+import { regions } from "@src/regions";
+import colorPickerCollections from "../components/colorPickerCollections.vue"
 
 @Component({
   components: {
     draggable,
     LoadMoreItems,
+    colorPickerCollections,
   },
 })
 export default class Playlist extends Vue {
@@ -499,6 +474,29 @@ export default class Playlist extends Vue {
   collectionSearchHasNextPage: boolean = false;
   collectionSearchCurrentPage = 1;
   isSearching = false;
+
+  sortedHeaders: any[] = [
+    "ID",
+    "HL",
+    "NL",
+    "POS",
+    "BD/KT",
+    "NR",
+    "NR2",
+    "LT1_teuthonista",
+    "BD/LT*",
+    "Ort/LT",
+    "BD/KT1",
+    "BD/KT*",
+    "QU",
+    "BIBL",
+    "Sigle1",
+    // 'Sigle10', is for the Staat column
+    "Bundesland1",
+    "Großregion1",
+    "Kleinregion1",
+    "Gemeinde1",
+  ];
 
   async loadAndAppendNextPageCollections() {
     if (this.searchCollection !== null) {
@@ -741,9 +739,12 @@ export default class Playlist extends Vue {
   }
 
   addBelegeToCollection(col: Collection, add_to: Collection) {
+    const itemsID = add_to.items.map((x) => x.ID);
+    const addedItems = col.items.filter((item) => !itemsID.includes(item));
+
     stateProxy.collections.addPlacesToCollection({
       col: add_to.id,
-      items: col.items,
+      items: addedItems,
     });
   }
 
@@ -762,17 +763,7 @@ export default class Playlist extends Vue {
   }
 
   saveXLSX(col: Collection) {
-    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
-
-    localItems.forEach((x) => {
-      delete x["colSources"]; // excluding the colSources from the excel sheet
-      delete x["entry"]; // excluding the entry from the excel sheet
-      for (var key in x) {
-        if (Array.isArray(x[key])) {
-          x[key] = x[key].join(" ");
-        }
-      }
-    });
+    var localItems: any[] = this.editValuesForExport(col); // _.cloneDeep(col.items); // creating a deep copy
 
     const x = xlsx.utils.json_to_sheet(localItems);
     const y = xlsx.writeFile(
@@ -786,17 +777,7 @@ export default class Playlist extends Vue {
   }
 
   saveCSV(col: Collection) {
-    var localItems: any[] = _.cloneDeep(col.items); // creating a deep copy
-
-    localItems.forEach((x) => {
-      delete x["colSources"]; // excluding the colSources from the CSV file
-      delete x["entry"]; // excluding the entry from the CSV file
-      for (var key in x) {
-        if (Array.isArray(x[key])) {
-          x[key] = x[key].join(" ");
-        }
-      }
-    });
+    var localItems: any[] = this.editValuesForExport(col);
 
     const x = xlsx.utils.json_to_sheet(localItems);
     const y = xlsx.writeFile(
@@ -809,16 +790,229 @@ export default class Playlist extends Vue {
   }
 
   saveJSON(col: Collection) {
-    var localItems: any[] = _.cloneDeep(col.items);
-    localItems.forEach((x) => {
-      delete x["colSources"]; // excluding the colSources field from the JSON object
-      delete x["entry"]; // excluding the entry field from the JSON object
-    });
+    var localItems: any[] = this.editValuesForExport(col);
+
     const blob = JSON.stringify(localItems, undefined, 2);
     FileSaver.saveAs(
       new Blob([blob]),
       "wboe-lioe-export-collection" + col.collection_name + ".json"
     );
+  }
+
+  editValuesForExport(col: Collection): any[] {
+    var localSelect: any[] = _.cloneDeep(col.items); // creating a deep copy
+
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = [];
+
+    localSelect.forEach((x) => {
+      var localOrdered: any = {};
+      // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
+      delete x["colSources"];
+      delete x["entry"];
+      delete x["Bundesland"];
+      delete x["Großregion"];
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(" ");
+        }
+        switch (key) {
+          case "Kleinregion1":
+            x[key] =
+              regions
+                .mapKleinreg(
+                  x[key]
+                    .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
+            break;
+          case "Großregion1":
+            x[key] =
+              regions
+                .mapGrossreg(
+                  x[key]
+                    .replace(/\d[A-Z]?[\.]\d/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
+            break;
+          case "Bundesland1":
+            x[key] =
+              regions
+                .mapBundeslaender(
+                  x[key]
+                    .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
+            break;
+          case "Gemeinde1":
+            x[key] = x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")
+              .replace(/[›]?[L|K]T[\d]?/g, "");
+            break;
+          case "HL":
+            if (Array.isArray(x[key]) && x[key].length > 1) {
+              x[key] = x[key][1].replace("≈", "");
+            }
+            break;
+          case "BD/KT":
+            const bd: string[] = [];
+            for (let i = 1; i < 10; i += 1) {
+              const b = x[`GRAM/LT${i}`];
+              if (!b) {
+                continue;
+              }
+              bd.push(b);
+            }
+            const bdnew: string[] = [];
+            for (let i = 0; i < bd.length; i += 1) {
+              bdnew.push(bd[i][0]);
+            }
+            x[key] = _(bdnew).flatten().join(", ");
+            break;
+          case "NR":
+            if (x[key]) {
+              const fragenummerRegex = /.* (\(.*\)){0,1}:/;
+              if (Array.isArray(x[key])) {
+                x[key] = x[key].map((n: string) => {
+                  const m = n.match(fragenummerRegex);
+                  return m ? m[0] : null;
+                });
+              } else {
+                const m = x[key].match(fragenummerRegex);
+                return m ? m[0] : "";
+              }
+              x[key] = _(x[key].filter((n: any) => n)).flatten();
+            }
+            break;
+          case "NR2":
+            if (x[key]) {
+              const fragenummerRegex = /.*(\(.*\)){0,1}:/;
+              if (Array.isArray(x[key])) {
+                x[key] = x[key][0].replace(fragenummerRegex, "");
+              } else {
+                x[key] = x[key].replace(fragenummerRegex, "");
+              }
+            }
+            break;
+          case "LT1_teuthonista":
+            const tauts = [
+              "LT1_teuthonista",
+              "LT2_theutonista",
+              "LT3_theutonista",
+              "LT4_theutonista",
+              "LT5_theutonista",
+              "LT6_theutonista",
+              "LT7_theutonista",
+              "LT8_theutonista",
+              "LT9_theutonista",
+            ];
+
+            const res: string[] = [];
+            tauts.forEach((t) => {
+              if (Array.isArray(x[t]) && x[t].length > 0) {
+                res.push(x[t][0]);
+              } else if (x[t]) {
+                res.push(x[t]);
+              }
+            });
+            x[key] = _(res).flatten().join(", ");
+            break;
+          case "BD/LT*":
+            if (x[key]) {
+              const regexSources = /[≈›|›|≈]?LT\d?/g;
+              if (Array.isArray(x[key])) {
+                x[key] = x[key][0]
+                  .replace(regexSources, "")
+                  .replace(/(  )( )*/g, " ");
+              } else {
+                x[key] = x[key]
+                  .replace(regexSources, "")
+                  .replace(/(  )( )*/g, " ");
+              }
+            }
+            break;
+          case "BD/KT1":
+            const kts = [
+              "KT1",
+              "KT2",
+              "KT3",
+              "KT4",
+              "KT5",
+              "KT6",
+              "KT7",
+              "KT8",
+            ];
+            const tmp: string[] = [];
+            kts.forEach((t) => {
+              if (Array.isArray(x[t]) && x[t].length > 0) {
+                tmp.push(x[t][0]);
+              } else if (x[t]) {
+                tmp.push(x[t]);
+              }
+            });
+            x[key] = _(tmp)
+              .flatten()
+              .join(", ")
+              .replace(/(  )( )*/g, " ");
+            break;
+          case "BD/KT*":
+            if (x[key]) {
+              const regexSources = /›KT\d/;
+              if (Array.isArray(x[key])) {
+                var i;
+                for (i = 0; i < x[key].length; i++) {
+                  x[key][i] = x[key][i]
+                    .replace(regexSources, "")
+                    .replace(/(  )( )*/g, " ");
+                }
+                x[key] = _(x[key]).flatten();
+              } else {
+                x[key] = x[key]
+                  .replace(regexSources, "")
+                  .replace(/(  )( )*/g, " ");
+              }
+            }
+            break;
+          case "Sigle1":
+            x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, "");
+          case "KT1":
+            x[key] = x[key].replace(/(  )( )*/, " ");
+          default:
+            break;
+        }
+      }
+
+      this.sortedHeaders.forEach((key) => {
+        if (x[key] !== undefined) {
+          localOrdered[key] = x[key];
+        }
+      });
+
+      for (var key in x) {
+        if (!(key in localOrdered)) {
+          localOrdered[key] = x[key];
+        }
+      }
+
+      orderedSelect.push(localOrdered);
+    });
+
+    return orderedSelect;
   }
 }
 </script>

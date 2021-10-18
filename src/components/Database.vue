@@ -7,6 +7,7 @@
             fab
             fixed
             :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+            id="dbPlaylistToggleBtn"
           >
             <v-icon>mdi-playlist-edit</v-icon>
           </v-btn>
@@ -23,7 +24,7 @@
         :style="{ 'left': showPlaylistSidebar === true && index === 0 ? '55px' : '0px', 
                   width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%' }"
       >
-        <v-row no-gutters>
+        <v-row no-gutters id="dbSearchbar">
           <v-col class="pa-0 flex-grow-1" 
           style="margin-left: 5px"
           >
@@ -36,7 +37,7 @@
               prepend-inner-icon="search"
               :value="req.query"
               @input="updateRequestQueryDebounced(index, $event)"
-              :disabled="this.showSelectedCollection"
+              :disabled="showSelectedCollection"
               :loading="searching"
               hide-details
               solo
@@ -46,7 +47,7 @@
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="appendArrayReq()" v-on="on"
+                <v-btn icon @click="appendArrayReq()" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>add_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -56,7 +57,7 @@
           <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="removeElementArrayReq(req)" v-on="on"
+                <v-btn icon @click="removeElementArrayReq(req)" v-on="on" :disabled="showSelectedCollection"
                   ><v-icon>remove_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -157,22 +158,53 @@
             </v-menu>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-dialog max-width="1000" color="#2b2735" scrollable>
-              <template v-if="index === 0" v-slot:activator="{ on }">
-                <v-btn v-on="on" color="accent" icon text>
+            <v-menu offset-y> 
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="accent"
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                >
                   <v-icon>info</v-icon>
                 </v-btn>
               </template>
-              <v-card text class="fill-height pa-4">
-                <v-card-text class="pa-0 fill-height">
-                  <info-text
-                    class="pt-4 white fill-height"
-                    path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
-                  />
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </v-col>
+              <v-list>
+                <v-list-item
+                  v-for="(item, index) in [
+                    { btn: 'tour'},
+                    { btn: 'dialogue'},
+                  ]"
+                  :key="index"
+                >
+                  <v-btn
+                    v-if="index === 0"
+                    color="accent"
+                    icon
+                    @click="startTour()"
+                  >
+                    <v-icon>info</v-icon>
+                  </v-btn>
+
+                  <v-dialog max-width="1000" color="#2b2735" scrollable v-if="index === 1">
+                    <template v-slot:activator="{ on }">
+                      <v-btn v-on="on" color="accent" icon text >
+                        <v-icon>mdi-tooltip-text</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-card text class="fill-height pa-4">
+                      <v-card-text class="pa-0 fill-height">
+                        <info-text
+                          class="pt-4 white fill-height"
+                          path="belegdatenbank/suchmoeglichkeiten-in-der-wboe-db/"
+                        />
+                      </v-card-text>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+                      </v-col>
         </v-row>
       </v-card>
     </v-flex>
@@ -180,6 +212,7 @@
       
       <!-- Visible Collections -->
       <v-banner
+        id="dbBelegSourceBanner"
         class="mt-2 pa-0"
       >
         
@@ -208,12 +241,14 @@
         </template>
       </v-banner>
       <v-data-table
+        id="dbBelegTable"
         class="mt-2"
         v-model="selected"
         dense
         show-select
         return-object
         :footer-props="footerProps"
+        :items-per-page="10"
         :options.sync="pagination"
         :server-items-length="totalItems"
         :headers="visibleHeaders"
@@ -263,14 +298,14 @@
               </v-btn>
             </v-col>
             <v-col class="py-0">
-              <v-data-footer style="border-top: 0" v-bind="props" v-on="on" />
+              <v-data-footer id="dbPagination" style="border-top: 0" v-bind="props" v-on="on" />
             </v-col>
           </v-row>
         </template>
 
         <!-- Entries of the Belege -->
         <template v-slot:item="{ item, index, isSelected }">
-          <tr @click="customSelect(item)">
+          <tr @click="customSelect(item)" v-bind:id="'dbBelegTableRow-' + index">
             <td>
               <v-checkbox
                 :value="isSelected"
@@ -457,8 +492,25 @@
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
         </v-menu>
+
       </div>
     </v-flex>
+    <v-tour 
+      name="databaseTour" 
+      :steps="databaseTour_Steps" 
+      :options="{ 
+        useKeyboardNavigation: true,
+        highlight: true,
+        labels: {
+          buttonSkip: 'Tour schließen',
+          buttonPrevious: 'Zurück',
+          buttonNext: 'Weiter',
+          buttonStop: 'Tour beenden'
+        }
+      }"
+      :callbacks="tourCallbacks"
+    >
+    </v-tour>
   </v-layout>
 </template>
 <script lang="ts">
@@ -474,6 +526,7 @@ import {
   searchCollections,
   getCollectionByIds,
   SearchRequest,
+  getDocumentTotalCountPerRequest,
 } from '../api';
 import { stateProxy, Collection } from '../store/collections';
 import { geoStore } from '../store/geo';
@@ -548,9 +601,123 @@ export default class Database extends Vue {
   };
   extended = false;
   totalItems = 100;
+  absoluteTotalItems = 100; // the constant static total number in the whole database. Value is assigned in the init function
 
   indexField = 1;
   stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
+
+  localStorage = window.localStorage;
+
+  databaseTour_Steps = [
+    {
+      target:'#dbSearchbar',
+      header: {
+        title: 'Suchleiste',
+      },
+      content: 'Hier können Sie die Belegdatenbank durchsuchen. Achtung: Dies geht nur, wenn Sie sich alle Belege und nicht die Sammlungen anschauen.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegTable',
+      header: {
+        title: 'Beleg Datenbank',
+      },
+      content: 'Hier sehen Sie die Belege aus allen Quellen, die Sie momentan ausgewählt haben (standardmäßig alle Belege).',
+      params: {
+        enableScrolling: false,
+        placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegTableRow-0',
+      content: 'Das ist ein Beleg, klicken Sie entweder auf den Eintrag oder die Checkbox um ihn aus-/abzuwählen.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbPagination',
+      content: 'Hier können Sie zwischen unterschiedlichen Seiten wechseln, um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
+      params: {
+        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbBelegSourceBanner',
+      header: {
+        title: 'Beleg Quellen',
+      },
+      content: 'Hier sehen Sie, aus welchen Quellen gerade Belege angezeigt werden.',
+      params: {
+        enableScrolling: false,
+        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target:'#dbPlaylistToggleBtn',
+      content: 'Klicken Sie hier, um die Sammlungsübersicht zu öffnen.',
+      params: {
+        enableScrolling: false,
+        placement: 'right'       
+      }
+    },
+
+  ]
+
+  tourCallbacks = {
+    onSkip: this.disableTourOnLoad,
+    onFinish: this.disableTourOnLoad,
+  }
+
+  disableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('belegDBTourEnabled', 'false');
+  }
+
+  enableTourOnLoad(currentStep?: any) {
+    this.localStorage.setItem('belegDBTourEnabled', 'true');
+  }
+
+    onLandingTourHandler() {
+    if(!localStorage.getItem('belegDBTourEnabled')) {
+      this.enableTourOnLoad();
+    }
+    if(localStorage.getItem('belegDBTourEnabled') === 'true') {
+      this.startTour();
+    }
+  }
+
+
+  startTour() {
+    // @ts-ignore
+    this.$tours['databaseTour'].start();
+  }
+
+  sortedHeaders: any[] = [
+    'ID',
+    'HL',
+    'NL',
+    'POS',
+    'BD/KT',
+    'NR',
+    'NR2',
+    'LT1_teuthonista',  
+    'BD/LT*',
+    'Ort/LT',
+    'BD/KT1',
+    'BD/KT*',
+    'QU',
+    'BIBL',
+    'Sigle1',
+    // 'Sigle10', is for the Staat column
+    'Bundesland1',
+    'Großregion1',
+    'Kleinregion1',
+    'Gemeinde1'
+  ];
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
@@ -825,7 +992,6 @@ export default class Database extends Vue {
 
   @Watch('stateProxy.collections.visibleCollections')
   visibleCollectionNames() :String[]{
-    console.log('visible collections: ', stateProxy.collections.visibleCollections);
     
     if(stateProxy.collections.visibleCollections.length > 0) {
       const temp: String[] = [];
@@ -849,7 +1015,6 @@ export default class Database extends Vue {
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     let allBelege = this.showAlleBelege;
-    //console.log(activeCollections, allBelege)
     if (activeCollections > 0 && !allBelege) {
       return true;
     }
@@ -858,6 +1023,7 @@ export default class Database extends Vue {
 
   @Watch('visibleCollections')
   onVisibleColledtionChangeUpdates() {
+    this.pagination.page = 1;
     this.updateSelection();
   }
 
@@ -872,17 +1038,20 @@ export default class Database extends Vue {
   }
 
   updateSelection() {
-    baseLoop: for (let index = this.selected.length - 1; index >= 0 ; index -= 1) {
-      const entry: any = this.selected[index];
-      for (let j = 0; j < this.shownItems.length; j++) {
-        const beleg: any = this.shownItems[j];
-        if(beleg.ID === entry.ID) {
-          this.selected[index] = beleg;
-          continue baseLoop;
-        }
-      }
-      this.selected.splice(index, 1);
-    }
+    // Attempt of manually updating the selection to circumvent 'invisible' selections
+    // baseLoop: for (let index = this.selected.length - 1; index >= 0 ; index -= 1) {
+    //   const entry: any = this.selected[index];
+    //   for (let j = 0; j < this.shownItems.length; j++) {
+    //     const beleg: any = this.shownItems[j];
+    //     if(beleg.ID === entry.ID) {
+    //       this.selected[index] = beleg;
+    //       continue baseLoop;
+    //     }
+    //   }
+    //   this.selected.splice(index, 1);
+    // }
+
+    this.selected = [];
   }
 
   updateRequestQuery(index: number, e: string) {
@@ -904,9 +1073,13 @@ export default class Database extends Vue {
 
   addBelegtoCollection(col: Collection) {
     console.log('got clicked')
+    const itemsID = col.items.map(item => item.ID); // local array of the items
+    const addedItems = this.mappableSelectionItems.filter((item) =>  // filtered items, does not include already existing items
+      !itemsID.includes(item.ID)
+    )
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
-      items: this.mappableSelectionItems,
+      items: addedItems,
     });
   }
 
@@ -943,11 +1116,6 @@ export default class Database extends Vue {
       id: this.indexField,
     });
     this.indexField++;
-    console.log(
-      this.indexField,
-      this.request_arr.toString,
-      this.request_arr.length
-    );
   }
 
   // remove element with each '-' click
@@ -994,7 +1162,6 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
-    // console.debug(!this.selected.find(i => item.id === i.id), this.selected, item.id)
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
@@ -1083,13 +1250,12 @@ export default class Database extends Vue {
       return '';
     }
 
-    const regexSources = /[≈›|›|≈]?LT\d?/;
+    const regexSources = /[≈›|›|≈]?LT\d?/g;
     if (Array.isArray(lt)) {
-      return lt[0].replace(regexSources, '');
+      return lt[0].replace(regexSources, '').replace(/(  )( )*/g, ' ');
     } else {
-      return lt.replace(regexSources, '');
+      return lt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
     }
-    return lt;
   }
 
   renderBedeutungBelegsaetze(val: any) {
@@ -1102,11 +1268,11 @@ export default class Database extends Vue {
     if (Array.isArray(kt)) {
       var i;
       for (i = 0; i < kt.length; i++) {
-        kt[i] = kt[i].replace(regexSources, '');
+        kt[i] = kt[i].replace(regexSources, '').replace(/(  )( )*/g, ' ');
       }
       return _(kt).flatten(); //replace(regexSources, '')
     } else {
-      return kt.replace(regexSources, '');
+      return kt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
     }
   }
 
@@ -1120,7 +1286,7 @@ export default class Database extends Vue {
         res.push(val[t]);
       }
     });
-    return _(res).flatten().join(', ');
+    return _(res).flatten().join(', ').replace(/(  )( )*/g, ' ');
   }
 
   renderLautung(val: any) {
@@ -1157,6 +1323,7 @@ export default class Database extends Vue {
     if (this.type === 'collection' && this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
     }
+    this.onLandingTourHandler();
   }
 
   get _items() {
@@ -1165,9 +1332,16 @@ export default class Database extends Vue {
     );
   }
 
+  get _shownItemsWithSource() {
+    var startCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage;
+    var lastCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage + this.pagination.itemsPerPage + 1;
+    if (lastCount > this.shownItemsWithSource.length) lastCount = this.shownItemsWithSource.length;
+    return this.shownItemsWithSource.slice(startCount, lastCount); // returns the current relevant pagination
+  }
+
   get shownItems() {
     if (this.showSelectedCollection) {
-      return this.shownItemsWithSource;
+      return this._shownItemsWithSource; //this.shownItemsWithSource;
     }
     return this._items;
   }
@@ -1264,7 +1438,8 @@ export default class Database extends Vue {
   async init() {
     this.loading = true;
     const countDocument = await getDocumentTotalCount();
-    this.totalItems = countDocument || 0;
+    this.totalItems = countDocument || 0; // this value is updated along the way and is used in the footbar
+    this.absoluteTotalItems = countDocument || 0; // from now on this value is not going to be changed
     const res = await getDocuments(
       this.pagination.page,
       this.pagination.itemsPerPage,
@@ -1304,22 +1479,24 @@ export default class Database extends Vue {
 
   @Watch('pagination', { deep: true })
   updateResults() {
-    if (this.request_arr[0] && this.request_arr[0].query !== '') {
-      this.changeQueryParam({
-        page: this.pagination.page,
+    if (!this.showSelectedCollection) {
+      if (this.request_arr[0] && this.request_arr[0].query !== '') {
+        this.changeQueryParam({
+          page: this.pagination.page,
         itemsPerPage: this.pagination.itemsPerPage,
       });
 
       // this.$router.replace({
-      //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
+        //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
       //   }).catch(() => console.log("route duplicated. "))
 
-      this.onChangeQuery(this.request_arr);
-    } else if (this.collection_ids) {
-      this.loadCollectionIds(this.collectionIdList);
-    } else {
-      this.init();
-    }
+        this.onChangeQuery(this.request_arr);
+      } else if (this.collection_ids) {
+        this.loadCollectionIds(this.collectionIdList);
+      } else {
+        this.init();
+      }
+    } 
   }
 
   get mappableSelectionItems() {
@@ -1334,6 +1511,26 @@ export default class Database extends Vue {
             i.Ort !== '')
       )
     ).value();
+  }
+
+  @Watch("shownItems", { immediate: true })
+  refreshCountingFoot() {
+    const updatedCount = this.numberOfShownCollEntries;
+    if (updatedCount !== -1) this.totalItems = updatedCount;
+  }
+
+
+  get numberOfShownCollEntries() {
+    let number_entries: number = 0;
+
+    let tempID: any[] = []; 
+    this.wboeColl.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
+    this.temp_coll.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
+    
+    number_entries = tempID.length;
+
+    if (this.showAlleBelege) number_entries = this.absoluteTotalItems;
+    return number_entries > 0 ? number_entries : -1;
   }
 
   showSelectionOnMap() {
@@ -1583,9 +1780,14 @@ export default class Database extends Vue {
         ...d,
         ...this.getPlacesFromSigle(d.ortsSigle),
       }));
-      this.totalItems = res.total.value || 0;
-      this.searching = false;
-      const work = await getDocumentTotalCount();
+      if (res.total.value === 10000) {
+        const work = await getDocumentTotalCountPerRequest();
+        if (work !== this.totalItems) {
+          this.totalItems = work;
+        }
+      } else {
+        this.totalItems = res.total.value || 0;
+      }
     } else {
       this.init();
     }
@@ -1613,16 +1815,113 @@ export default class Database extends Vue {
     });
   }
 
-  saveXLSX() {
-    var localSelect: any[] = [];
-    this.selected.forEach((x) => localSelect.push(x));
-    for (let i = 0; i < localSelect.length; i++) {
-      for (var key in localSelect[i]) {
-        if (Array.isArray(localSelect[i][key])) {
-          localSelect[i][key] = localSelect[i][key].join(' ');
+
+  editValuesForExport(): any[] {
+    
+    var localSelect: any[] = _.cloneDeep(this.selected);  // creating a deep copy
+
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = [];
+
+    localSelect.forEach((x) => {
+      var localOrdered: any = {};
+      // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
+      delete x["colSources"]; 
+      delete x["entry"];
+      delete x["Bundesland"];
+      delete x["Großregion"];
+      for (var key in x) {
+        if (Array.isArray(x[key])) {
+          x[key] = x[key].join(' ');
+        }
+        switch (key) {
+          case 'Kleinregion1':
+            x[key] = regions.mapKleinreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Großregion1':
+            x[key] = regions.mapGrossreg(
+              x[key]
+              .replace(/\d[A-Z]?[\.]\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+              ).trim() + ' (' + x[key] + ')'        
+            break;
+          case 'Bundesland1':
+            x[key] = regions.mapBundeslaender(
+              x[key]
+              .replace(/\d[A-Z]?[\.]?[\d]?/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '')
+              .replace(/ ,/g, ',')
+            ).trim() + ' (' + x[key] + ')'
+            break;
+          case 'Gemeinde1':
+            x[key] = x[key]
+              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
+              .replace(/[›]?[L|K]T[\d]?/g, '').trim()
+            break;
+          case 'HL':
+            if (Array.isArray(x[key]) && x[key].length > 1) {
+              x[key] = x[key][1].replace('≈', '')
+            }
+            break;
+          case 'BD/KT':
+            x[key] = this.renderGrammatikAngabe(x);
+            break;      
+          case 'NR':
+            x[key] = this.renderFragenummer(x);
+            break;      
+          case 'NR2':
+            x[key] = this.renderGefragterAusdruck(x);
+            break;
+          case 'LT1_teuthonista':
+            x[key] = this.renderLautung(x);
+            break;      
+          case 'BD/LT*':
+            x[key] = this.renderBedeutung(x);
+            break;      
+          case 'BD/KT1':
+            x[key] = this.renderBelegsaetze(x);
+            break;      
+          case 'BD/KT*':
+            x[key] = this.renderBedeutungBelegsaetze(x);
+            break;
+          case 'Sigle1':
+            x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, ''); 
+          case 'KT1':
+            x[key] = x[key].replace(/(  )( )*/, ' ');     
+          default:
+            break;
         }
       }
+    
+    // creating a local ordered copy per selected item
+    this.sortedHeaders.forEach((key) => {
+      if (x[key] !== undefined) {
+        localOrdered[key] = x[key];
+      }
+    });
+
+    // adding the values that are not included in the DB table
+    for (var key in x) {
+      if (!(key in localOrdered)) {
+        localOrdered[key] = x[key];
+      }
     }
+
+    // updating the exported object
+    orderedSelect.push(localOrdered);
+    });
+    
+    return orderedSelect;
+  }
+
+  saveXLSX() {
+    var localSelect: any[] = this.editValuesForExport();
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
@@ -1635,15 +1934,8 @@ export default class Database extends Vue {
   }
 
   saveCSV() {
-    var localSelect: any[] = [];
-    this.selected.forEach((x) => localSelect.push(x));
-    for (let i = 0; i < localSelect.length; i++) {
-      for (var key in localSelect[i]) {
-        if (Array.isArray(localSelect[i][key])) {
-          localSelect[i][key] = localSelect[i][key].join(' ');
-        }
-      }
-    }
+    var localSelect: any[] = this.editValuesForExport(); 
+
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
@@ -1655,17 +1947,18 @@ export default class Database extends Vue {
   }
 
   saveJSON() {
-    var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
-    localSelected.forEach((x) => {
-      delete x['colSources'];
-      delete x['entry'];
-    })
+    var localSelected = this.editValuesForExport();
+    // var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
+    // localSelected.forEach((x) => {
+    //   delete x['colSources'];
+    //   delete x['entry'];
+    // })
     const blob = JSON.stringify(localSelected, undefined, 2);
     FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
   }
 
   downloadFiduz() {
-    window.open('https://vawadioe.acdh.oeaw.ac.at/lioetxt/materialien/fiduz/');
+    window.open('https://vawadioe.acdh.oeaw.ac.at/lioetxt/informationen/fiduz/');
   }
 }
 </script>

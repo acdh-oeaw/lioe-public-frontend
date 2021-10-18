@@ -19,38 +19,11 @@
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
-            <div :color="gC.borderColor" style="width: 18px; height: 18px">
-              <v-menu :close-on-content-click="false" offset-y top>
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    v-on="on"
-                    :color="gC.borderColor"
-                    elevation="1"
-                    fab
-                    style="width: 18px; height: 18px; margin-bottom: 20px"
-                  >
-                    <v-btn
-                      :color="gC.fillColor"
-                      elevation="1"
-                      fab
-                      style="width: 15px; height: 15px"
-                    ></v-btn>
-                  </v-btn>
-                </template>
-                <div id="menuItem">
-                  Farbe des Rahmens
-                  <v-color-picker
-                    hide-inputs
-                    v-model="gC.borderColor"
-                  ></v-color-picker>
-                  Farbe des Inhalts
-                  <v-color-picker
-                    hide-inputs
-                    v-model="gC.fillColor"
-                  ></v-color-picker>
-                </div>
-              </v-menu>
-            </div>
+            <colorPickerCollections
+              :borderColor.sync="gC.borderColor"
+              :fillColor.sync="gC.fillColor"
+              >
+            </colorPickerCollections>
           </v-list-item-action>
         </v-list-item>
       </v-list>
@@ -64,12 +37,15 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { stateProxy, Collection } from "../store/collections";
 import SaveLink from "@components/LinkSaveDialog.vue";
 import draggable from "vuedraggable";
+import colorPickerCollections from "../components/colorPickerCollections.vue"
+
 
 @Component({
   // if you use components add them here
   components: {
     SaveLink,
     draggable,
+    colorPickerCollections,
   },
   /* name is necessary for recursive components
    * (at least in older versions, might be auto generated through the vue-property-decorator)
