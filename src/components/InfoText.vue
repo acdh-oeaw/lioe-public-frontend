@@ -42,7 +42,8 @@
       <v-dialog v-model="showSubDialog" max-width="1000" color="#2b2735" scrollable v-if="subDialog">
         <v-card text class="fill-height pa-4">
           <div class="close-btn">
-            <v-btn @click="showSubDialog = false" text icon><v-icon dark>close</v-icon></v-btn>
+            <v-btn :href="subInternalUrl" target="_blank" class="mr-2" text icon v-if="subInternalUrl"><v-icon dark>mdi-open-in-new</v-icon></v-btn>
+            <v-btn @click="showSubDialog = false" class="mr-2" text icon><v-icon dark>close</v-icon></v-btn>
           </div>
           <v-card-text class="pa-0 fill-height">
             <info-text class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />
@@ -70,6 +71,7 @@ export default class InfoText extends Vue {
   html: string|null = null
   subHtml: string|null = null
   subUrl: string|null = null
+  subInternalUrl: string|null = null
   showSubDialog: boolean = false
   error = false
   prefix = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
@@ -113,6 +115,10 @@ export default class InfoText extends Vue {
         // first remove the handler, so we can’t have duplicate listeners
         aLnk.removeEventListener('click', this.linkClickHandler)
         aLnk.addEventListener('click', this.linkClickHandler)
+        if (aLnk.href !== aLnk.href.replace(this.prefix, '') && !isLocalUrl(aLnk.href)) {
+          aLnk.dataset.infoLnk = aLnk.href
+          aLnk.href = '/resources?link=' + encodeURIComponent(aLnk.href.replace(this.prefix, ''))
+        }
       }, this)
     })
   }
@@ -131,14 +137,15 @@ export default class InfoText extends Vue {
           const el = (this.$parent.$el.parentElement as HTMLElement)
           el.scrollTop = 0
         }
-      } else if (isExternUrl(e.target.href)) {
+      } else if (!e.target.dataset.infoLnk && isExternUrl(e.target.href)) {
         window.open(e.target.href, '_blank')
       } else {
         if (this.subDialog) {
-          this.subUrl = e.target.href
+          this.subUrl = e.target.dataset.infoLnk || e.target.href
+          this.subInternalUrl = e.target.dataset.infoLnk ? e.target.href : null
           this.showSubDialog = true
         } else {
-          this.subHtml = await getWebsiteHtml(e.target.href)
+          this.subHtml = await getWebsiteHtml(e.target.dataset.infoLnk || e.target.href)
         }
       }
     }
@@ -148,6 +155,7 @@ export default class InfoText extends Vue {
   ssdChanged(nVal: boolean) {
     if (!nVal) {
       this.subUrl = null
+      this.subInternalUrl = null
     }
   }
 
