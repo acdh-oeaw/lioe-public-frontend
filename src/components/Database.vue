@@ -440,7 +440,7 @@
               <v-icon>info</v-icon>
             </v-btn>
           </template>
-          Die Font Fiduz wird benötigt um die exportierten Einträge anzeigen zu
+          Die Font Fiduz wird benötigt, um die exportierten Einträge anzeigen zu
           können. Klicke hier um zu dem Downloadlink zu kommen.
         </v-tooltip>
 
@@ -605,7 +605,7 @@ export default class Database extends Vue {
     },
     {
       target:'#dbBelegTableRow-0',
-      content: 'Das ist ein Beleg, klicken Sie entweder auf den Eintrag oder die Checkbox um ihn aus-/abzuwählen.',
+      content: 'Das ist ein Beleg, klicken Sie entweder auf den Eintrag oder die Checkbox, um ihn aus-/abzuwählen.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -613,7 +613,7 @@ export default class Database extends Vue {
     },
     {
       target:'#dbPagination',
-      content: 'Hier können Sie zwischen unterschiedlichen Seiten wechseln, um mehr Belege anzuschauen, oder mehr Belege auf einer Seite anzuzeigen.',
+      content: 'Hier können Sie zwischen unterschiedlichen Seiten wechseln, um mehr Belege anzuschauen oder mehr Belege auf einer Seite anzuzeigen.',
       params: {
         placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }

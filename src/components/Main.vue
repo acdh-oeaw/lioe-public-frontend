@@ -240,7 +240,7 @@ export default class Main extends Vue {
       header: {
         title: 'Hilfe',
       },
-      content: 'Wenn Sie zum ersten Mal hier sind, soll Ihnen diese Tour dabei helfen sich zurechtzufinden. Mit "Tour schließen" können Sie die Tour überspringen. Wenn Sie die Tour später doch anschauen wollen, können Sie einfach auf dieses Icon klicken. ',
+      content: 'Wenn Sie zum ersten Mal hier sind, soll Ihnen diese Tour dabei helfen, sich zurechtzufinden. Mit "Tour schließen" können Sie die Tour überspringen. Wenn Sie die Tour später doch anschauen wollen, können Sie einfach auf dieses Icon klicken. ',
       params: {
         enableScrolling: false,
         placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
