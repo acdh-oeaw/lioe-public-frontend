@@ -271,5 +271,34 @@ div /deep/ a.button {
   .frame-space-after-extra-large {
     margin-bottom: 5rem;
   }
+  .fx-box {
+    .col-12 {
+      padding: 0.5rem;
+    }
+    .frame-default {
+      background-color: #4472c4;
+      height: 100%;
+      padding: 0.75rem;
+      color: #fff;
+    }
+    .frame-default a {
+      color: #fff;
+      text-decoration: underline;
+    }
+    .ce-center figure.image {
+      display: flex;
+      min-height: 7rem;
+    }
+    .ce-center img {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 6rem;
+    }
+    .ce-center img {
+      display: block;
+      margin: auto auto;
+    }
+  }
 }
 </style>
