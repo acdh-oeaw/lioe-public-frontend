@@ -276,7 +276,7 @@ div /deep/ a.button {
       padding: 0.5rem;
     }
     .frame-default {
-      background-color: #4472c4;
+      background-color: #3b89a0;
       height: 100%;
       padding: 0.75rem;
       color: #fff;
