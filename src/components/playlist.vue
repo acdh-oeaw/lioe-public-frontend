@@ -47,6 +47,8 @@
                 <v-checkbox
                   :disabled="onMapPage"
                   @click.prevent=""
+                  :on-icon="'mdi-toggle-switch'"
+                  :off-icon="'mdi-toggle-switch-off'"
                   v-model="showAlleBelege"
                   color="primary"
                 />
@@ -84,7 +86,7 @@
                       :on-icon="'mdi-eye'"
                       :off-icon="'mdi-eye-off'"
                       dense
-                    ></v-checkbox>
+                    />
                   </v-list-item-action>
                   <v-list-item-content
                     style="margin-left: 5px; margin-right: 5px"
@@ -300,7 +302,7 @@
                       :on-icon="'mdi-eye'"
                       :off-icon="'mdi-eye-off'"
                       dense
-                    ></v-checkbox>
+                    />
                   </v-list-item-action>
                   <!-- Collection Name & Description -->
                   <v-list-item-content style="margin-left: 5px" >
