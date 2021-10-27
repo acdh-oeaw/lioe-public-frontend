@@ -289,15 +289,14 @@ div /deep/ a.button {
       display: flex;
       min-height: 7rem;
     }
-    .ce-center img {
+    .ce-center img, .ce-center a {
+      display: block;
+      margin: auto auto;
       width: auto;
       height: auto;
       max-width: 100%;
       max-height: 6rem;
-    }
-    .ce-center img {
-      display: block;
-      margin: auto auto;
+      text-decoration: none;
     }
   }
 }
