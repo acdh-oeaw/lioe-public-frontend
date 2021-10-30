@@ -2,6 +2,8 @@ import { createModule, mutation, action, extractVuexModule, Module, createProxy,
 import { getDocumentsByCollection } from "../api";
 import Vuex from 'vuex'
 import Vue from 'vue'
+import { $addNotification } from "@src/utilities/notifications";
+import { $bus } from "..";
 Vue.use(Vuex)
 
 const VuexModule = createModule({
@@ -96,6 +98,7 @@ class CollectionModule extends VuexModule {
     addTemp_coll(coll: { changedColl: Collection}) {
         this.temp_collections.push(coll.changedColl);
         this.collectionNameNumber += 1;
+        $addNotification({message: 'Neue Sammlung wurde erfolgreich angelegt.', type: 'success'});
     }
 
     @mutation
@@ -103,6 +106,7 @@ class CollectionModule extends VuexModule {
         this.temp_collections.forEach(collLoop => {
             if (coll.changedColl.id == collLoop.id) {
                 this.temp_collections.splice(this.temp_collections.indexOf(collLoop), 1)
+                $addNotification({message: 'Die Sammlung ' + coll.changedColl.collection_name + ' wurde erfolgreich entfernt', type: 'success'});
             }
         });
     }
@@ -125,11 +129,20 @@ class CollectionModule extends VuexModule {
 
     @mutation
     addPlacesToCollection(input: { col: Number, items: any }) {
+        let addingSuccesfull = false;
+        let colName: String = '';
         this.temp_collections.forEach(collectionLoop => {
             if (collectionLoop.id === input.col) {
+                colName = collectionLoop.collection_name;
                 collectionLoop.items = [...collectionLoop.items, ...input.items]
+                addingSuccesfull = true;
             }
         });
+        if(addingSuccesfull) 
+            $addNotification({message: 'Belege wurden erfolgreich zu ' + colName + ' hinzugefügt.', type: 'success'});
+        else
+            $addNotification({message: 'Belege konnten nicht hinzugefügt werden.', type: 'error'});
+        
     }
 
     @mutation

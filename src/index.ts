@@ -14,6 +14,10 @@ import VueTour from 'vue-tour'
 
 // useful comment here
 
+export const $bus = new Vue();
+
+Vue.prototype.$bus = $bus;
+
 Vue.config.productionTip = true
 // Vue.directive('line-clamp', lineClamp)
 Vue.use(Vuex)
@@ -63,3 +67,4 @@ window.onload = () => {
     router
   }).$mount('#app')
 }
+
