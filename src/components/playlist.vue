@@ -39,24 +39,14 @@
         <v-card-text class="pa-3 pt-0 flex-grow-1 overflow-y-auto">
           <v-list dense>
             <v-subheader>Belegdatenbank</v-subheader>
-            <v-list-item
+            <v-switch
               :disabled="onMapPage || !extra_colls_exist"
-              @click="toggleSelectedCollShowAll()"
+              @click:append="toggleSelectedCollShowAll()"
+              v-model="showAlleBelege"
+              color="primary"
+              :label="`Alle Belege zeigen`"
             >
-              <v-list-item-action style="margin-right: 0px">
-                <v-checkbox
-                  :disabled="onMapPage"
-                  @click.prevent=""
-                  :on-icon="'mdi-toggle-switch'"
-                  :off-icon="'mdi-toggle-switch-off'"
-                  v-model="showAlleBelege"
-                  color="primary"
-                />
-              </v-list-item-action>
-              <v-list-item-content style="margin-left: 5px">
-                Alle Belege zeigen
-              </v-list-item-content>
-            </v-list-item>
+            </v-switch>
             <v-subheader>Meine Sammlungen</v-subheader>
             <v-list-item-group>
               <draggable
