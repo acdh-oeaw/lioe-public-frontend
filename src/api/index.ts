@@ -83,6 +83,9 @@ export function isLocalUrl(url: string): string | null {
   return rUrl
 }
 
+/**
+ * GET total number of documents accessible in the data base
+ */
 export async function getDocumentTotalCount(): Promise<number> {
   const r = await await axios({
     method: 'GET',
@@ -93,6 +96,9 @@ export async function getDocumentTotalCount(): Promise<number> {
   return r && r.data && r.data.count ? r.data.count : 0
 }
 
+/**
+ * Get total number of documents while sending a search query
+ */
 export async function getDocumentTotalCountPerRequest(): Promise<number> {
   
   const params = {query: finalQuery}
