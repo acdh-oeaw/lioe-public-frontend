@@ -1798,6 +1798,7 @@ export default class Database extends Vue {
       } else {
         this.totalItems = res.total.value || 0;
       }
+      this.searching = false;
     } else {
       this.init();
     }
