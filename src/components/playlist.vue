@@ -47,6 +47,24 @@
             >
             </v-switch>
             <v-subheader>Meine Sammlungen</v-subheader>
+            <v-tooltip right max-width="220" min-width="100">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                depressed
+                @click="addCollection()"
+                style="width: 98%; margin: 0 auto"
+                v-on="on"
+              >
+                Sammlung anlegen
+              </v-btn>
+            </template>
+            <span
+              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
+              nur so lange, wie die Seite nicht neu geladen wird.</span
+            >
+          </v-tooltip>
+
             <v-list-item-group>
               <draggable
                 v-model="temp_coll"
@@ -179,23 +197,7 @@
               </draggable>
             </v-list-item-group>
           </v-list>
-          <v-tooltip right max-width="220" min-width="100">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                color="primary"
-                depressed
-                @click="addCollection()"
-                style="width: 98%; margin: 0 auto"
-                v-on="on"
-              >
-                Sammlung anlegen
-              </v-btn>
-            </template>
-            <span
-              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
-              nur so lange, wie die Seite nicht neu geladen wird.</span
-            >
-          </v-tooltip>
+
 
           <v-list dense>
             <v-subheader>WBÖ Sammlungen</v-subheader>

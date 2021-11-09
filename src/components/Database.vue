@@ -28,21 +28,30 @@
           <v-col class="pa-0 flex-grow-1" 
           style="margin-left: 5px"
           >
-            <v-text-field
-              @click.stop=""
-              v-if="type === 'fulltext'"
-              autofocus
-              flat
-              label="Datenbank durchsuchen…"
-              prepend-inner-icon="search"
-              :value="req.query"
-              @input="updateRequestQueryDebounced(index, $event)"
-              :disabled="showSelectedCollection"
-              :loading="searching"
-              hide-details
-              solo
-              clearable
-            />
+            <v-tooltip bottom :disabled="!showSelectedCollection">
+              <template v-slot:activator="{ on }">
+                <span v-on="on">
+                  <v-text-field
+                    @click.stop=""
+                    v-if="type === 'fulltext'"
+                    autofocus
+                    flat
+                    label="Datenbank durchsuchen…"
+                    prepend-inner-icon="search"
+                    :value="req.query"
+                    @input="updateRequestQueryDebounced(index, $event)"
+                    :disabled="showSelectedCollection"
+                    :loading="searching"
+                    hide-details
+                    solo
+                    clearable
+                  />
+                </span>
+              </template>
+              <span>Die Suche ist nur bei allen Belegen und nicht innerhalb von Sammlungen möglich. Auf der linken Seite können Sie zwischen der Ansicht aller Belege 
+                und der Sammlungen wechseln. </span>
+            </v-tooltip>
+
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
