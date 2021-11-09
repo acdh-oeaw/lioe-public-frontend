@@ -87,13 +87,22 @@ export function isLocalUrl(url: string): string | null {
  * GET total number of documents accessible in the data base
  */
 export async function getDocumentTotalCount(): Promise<number> {
-  const r = await await axios({
+  const query_tmp = { match_all: {} };
+  const params = {query: query_tmp}
+  const r = (await axios(localEndpoint + '/es-count', {
     method: 'GET',
-    url: apiEndpoint + '/documents/?page=1&page_size=1',
-  }).catch((er) => {
-    console.error(er)
-  })
-  return r && r.data && r.data.count ? r.data.count : 0
+    params: params
+   })
+  ).data
+  return r.count ? r.count : 0;
+  
+  // const r = await await axios({
+  //   method: 'GET',
+  //   url: apiEndpoint + '/documents/?page=1&page_size=1',
+  // }).catch((er) => {
+  //   console.error(er)
+  // })
+  // return r && r.data && r.data.count ? r.data.count : 0
 }
 
 /**
