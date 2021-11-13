@@ -1,17 +1,17 @@
 <template>
   <v-layout column>
-      <v-flex class="text-xs-left" >
-        <v-btn
-            @click="togglePlaylistSidebar()"
-            color="primary"
-            fab
-            fixed
-            :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
-            id="dbPlaylistToggleBtn"
-          >
-            <v-icon>mdi-playlist-edit</v-icon>
-          </v-btn>
-      </v-flex>
+    <v-flex class="text-xs-left" >
+      <v-btn
+          @click="togglePlaylistSidebar()"
+          color="primary"
+          fab
+          fixed
+          :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+          id="dbPlaylistToggleBtn"
+        >
+          <v-icon>mdi-playlist-edit</v-icon>
+        </v-btn>
+    </v-flex>
           
     <v-navigation-drawer :value="showPlaylistSidebar" left app permanent v-if="showPlaylistSidebar">
       <playlist :onMapPage="false"> </playlist>
@@ -28,21 +28,30 @@
           <v-col class="pa-0 flex-grow-1" 
           style="margin-left: 5px"
           >
-            <v-text-field
-              @click.stop=""
-              v-if="type === 'fulltext'"
-              autofocus
-              flat
-              label="Datenbank durchsuchen…"
-              prepend-inner-icon="search"
-              :value="req.query"
-              @input="updateRequestQueryDebounced(index, $event)"
-              :disabled="showSelectedCollection"
-              :loading="searching"
-              hide-details
-              solo
-              clearable
-            />
+            <v-tooltip bottom :disabled="!showSelectedCollection">
+              <template v-slot:activator="{ on }">
+                <span v-on="on">
+                  <v-text-field
+                    @click.stop=""
+                    v-if="type === 'fulltext'"
+                    autofocus
+                    flat
+                    label="Datenbank durchsuchen…"
+                    prepend-inner-icon="search"
+                    :value="req.query"
+                    @input="updateRequestQueryDebounced(index, $event)"
+                    :disabled="showSelectedCollection"
+                    :loading="searching"
+                    hide-details
+                    solo
+                    clearable
+                  />
+                </span>
+              </template>
+              <span>Die Suche ist nur bei allen Belegen und nicht innerhalb von Sammlungen möglich. Auf der linken Seite können Sie zwischen der Ansicht aller Belege 
+                und der Sammlungen wechseln. </span>
+            </v-tooltip>
+
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
@@ -536,6 +545,7 @@ import * as xlsx from 'xlsx';
 import * as _ from 'lodash';
 import { concat, forEach } from 'lodash';
 import { $addNotification } from '@src/utilities/notifications';
+import { watch } from 'fs';
 
 const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -986,6 +996,10 @@ export default class Database extends Vue {
     return stateProxy.collections.showSidebar;
   }
 
+  get activeCollections() {
+    return stateProxy.collections.amountActiveCollections;
+  }
+
   togglePlaylistSidebar() {
     stateProxy.collections.toggleSidebar();
   }
@@ -1011,11 +1025,16 @@ export default class Database extends Vue {
     this.performSearch(this.request_arr);
   }
 
-  // To-Do: Potentially change so that when nothing is selected nothing is shown
+  @Watch('activeCollections')
+  onActiceCollectionsChange() {
+    if(!this.showAlleBelege && this.activeCollections === 0)
+      stateProxy.collections.changeShowAlleBelege(true);
+  }
+
+  // ToDo: Potentially change so that when nothing is selected nothing is shown
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
-    let allBelege = this.showAlleBelege;
-    if (activeCollections > 0 && !allBelege) {
+    if (activeCollections > 0 && !this.showAlleBelege) {
       return true;
     }
     return false;

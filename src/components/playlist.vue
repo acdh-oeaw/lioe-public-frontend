@@ -41,13 +41,30 @@
             <v-subheader>Belegdatenbank</v-subheader>
             <v-switch
               :disabled="onMapPage || !extra_colls_exist"
-              @click:append="toggleSelectedCollShowAll()"
               v-model="showAlleBelege"
               color="primary"
               :label="`Alle Belege zeigen`"
             >
             </v-switch>
             <v-subheader>Meine Sammlungen</v-subheader>
+            <v-tooltip right max-width="220" min-width="100">
+            <template v-slot:activator="{ on }">
+              <v-btn
+                color="primary"
+                depressed
+                @click="addCollection()"
+                style="width: 98%; margin: 0 auto"
+                v-on="on"
+              >
+                Sammlung anlegen
+              </v-btn>
+            </template>
+            <span
+              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
+              nur so lange, wie die Seite nicht neu geladen wird.</span
+            >
+          </v-tooltip>
+
             <v-list-item-group>
               <draggable
                 v-model="temp_coll"
@@ -180,23 +197,7 @@
               </draggable>
             </v-list-item-group>
           </v-list>
-          <v-tooltip right max-width="220" min-width="100">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                color="primary"
-                depressed
-                @click="addCollection()"
-                style="width: 98%; margin: 0 auto"
-                v-on="on"
-              >
-                Sammlung anlegen
-              </v-btn>
-            </template>
-            <span
-              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
-              nur so lange, wie die Seite nicht neu geladen wird.</span
-            >
-          </v-tooltip>
+
 
           <v-list dense>
             <v-subheader>WBÖ Sammlungen</v-subheader>
@@ -654,31 +655,48 @@ export default class Playlist extends Vue {
     this.isSearching = false;
   }
 
-  toggleSelectedCollShowAll() {
-    this.showAlleBelege = !this.showAlleBelege;
+  @Watch('showAlleBelege')
+  onShowAlleBelegeChange() {
     if (this.showAlleBelege) {
-      // if all showAlleBelege was clicked, all temp_coll entries should be deselected
-      if (this.temp_coll.length > 0) {
-        this.temp_coll.forEach((item) => {
-          item.selected = false;
-        });
-      }
-      // if all showAlleBelege was clicked, all temp_coll entries should be deselected
-      if (this.wboe_coll.length > 0) {
-        this.wboe_coll.forEach((item) => {
-          item.selected = false;
-        });
-      }
+      this.deselectAllCollections();
     } else {
       // will get to this condition only if there exists a wboe or temp_coll, because the btn is otherwise disabled
-      this.temp_coll.forEach((item) => {
-        item.selected = true;
-      });
+      const check = function checkAnyCollectionSelected(element: any) {
+        return element.selected === true;
+      }
 
-      this.wboe_coll.forEach((item) => {
-        item.selected = true;
+      // Checks if a collection is selected after showAllBelege was turned of (happens when a collection is made visible while showAllBelege is on)
+      // only selects all collections if that isn't the case.
+      if(!this.temp_coll.some( (element) => check(element))
+        && !this.wboe_coll.some((element) => check(element))) {
+          this.selectAllCollections();
+        }
+    }
+  }
+
+  deselectAllCollections() {
+    // if all showAlleBelege was clicked, all temp_coll entries should be deselected
+    if (this.temp_coll.length > 0) {
+      this.temp_coll.forEach((item) => {
+        item.selected = false;
       });
     }
+    // if all showAlleBelege was clicked, all temp_coll entries should be deselected
+    if (this.wboe_coll.length > 0) {
+      this.wboe_coll.forEach((item) => {
+        item.selected = false;
+      });
+    }
+  }
+
+  selectAllCollections() {
+    this.temp_coll.forEach((item) => {
+      item.selected = true;
+    });
+
+    this.wboe_coll.forEach((item) => {
+      item.selected = true;
+    });
   }
 
   @Watch("wboe_coll", { deep: true })
@@ -727,7 +745,7 @@ export default class Playlist extends Vue {
       items: [],
     };
     stateProxy.collections.addTemp_coll({ changedColl: newColl });
-    this.showAlleBelege = true;
+    this.showAlleBelege = false;
   }
 
   addBelegeToCollection(col: Collection, add_to: Collection) {
