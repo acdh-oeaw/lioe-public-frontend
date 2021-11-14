@@ -1031,7 +1031,6 @@ export default class Database extends Vue {
       stateProxy.collections.changeShowAlleBelege(true);
   }
 
-  // ToDo: Potentially change so that when nothing is selected nothing is shown
   get showSelectedCollection() {
     let activeCollections = stateProxy.collections.amountActiveCollections;
     if (activeCollections > 0 && !this.showAlleBelege) {
@@ -1091,7 +1090,6 @@ export default class Database extends Vue {
   }
 
   addBelegtoCollection(col: Collection) {
-    console.log('got clicked')
     const itemsID = col.items.map(item => item.ID); // local array of the items
     const addedItems = this.mappableSelectionItems.filter((item) =>  // filtered items, does not include already existing items
       !itemsID.includes(item.ID)
@@ -1504,11 +1502,6 @@ export default class Database extends Vue {
           page: this.pagination.page,
         itemsPerPage: this.pagination.itemsPerPage,
       });
-
-      // this.$router.replace({
-        //     query: { ...this.$router.currentRoute.query, p: this.pageItemList() }
-      //   }).catch(() => console.log("route duplicated. "))
-
         this.onChangeQuery(this.request_arr);
       } else if (this.collection_ids) {
         this.loadCollectionIds(this.collectionIdList);
@@ -1605,82 +1598,6 @@ export default class Database extends Vue {
     }
     return output;
   }
-
-  /*
-  arrangeToArr(val: string) {
-    console.log(this.collection_ids);
-    var tmp = val.toString();
-    const colls = tmp.split(",");
-    this.getLocationsOfCollections(colls);
-  }
-
-  getLocationsOfCollections(colls: string[]) {
-    if (!Array.isArray(colls)) {
-      var tmp = new Array();
-      tmp.push(colls);
-      colls = tmp;
-    }
-
-    if (colls.length === 0) {
-      return;
-    }
-    let output: any[] = [];
-    let end_output;
-
-    colls.forEach(async (coll) => {
-      let shownInGeo;
-      this.selectedCollections.forEach((CollInGeo) => {
-        //@ts-ignore
-        if (CollInGeo.tempColl === coll) {
-          shownInGeo = true;
-        }
-      });
-      //It is a new one
-      if (!shownInGeo) {
-        const res: any = await getDocumentsByCollection([coll], 1, 1000);
-        let CollLocation: any[] = [];
-        //@ts-ignore
-        res.documents.forEach((document) => {
-          let sigle: string = document.ortsSigle;
-          if (sigle) {
-            if (!CollLocation.includes(document.ortsSigle.split(" ")[0])) {
-              CollLocation.push(document.ortsSigle.split(" ")[0]);
-            }
-          }
-        });
-        let collName = "";
-        let collDescription = "";
-        this.collectionSearchItems.forEach((iterColl) => {
-          if (coll === iterColl.value) {
-            collName = iterColl.name;
-            collDescription = iterColl.description;
-          }
-        });
-
-        output.push(
-          JSON.stringify({
-            id: Math.random() * 1000,
-            tempColl: coll,
-            collection_name: collName,
-            collection_desc: collDescription,
-            editing: false,
-            fillColor:
-              "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
-            borderColor: "#000",
-            items: CollLocation,
-          })
-        );
-
-        this.$router.push({
-          path: "/maps",
-          query: {
-            col: "[" + output + "]",
-          },
-        });
-      }
-    });
-  }
-  */
 
   get filterReqAll(): SearchRequest[] | null {
     // filtering out all empty fields requests

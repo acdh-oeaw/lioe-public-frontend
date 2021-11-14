@@ -129,7 +129,6 @@ export async function getDocuments(
   sortBy: string[] = [],
   descending: boolean[] = [true]
 ): Promise<Documents> {
-  console.log('get docs', sortBy)
   const sort = []
   if (sortBy.length !== 0) {
     if (descending.length !== 0) {
