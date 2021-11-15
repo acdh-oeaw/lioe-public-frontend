@@ -31,3 +31,16 @@ For testing (cypress e2e testing) the code is built for production (`npm run bui
 you can launch the test development environment using `npm run test:interactive`. Every test should run without
 error in this environment.
 To be sure you can also run `npm run test` before you push because this is what runs on the build server.
+
+Test the container image locally
+--------------------------------
+
+You can test the container image from the build server locally (e.g. the dev branch):
+
+```bash
+docker run --rm -it -p 8080:8080 -e NODE_PORT=8080 -e NODE_ENV=local_container registry.gitlab.com/acdh-oeaw/dboe/lioe-website/dev start
+```
+
+`NODE_PORT` is needed as else this will be undefined
+`NODE_ENV` is needed as there is a redirect to `https://` built into the server when the environment is production (default from Dockerfile)
+*Note*: NODE_ENV here does not change anything anymore for the frontend code in the browser as this is fixed during the build process
