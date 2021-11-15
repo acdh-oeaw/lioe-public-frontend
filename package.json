@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack",
+    "build": "env-cmd -f env-production.env webpack",
     "cy:run": "npx cypress run",
     "test": "env-cmd -f env-test.env --use-shell \"start-server-and-test start http://localhost:8080 cy:run\"",
     "test:interactive": "env-cmd -f env-test.env --use-shell \"concurrently \"NODE_PORT=8080 npm run start\" \"npx cypress open\"\"",

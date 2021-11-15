@@ -45,7 +45,7 @@ interface individualRequest {
 
 const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
 const txtEndpoint = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
-export const localEndpoint = process.env.API_HOST || 'http://localhost:8081'
+export const localEndpoint = process.env.API_HOST
 const articleEndpoint = localEndpoint + '/api/article'
 
 const localUrls: { [remoteUrl: string]: string } = {
