@@ -216,6 +216,9 @@ div /deep/ a.button {
     max-width: 100%;
     height: auto;
   }
+  video {
+    max-width: 100%;
+  }
   .fx-table-1, .fx-table-2 {
     border-collapse: collapse;
     width: 100%;
