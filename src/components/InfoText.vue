@@ -275,10 +275,19 @@ div /deep/ a.button {
       padding: 0.5rem;
     }
     .frame-default {
-      background-color: #3b89a0;
+      position: relative;
+      background-color: #599bae;
       height: 100%;
       padding: 0.75rem;
       color: #fff;
+    }
+    header, header h1, header h2, header h3, header h4, header a {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      opacity: 0;
     }
     .frame-default a {
       color: #fff;
@@ -288,7 +297,7 @@ div /deep/ a.button {
       display: flex;
       min-height: 7rem;
     }
-    .ce-center img, .ce-center a {
+    .ce-center .ce-gallery img, .ce-center .ce-gallery a {
       display: block;
       margin: auto auto;
       width: auto;
