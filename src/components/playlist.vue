@@ -48,22 +48,22 @@
             </v-switch>
             <v-subheader>Meine Sammlungen</v-subheader>
             <v-tooltip right max-width="220" min-width="100">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                color="primary"
-                depressed
-                @click="addCollection()"
-                style="width: 98%; margin: 0 auto"
-                v-on="on"
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  color="primary"
+                  depressed
+                  @click="addCollection()"
+                  style="width: 98%; margin: 0 auto"
+                  v-on="on"
+                >
+                  Sammlung anlegen
+                </v-btn>
+              </template>
+              <span
+                >Die erstellte Sammlung wird nicht online gespeichert sondern
+                hält nur so lange, wie die Seite nicht neu geladen wird.</span
               >
-                Sammlung anlegen
-              </v-btn>
-            </template>
-            <span
-              >Die erstellte Sammlung wird nicht online gespeichert sondern hält
-              nur so lange, wie die Seite nicht neu geladen wird.</span
-            >
-          </v-tooltip>
+            </v-tooltip>
 
             <v-list-item-group>
               <draggable
@@ -117,7 +117,7 @@
                     <colorPickerCollections
                       :borderColor.sync="item.borderColor"
                       :fillColor.sync="item.fillColor"
-                      >
+                    >
                     </colorPickerCollections>
                   </v-list-item-action>
                   <v-list-item-icon
@@ -197,7 +197,6 @@
               </draggable>
             </v-list-item-group>
           </v-list>
-
 
           <v-list dense>
             <v-subheader>WBÖ Sammlungen</v-subheader>
@@ -283,7 +282,7 @@
                   )"
                   @click="switchShow(item)"
                   :key="i"
-                  :id="'wboeCollection-'+ i"
+                  :id="'wboeCollection-' + i"
                 >
                   <v-list-item-action style="margin-right: 0px">
                     <v-checkbox
@@ -296,7 +295,7 @@
                     />
                   </v-list-item-action>
                   <!-- Collection Name & Description -->
-                  <v-list-item-content style="margin-left: 5px" >
+                  <v-list-item-content style="margin-left: 5px">
                     <v-list-item-title
                       v-text="item.collection_name"
                     ></v-list-item-title>
@@ -309,11 +308,11 @@
                     <colorPickerCollections
                       :borderColor.sync="item.borderColor"
                       :fillColor.sync="item.fillColor"
-                      >
+                    >
                     </colorPickerCollections>
                   </v-list-item-action>
                   <!-- Collection Context Menu -->
-                  <v-list-item-action style="margin: auto 0px" >
+                  <v-list-item-action style="margin: auto 0px">
                     <v-menu offset-y>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
@@ -332,9 +331,7 @@
                           <v-list-item-title>Entfernen</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="createCopyColl(item)">
-                          <v-list-item-title
-                            >Kopie erstellen</v-list-item-title
-                          >
+                          <v-list-item-title>Kopie erstellen</v-list-item-title>
                         </v-list-item>
                         <v-list-item>
                           <v-menu right open-on-hover offset-x>
@@ -394,12 +391,17 @@
                       </v-list>
                     </v-menu>
                   </v-list-item-action>
-                
-                  <v-tooltip right max-width="600" min-width="100" :activator="'#wboeCollection-'+ i">
+
+                  <v-tooltip
+                    right
+                    max-width="600"
+                    min-width="100"
+                    :activator="'#wboeCollection-' + i"
+                  >
                     <span>
-                      <h5 >{{ item.collection_name }}</h5>
+                      <h5>{{ item.collection_name }}</h5>
                       {{ item.collection_desc }}
-                    </span>  
+                    </span>
                   </v-tooltip>
                 </v-list-item>
               </draggable>
@@ -449,7 +451,7 @@ import * as FileSaver from "file-saver";
 import * as _ from "lodash";
 import * as xlsx from "xlsx";
 import { regions } from "@src/regions";
-import colorPickerCollections from "../components/colorPickerCollections.vue"
+import colorPickerCollections from "../components/colorPickerCollections.vue";
 
 @Component({
   components: {
@@ -655,7 +657,7 @@ export default class Playlist extends Vue {
     this.isSearching = false;
   }
 
-  @Watch('showAlleBelege')
+  @Watch("showAlleBelege")
   onShowAlleBelegeChange() {
     if (this.showAlleBelege) {
       this.deselectAllCollections();
@@ -663,14 +665,16 @@ export default class Playlist extends Vue {
       // will get to this condition only if there exists a wboe or temp_coll, because the btn is otherwise disabled
       const check = function checkAnyCollectionSelected(element: any) {
         return element.selected === true;
-      }
+      };
 
       // Checks if a collection is selected after showAllBelege was turned of (happens when a collection is made visible while showAllBelege is on)
       // only selects all collections if that isn't the case.
-      if(!this.temp_coll.some( (element) => check(element))
-        && !this.wboe_coll.some((element) => check(element))) {
-          this.selectAllCollections();
-        }
+      if (
+        !this.temp_coll.some((element) => check(element)) &&
+        !this.wboe_coll.some((element) => check(element))
+      ) {
+        this.selectAllCollections();
+      }
     }
   }
 

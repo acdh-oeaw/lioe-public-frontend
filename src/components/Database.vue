@@ -1,19 +1,25 @@
 <template>
   <v-layout column>
-    <v-flex class="text-xs-left" >
+    <v-flex class="text-xs-left">
       <v-btn
-          @click="togglePlaylistSidebar()"
-          color="primary"
-          fab
-          fixed
-          :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
-          id="dbPlaylistToggleBtn"
-        >
-          <v-icon>mdi-playlist-edit</v-icon>
-        </v-btn>
+        @click="togglePlaylistSidebar()"
+        color="primary"
+        fab
+        fixed
+        :style="{ left: showPlaylistSidebar === true ? '265px' : '15px' }"
+        id="dbPlaylistToggleBtn"
+      >
+        <v-icon>mdi-playlist-edit</v-icon>
+      </v-btn>
     </v-flex>
-          
-    <v-navigation-drawer :value="showPlaylistSidebar" left app permanent v-if="showPlaylistSidebar">
+
+    <v-navigation-drawer
+      :value="showPlaylistSidebar"
+      left
+      app
+      permanent
+      v-if="showPlaylistSidebar"
+    >
       <playlist :onMapPage="false"> </playlist>
     </v-navigation-drawer>
     <v-flex>
@@ -21,13 +27,13 @@
         class="sticky-card mt-2"
         v-for="(req, index) in request_arr"
         :key="index"
-        :style="{ 'left': showPlaylistSidebar === true && index === 0 ? '55px' : '0px', 
-                  width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%' }"
+        :style="{
+          left: showPlaylistSidebar === true && index === 0 ? '55px' : '0px',
+          width: showPlaylistSidebar === true && index === 0 ? '96.5%' : '100%',
+        }"
       >
         <v-row no-gutters id="dbSearchbar">
-          <v-col class="pa-0 flex-grow-1" 
-          style="margin-left: 5px"
-          >
+          <v-col class="pa-0 flex-grow-1" style="margin-left: 5px">
             <v-tooltip bottom :disabled="!showSelectedCollection">
               <template v-slot:activator="{ on }">
                 <span v-on="on">
@@ -48,15 +54,21 @@
                   />
                 </span>
               </template>
-              <span>Die Suche ist nur bei allen Belegen und nicht innerhalb von Sammlungen möglich. Auf der linken Seite können Sie zwischen der Ansicht aller Belege 
-                und der Sammlungen wechseln. </span>
+              <span
+                >Die Suche ist nur bei allen Belegen und nicht innerhalb von
+                Sammlungen möglich. Auf der linken Seite können Sie zwischen der
+                Ansicht aller Belege und der Sammlungen wechseln.
+              </span>
             </v-tooltip>
-
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="appendArrayReq()" v-on="on" :disabled="showSelectedCollection"
+                <v-btn
+                  icon
+                  @click="appendArrayReq()"
+                  v-on="on"
+                  :disabled="showSelectedCollection"
                   ><v-icon>add_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -66,7 +78,11 @@
           <v-col v-if="index > 0" cols="auto" class="pr-2 pt-1 text-right">
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn icon @click="removeElementArrayReq(req)" v-on="on" :disabled="showSelectedCollection"
+                <v-btn
+                  icon
+                  @click="removeElementArrayReq(req)"
+                  v-on="on"
+                  :disabled="showSelectedCollection"
                   ><v-icon>remove_circle_outline</v-icon></v-btn
                 ></template
               >
@@ -123,7 +139,7 @@
                     v-if="type === 'fulltext' && !shouldSearchInAllColumns(req)"
                   >
                     In
-                    {{ req.fields ? getStringForHead(req) : 'keiner' }}
+                    {{ req.fields ? getStringForHead(req) : "keiner" }}
                     Spalte
                   </template>
                   <template v-if="type === 'collection'"> Nach Namen </template>
@@ -167,22 +183,17 @@
             </v-menu>
           </v-col>
           <v-col cols="auto" class="pr-2 pt-1 text-right">
-            <v-menu offset-y> 
+            <v-menu offset-y>
               <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  color="accent"
-                  icon
-                  v-bind="attrs"
-                  v-on="on"
-                >
+                <v-btn color="accent" icon v-bind="attrs" v-on="on">
                   <v-icon>info</v-icon>
                 </v-btn>
               </template>
               <v-list>
                 <v-list-item
                   v-for="(item, index) in [
-                    { btn: 'tour'},
-                    { btn: 'dialogue'},
+                    { btn: 'tour' },
+                    { btn: 'dialogue' },
                   ]"
                   :key="index"
                 >
@@ -195,9 +206,14 @@
                     <v-icon>info</v-icon>
                   </v-btn>
 
-                  <v-dialog max-width="1000" color="#2b2735" scrollable v-if="index === 1">
+                  <v-dialog
+                    max-width="1000"
+                    color="#2b2735"
+                    scrollable
+                    v-if="index === 1"
+                  >
                     <template v-slot:activator="{ on }">
-                      <v-btn v-on="on" color="accent" icon text >
+                      <v-btn v-on="on" color="accent" icon text>
                         <v-icon>mdi-tooltip-text</v-icon>
                       </v-btn>
                     </template>
@@ -213,40 +229,28 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-                      </v-col>
+          </v-col>
         </v-row>
       </v-card>
     </v-flex>
     <v-flex>
-      
       <!-- Visible Collections -->
-      <v-banner
-        id="dbBelegSourceBanner"
-        class="mt-2 pa-0"
-      >
-        
-          Gezeigte Belege aus: 
+      <v-banner id="dbBelegSourceBanner" class="mt-2 pa-0">
+        Gezeigte Belege aus:
 
-        <template
-          v-if="showSelectedCollection"
-          >
+        <template v-if="showSelectedCollection">
           <v-chip
             v-for="(col, index) in visibleCollections"
             :key="index"
             :color="col.fillColor"
-            style="margin-top: 4px; margin-bottom: 4px; margin-right: 4px;"
-            >
-            {{col.collection_name}}
+            style="margin-top: 4px; margin-bottom: 4px; margin-right: 4px"
+          >
+            {{ col.collection_name }}
           </v-chip>
         </template>
 
-        <template
-          v-else
-          >
-          <v-chip
-            >
-            Alle Belege
-          </v-chip>
+        <template v-else>
+          <v-chip> Alle Belege </v-chip>
         </template>
       </v-banner>
       <v-data-table
@@ -307,14 +311,22 @@
               </v-btn>
             </v-col>
             <v-col class="py-0">
-              <v-data-footer id="dbPagination" style="border-top: 0" v-bind="props" v-on="on" />
+              <v-data-footer
+                id="dbPagination"
+                style="border-top: 0"
+                v-bind="props"
+                v-on="on"
+              />
             </v-col>
           </v-row>
         </template>
 
         <!-- Entries of the Belege -->
         <template v-slot:item="{ item, index, isSelected }">
-          <tr @click="customSelect(item)" v-bind:id="'dbBelegTableRow-' + index">
+          <tr
+            @click="customSelect(item)"
+            v-bind:id="'dbBelegTableRow-' + index"
+          >
             <td>
               <v-checkbox
                 :value="isSelected"
@@ -340,14 +352,20 @@
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
 
-                <template v-if="showSelectedCollection && header.text === 'Sammlung'">
+                <template
+                  v-if="showSelectedCollection && header.text === 'Sammlung'"
+                >
                   <v-chip
-                    v-for="(colSource,index) in item.colSources"
+                    v-for="(colSource, index) in item.colSources"
                     :key="index"
                     :color="colSource.fillColor"
-                    style="margin-top: 2px; margin-bottom: 2px; margin-right: 4px;"
-                    >
-                    {{colSource.collection_name}}
+                    style="
+                      margin-top: 2px;
+                      margin-bottom: 2px;
+                      margin-right: 4px;
+                    "
+                  >
+                    {{ colSource.collection_name }}
                   </v-chip>
                 </template>
               </td>
@@ -358,7 +376,12 @@
       <!-- Collection edit options (Add Beleg to collection,...) -->
       <div v-if="mappableSelectionItems.length !== 0" class="collBox">
         <div
-          style="color: white; margin-right: 40px; margin-top: 8px; float: right"
+          style="
+            color: white;
+            margin-right: 40px;
+            margin-top: 8px;
+            float: right;
+          "
         >
           {{ mappableSelectionItems.length }} Beleg<span
             v-if="mappableSelectionItems.length > 1"
@@ -387,9 +410,7 @@
               :key="index"
               @click="addBelegtoCollection(item)"
             >
-              <v-list-item-title >{{
-                item.collection_name
-              }}</v-list-item-title>
+              <v-list-item-title>{{ item.collection_name }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -419,7 +440,6 @@
             </v-list-item>
           </v-list>
         </v-menu>
-
 
         <!-- Create collection and show on Map -->
         <v-tooltip top style="width: 100px">
@@ -501,21 +521,20 @@
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
         </v-menu>
-
       </div>
     </v-flex>
-    <v-tour 
-      name="databaseTour" 
-      :steps="databaseTour_Steps" 
-      :options="{ 
+    <v-tour
+      name="databaseTour"
+      :steps="databaseTour_Steps"
+      :options="{
         useKeyboardNavigation: true,
         highlight: true,
         labels: {
           buttonSkip: 'Tour schließen',
           buttonPrevious: 'Zurück',
           buttonNext: 'Weiter',
-          buttonStop: 'Tour beenden'
-        }
+          buttonStop: 'Tour beenden',
+        },
       }"
       :callbacks="tourCallbacks"
     >
@@ -523,10 +542,10 @@
   </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import InfoText from '@components/InfoText.vue';
-import InfoBox from '@components/InfoBox.vue';
-import Playlist from '@src/components/playlist.vue';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import InfoText from "@components/InfoText.vue";
+import InfoBox from "@components/InfoBox.vue";
+import Playlist from "@src/components/playlist.vue";
 import {
   getDocuments,
   searchDocuments,
@@ -536,16 +555,16 @@ import {
   getCollectionByIds,
   SearchRequest,
   getDocumentTotalCountPerRequest,
-} from '../api';
-import { stateProxy, Collection } from '../store/collections';
-import { geoStore } from '../store/geo';
-import { regions } from '../regions';
-import * as FileSaver from 'file-saver';
-import * as xlsx from 'xlsx';
-import * as _ from 'lodash';
-import { concat, forEach } from 'lodash';
-import { $addNotification } from '@src/utilities/notifications';
-import { watch } from 'fs';
+} from "../api";
+import { stateProxy, Collection } from "../store/collections";
+import { geoStore } from "../store/geo";
+import { regions } from "../regions";
+import * as FileSaver from "file-saver";
+import * as xlsx from "xlsx";
+import * as _ from "lodash";
+import { concat, forEach } from "lodash";
+import { $addNotification } from "@src/utilities/notifications";
+import { watch } from "fs";
 
 const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -574,19 +593,19 @@ interface TableHeader {
   },
 })
 export default class Database extends Vue {
-  @Prop({ default: '' }) collection_ids: string | null;
-  @Prop({ default: 'fulltext' }) type: string | null;
-  @Prop({ default: 'true' }) fuzzy: 'true' | 'false';
-  @Prop({ default: '' }) page: string | null;
-  @Prop({ default: '' }) itemsPerPage: string | null;
+  @Prop({ default: "" }) collection_ids: string | null;
+  @Prop({ default: "fulltext" }) type: string | null;
+  @Prop({ default: "true" }) fuzzy: "true" | "false";
+  @Prop({ default: "" }) page: string | null;
+  @Prop({ default: "" }) itemsPerPage: string | null;
 
-  @Prop({ default: '' }) queryFields: string[] | null;
+  @Prop({ default: "" }) queryFields: string[] | null;
 
   request_arr: SearchRequest[] = [
     {
-      query: '',
+      query: "",
       fields: null, // string contains null == all | name
-      headerStr: '',
+      headerStr: "",
       id: 0, // setting index
     },
   ];
@@ -598,7 +617,7 @@ export default class Database extends Vue {
   searchCollection: string | null = null;
   collectionSearchItems: any[] = [];
   selectedCollections: any[] = []; // the selected collections that are shown
-  selected: any[] = []; // the selected table entries ("Belege") that are selected within the table 
+  selected: any[] = []; // the selected table entries ("Belege") that are selected within the table
   loading = false;
   searching = false;
   showFilterOptions = false;
@@ -614,155 +633,158 @@ export default class Database extends Vue {
   absoluteTotalItems = 100; // the constant static total number in the whole database. Value is assigned in the init function
 
   indexField = 1;
-  stringSpalte = ''; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
+  stringSpalte = ""; // this.visibleHeaders.map((h) => this.shouldSearchInColumn(h) ? h.text : "")
 
   localStorage = window.localStorage;
 
   databaseTour_Steps = [
     {
-      target:'#dbSearchbar',
+      target: "#dbSearchbar",
       header: {
-        title: 'Suchleiste',
+        title: "Suchleiste",
       },
-      content: 'Hier können Sie die Belegdatenbank durchsuchen. Achtung: Dies geht nur, wenn Sie sich alle Belege und nicht die Sammlungen anschauen.',
+      content:
+        "Hier können Sie die Belegdatenbank durchsuchen. Achtung: Dies geht nur, wenn Sie sich alle Belege und nicht die Sammlungen anschauen.",
       params: {
         enableScrolling: false,
-        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
-      }
+        placement: "bottom", // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      },
     },
     {
-      target:'#dbBelegTable',
+      target: "#dbBelegTable",
       header: {
-        title: 'Beleg Datenbank',
+        title: "Beleg Datenbank",
       },
-      content: 'Hier sehen Sie die Belege aus allen Quellen, die Sie momentan ausgewählt haben (standardmäßig alle Belege).',
+      content:
+        "Hier sehen Sie die Belege aus allen Quellen, die Sie momentan ausgewählt haben (standardmäßig alle Belege).",
       params: {
         enableScrolling: false,
-        placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
-      }
+        placement: "top", // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      },
     },
     {
-      target:'#dbBelegTableRow-0',
-      content: 'Das ist ein Beleg, klicken Sie entweder auf den Eintrag oder die Checkbox, um ihn aus-/abzuwählen.',
+      target: "#dbBelegTableRow-0",
+      content:
+        "Das ist ein Beleg, klicken Sie entweder auf den Eintrag oder die Checkbox, um ihn aus-/abzuwählen.",
       params: {
         enableScrolling: false,
-        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
-      }
+        placement: "bottom", // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      },
     },
     {
-      target:'#dbPagination',
-      content: 'Hier können Sie zwischen unterschiedlichen Seiten wechseln, um mehr Belege anzuschauen oder mehr Belege auf einer Seite anzuzeigen.',
+      target: "#dbPagination",
+      content:
+        "Hier können Sie zwischen unterschiedlichen Seiten wechseln, um mehr Belege anzuschauen oder mehr Belege auf einer Seite anzuzeigen.",
       params: {
-        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
-      }
+        placement: "left", // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      },
     },
     {
-      target:'#dbBelegSourceBanner',
+      target: "#dbBelegSourceBanner",
       header: {
-        title: 'Beleg Quellen',
+        title: "Beleg Quellen",
       },
-      content: 'Hier sehen Sie, aus welchen Quellen gerade Belege angezeigt werden.',
+      content:
+        "Hier sehen Sie, aus welchen Quellen gerade Belege angezeigt werden.",
       params: {
         enableScrolling: false,
-        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
-      }
+        placement: "bottom", // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      },
     },
     {
-      target:'#dbPlaylistToggleBtn',
-      content: 'Klicken Sie hier, um die Sammlungsübersicht zu öffnen.',
+      target: "#dbPlaylistToggleBtn",
+      content: "Klicken Sie hier, um die Sammlungsübersicht zu öffnen.",
       params: {
         enableScrolling: false,
-        placement: 'right'       
-      }
+        placement: "right",
+      },
     },
-
-  ]
+  ];
 
   tourCallbacks = {
     onSkip: this.disableTourOnLoad,
     onFinish: this.disableTourOnLoad,
-  }
+  };
 
   disableTourOnLoad(currentStep?: any) {
-    this.localStorage.setItem('belegDBTourEnabled', 'false');
+    this.localStorage.setItem("belegDBTourEnabled", "false");
   }
 
   enableTourOnLoad(currentStep?: any) {
-    this.localStorage.setItem('belegDBTourEnabled', 'true');
+    this.localStorage.setItem("belegDBTourEnabled", "true");
   }
 
-    onLandingTourHandler() {
-    if(!localStorage.getItem('belegDBTourEnabled')) {
+  onLandingTourHandler() {
+    if (!localStorage.getItem("belegDBTourEnabled")) {
       this.enableTourOnLoad();
     }
-    if(localStorage.getItem('belegDBTourEnabled') === 'true') {
+    if (localStorage.getItem("belegDBTourEnabled") === "true") {
       this.startTour();
     }
   }
 
-
   startTour() {
     // @ts-ignore
-    this.$tours['databaseTour'].start();
+    this.$tours["databaseTour"].start();
   }
 
   sortedHeaders: any[] = [
-    'ID',
-    'HL',
-    'NL',
-    'POS',
-    'BD/KT',
-    'NR',
-    'NR2',
-    'LT1_teuthonista',  
-    'BD/LT*',
-    'Ort/LT',
-    'BD/KT1',
-    'BD/KT*',
-    'QU',
-    'BIBL',
-    'Sigle1',
+    "ID",
+    "HL",
+    "NL",
+    "POS",
+    "BD/KT",
+    "NR",
+    "NR2",
+    "LT1_teuthonista",
+    "BD/LT*",
+    "Ort/LT",
+    "BD/KT1",
+    "BD/KT*",
+    "QU",
+    "BIBL",
+    "Sigle1",
     // 'Sigle10', is for the Staat column
-    'Bundesland1',
-    'Großregion1',
-    'Kleinregion1',
-    'Gemeinde1'
+    "Bundesland1",
+    "Großregion1",
+    "Kleinregion1",
+    "Gemeinde1",
   ];
 
   headers: TableHeader[] = [
     // tslint:disable-next-line:max-line-length
     {
-        searchable: false,
-        show: false,
-        text: "Sammlung",
-        value: "",
-        infoUrl: '',
-        sortable: false,
+      searchable: false,
+      show: false,
+      text: "Sammlung",
+      value: "",
+      infoUrl: "",
+      sortable: false,
     },
     {
       searchable: true,
       show: false,
-      text: 'ID',
-      value: 'ID',
-      infoUrl: 'wboe-artikel/dbheaderinfo-id/',
+      text: "ID",
+      value: "ID",
+      infoUrl: "wboe-artikel/dbheaderinfo-id/",
       extended: true,
       sortable: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Lemma',
-      infoUrl: 'wboe-artikel/dbheaderinfo-lemma/',
+      text: "Lemma",
+      infoUrl: "wboe-artikel/dbheaderinfo-lemma/",
       renderFnc: (val: any) => (Array.isArray(val.HL) ? val.HL[0] : val.HL),
-      value: 'HL',
+      value: "HL",
       sortable: true,
     },
     {
       searchable: true,
       show: false,
-      text: 'Nebenlemma',
-      infoUrl: 'wboe-artikel/dbheaderinfo-nebenlemma',
-      value: 'NL',
+      text: "Nebenlemma",
+      infoUrl: "wboe-artikel/dbheaderinfo-nebenlemma",
+      value: "NL",
       renderFnc: (val: any) => (Array.isArray(val.NL) ? val.NL[0] : val.NL),
       extended: true,
       sortable: true,
@@ -770,126 +792,126 @@ export default class Database extends Vue {
     {
       searchable: false,
       show: false,
-      text: 'Lemma oS',
-      infoUrl: 'wboe-artikel/dbheaderinfo-lemmaos/',
+      text: "Lemma oS",
+      infoUrl: "wboe-artikel/dbheaderinfo-lemmaos/",
       renderFnc: (val: any) =>
         Array.isArray(val.HL) && val.HL.length > 1
-          ? val.HL[1].replace('≈', '')
+          ? val.HL[1].replace("≈", "")
           : val.HL,
       sortable: false,
-      value: 'HL2',
+      value: "HL2",
     },
     {
       searchable: true,
       show: true,
-      infoUrl: 'wboe-artikel/dbheaderinfo-wortart/',
-      text: 'Wortart',
-      value: 'POS',
+      infoUrl: "wboe-artikel/dbheaderinfo-wortart/",
+      text: "Wortart",
+      value: "POS",
       sortable: true,
     },
     {
       searchable: true,
       show: false,
-      text: 'Grammatik',
-      infoUrl: 'wboe-artikel/dbheaderinfo-grammatik/',
+      text: "Grammatik",
+      infoUrl: "wboe-artikel/dbheaderinfo-grammatik/",
       renderFnc: this.renderGrammatikAngabe,
-      value: 'BD/KT',
+      value: "BD/KT",
       extended: true,
       sortable: true,
     },
     {
       searchable: true,
       show: false,
-      text: 'Fragenummer',
-      infoUrl: 'wboe-artikel/dbheaderinfo-fragenummer/',
+      text: "Fragenummer",
+      infoUrl: "wboe-artikel/dbheaderinfo-fragenummer/",
       renderFnc: this.renderFragenummer,
-      value: 'NR',
+      value: "NR",
       extended: true,
       sortable: true,
     },
     {
       searchable: false,
       show: false,
-      text: 'Frage',
-      infoUrl: 'wboe-artikel/dbheaderinfo-frage/',
+      text: "Frage",
+      infoUrl: "wboe-artikel/dbheaderinfo-frage/",
       renderFnc: this.renderGefragterAusdruck,
-      value: 'NR2',
+      value: "NR2",
       sortable: false,
       extended: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Lautung',
-      infoUrl: 'wboe-artikel/dbheaderinfo-lautung/',
+      text: "Lautung",
+      infoUrl: "wboe-artikel/dbheaderinfo-lautung/",
       renderFnc: this.renderLautung,
       sortable: false,
-      value: 'LT1_teuthonista',
+      value: "LT1_teuthonista",
     },
     {
       searchable: true,
       show: true,
-      text: 'Bedeutung/Lautung',
+      text: "Bedeutung/Lautung",
       renderFnc: this.renderBedeutung,
-      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutunglautung/',
-      value: 'BD/LT*',
+      infoUrl: "wboe-artikel/dbheaderinfo-bedeutunglautung/",
+      value: "BD/LT*",
       sortable: false,
     },
     {
       searchable: true,
       show: false,
-      text: 'Ort/Lautung',
-      infoUrl: 'wboe-artikel/dbheaderinfo-ortlautung/',
-      value: 'Ort/LT',
+      text: "Ort/Lautung",
+      infoUrl: "wboe-artikel/dbheaderinfo-ortlautung/",
+      value: "Ort/LT",
       sortable: false,
       extended: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Kontext', // Belegsatz
-      infoUrl: 'wboe-artikel/dbheaderinfo-kontext/',
+      text: "Kontext", // Belegsatz
+      infoUrl: "wboe-artikel/dbheaderinfo-kontext/",
       renderFnc: this.renderBelegsaetze,
-      value: 'BD/KT1', //'belegsaetze',
+      value: "BD/KT1", //'belegsaetze',
       sortable: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Bedeutung/Kontext', //Bedeutung/Belegsatz
-      infoUrl: 'wboe-artikel/dbheaderinfo-bedeutungkontext',
+      text: "Bedeutung/Kontext", //Bedeutung/Belegsatz
+      infoUrl: "wboe-artikel/dbheaderinfo-bedeutungkontext",
       renderFnc: this.renderBedeutungBelegsaetze,
-      value: 'BD/KT*',
+      value: "BD/KT*",
       sortable: true,
     },
     {
       searchable: true,
       show: false,
-      text: 'Quelle',
-      value: 'QU',
-      infoUrl: 'wboe-artikel/dbheaderinfo-quelle/',
+      text: "Quelle",
+      value: "QU",
+      infoUrl: "wboe-artikel/dbheaderinfo-quelle/",
       extended: true,
       sortable: true,
     },
     {
       searchable: true,
       show: false,
-      text: 'Bibliographische Angabe',
-      value: 'BIBL',
-      infoUrl: 'wboe-artikel/dbheaderinfo-bibliographischeangabe/',
+      text: "Bibliographische Angabe",
+      value: "BIBL",
+      infoUrl: "wboe-artikel/dbheaderinfo-bibliographischeangabe/",
       extended: true,
       sortable: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Sigle',
-      value: 'Sigle1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-sigle/',
+      text: "Sigle",
+      value: "Sigle1",
+      infoUrl: "wboe-artikel/dbheaderinfo-sigle/",
       renderFnc: (val: any) =>
         `${_(val.Sigle1)
           .flatten()
-          .replace(/[›]?[L|K]T[\d]?/g, '')}`,
+          .replace(/[›]?[L|K]T[\d]?/g, "")}`,
       sortable: true,
     },
     // { text: 'Belegsätze', value: 'BIBL' },
@@ -900,9 +922,9 @@ export default class Database extends Vue {
     {
       searchable: false,
       show: true,
-      text: 'Staat',
-      infoUrl: 'wboe-artikel/dbheaderinfo-staat/',
-      value: 'Sigle10',
+      text: "Staat",
+      infoUrl: "wboe-artikel/dbheaderinfo-staat/",
+      value: "Sigle10",
       renderFnc: (val: any) =>
         regions.generalMapStaat(`${_(val.Sigle1).flatten()}`),
       sortable: true,
@@ -910,70 +932,70 @@ export default class Database extends Vue {
     {
       searchable: true,
       show: true,
-      text: 'Land',
-      value: 'Bundesland1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-land/',
+      text: "Land",
+      value: "Bundesland1",
+      infoUrl: "wboe-artikel/dbheaderinfo-land/",
       renderFnc: (val: any) =>
         regions.mapBundeslaender(
           _(val.Bundesland1)
             .flatten()
-            .replace(/\d[A-Z]?[\.]?[\d]?/g, '')
-            .replace(/[›]?[L|K]T[\d]?/g, '')
-            .replace(/ ,/g, ',')
+            .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
+            .replace(/[›]?[L|K]T[\d]?/g, "")
+            .replace(/ ,/g, ",")
         ),
       sortable: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Großregion',
-      value: 'Großregion1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-grossregion/',
+      text: "Großregion",
+      value: "Großregion1",
+      infoUrl: "wboe-artikel/dbheaderinfo-grossregion/",
       renderFnc: (val: any) =>
         regions.mapGrossreg(
           _(val.Großregion1)
             .flatten()
-            .replace(/\d[A-Z]?[\.]\d/g, '')
-            .replace(/[›]?[L|K]T[\d]?/g, '')
-            .replace(/ ,/g, ',')
+            .replace(/\d[A-Z]?[\.]\d/g, "")
+            .replace(/[›]?[L|K]T[\d]?/g, "")
+            .replace(/ ,/g, ",")
         ),
       sortable: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Kleinregion',
-      value: 'Kleinregion1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-kleinregionen',
+      text: "Kleinregion",
+      value: "Kleinregion1",
+      infoUrl: "wboe-artikel/dbheaderinfo-kleinregionen",
       renderFnc: (val: any) =>
         regions.mapKleinreg(
           _(val.Kleinregion1)
             .flatten()
-            .replace(/\d[A-Z]?[\.]\d[a-z]/g, '')
-            .replace(/[›]?[L|K]T[\d]?/g, '')
-            .replace(/ ,/g, ',')
+            .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
+            .replace(/[›]?[L|K]T[\d]?/g, "")
+            .replace(/ ,/g, ",")
         ),
       sortable: true,
     },
     {
       searchable: true,
       show: true,
-      text: 'Gemeinde',
-      value: 'Gemeinde1',
-      infoUrl: 'wboe-artikel/dbheaderinfo-gemeinde/',
+      text: "Gemeinde",
+      value: "Gemeinde1",
+      infoUrl: "wboe-artikel/dbheaderinfo-gemeinde/",
       renderFnc: (val: any) =>
         `${_(val.Gemeinde1)
           .flatten()
-          .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
-          .replace(/[›]?[L|K]T[\d]?/g, '')}`,
+          .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")
+          .replace(/[›]?[L|K]T[\d]?/g, "")}`,
       // ${val.Ort ? ` ${val.Ort}` : ''}`
       sortable: true,
     },
   ];
 
   footerProps = {
-    'items-per-page-text': 'Pro Seite',
-    'items-per-page-options': [10, 25, 50, 100, 500],
+    "items-per-page-text": "Pro Seite",
+    "items-per-page-options": [10, 25, 50, 100, 500],
   };
 
   get temp_coll() {
@@ -1004,30 +1026,29 @@ export default class Database extends Vue {
     stateProxy.collections.toggleSidebar();
   }
 
-  @Watch('stateProxy.collections.visibleCollections')
-  visibleCollectionNames() :String[]{
-    
-    if(stateProxy.collections.visibleCollections.length > 0) {
+  @Watch("stateProxy.collections.visibleCollections")
+  visibleCollectionNames(): String[] {
+    if (stateProxy.collections.visibleCollections.length > 0) {
       const temp: String[] = [];
-      stateProxy.collections.visibleCollections.forEach(col => {
-        temp.push(col.collection_name.toString()); 
-      })
+      stateProxy.collections.visibleCollections.forEach((col) => {
+        temp.push(col.collection_name.toString());
+      });
       return temp;
     }
-    return ['None'];
+    return ["None"];
   }
 
-  @Watch('toggleModel', { deep: true })
+  @Watch("toggleModel", { deep: true })
   updateRequestPrefix() {
     this.prefixSearch = this.toggleModel === 0 ? true : false;
     5;
-    this.changeQueryParam({ fuzzy: this.toggleModel === 2 ? 'true' : 'false' });
+    this.changeQueryParam({ fuzzy: this.toggleModel === 2 ? "true" : "false" });
     this.performSearch(this.request_arr);
   }
 
-  @Watch('activeCollections')
+  @Watch("activeCollections")
   onActiceCollectionsChange() {
-    if(!this.showAlleBelege && this.activeCollections === 0)
+    if (!this.showAlleBelege && this.activeCollections === 0)
       stateProxy.collections.changeShowAlleBelege(true);
   }
 
@@ -1039,13 +1060,13 @@ export default class Database extends Vue {
     return false;
   }
 
-  @Watch('visibleCollections')
+  @Watch("visibleCollections")
   onVisibleColledtionChangeUpdates() {
     this.pagination.page = 1;
     this.updateSelection();
   }
 
-  @Watch('showSelectedCollection') 
+  @Watch("showSelectedCollection")
   showCollectionUpdates() {
     this.showBelgeCollectionSource();
     this.updateSelection();
@@ -1086,14 +1107,16 @@ export default class Database extends Vue {
         // path: this.$router.currentRoute.path,
         query: { ...this.$router.currentRoute.query, ...p },
       })
-      .catch(() => console.log('route duplicated.'));
+      .catch(() => console.log("route duplicated."));
   }
 
   addBelegtoCollection(col: Collection) {
-    const itemsID = col.items.map(item => item.ID); // local array of the items
-    const addedItems = this.mappableSelectionItems.filter((item) =>  // filtered items, does not include already existing items
-      !itemsID.includes(item.ID)
-    )
+    const itemsID = col.items.map((item) => item.ID); // local array of the items
+    const addedItems = this.mappableSelectionItems.filter(
+      (
+        item // filtered items, does not include already existing items
+      ) => !itemsID.includes(item.ID)
+    );
     stateProxy.collections.addPlacesToCollection({
       col: col.id,
       items: addedItems,
@@ -1104,17 +1127,16 @@ export default class Database extends Vue {
     let newColl: Collection = {
       id: Math.random() * 1000,
       preColl: -1,
-      collection_name: 'Sammlung ' + stateProxy.collections.collectionNameNr,
+      collection_name: "Sammlung " + stateProxy.collections.collectionNameNr,
       editing: true,
-      fillColor: '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-      borderColor: '#000',
+      fillColor: "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+      borderColor: "#000",
       selected: true,
       items: this.mappableSelectionItems,
     };
-    stateProxy.collections.addTemp_coll({ changedColl: newColl});
+    stateProxy.collections.addTemp_coll({ changedColl: newColl });
 
-    if(!this.showPlaylistSidebar)
-      this.togglePlaylistSidebar();
+    if (!this.showPlaylistSidebar) this.togglePlaylistSidebar();
     this.selected = []; // initialize all selected elements. Initializartion does not take place if the items are added to an already existing collection
   }
 
@@ -1127,9 +1149,9 @@ export default class Database extends Vue {
   // set an id for each '+' click
   appendArrayReq(): void {
     this.request_arr.push({
-      query: '',
+      query: "",
       fields: null,
-      headerStr: '',
+      headerStr: "",
       id: this.indexField,
     });
     this.indexField++;
@@ -1147,7 +1169,7 @@ export default class Database extends Vue {
 
   getStringForHead(o: any): string {
     this.visibleHeaders.forEach((h) =>
-      this.shouldSearchInColumn(h, o) ? (o.headerStr = h.text) : ''
+      this.shouldSearchInColumn(h, o) ? (o.headerStr = h.text) : ""
     );
     return o.headerStr;
   }
@@ -1159,7 +1181,7 @@ export default class Database extends Vue {
   }
 
   shouldSearchInAllColumns(s: SearchRequest): boolean {
-    return s.fields === null || s.fields === '';
+    return s.fields === null || s.fields === "";
   }
 
   async selectAllColumnsAndSearch(o: any) {
@@ -1172,7 +1194,7 @@ export default class Database extends Vue {
 
   async selectNoColumnsAndSearch(o: any) {
     // allow search in no columns
-    o.fields = '';
+    o.fields = "";
     if (o.query !== null) {
       this.onChangeQuery(this.request_arr);
     }
@@ -1190,7 +1212,7 @@ export default class Database extends Vue {
     return this.headers.filter((h: any) => h.show);
   }
 
-  @Watch('extended')
+  @Watch("extended")
   onExtendedChanged(val: boolean) {
     this.headers.forEach((h: any) => {
       if (h.extended) {
@@ -1214,13 +1236,13 @@ export default class Database extends Vue {
     for (let i = 0; i < bd.length; i += 1) {
       bdnew.push(bd[i][0]);
     }
-    return _(bdnew).flatten().join(', ');
+    return _(bdnew).flatten().join(", ");
   }
 
   renderFragenummer(val: any) {
-    let nr = val['NR'];
+    let nr = val["NR"];
     if (!nr) {
-      return '';
+      return "";
     }
     const replacer = (
       match: string,
@@ -1240,61 +1262,61 @@ export default class Database extends Vue {
       });
     } else {
       const m = nr.match(fragenummerRegex);
-      return m ? m[0] : '';
+      return m ? m[0] : "";
     }
     nr = nr.filter((n: any) => n);
     return _(nr).flatten();
   }
 
   renderGefragterAusdruck(val: any) {
-    let nr = val['NR'];
+    let nr = val["NR"];
     if (!nr) {
-      return '';
+      return "";
     }
 
     const fragenummerRegex = /.*(\(.*\)){0,1}:/;
     if (Array.isArray(nr)) {
-      nr = nr[0].replace(fragenummerRegex, '');
+      nr = nr[0].replace(fragenummerRegex, "");
     } else {
-      return nr.replace(fragenummerRegex, '');
+      return nr.replace(fragenummerRegex, "");
     }
     return nr;
   }
 
   renderBedeutung(val: any) {
-    let lt = val['BD/LT*'];
+    let lt = val["BD/LT*"];
     if (!lt) {
-      return '';
+      return "";
     }
 
     const regexSources = /[≈›|›|≈]?LT\d?/g;
     if (Array.isArray(lt)) {
-      return lt[0].replace(regexSources, '').replace(/(  )( )*/g, ' ');
+      return lt[0].replace(regexSources, "").replace(/(  )( )*/g, " ");
     } else {
-      return lt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
+      return lt.replace(regexSources, "").replace(/(  )( )*/g, " ");
     }
   }
 
   renderBedeutungBelegsaetze(val: any) {
-    let kt = val['BD/KT*'];
+    let kt = val["BD/KT*"];
     if (!kt) {
-      return '';
+      return "";
     }
 
     const regexSources = /›KT\d/;
     if (Array.isArray(kt)) {
       var i;
       for (i = 0; i < kt.length; i++) {
-        kt[i] = kt[i].replace(regexSources, '').replace(/(  )( )*/g, ' ');
+        kt[i] = kt[i].replace(regexSources, "").replace(/(  )( )*/g, " ");
       }
       return _(kt).flatten(); //replace(regexSources, '')
     } else {
-      return kt.replace(regexSources, '').replace(/(  )( )*/g, ' ');
+      return kt.replace(regexSources, "").replace(/(  )( )*/g, " ");
     }
   }
 
   renderBelegsaetze(val: any) {
-    const kts = ['KT1', 'KT2', 'KT3', 'KT4', 'KT5', 'KT6', 'KT7', 'KT8'];
+    const kts = ["KT1", "KT2", "KT3", "KT4", "KT5", "KT6", "KT7", "KT8"];
     const res: string[] = [];
     kts.forEach((t) => {
       if (Array.isArray(val[t]) && val[t].length > 0) {
@@ -1303,20 +1325,23 @@ export default class Database extends Vue {
         res.push(val[t]);
       }
     });
-    return _(res).flatten().join(', ').replace(/(  )( )*/g, ' ');
+    return _(res)
+      .flatten()
+      .join(", ")
+      .replace(/(  )( )*/g, " ");
   }
 
   renderLautung(val: any) {
     const tauts = [
-      'LT1_teuthonista',
-      'LT2_theutonista',
-      'LT3_theutonista',
-      'LT4_theutonista',
-      'LT5_theutonista',
-      'LT6_theutonista',
-      'LT7_theutonista',
-      'LT8_theutonista',
-      'LT9_theutonista',
+      "LT1_teuthonista",
+      "LT2_theutonista",
+      "LT3_theutonista",
+      "LT4_theutonista",
+      "LT5_theutonista",
+      "LT6_theutonista",
+      "LT7_theutonista",
+      "LT8_theutonista",
+      "LT9_theutonista",
     ];
 
     const res: string[] = [];
@@ -1327,7 +1352,7 @@ export default class Database extends Vue {
         res.push(val[t]);
       }
     });
-    return _(res).flatten().join(', ');
+    return _(res).flatten().join(", ");
   }
 
   isMultiple() {
@@ -1337,7 +1362,7 @@ export default class Database extends Vue {
   }
 
   async mounted() {
-    if (this.type === 'collection' && this.collection_ids) {
+    if (this.type === "collection" && this.collection_ids) {
       this.loadCollectionIds(this.collectionIdList);
     }
     this.onLandingTourHandler();
@@ -1350,9 +1375,14 @@ export default class Database extends Vue {
   }
 
   get _shownItemsWithSource() {
-    var startCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage;
-    var lastCount: number = (this.pagination.page - 1)*this.pagination.itemsPerPage + this.pagination.itemsPerPage + 1;
-    if (lastCount > this.shownItemsWithSource.length) lastCount = this.shownItemsWithSource.length;
+    var startCount: number =
+      (this.pagination.page - 1) * this.pagination.itemsPerPage;
+    var lastCount: number =
+      (this.pagination.page - 1) * this.pagination.itemsPerPage +
+      this.pagination.itemsPerPage +
+      1;
+    if (lastCount > this.shownItemsWithSource.length)
+      lastCount = this.shownItemsWithSource.length;
     return this.shownItemsWithSource.slice(startCount, lastCount); // returns the current relevant pagination
   }
 
@@ -1364,19 +1394,18 @@ export default class Database extends Vue {
   }
 
   get shownItemsWithSource() {
-
     let allItems: any[] = [];
     this.visibleCollections.forEach((coll) => {
       coll.items.forEach((beleg) => {
-        const index = allItems.findIndex(item => item.ID === beleg.ID);
-        if(index > -1) {
-          if(allItems[index].colSources) {
+        const index = allItems.findIndex((item) => item.ID === beleg.ID);
+        if (index > -1) {
+          if (allItems[index].colSources) {
             for (let i = 0; i < allItems[index].colSources.length; i++) {
               const colSource = allItems[index].colSources[i];
-              if(colSource.id === coll.id)
-                break; 
-              
-              if(i === allItems[index].colSources.length -1) { // Does not contain the collection already, therefore add it.
+              if (colSource.id === coll.id) break;
+
+              if (i === allItems[index].colSources.length - 1) {
+                // Does not contain the collection already, therefore add it.
                 allItems[index].colSources.push(coll);
               }
             }
@@ -1389,14 +1418,14 @@ export default class Database extends Vue {
           beleg.colSources.push(coll);
           allItems.push(beleg);
         }
-      })
-    })
+      });
+    });
     return allItems;
   }
 
   @Watch("searchCollection")
   async onSearchCollection(val: string | null) {
-    if (val !== null && val !== undefined && val.trim() !== '') {
+    if (val !== null && val !== undefined && val.trim() !== "") {
       this.searching = true;
       this.collectionSearchItems = (await searchCollections(val)).results.map(
         (x) => ({
@@ -1408,12 +1437,12 @@ export default class Database extends Vue {
     }
   }
 
-  @Watch('fuzzy', { immediate: true })
+  @Watch("fuzzy", { immediate: true })
   synchronizeCheckbox() {
-    if (this.fuzzy === 'true' && this.toggleModel !== 2) {
+    if (this.fuzzy === "true" && this.toggleModel !== 2) {
       this.toggleModel = 2;
     }
-    if (this.fuzzy === 'false' && this.toggleModel === 2) {
+    if (this.fuzzy === "false" && this.toggleModel === 2) {
       this.toggleModel = 0;
     }
   }
@@ -1426,7 +1455,7 @@ export default class Database extends Vue {
 
   get collectionIdList() {
     if (this.collection_ids) {
-      return this.collection_ids.split(',');
+      return this.collection_ids.split(",");
     } else {
       return [];
     }
@@ -1436,17 +1465,17 @@ export default class Database extends Vue {
     const place = _(geoStore.ortsliste).find((o) => o.sigle === sigle);
     if (place === undefined) {
       return {
-        Ort: '',
-        Großregion: '',
-        Bundesland: '',
+        Ort: "",
+        Großregion: "",
+        Bundesland: "",
       };
     } else {
-      const bl = _(place.parentsObj).find((o) => o.field === 'Bundesland');
-      const gr = _(place.parentsObj).find((o) => o.field === 'Großregion');
+      const bl = _(place.parentsObj).find((o) => o.field === "Bundesland");
+      const gr = _(place.parentsObj).find((o) => o.field === "Großregion");
       return {
         Ort: place.name,
-        Großregion: gr ? gr.name : '',
-        Bundesland: bl ? bl.name : '',
+        Großregion: gr ? gr.name : "",
+        Bundesland: bl ? bl.name : "",
         [place.field]: place.name,
       };
     }
@@ -1470,10 +1499,10 @@ export default class Database extends Vue {
     this.loading = false;
   }
 
-  @Watch('collectionIdList')
+  @Watch("collectionIdList")
   async loadCollectionIds(ids: string[]) {
     if (ids.length > 0) {
-      await this.changeQueryParam({ type: 'collection' });
+      await this.changeQueryParam({ type: "collection" });
       this.searching = true;
       const res = await getDocumentsByCollection(
         ids,
@@ -1484,7 +1513,7 @@ export default class Database extends Vue {
         .uniqBy((d) => d.id)
         .map((d) => ({ ...d, ...this.getPlacesFromSigle(d.ortsSigle) }))
         .value();
-      this.totalItems = typeof res.total === 'number' ? res.total : 0;
+      this.totalItems = typeof res.total === "number" ? res.total : 0;
       const cs = await getCollectionByIds(ids);
       this.selectedCollections = cs.map((x) => ({ ...x, text: x.name }));
       this.collectionSearchItems = cs.map((x) => ({ ...x, text: x.name }));
@@ -1494,21 +1523,21 @@ export default class Database extends Vue {
     }
   }
 
-  @Watch('pagination', { deep: true })
+  @Watch("pagination", { deep: true })
   updateResults() {
     if (!this.showSelectedCollection) {
-      if (this.request_arr[0] && this.request_arr[0].query !== '') {
+      if (this.request_arr[0] && this.request_arr[0].query !== "") {
         this.changeQueryParam({
           page: this.pagination.page,
-        itemsPerPage: this.pagination.itemsPerPage,
-      });
+          itemsPerPage: this.pagination.itemsPerPage,
+        });
         this.onChangeQuery(this.request_arr);
       } else if (this.collection_ids) {
         this.loadCollectionIds(this.collectionIdList);
       } else {
         this.init();
       }
-    } 
+    }
   }
 
   get mappableSelectionItems() {
@@ -1517,10 +1546,10 @@ export default class Database extends Vue {
         (i, index) =>
           !!i &&
           this.selected.find((item) => item.id === i.id) &&
-          (i.Bundesland !== '' ||
-            i.Bundesland1 !== '' ||
-            i.Großregion !== '' ||
-            i.Ort !== '')
+          (i.Bundesland !== "" ||
+            i.Bundesland1 !== "" ||
+            i.Großregion !== "" ||
+            i.Ort !== "")
       )
     ).value();
   }
@@ -1531,14 +1560,25 @@ export default class Database extends Vue {
     if (updatedCount !== -1) this.totalItems = updatedCount;
   }
 
-
   get numberOfShownCollEntries() {
     let number_entries: number = 0;
 
-    let tempID: any[] = []; 
-    this.wboeColl.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
-    this.temp_coll.forEach((x) => { if (x.selected) x.items.map(y => y.id).filter(item => !tempID.includes(item)).forEach((entry) => tempID.push(entry)) })
-    
+    let tempID: any[] = [];
+    this.wboeColl.forEach((x) => {
+      if (x.selected)
+        x.items
+          .map((y) => y.id)
+          .filter((item) => !tempID.includes(item))
+          .forEach((entry) => tempID.push(entry));
+    });
+    this.temp_coll.forEach((x) => {
+      if (x.selected)
+        x.items
+          .map((y) => y.id)
+          .filter((item) => !tempID.includes(item))
+          .forEach((entry) => tempID.push(entry));
+    });
+
     number_entries = tempID.length;
 
     if (this.showAlleBelege) number_entries = this.absoluteTotalItems;
@@ -1548,7 +1588,7 @@ export default class Database extends Vue {
   showSelectionOnMap() {
     if (this.selected.length > 0) {
       this.$router.push({
-        path: '/maps',
+        path: "/maps",
         query: {
           col: this.getColStr(
             this.mappableSelectionItems.map((d) => d.ortsSigle)
@@ -1573,11 +1613,11 @@ export default class Database extends Vue {
         {
           id: 0,
           tempColl: -1,
-          collection_name: 'Sammlung Datenbank',
+          collection_name: "Sammlung Datenbank",
           editing: false,
           fillColor:
-            '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-          borderColor: '#000',
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
           //@ts-ignore
           items: noDuplicates,
         },
@@ -1587,11 +1627,11 @@ export default class Database extends Vue {
         {
           id: 0,
           tempColl: -1,
-          collection_name: 'Sammlung Datenbank',
+          collection_name: "Sammlung Datenbank",
           editing: false,
           fillColor:
-            '#' + Math.floor(Math.random() * 16777215).toString(16) + '99',
-          borderColor: '#000',
+            "#" + Math.floor(Math.random() * 16777215).toString(16) + "99",
+          borderColor: "#000",
           items: [val],
         },
       ]);
@@ -1602,7 +1642,7 @@ export default class Database extends Vue {
   get filterReqAll(): SearchRequest[] | null {
     // filtering out all empty fields requests
     const tmp = this.request_arr.filter(
-      (r) => r.fields !== '' && r.fields === null && r.query !== ''
+      (r) => r.fields !== "" && r.fields === null && r.query !== ""
     );
 
     if (tmp.length === 0) return null;
@@ -1612,13 +1652,13 @@ export default class Database extends Vue {
     let searchFields = this.headers
       .filter((h) => h.searchable && h.show)
       .map((h) => h.value)
-      .join(',');
+      .join(",");
 
     for (i = 0; i < tmp.length; i++) {
       res.push({
         query: tmp[i].query,
         fields: searchFields,
-        headerStr: '',
+        headerStr: "",
         id: i,
       });
     }
@@ -1629,7 +1669,7 @@ export default class Database extends Vue {
   get filterReqSingle(): SearchRequest[] | null {
     // filtering out all empty fields requests
     const tmp = this.request_arr.filter(
-      (r) => r.fields !== '' && r.fields !== null && r.query !== ''
+      (r) => r.fields !== "" && r.fields !== null && r.query !== ""
     );
 
     if (tmp.length === 0) return null;
@@ -1652,7 +1692,7 @@ export default class Database extends Vue {
     return res;
   }
 
-  @Watch('$route', { immediate: true })
+  @Watch("$route", { immediate: true })
   onChangeRoute() {
     if (this.$route.query !== undefined && this.$route.query.q !== undefined) {
       const requestList = this.deserializeRequestList(
@@ -1673,12 +1713,12 @@ export default class Database extends Vue {
     if (q === null) {
       return [];
     } else {
-      return q.split(';').map((rs, i) => {
-        const chunks = rs.split(',');
+      return q.split(";").map((rs, i) => {
+        const chunks = rs.split(",");
         return {
-          fields: chunks[0] === 'all_fields' ? null : chunks[0],
-          query: chunks[1] === null ? '' : chunks[1],
-          headerStr: chunks[2] === null ? '' : chunks[2],
+          fields: chunks[0] === "all_fields" ? null : chunks[0],
+          query: chunks[1] === null ? "" : chunks[1],
+          headerStr: chunks[2] === null ? "" : chunks[2],
           id: i,
         };
       });
@@ -1688,11 +1728,11 @@ export default class Database extends Vue {
   serializeRequestList(rl: SearchRequest[]): string {
     return rl
       .map((s) => {
-        return `${s.fields || 'all_fields'},${
-          s.query === null ? '' : s.query
+        return `${s.fields || "all_fields"},${
+          s.query === null ? "" : s.query
         },${s.headerStr}`;
       })
-      .join(';');
+      .join(";");
   }
 
   pageItemList(): string {
@@ -1709,7 +1749,7 @@ export default class Database extends Vue {
         this.pagination.itemsPerPage,
         this.pagination.sortDesc,
         this.pagination.sortBy,
-        this.fuzzy === 'true',
+        this.fuzzy === "true",
         this.prefixSearch
       );
       this.items = res.documents.map((d) => ({
@@ -1730,7 +1770,7 @@ export default class Database extends Vue {
     }
   }
 
-  @Watch('request_arr', { deep: true })
+  @Watch("request_arr", { deep: true })
   async onChangeQuery(req: SearchRequest[], oldVal?: SearchRequest[]) {
     if (req !== undefined) {
       this.$router
@@ -1740,22 +1780,20 @@ export default class Database extends Vue {
             q: this.serializeRequestList(req),
           },
         })
-        .catch(() => console.log('route duplicated. '));
+        .catch(() => console.log("route duplicated. "));
     } else {
-      console.log('request_array is undefined.');
+      console.log("request_array is undefined.");
     }
   }
 
   routeToMaps() {
     this.$router.push({
-      path: '/maps',
+      path: "/maps",
     });
   }
 
-
   editValuesForExport(): any[] {
-    
-    var localSelect: any[] = _.cloneDeep(this.selected);  // creating a deep copy
+    var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
 
     // sorting the columns based on the order of the table
     var orderedSelect: any[] = [];
@@ -1763,97 +1801,116 @@ export default class Database extends Vue {
     localSelect.forEach((x) => {
       var localOrdered: any = {};
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
-      delete x["colSources"]; 
+      delete x["colSources"];
       delete x["entry"];
       delete x["Bundesland"];
       delete x["Großregion"];
       for (var key in x) {
         if (Array.isArray(x[key])) {
-          x[key] = x[key].join(' ');
+          x[key] = x[key].join(" ");
         }
         switch (key) {
-          case 'Kleinregion1':
-            x[key] = regions.mapKleinreg(
-              x[key]
-              .replace(/\d[A-Z]?[\.]\d[a-z]/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
-              .replace(/ ,/g, ',')
-            ).trim() + ' (' + x[key] + ')'
+          case "Kleinregion1":
+            x[key] =
+              regions
+                .mapKleinreg(
+                  x[key]
+                    .replace(/\d[A-Z]?[\.]\d[a-z]/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
             break;
-          case 'Großregion1':
-            x[key] = regions.mapGrossreg(
-              x[key]
-              .replace(/\d[A-Z]?[\.]\d/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
-              .replace(/ ,/g, ',')
-              ).trim() + ' (' + x[key] + ')'        
+          case "Großregion1":
+            x[key] =
+              regions
+                .mapGrossreg(
+                  x[key]
+                    .replace(/\d[A-Z]?[\.]\d/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
             break;
-          case 'Bundesland1':
-            x[key] = regions.mapBundeslaender(
-              x[key]
-              .replace(/\d[A-Z]?[\.]?[\d]?/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '')
-              .replace(/ ,/g, ',')
-            ).trim() + ' (' + x[key] + ')'
+          case "Bundesland1":
+            x[key] =
+              regions
+                .mapBundeslaender(
+                  x[key]
+                    .replace(/\d[A-Z]?[\.]?[\d]?/g, "")
+                    .replace(/[›]?[L|K]T[\d]?/g, "")
+                    .replace(/ ,/g, ",")
+                )
+                .trim() +
+              " (" +
+              x[key] +
+              ")";
             break;
-          case 'Gemeinde1':
+          case "Gemeinde1":
             x[key] = x[key]
-              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, '')
-              .replace(/[›]?[L|K]T[\d]?/g, '').trim()
+              .replace(/\d[A-Z]?[\.]\d[a-z]\d\d/g, "")
+              .replace(/[›]?[L|K]T[\d]?/g, "")
+              .trim();
             break;
-          case 'HL':
+          case "HL":
             if (Array.isArray(x[key]) && x[key].length > 1) {
-              x[key] = x[key][1].replace('≈', '')
+              x[key] = x[key][1].replace("≈", "");
             }
             break;
-          case 'BD/KT':
+          case "BD/KT":
             x[key] = this.renderGrammatikAngabe(x);
-            break;      
-          case 'NR':
+            break;
+          case "NR":
             x[key] = this.renderFragenummer(x);
-            break;      
-          case 'NR2':
+            break;
+          case "NR2":
             x[key] = this.renderGefragterAusdruck(x);
             break;
-          case 'LT1_teuthonista':
+          case "LT1_teuthonista":
             x[key] = this.renderLautung(x);
-            break;      
-          case 'BD/LT*':
+            break;
+          case "BD/LT*":
             x[key] = this.renderBedeutung(x);
-            break;      
-          case 'BD/KT1':
+            break;
+          case "BD/KT1":
             x[key] = this.renderBelegsaetze(x);
-            break;      
-          case 'BD/KT*':
+            break;
+          case "BD/KT*":
             x[key] = this.renderBedeutungBelegsaetze(x);
             break;
-          case 'Sigle1':
-            x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, ''); 
-          case 'KT1':
-            x[key] = x[key].replace(/(  )( )*/, ' ');     
+          case "Sigle1":
+            x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, "");
+          case "KT1":
+            x[key] = x[key].replace(/(  )( )*/, " ");
           default:
             break;
         }
       }
-    
-    // creating a local ordered copy per selected item
-    this.sortedHeaders.forEach((key) => {
-      if (x[key] !== undefined) {
-        localOrdered[key] = x[key];
+
+      // creating a local ordered copy per selected item
+      this.sortedHeaders.forEach((key) => {
+        if (x[key] !== undefined) {
+          localOrdered[key] = x[key];
+        }
+      });
+
+      // adding the values that are not included in the DB table
+      for (var key in x) {
+        if (!(key in localOrdered)) {
+          localOrdered[key] = x[key];
+        }
       }
+
+      // updating the exported object
+      orderedSelect.push(localOrdered);
     });
 
-    // adding the values that are not included in the DB table
-    for (var key in x) {
-      if (!(key in localOrdered)) {
-        localOrdered[key] = x[key];
-      }
-    }
-
-    // updating the exported object
-    orderedSelect.push(localOrdered);
-    });
-    
     return orderedSelect;
   }
 
@@ -1864,22 +1921,22 @@ export default class Database extends Vue {
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
-        SheetNames: ['sheet'],
+        SheetNames: ["sheet"],
       },
-      'wboe-lioe-export.xlsx'
+      "wboe-lioe-export.xlsx"
     );
   }
 
   saveCSV() {
-    var localSelect: any[] = this.editValuesForExport(); 
+    var localSelect: any[] = this.editValuesForExport();
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
       {
         Sheets: { sheet: x },
-        SheetNames: ['sheet'],
+        SheetNames: ["sheet"],
       },
-      'wboe-lioe-export.csv'
+      "wboe-lioe-export.csv"
     );
   }
 
@@ -1891,11 +1948,13 @@ export default class Database extends Vue {
     //   delete x['entry'];
     // })
     const blob = JSON.stringify(localSelected, undefined, 2);
-    FileSaver.saveAs(new Blob([blob]), 'wboe-lioe-export.json');
+    FileSaver.saveAs(new Blob([blob]), "wboe-lioe-export.json");
   }
 
   downloadFiduz() {
-    window.open('https://vawadioe.acdh.oeaw.ac.at/lioetxt/informationen/fiduz/');
+    window.open(
+      "https://vawadioe.acdh.oeaw.ac.at/lioetxt/informationen/fiduz/"
+    );
   }
 }
 </script>
