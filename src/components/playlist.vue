@@ -313,7 +313,7 @@
                     </colorPickerCollections>
                   </v-list-item-action>
                   <!-- Collection Context Menu -->
-                  <v-list-item-action >
+                  <v-list-item-action style="margin: auto 0px" >
                     <v-menu offset-y>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
