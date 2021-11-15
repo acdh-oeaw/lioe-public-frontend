@@ -7,8 +7,9 @@
   "scripts": {
     "build": "env-cmd -f env-production.env webpack",
     "cy:run": "npx cypress run",
+    "cy:open": "npx cypress open",
     "test": "env-cmd -f env-test.env --use-shell \"start-server-and-test start http://localhost:8080 cy:run\"",
-    "test:interactive": "env-cmd -f env-test.env --use-shell \"concurrently \"NODE_PORT=8080 npm run start\" \"npx cypress open\"\"",
+    "test:interactive": "env-cmd -f env-test.env --use-shell \"start-server-and-test start http://localhost:8080 cy:open\"",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:server\"",
     "dev:frontend": "env-cmd -f env-dev.env webpack-dev-server",
     "dev:server": "env-cmd -f env-dev.env nodemon ./server/index.js",
