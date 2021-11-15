@@ -61,6 +61,27 @@ app.get('/api/article/:article', async (req, res) => {
   res.send(r)
 })
 
+app.get('/api/retroArticle', async (req, res) => {
+  const r = (await axios({
+    url: 'wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=1000' // change to 5000
+      + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
+    headers: {
+      Accept: 'application/json'
+    }
+  })).data
+  res.send(r)
+})
+app.get('/api/retroArticle/:article', async (req, res) => {
+  console.log(req.params.article)
+  const r = (await axios({
+    url: 'wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article/'+ encodeURIComponent(req.params.article),
+    headers: {
+      Accept: 'application/xml'
+    }
+  })).data
+  res.send(r)
+})
+
 app.post('/es-query', async (req, res) => {
   const q = req.body
   try {

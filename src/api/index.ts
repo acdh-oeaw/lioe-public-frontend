@@ -47,6 +47,8 @@ const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
 const txtEndpoint = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
 export const localEndpoint = process.env.API_HOST || 'http://localhost:8081'
 const articleEndpoint = localEndpoint + '/api/article'
+const retroArticleEndpoint = localEndpoint + '/api/retroArticle'
+// const retroArticleEndpoint = 'wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=5000'
 
 const localUrls: { [remoteUrl: string]: string } = {
   '/lioetxt/home/': '/',
@@ -641,4 +643,43 @@ export async function getArticles(
 export async function getArticleByFileName(fileName: string): Promise<string> {
   const r = await (await fetch(articleEndpoint + '/' + fileName)).text()
   return r
+}
+
+export async function getRetroArticles(
+  search?: string
+): Promise<Array<{ title: string; filename: string }>> {
+  console.log('test in getRetro pre all')
+  // tslint:disable-next-line:max-line-length
+  if (search !== undefined) {
+    console.log('test in getRetro pre fetch')
+    const r = await (
+      await fetch(
+        retroArticleEndpoint +
+        '?initial=' +
+        search +
+        '&status=' +
+        userStore.articleStatus.join('|')
+      )
+    ).json()
+    // Todo: Look at
+    console.log(r);
+    return r.results.article
+      ? r.results.article.length
+        ? r.results.article
+        : [r.results.article]
+      : []
+  } else {
+    console.log('test in getRetro pre fetch else')
+    const r = await (
+      await fetch(
+        retroArticleEndpoint 
+      )
+    ).json()
+    // Todo: Look at
+    return r.results.article
+      ? r.results.article.length
+        ? r.results.article
+        : [r.results.article]
+      : []
+  }
 }
