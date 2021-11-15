@@ -553,7 +553,7 @@ function mapStaat(val: any) {
     else if (val.substring(3, 7) === ':Ö-V') {
       return 'AT'
     }
-    else if (val.length === 2  || val.length === 3 || val === 'wb0?') { // TODO - filtering all n/a
+    else if (val.length === 2  || val.length === 3 || val === 'wb0?') { 
       return 'n/a'
     }
     else if (val.substring(4, 6) === 'SL') {

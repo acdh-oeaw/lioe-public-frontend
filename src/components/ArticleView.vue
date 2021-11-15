@@ -339,9 +339,7 @@ export default class ArticleView extends Vue {
         el: null,
       };
     }
-    // console.log('getNote', noteObj.uId, this.noteAuthor, noteObj)
     this.topDatas = [
-      // ...editorObj.getAllEditorObjById('variante'),
       ...editorObj
         .getAllEditorObjById("gramGrp")
         .filter(

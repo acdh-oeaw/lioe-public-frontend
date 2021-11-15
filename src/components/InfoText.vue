@@ -109,7 +109,6 @@ export default class InfoText extends Vue {
   @Watch('subHtml')
   htmlChanged() {
     Vue.nextTick(() => {
-      // console.log('htmlChanged', { html: this.html, subHtml: this.subHtml })
       const aIcHtml: any = this.$refs['infoContent']
       aIcHtml.querySelectorAll('a').forEach((aLnk: any) => {
         // first remove the handler, so we can’t have duplicate listeners

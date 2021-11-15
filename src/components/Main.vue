@@ -328,7 +328,7 @@ export default class Main extends Vue {
   articlesPlus: Array<{ title: string; filename: string; ort: string }> = []; //extended articles list
   loading = false;
   visited: boolean = false;
-  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250); //TODO RECHECK what to debounce
+  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250); 
   autoFit = false;
   loc: string | null;
   geoStore = geoStore;
