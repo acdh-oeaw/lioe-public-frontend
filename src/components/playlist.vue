@@ -304,6 +304,14 @@
                       {{ item.collection_desc }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
+                  <!-- Collection Color Picker -->
+                  <v-list-item-action>
+                    <colorPickerCollections
+                      :borderColor.sync="item.borderColor"
+                      :fillColor.sync="item.fillColor"
+                      >
+                    </colorPickerCollections>
+                  </v-list-item-action>
                   <!-- Collection Context Menu -->
                   <v-list-item-action >
                     <v-menu offset-y>
@@ -386,16 +394,8 @@
                       </v-list>
                     </v-menu>
                   </v-list-item-action>
-                  <v-list-item-action>
-                    <!-- Collection Color Picker -->
-                    <colorPickerCollections
-                      :borderColor.sync="item.borderColor"
-                      :fillColor.sync="item.fillColor"
-                      >
-                    </colorPickerCollections>
-                  </v-list-item-action>
                 
-                  <v-tooltip right max-width="300" min-width="100" :activator="'#wboeCollection-'+ i">
+                  <v-tooltip right max-width="600" min-width="100" :activator="'#wboeCollection-'+ i">
                     <span>
                       <h5 >{{ item.collection_name }}</h5>
                       {{ item.collection_desc }}
