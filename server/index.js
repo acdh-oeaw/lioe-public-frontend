@@ -62,9 +62,12 @@ app.get('/api/article/:article', async (req, res) => {
 })
 
 app.get('/api/retroArticle', async (req, res) => {
+  console.log('hello there general kenobi')
   const r = (await axios({
     url: 'wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=1000' // change to 5000
-      + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
+      // TODO: remove comment on next line
+      // + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
+      ,
     headers: {
       Accept: 'application/json'
     }
