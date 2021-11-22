@@ -116,7 +116,8 @@ export default class InfoText extends Vue {
         aLnk.addEventListener('click', this.linkClickHandler)
         if (aLnk.href !== aLnk.href.replace(this.prefix, '') && !isLocalUrl(aLnk.href)) {
           aLnk.dataset.infoLnk = aLnk.href
-          aLnk.href = '/resources?link=' + encodeURIComponent(aLnk.href.replace(this.prefix, ''))
+          aLnk.dataset.infoLnkRaw = aLnk.href.replace(this.prefix, '')
+          aLnk.href = '/resources?link=' + encodeURIComponent(aLnk.dataset.infoLnkRaw)
         }
       }, this)
     })
@@ -139,12 +140,18 @@ export default class InfoText extends Vue {
       } else if (!e.target.dataset.infoLnk && isExternUrl(e.target.href)) {
         window.open(e.target.href, '_blank')
       } else {
-        if (this.subDialog) {
-          this.subUrl = e.target.dataset.infoLnk || e.target.href
-          this.subInternalUrl = e.target.dataset.infoLnk ? e.target.href : null
-          this.showSubDialog = true
+        if (e.target.target === '_top' && e.target.dataset.infoLnkRaw) {
+          this.$router.push('/resources?link=' + encodeURIComponent(e.target.dataset.infoLnkRaw))
+        } else if (e.target.target === '_blank') {
+          window.open(e.target.href, '_blank')
         } else {
-          this.subHtml = await getWebsiteHtml(e.target.dataset.infoLnk || e.target.href)
+          if (this.subDialog) {
+            this.subUrl = e.target.dataset.infoLnk || e.target.href
+            this.subInternalUrl = e.target.dataset.infoLnk ? e.target.href : null
+            this.showSubDialog = true
+          } else {
+            this.subHtml = await getWebsiteHtml(e.target.dataset.infoLnk || e.target.href)
+          }
         }
       }
     }
@@ -295,6 +302,9 @@ div /deep/ a.button {
     .frame-default a {
       color: #fff;
       text-decoration: underline;
+    }
+    .frame-default a[data-info-lnk] * {
+      pointer-events: none;
     }
     .ce-center figure.image {
       display: flex;
