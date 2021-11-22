@@ -648,10 +648,8 @@ export async function getArticleByFileName(fileName: string): Promise<string> {
 export async function getRetroArticles(
   search?: string
 ): Promise<Array<{ title: string; filename: string }>> {
-  console.log('test in getRetro pre all')
   // tslint:disable-next-line:max-line-length
   if (search !== undefined) {
-    console.log('test in getRetro pre fetch')
     const r = await (
       await fetch(
         retroArticleEndpoint +
@@ -669,7 +667,6 @@ export async function getRetroArticles(
         : [r.results.article]
       : []
   } else {
-    console.log('test in getRetro pre fetch else')
     const r = await (
       await fetch(
         retroArticleEndpoint 
