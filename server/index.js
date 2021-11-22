@@ -42,7 +42,7 @@ app.use(compression())
 app.use(bodyParser.json())
 app.get('/api/article', async (req, res) => {
   const r = (await axios({
-    url: 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=1000'
+    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=1000'
       + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
     headers: {
       Accept: 'application/json'
@@ -53,7 +53,7 @@ app.get('/api/article', async (req, res) => {
 app.get('/api/article/:article', async (req, res) => {
   console.log(req.params.article)
   const r = (await axios({
-    url: 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article/'+ encodeURIComponent(req.params.article),
+    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article/'+ encodeURIComponent(req.params.article),
     headers: {
       Accept: 'application/xml'
     }

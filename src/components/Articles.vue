@@ -43,6 +43,9 @@
             <v-list-item-title>
               {{ article.title }}
             </v-list-item-title>
+            <v-list-item-icon v-if="article.filename.indexOf('%23') > -1">
+              <v-icon>archive</v-icon>
+            </v-list-item-icon>
           </v-list-item>
         </template>
       </v-list>

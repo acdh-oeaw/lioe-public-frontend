@@ -46,6 +46,7 @@
           :filename="filename"
           v-model="expanded"
           :geo-store="geoStore"
+          :retro-xml="retroXML"
         />
         <v-flex
           class="comment-box"
@@ -153,6 +154,7 @@ export default class Article extends Vue {
   wortbildungXML: string | null = null
   redewendungenXML: string | null = null
   lemmaXML: string | null = null
+  retroXML: string | null = null
   diminutiveXML: string | null = null
   userStore = userStore
 
@@ -453,7 +455,11 @@ export default class Article extends Vue {
   articleContainsStatuses(xml: string, statuses: ArticleStatus[]): boolean {
     const f = this.fragementFromSelector('teiHeader listChange change', xml)
     console.log({f}, {statuses}, statuses.some(s => f.includes(s)))
-    return statuses.some(s => f.includes(s))
+    return statuses.length === 0 || statuses.some(s => f.includes(s))
+  }
+
+  articleIsRetro(): boolean {
+    return this.filename.indexOf('#') > -1
   }
 
   initXML(xml: string) {
@@ -497,19 +503,38 @@ export default class Article extends Vue {
         "teiHeader > fileDesc > titleStmt > respStmt > name[ref]",
         xml
       )[0];
-      let aInitials = aEditor.getAttribute("ref");
-      aInitials = typeof aInitials === "string" ? aInitials.substr(1) : "";
-      this.editor = {
-        id: aInitials,
-        initials: idInitials[aInitials] || aInitials,
-        fullname: aEditor.innerHTML,
-      };
+      if (this.articleIsRetro()) {
+        this.retroXML = this.fragementFromSelector("TEI > text", xml);
+        this.articleAvailable = true;
+        this.editor = {
+          id: 'retro',
+          initials: 'Retro',
+          fullname: 'Retro ...',
+        };
+      } else {
+        this.retroXML = null;
+        let aInitials = aEditor.getAttribute("ref");
+        aInitials = typeof aInitials === "string" ? aInitials.substr(1) : "";
+        this.editor = {
+          id: aInitials,
+          initials: idInitials[aInitials] || aInitials,
+          fullname: aEditor.innerHTML,
+        };
+      }
     }
   }
 
   async initArticle(fileName: string) {
     this.loading = true;
-    this.articleXML = await getArticleByFileName(fileName + ".xml");
+    let aFileName = fileName;
+    if (aFileName.indexOf('#') > -1) {
+      let tmp = aFileName.split('#')
+      aFileName = tmp[0] + '.xml#' + tmp.splice(1).join('#')
+    } else{
+      aFileName += '.xml'
+    }
+    console.log('initArticle', aFileName)
+    this.articleXML = await getArticleByFileName(aFileName);
     this.initXML(this.articleXML);
     this.loading = false;
   }

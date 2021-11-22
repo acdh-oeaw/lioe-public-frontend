@@ -1,5 +1,9 @@
 <template>
   <div>
+    <template v-if="retroXml">
+      <h3>Retro</h3>
+      <code>{{ retroXml }}</code>
+    </template>
     <v-layout class="article-tools" align-end>
       <v-flex @click="$emit('handleArticleClick')" xs12>
         <PreviewContent
@@ -228,6 +232,7 @@ export default class ArticleView extends Vue {
   @Prop() value: boolean[];
   @Prop() isEveryArticleExpanded: any;
   @Prop() autor: any;
+  @Prop({ default: false}) retroXml: boolean[];
 
   parser: any = null;
   parserDefinitionPath = "/static/parser-xml/";
