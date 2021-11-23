@@ -415,7 +415,8 @@
           </v-list>
         </v-menu>
 
-        <v-menu offset-y v-if="temp_coll.length !== 0">
+        <!-- Deletion from collection (WIP) -->
+        <!-- <v-menu offset-y v-if="temp_coll.length !== 0">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               color="secondary"
@@ -439,7 +440,7 @@
               }}</v-list-item-title>
             </v-list-item>
           </v-list>
-        </v-menu>
+        </v-menu> -->
 
         <!-- Create collection and show on Map -->
         <v-tooltip top style="width: 100px">
