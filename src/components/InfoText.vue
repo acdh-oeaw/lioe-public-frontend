@@ -217,6 +217,9 @@ div /deep/ a.button {
   border-radius: 5px;
   padding: 10px 15px;
 }
+.info-content {
+  min-width:10em;
+}
 .info-content /deep/ {
   img {
     max-width: 100%;
