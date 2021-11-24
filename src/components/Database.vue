@@ -1497,6 +1497,7 @@ export default class Database extends Vue {
       ...d,
       ...this.getPlacesFromSigle(d.ortsSigle),
     }));
+    console.log("items: ", this.items[0])
     this.loading = false;
   }
 
