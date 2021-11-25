@@ -750,6 +750,7 @@ export default class Database extends Vue {
     "Großregion1",
     "Kleinregion1",
     "Gemeinde1",
+    "Scan"
   ];
 
   headers: TableHeader[] = [
@@ -992,12 +993,26 @@ export default class Database extends Vue {
       // ${val.Ort ? ` ${val.Ort}` : ''}`
       sortable: true,
     },
+    {
+      searchable: false,
+      show: true,
+      text: "Scan",
+      value: "entry",
+      infoUrl: "",
+      renderFnc: (val: any) => this.hasScan(val.entry), 
+      sortable: false
+    },
   ];
 
   footerProps = {
     "items-per-page-text": "Pro Seite",
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
+
+  hasScan(val: any) {
+    console.log("@facs" in val)
+    return "@facs" in val ? val["@facs"] : '';
+  }
 
   get temp_coll() {
     return stateProxy.collections.temp_coll;
@@ -1497,7 +1512,6 @@ export default class Database extends Vue {
       ...d,
       ...this.getPlacesFromSigle(d.ortsSigle),
     }));
-    console.log("items: ", this.items[0])
     this.loading = false;
   }
 

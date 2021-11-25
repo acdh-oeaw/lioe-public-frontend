@@ -27,7 +27,6 @@ interface Documents {
     entry: any
     id: string
     ortsSigle: string
-    scan: string
   }[]
 }
 
@@ -186,12 +185,10 @@ export async function getDocuments(
     documents: ds.hits.hits
       .filter((e: any) => e._source.entry)
       .map((h: any) => {
-        console.log(h._source.entry.facs);
         return {
           ...h._source,
           id: h._id,
           ortsSigle: sigleFromEsRef(h._source.entry.ref),
-          scan: h._source.entry.facs ? h._source.entry.facs : 'NONE', 
         }
       }),
     total: ds.hits.total,
