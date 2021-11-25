@@ -506,10 +506,11 @@ export default class Article extends Vue {
       if (this.articleIsRetro()) {
         this.retroXML = this.fragementFromSelector("TEI > text", xml);
         this.articleAvailable = true;
+        let aTitle = this.elementsFromDom("teiHeader > fileDesc > titleStmt > title", xml)[0]
         this.editor = {
           id: 'retro',
-          initials: 'Retro',
-          fullname: 'Retro ...',
+          initials: aTitle && aTitle.innerHTML || 'Retro',
+          fullname: 'OEAW-Verlag (H. Rosenkranz)',
         };
       } else {
         this.retroXML = null;
