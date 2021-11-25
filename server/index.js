@@ -31,7 +31,7 @@ app.use(cors())
 app.use((request, response, next) => {
   const host = request.headers.host
   const protocol = request.protocol
-  if (process.env.NODE_ENV === 'production' && protocol === 'http') {
+  if (process.env.REDIRECT_HTTPS && protocol === 'http') {
     response.redirect(301, 'https://' + host + request.url)
   } else {
     next()
