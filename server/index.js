@@ -122,6 +122,7 @@ app.get('/es-count', async (req, res) => {
 
 app.use('/', express.static(path.join(__dirname, '../dist/')))
 app.use('*', express.static(path.join(__dirname, '../dist/index.html')))
-app.listen(process.env.NODE_PORT || 3333, () => {
-  console.log(`Started server on port ${process.env.NODE_PORT}`)
+const port = process.env.NODE_PORT || process.env.PORT || 3333
+app.listen(port, () => {
+  console.log(`Started server on port ${port}`)
 })
