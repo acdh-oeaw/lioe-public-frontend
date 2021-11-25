@@ -20,7 +20,7 @@ Building
 --------
 
 You can test building the site using `npm run build`.
-Note that this sets teh `NODE_ENV` environment variable to `production` and therefore loads the environment from the `.env-production.env` file.
+Note that this sets the `NODE_ENV` environment variable to `production` and therefore loads the environment from the `.env-production.env` file.
 By default this sets `process.env.API_HOST` to `""`. So the respective URLs work relative to whatever host the container is running on.
 This is deliberate as these endpoints are meant to be only used by the frontend served from exactly this host.
 
@@ -38,9 +38,9 @@ Test the container image locally
 You can test the container image from the build server locally (e.g. the dev branch):
 
 ```bash
-docker run --rm -it -p 8080:8080 -e NODE_PORT=8080 -e NODE_ENV=local_container registry.gitlab.com/acdh-oeaw/dboe/lioe-website/dev start
+docker run --rm -it -p 8080:8080 -e PORT=8080 registry.gitlab.com/acdh-oeaw/dboe/lioe-website/dev start
 ```
 
-`NODE_PORT` is needed as else this will be undefined
-`NODE_ENV` is needed as there is a redirect to `https://` built into the server when the environment is production (default from Dockerfile)
+`NODE_PORT` works the same as `PORT`
+If the container should redirect all traffic from http:// to https:// you need to set the environmen variable `REDIRECT_HTTPS`.
 *Note*: NODE_ENV here does not change anything anymore for the frontend code in the browser as this is fixed during the build process
