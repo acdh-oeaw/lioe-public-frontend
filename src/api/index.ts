@@ -45,7 +45,7 @@ interface individualRequest {
 
 const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
 const txtEndpoint = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
-export const localEndpoint = process.env.API_HOST || 'http://localhost:8081'
+export const localEndpoint = process.env.API_HOST
 const articleEndpoint = localEndpoint + '/api/article'
 const retroArticleEndpoint = localEndpoint + '/api/retroArticle'
 // const retroArticleEndpoint = 'wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=5000'

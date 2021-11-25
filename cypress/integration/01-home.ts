@@ -20,7 +20,7 @@ describe('The LiÖ landing page', () => {
   it('can open a place in the map', () => {
     cy.get('[test-id=omni-search-result]')
       .contains('karte anzeigen', { matchCase: false })
-      .click()
+      .click({force: true}) // cypress actually warns about no pointer events if this is not forced.
     waitForIdleNetwork()
     assert(true)
   })
