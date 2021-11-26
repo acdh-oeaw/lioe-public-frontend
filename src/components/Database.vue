@@ -352,6 +352,19 @@
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
 
+                <template v-if="header.text === 'Scan'">
+                  <v-btn 
+                    icon 
+                    color="primary" 
+                    :disabled="item === ''"
+                    @click.prevent="(item) => {this.console.log(item)}"
+                    >
+                    <v-icon v-if="item === ''">mdi-image-off </v-icon>
+                    <v-icon v-else>mdi-image </v-icon>
+
+                    </v-btn>
+                </template>
+
                 <template
                   v-if="showSelectedCollection && header.text === 'Sammlung'"
                 >
@@ -731,6 +744,7 @@ export default class Database extends Vue {
 
   sortedHeaders: any[] = [
     "ID",
+    "Scan",
     "HL",
     "NL",
     "POS",
@@ -749,8 +763,7 @@ export default class Database extends Vue {
     "Bundesland1",
     "Großregion1",
     "Kleinregion1",
-    "Gemeinde1",
-    "Scan"
+    "Gemeinde1"
   ];
 
   headers: TableHeader[] = [
@@ -762,6 +775,15 @@ export default class Database extends Vue {
       value: "",
       infoUrl: "",
       sortable: false,
+    },
+    { // Scans
+      searchable: false,
+      show: true,
+      text: "Scan",
+      value: "entry",
+      infoUrl: "",
+      renderFnc: (val: any) => this.hasScan(val.entry), 
+      sortable: false
     },
     {
       searchable: true,
@@ -992,15 +1014,6 @@ export default class Database extends Vue {
           .replace(/[›]?[L|K]T[\d]?/g, "")}`,
       // ${val.Ort ? ` ${val.Ort}` : ''}`
       sortable: true,
-    },
-    {
-      searchable: false,
-      show: true,
-      text: "Scan",
-      value: "entry",
-      infoUrl: "",
-      renderFnc: (val: any) => this.hasScan(val.entry), 
-      sortable: false
     },
   ];
 
