@@ -348,22 +348,27 @@
                     "
                     ><i> {{ header.renderFnc(item) }} </i>
                   </template>
-                  <template v-else> {{ header.renderFnc(item) }} </template>
+                  <template v-else>
+                    <template v-if="header.text === 'Scan'">
+                      <v-btn 
+                        icon 
+                        color="primary" 
+                        :disabled="header.renderFnc(item) === ''"
+                        @click.stop="onImageClick(header.renderFnc(item))"
+                        >
+                        <v-icon v-if="header.renderFnc(item) === ''">mdi-image-off </v-icon>
+                        <v-icon v-else>mdi-image </v-icon>
+
+                        </v-btn>
+                    </template>
+                    <template v-else>
+                      {{ header.renderFnc(item) }} 
+                    </template>
+                  </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
 
-                <template v-if="header.text === 'Scan'">
-                  <v-btn 
-                    icon 
-                    color="primary" 
-                    :disabled="item === ''"
-                    @click.prevent="(item) => {this.console.log(item)}"
-                    >
-                    <v-icon v-if="item === ''">mdi-image-off </v-icon>
-                    <v-icon v-else>mdi-image </v-icon>
 
-                    </v-btn>
-                </template>
 
                 <template
                   v-if="showSelectedCollection && header.text === 'Sammlung'"
@@ -1023,7 +1028,7 @@ export default class Database extends Vue {
   };
 
   hasScan(val: any) {
-    console.log("@facs" in val)
+    // console.log("@facs" in val)
     return "@facs" in val ? val["@facs"] : '';
   }
 
@@ -1389,6 +1394,17 @@ export default class Database extends Vue {
       true;
     } else false;
   }
+
+  onImageClick(imgLink:string) {
+    // ToDo: Implement Image Open on click
+    const decodedUrl = decodeURIComponent(imgLink);
+    // console.log('on image click: ' + decodedUrl);
+    // @ts-ignore
+    navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
+    $addNotification({message: 'Der Link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
+  }
+
+
 
   async mounted() {
     if (this.type === "collection" && this.collection_ids) {
