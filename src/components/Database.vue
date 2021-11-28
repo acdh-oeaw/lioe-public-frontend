@@ -1028,7 +1028,6 @@ export default class Database extends Vue {
   };
 
   hasScan(val: any) {
-    // console.log("@facs" in val)
     return "@facs" in val ? val["@facs"] : '';
   }
 
@@ -1400,8 +1399,9 @@ export default class Database extends Vue {
     const decodedUrl = decodeURIComponent(imgLink);
     // console.log('on image click: ' + decodedUrl);
     // @ts-ignore
-    navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
-    $addNotification({message: 'Der Link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
+    window.open(decodedUrl);
+    // navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
+    // $addNotification({message: 'Der Link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
   }
 
 
