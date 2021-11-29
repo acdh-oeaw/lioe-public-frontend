@@ -639,6 +639,7 @@ export async function getArticles(
 }
 
 export async function getArticleByFileName(fileName: string): Promise<string> {
-  const r = await (await fetch(articleEndpoint + '/' + fileName)).text()
+  console.log('getArticleByFileName', encodeURIComponent(fileName))
+  const r = await (await fetch(articleEndpoint + '/' + encodeURIComponent(fileName))).text()
   return r
 }
