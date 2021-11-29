@@ -402,7 +402,6 @@ export default class Article extends Vue {
   @Watch("filename")
   onFileChange() {
     this.initArticle(this.filename);
-    this.articleIsRetro()
   }
 
   saveEditorXML() {
@@ -469,11 +468,6 @@ export default class Article extends Vue {
     const f = this.fragementFromSelector('teiHeader listChange change', xml)
     console.log({f}, {statuses}, statuses.some(s => f.includes(s)))
     return statuses.length === 0 || statuses.some(s => f.includes(s))
-  }
-
-  articleIsRetro(): boolean {
-    this.isRetro = this.filename.indexOf('#') > -1
-    return this.isRetro
   }
 
   initXML(xml: string) {
@@ -559,8 +553,10 @@ export default class Article extends Vue {
     if (aFileName.indexOf('#') > -1) {
       let tmp = aFileName.split('#')
       aFileName = tmp[0] + '.xml#' + tmp.splice(1).join('#')
+      this.isRetro = true
     } else{
       aFileName += '.xml'
+      this.isRetro = false
     }
     console.log('initArticle', aFileName)
     this.articleXML = await getArticleByFileName(aFileName);
