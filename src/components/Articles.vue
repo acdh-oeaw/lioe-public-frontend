@@ -44,7 +44,14 @@
               {{ article.title }}
             </v-list-item-title>
             <v-list-item-icon v-if="article.filename.indexOf('%23') > -1">
-              <v-icon>archive</v-icon>
+              <v-tooltip top max-width="220" >
+                <template v-slot:activator="{ on }">
+                  <v-icon v-on="on">archive</v-icon>
+                </template>
+                <span>
+                  Retrodigitalisierter Artikel
+                </span>
+              </v-tooltip>
             </v-list-item-icon>
           </v-list-item>
         </template>
