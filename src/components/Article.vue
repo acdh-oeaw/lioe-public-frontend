@@ -53,7 +53,7 @@
           v-model="expanded"
           :geo-store="geoStore"
           :retro-xml="retroXML"
-          :is-retro="articleIsRetro"
+          :is-retro="isRetro"
         />
         <v-flex
           class="comment-box"
@@ -165,6 +165,7 @@ export default class Article extends Vue {
   diminutiveXML: string | null = null
   pbFacs: string | null = null
   pbFacsPdfLink: string | null = null
+  isRetro: boolean | null = false
   userStore = userStore
 
   get commentUrl(): string {
@@ -247,7 +248,7 @@ export default class Article extends Vue {
 
   handleArticleClick(e: MouseEvent) {
     if (e.target instanceof HTMLElement) {
-      if (!this.articleIsRetro()) {
+      if (!this.isRetro) {
         if (this.isPlaceNameElement(e.target)) {
           const sigle = this.getPlacenameSigleFromRef(
             e.target.getAttribute("ref")
@@ -401,6 +402,7 @@ export default class Article extends Vue {
   @Watch("filename")
   onFileChange() {
     this.initArticle(this.filename);
+    this.articleIsRetro()
   }
 
   saveEditorXML() {
@@ -470,7 +472,8 @@ export default class Article extends Vue {
   }
 
   articleIsRetro(): boolean {
-    return this.filename.indexOf('#') > -1
+    this.isRetro = this.filename.indexOf('#') > -1
+    return this.isRetro
   }
 
   initXML(xml: string) {
@@ -516,7 +519,7 @@ export default class Article extends Vue {
         "teiHeader > fileDesc > titleStmt > respStmt > name[ref]",
         xml
       )[0];
-      if (this.articleIsRetro()) {
+      if (this.isRetro) {
         this.retroXML = this.fragementFromSelector("TEI > text", xml);
         this.articleAvailable = true;
         let aTitle = this.elementsFromDom("teiHeader > fileDesc > titleStmt > title", xml)[0]
