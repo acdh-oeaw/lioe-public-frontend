@@ -54,7 +54,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { getArticles, getRetroArticles } from '../api'
+import { getArticles } from '../api'
 import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
 
@@ -67,7 +67,6 @@ import * as _ from 'lodash'
 export default class Articles extends Vue {
 
   articles: Array<{ title: string, filename: string }> = []
-  retroArticles: Array<{ title: string, filename: string }> = []
   loading = false
   letter = 0
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
@@ -125,12 +124,7 @@ export default class Articles extends Vue {
   async mounted() {
     this.loading = true
     this.articles = await this.getArticles()
-    this.retroArticles = await this.getRetroArticles()
     this.loading = false
-  }
-
-  async getRetroArticles(search?: string) {
-    return (await getRetroArticles(search)).filter(a => a.title !== '' && a.title !== undefined)
   }
 
   async getArticles(search?: string) {
