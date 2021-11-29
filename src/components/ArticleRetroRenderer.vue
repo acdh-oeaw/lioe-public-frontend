@@ -38,7 +38,7 @@ export default class ArticleRetroRenderer extends Vue {
                 before += '<span class="fx-n">' + av + '</span>'
               }
             })
-            console.log(e)
+            // console.log(e)
           }
           out += '<span class="element e-' + e.name + (classes.length > 0 ? ' ' + classes.join(' ') : '') + '">'
           out += before
@@ -46,6 +46,9 @@ export default class ArticleRetroRenderer extends Vue {
             e.childs.forEach((c: any) => {
               out += renderer(c, t)
             });
+          }
+          if (e.name === 'pc') {
+            out += ' '
           }
           out += '</span>'
         } else if (e.type === "TEXT") {
@@ -85,6 +88,12 @@ export default class ArticleRetroRenderer extends Vue {
       display: block;
       font-weight: bold;
       margin: 0.5rem 0 0.2rem 0;
+      padding-left: 16px;
+      padding-right: 16px;
+      margin-left: -16px;
+      margin-right: -16px;
+      border-top: 1px solid #ddd;
+      padding-top: 16px;
     }
     .a-type-header {
       display: block;
@@ -92,8 +101,14 @@ export default class ArticleRetroRenderer extends Vue {
       font-weight: bold;
       font-size: 1.1rem;
     }
-    .e-pc:after {
-      content: " ";
+    .a-type-header::before {
+      content: "";
+      border-top: 1px solid #ddd;
+      display: block;
+      margin-left: -16px;
+      margin-right: -16px;
+      margin-bottom: 16px;
+      margin-top: 16px;
     }
     .e-quote {
       font-style: italic;
@@ -129,6 +144,9 @@ export default class ArticleRetroRenderer extends Vue {
     .e-sense.a-n > .e-usg {
       display: block;
       margin-bottom: 0.3rem;
+    }
+    .e-pb.a-facs {
+      display: none;
     }
   }
 </style>
