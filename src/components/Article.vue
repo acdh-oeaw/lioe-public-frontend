@@ -17,6 +17,12 @@
         <v-layout align-end>
           <v-flex @click="handleArticleClick" xs12>
             <div v-html="lemmaXML" class="lemma" />
+            <div
+              :title="pbFacsPdfLink"
+              v-if="pbFacs"
+            >
+              {{ pbFacs }}
+            </div>
           </v-flex>
           <v-flex class="text-xs-right">
             <v-menu open-on-hover max-width="400" max-height="95vh" top left>
@@ -47,6 +53,7 @@
           v-model="expanded"
           :geo-store="geoStore"
           :retro-xml="retroXML"
+          :is-retro="articleIsRetro"
         />
         <v-flex
           class="comment-box"
@@ -156,6 +163,8 @@ export default class Article extends Vue {
   lemmaXML: string | null = null
   retroXML: string | null = null
   diminutiveXML: string | null = null
+  pbFacs: string | null = null
+  pbFacsPdfLink: string | null = null
   userStore = userStore
 
   get commentUrl(): string {
@@ -238,28 +247,30 @@ export default class Article extends Vue {
 
   handleArticleClick(e: MouseEvent) {
     if (e.target instanceof HTMLElement) {
-      if (this.isPlaceNameElement(e.target)) {
-        const sigle = this.getPlacenameSigleFromRef(
-          e.target.getAttribute("ref")
-        );
-        if (sigle !== null) {
-          this.openMapsWithPlaces([sigle]);
-        }
-      } else if (e.target.dataset.geoSigle !== undefined) {
-        this.openMapsWithPlaces([e.target.dataset.geoSigle]);
-      } else if (this.getCollectionLink(e.target) !== null) {
-        const id = this.getCollectionLink(e.target)!;
-        this.goToDB(id);
-        // this.$router.push({ path: "/db", query: { collection_ids: id } });
-        // Verweis auf anderes Lemma
-      } else if (
-        typeof this.getLemmaLinkElement(e.target as HTMLElement) === "string"
-      ) {
-        const s = this.getLemmaLinkElement(e.target as HTMLElement) as string;
-        const t = /(.+)\.xml/g.exec(s);
-        console.log(t);
-        if (t !== null && t[1] !== null) {
-          this.$router.push({ path: "/articles/" + t[1] });
+      if (!this.articleIsRetro()) {
+        if (this.isPlaceNameElement(e.target)) {
+          const sigle = this.getPlacenameSigleFromRef(
+            e.target.getAttribute("ref")
+          );
+          if (sigle !== null) {
+            this.openMapsWithPlaces([sigle]);
+          }
+        } else if (e.target.dataset.geoSigle !== undefined) {
+          this.openMapsWithPlaces([e.target.dataset.geoSigle]);
+        } else if (this.getCollectionLink(e.target) !== null) {
+          const id = this.getCollectionLink(e.target)!;
+          this.goToDB(id);
+          // this.$router.push({ path: "/db", query: { collection_ids: id } });
+          // Verweis auf anderes Lemma
+        } else if (
+          typeof this.getLemmaLinkElement(e.target as HTMLElement) === "string"
+        ) {
+          const s = this.getLemmaLinkElement(e.target as HTMLElement) as string;
+          const t = /(.+)\.xml/g.exec(s);
+          console.log(t);
+          if (t !== null && t[1] !== null) {
+            this.$router.push({ path: "/articles/" + t[1] });
+          }
         }
       }
     }
@@ -467,6 +478,8 @@ export default class Article extends Vue {
     if (this.articleAvailable) {
       this.articleAvailable = true
       const idInitials: any = { PhS: "PS" };
+      this.pbFacs = null;
+      this.pbFacsPdfLink = null;
       xml = xml.split("<body>").join("").split("</body>").join("");
       xml = this.linkParentsToCollection("ptr[type=collection]", xml);
       xml = this.appendGrossregionViaRef(
@@ -507,11 +520,23 @@ export default class Article extends Vue {
         this.retroXML = this.fragementFromSelector("TEI > text", xml);
         this.articleAvailable = true;
         let aTitle = this.elementsFromDom("teiHeader > fileDesc > titleStmt > title", xml)[0]
+        // Hack to remove lemma link! ToDo: Make link working ?!?
+        this.lemmaXML = this.lemmaXML.replace('collection-href="/collections-wboe.xml#start"', '')
         this.editor = {
           id: 'retro',
           initials: aTitle && aTitle.innerHTML || 'Retro',
           fullname: 'OEAW-Verlag (H. Rosenkranz)',
         };
+        // <pb facs="lieferung6.pdf#page=28" n="WBÖ 1, 344."/>
+        let tPbFacs = this.elementsFromDom("entry > pb", xml)
+        if (tPbFacs && tPbFacs.item(0) && tPbFacs.item(0).attributes && (<any>tPbFacs.item(0).attributes).n) {
+          this.pbFacs = (<any>tPbFacs.item(0).attributes).n.value;
+          if ((<any>tPbFacs.item(0).attributes).facs) {
+            // ToDo: Use pdf link !
+            this.pbFacsPdfLink = (<any>tPbFacs.item(0).attributes).facs.value;
+          }
+        }
+        console.log('pbFacs', this.pbFacs, this.pbFacsPdfLink)
       } else {
         this.retroXML = null;
         let aInitials = aEditor.getAttribute("ref");

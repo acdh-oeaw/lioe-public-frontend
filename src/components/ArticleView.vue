@@ -9,7 +9,9 @@
           :key="'td' + tdKey"
         />
       </v-flex>
-      <v-flex class="text-xs-right">
+      <v-flex class="text-xs-right"
+        v-if="!isRetro"
+      >
         <v-btn small rounded text @click="$emit('toggleAll')">{{
           isEveryArticleExpanded ? "Einklappen" : "Ausklappen"
         }}</v-btn>
@@ -35,11 +37,12 @@
         </v-menu>
       </v-flex>
     </v-layout>
-    <template v-if="retroXml">
+    <template v-if="isRetro">
       <article-retro-renderer
         :xmlObjRetro="xmlObjRetro"
         :retroXml="retroXml"
         class="mt-3 article-panels"
+        v-if="retroXml"
       />
     </template>
     <v-expansion-panels
@@ -237,7 +240,8 @@ export default class ArticleView extends Vue {
   @Prop() value: boolean[];
   @Prop() isEveryArticleExpanded: any;
   @Prop() autor: any;
-  @Prop({ default: false}) retroXml: boolean[];
+  @Prop({ default: null}) retroXml: string[];
+  @Prop({ default: false}) isRetro: boolean[];
 
   parser: any = null;
   parserDefinitionPath = "/static/parser-xml/";
