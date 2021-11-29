@@ -36,6 +36,7 @@
           {{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span>
         </v-tab>
       </v-tabs>
+      <v-skeleton-loader v-if="loading" type="heading, list-item-two-line@3, heading, list-item@5"></v-skeleton-loader>
       <v-list v-if="filteredArticlesByInitial.length > 0">
         <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
@@ -46,7 +47,7 @@
             <v-list-item-icon v-if="article.filename.indexOf('%23') > -1">
               <v-tooltip top max-width="220" >
                 <template v-slot:activator="{ on }">
-                  <v-icon v-on="on">archive</v-icon>
+                  <v-icon v-on="on">mdi-archive </v-icon>
                 </template>
                 <span>
                   Retrodigitalisierter Artikel
@@ -57,7 +58,7 @@
         </template>
       </v-list>
       <div v-else>
-        Keine Artikel gefunden.
+        <span v-if="!loading">Keine Artikel gefunden.</span>
       </div>
     </v-flex>
   </v-layout>
