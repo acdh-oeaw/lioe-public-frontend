@@ -348,9 +348,27 @@
                     "
                     ><i> {{ header.renderFnc(item) }} </i>
                   </template>
-                  <template v-else> {{ header.renderFnc(item) }} </template>
+                  <template v-else>
+                    <template v-if="header.text === 'Scan'">
+                      <v-btn 
+                        icon 
+                        color="primary" 
+                        :disabled="header.renderFnc(item) === ''"
+                        @click.stop="onImageClick(header.renderFnc(item))"
+                        >
+                        <v-icon v-if="header.renderFnc(item) === ''">mdi-image-off </v-icon>
+                        <v-icon v-else>mdi-image </v-icon>
+
+                        </v-btn>
+                    </template>
+                    <template v-else>
+                      {{ header.renderFnc(item) }} 
+                    </template>
+                  </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
+
+
 
                 <template
                   v-if="showSelectedCollection && header.text === 'Sammlung'"
@@ -415,7 +433,8 @@
           </v-list>
         </v-menu>
 
-        <v-menu offset-y v-if="temp_coll.length !== 0">
+        <!-- Deletion from collection (WIP) -->
+        <!-- <v-menu offset-y v-if="temp_coll.length !== 0">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               color="secondary"
@@ -439,7 +458,7 @@
               }}</v-list-item-title>
             </v-list-item>
           </v-list>
-        </v-menu>
+        </v-menu> -->
 
         <!-- Create collection and show on Map -->
         <v-tooltip top style="width: 100px">
@@ -730,6 +749,7 @@ export default class Database extends Vue {
 
   sortedHeaders: any[] = [
     "ID",
+    "Scan",
     "HL",
     "NL",
     "POS",
@@ -748,7 +768,7 @@ export default class Database extends Vue {
     "Bundesland1",
     "Großregion1",
     "Kleinregion1",
-    "Gemeinde1",
+    "Gemeinde1"
   ];
 
   headers: TableHeader[] = [
@@ -760,6 +780,15 @@ export default class Database extends Vue {
       value: "",
       infoUrl: "",
       sortable: false,
+    },
+    { // Scans
+      searchable: false,
+      show: true,
+      text: "Scan",
+      value: "entry",
+      infoUrl: "",
+      renderFnc: (val: any) => this.hasScan(val.entry), 
+      sortable: false
     },
     {
       searchable: true,
@@ -997,6 +1026,10 @@ export default class Database extends Vue {
     "items-per-page-text": "Pro Seite",
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
+
+  hasScan(val: any) {
+    return "@facs" in val ? val["@facs"] : '';
+  }
 
   get temp_coll() {
     return stateProxy.collections.temp_coll;
@@ -1360,6 +1393,18 @@ export default class Database extends Vue {
       true;
     } else false;
   }
+
+  onImageClick(imgLink:string) {
+    // ToDo: Implement Image Open on click
+    const decodedUrl = decodeURIComponent(imgLink);
+    // console.log('on image click: ' + decodedUrl);
+    // @ts-ignore
+    window.open(decodedUrl);
+    // navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
+    // $addNotification({message: 'Der Link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
+  }
+
+
 
   async mounted() {
     if (this.type === "collection" && this.collection_ids) {
