@@ -606,9 +606,12 @@ export async function getDocumentsByCollection(
 }
 
 export async function getArticles(
-  search?: string
+  search?: string,
+  filter?: string
 ): Promise<Array<{ title: string; filename: string }>> {
   // tslint:disable-next-line:max-line-length
+  const searchStatus = filter !== null ? filter : userStore.articleStatus.join('|');
+
   if (search !== undefined) {
     const r = await (
       await fetch(
@@ -616,7 +619,7 @@ export async function getArticles(
         '?initial=' +
         search +
         '&status=' +
-        userStore.articleStatus.join('|')
+        searchStatus
       )
     ).json()
     return r.results.article
@@ -627,7 +630,7 @@ export async function getArticles(
   } else {
     const r = await (
       await fetch(
-        articleEndpoint + '?status=' + userStore.articleStatus.join('|')
+        articleEndpoint + '?status=' + searchStatus
       )
     ).json()
     return r.results.article
