@@ -610,8 +610,8 @@ export async function getArticles(
   filter?: string
 ): Promise<Array<{ title: string; filename: string }>> {
   // tslint:disable-next-line:max-line-length
-  const searchStatus = filter !== null ? filter : userStore.articleStatus.join('|');
-
+  const searchStatus = filter !== null && filter !== undefined ? filter : userStore.articleStatus.join('|');
+  console.log('searchStatus', searchStatus, filter, userStore.articleStatus.join('|'))
   if (search !== undefined) {
     const r = await (
       await fetch(

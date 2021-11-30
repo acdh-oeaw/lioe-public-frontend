@@ -111,7 +111,13 @@ export default class Articles extends Vue {
       selected: true,
       label: 'Fertiggestellt',
       filter:'finished'
-    }]
+    },
+    {
+      selected: true,
+      label: 'Retro',
+      filter:'retro'
+    }
+  ]
 
   getCleanInitial(lemmaName: string) {
     return (
