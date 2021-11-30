@@ -471,7 +471,7 @@ export default class Article extends Vue {
   }
 
   initXML(xml: string) {
-    this.articleAvailable = this.articleContainsStatuses(xml, userStore.articleStatus)
+    this.articleAvailable = this.isRetro || this.articleContainsStatuses(xml, userStore.articleStatus)
     if (this.articleAvailable) {
       this.articleAvailable = true
       const idInitials: any = { PhS: "PS" };

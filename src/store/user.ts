@@ -8,6 +8,7 @@ export type ArticleStatus = 'unfinished'|
   'internal correction'|
   'external correction'|
   'finished'|
+  'retro'|
   ''
 
 export interface UserStore {
@@ -21,6 +22,6 @@ export const userStore: UserStore = {
   showPdfPrintButton: false,
   isLoggedIn: false,
   showComment: false,
-  articleStatus: []
-  // articleStatus: [ 'proofed', 'finished' ]
+  // articleStatus: []
+  articleStatus: [ 'proofed', 'finished', 'retro' ]
 }
