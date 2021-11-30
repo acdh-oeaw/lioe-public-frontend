@@ -5,6 +5,7 @@
         <v-flex class="text-center" xs12>
           <v-text-field
             :loading="loading"
+            v-model="searchTerm"
             autofocus
             flat
             hide-details
@@ -17,12 +18,28 @@
           />
         </v-flex>
         <v-flex>
+          <v-menu open-on-hover max-width="700" max-height="95vh" top left :close-on-content-click="false" @input="onFilterMenuToggle">
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" color="accent" icon text class="pt-2">
+                <v-icon>mdi-filter</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item v-for="filter in articleStatusFilters" :key="filter.label">
+                <v-list-item-action>
+                  <v-checkbox v-model="filter.selected"/>
+                </v-list-item-action>
+                {{filter.label}}
+              </v-list-item>
+            </v-list>
+        </v-menu>
+      </v-flex>
+        <v-flex>
           <v-menu open-on-hover max-width="700" max-height="95vh" top left>
             <template v-slot:activator="{ on }">
               <v-btn v-on="on" color="accent" icon text class="pt-2">
                 <v-icon>info</v-icon>
               </v-btn>
-              
             </template>
             <info-text class="elevation-24 pa-4 white" path="wboe-artikel/showcases/" />
           </v-menu>
@@ -36,6 +53,7 @@
           {{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span>
         </v-tab>
       </v-tabs>
+      <v-skeleton-loader v-if="loading" type="heading, list-item-two-line@3, heading, list-item@5"></v-skeleton-loader>
       <v-list v-if="filteredArticlesByInitial.length > 0">
         <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
@@ -44,13 +62,20 @@
               {{ article.title }}
             </v-list-item-title>
             <v-list-item-icon v-if="article.filename.indexOf('%23') > -1">
-              <v-icon>archive</v-icon>
+              <v-tooltip top max-width="220" >
+                <template v-slot:activator="{ on }">
+                  <v-icon v-on="on">mdi-archive </v-icon>
+                </template>
+                <span>
+                  Retrodigitalisierter Artikel
+                </span>
+              </v-tooltip>
             </v-list-item-icon>
           </v-list-item>
         </template>
       </v-list>
       <div v-else>
-        Keine Artikel gefunden.
+        <span v-if="!loading">Keine Artikel gefunden.</span>
       </div>
     </v-flex>
   </v-layout>
@@ -60,6 +85,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { getArticles } from '../api'
 import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
+import { filter } from 'vue/types/umd'
 
 @Component({
   components: {
@@ -72,7 +98,20 @@ export default class Articles extends Vue {
   articles: Array<{ title: string, filename: string }> = []
   loading = false
   letter = 0
+  searchTerm = ''
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
+
+  articleStatusFilters = [
+    {
+      selected: true,
+      label: 'Kontroliert',
+      filter: 'proofed'
+    }, 
+    {
+      selected: true,
+      label: 'Fertiggestellt',
+      filter:'finished'
+    }]
 
   getCleanInitial(lemmaName: string) {
     return (
@@ -124,6 +163,13 @@ export default class Articles extends Vue {
       .value())]
   }
 
+  get activeFiltersAsString() {
+    return this.articleStatusFilters
+    .filter((item) => { return item.selected === true})
+    .map((item) => { return item.filter})
+    .join('|');
+  }
+
   async mounted() {
     this.loading = true
     this.articles = await this.getArticles()
@@ -131,7 +177,8 @@ export default class Articles extends Vue {
   }
 
   async getArticles(search?: string) {
-    return (await getArticles(search)).filter(a => a.title !== '' && a.title !== undefined)
+    console.log(this.activeFiltersAsString);
+    return (await getArticles(search, this.activeFiltersAsString)).filter(a => a.title !== '' && a.title !== undefined)
   }
 
   async searchArticle(search: string) {
@@ -142,6 +189,20 @@ export default class Articles extends Vue {
       this.articles = await this.getArticles()
     }
     this.loading = false
+  }
+
+  menuFilterStatus = '';
+  onFilterMenuToggle(opened: any) {
+    if(opened) {
+      this.menuFilterStatus = this.activeFiltersAsString;
+    }
+    if (!opened) {
+      if(this.menuFilterStatus !== this.activeFiltersAsString) {
+        // Todo
+        this.searchArticle(this.searchTerm);
+      }
+        
+    }
   }
 }
 </script>

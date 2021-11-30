@@ -23,5 +23,9 @@ export const userStore: UserStore = {
   isLoggedIn: false,
   showComment: false,
   // articleStatus: []
+<<<<<<< HEAD
   articleStatus: [ 'proofed', 'finished', 'retro' ]
+=======
+  articleStatus: [ 'proofed', 'finished' ]
+>>>>>>> 17eb4cbe9ac3e52d349558f30a1ea6d8ade6da25
 }
