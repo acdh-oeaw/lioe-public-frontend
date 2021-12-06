@@ -116,6 +116,11 @@ export default class Articles extends Vue {
       selected: true,
       label: 'Retro',
       filter:'retro'
+    },
+    {
+      selected: false,
+      label: 'Retro Verweise',
+      filter:'retro Verweis'
     }
   ]
 
