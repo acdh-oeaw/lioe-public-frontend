@@ -787,7 +787,7 @@ export default class Database extends Vue {
       text: "Scan",
       value: "entry",
       infoUrl: "",
-      renderFnc: (val: any) => this.hasScan(val.entry), 
+      renderFnc: (val: any) => this.hasScan(val), 
       sortable: false
     },
     {
@@ -1028,7 +1028,7 @@ export default class Database extends Vue {
   };
 
   hasScan(val: any) {
-    return "@facs" in val ? val["@facs"] : '';
+    return "@facs" in val.entry ? val.entry["@facs"] : '';
   }
 
   get temp_coll() {
@@ -1234,6 +1234,7 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
+    console.log("item in customSelect: ", item)
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
@@ -1395,6 +1396,19 @@ export default class Database extends Vue {
   }
 
   onImageClick(imgLink:string) {
+
+    
+  //   export const patchDocument = (id: string, body: any) =>
+  // api.patch(`/api/documents/${id}/`, body); -> wird zu einem body <-> this.connectDocument 
+
+//   get info() {
+//     return `A: ${this.connectDocument.A}
+// HL: ${this.connectDocument.HL}
+// QU: ${this.connectDocument.QU}
+// QDB: ${this.connectDocument.QDB}
+// NR: ${this.connectDocument.NR}
+// LT1: ${this.connectDocument.LT1}`;
+//   }
     // ToDo: Implement Image Open on click
     const decodedUrl = decodeURIComponent(imgLink);
     // console.log('on image click: ' + decodedUrl);
@@ -1838,18 +1852,21 @@ export default class Database extends Vue {
   }
 
   editValuesForExport(): any[] {
+    console.log('we are in editValuesExport, localselect: ')
     var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
-
+    console.log(localSelect)
     // sorting the columns based on the order of the table
     var orderedSelect: any[] = [];
 
     localSelect.forEach((x) => {
       var localOrdered: any = {};
+      console.log("scnas in export? ", x["Scan"]);
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
       delete x["colSources"];
-      delete x["entry"];
       delete x["Bundesland"];
       delete x["Großregion"];
+      if ("@facs" in x.entry) x["Scan"] = decodeURIComponent(x.entry["@facs"]);
+      delete x["entry"];
       for (var key in x) {
         if (Array.isArray(x[key])) {
           x[key] = x[key].join(" ");
