@@ -349,53 +349,51 @@
                     ><i> {{ header.renderFnc(item) }} </i>
                   </template>
                   <template v-else-if="header.text === 'Scan'">
-                     <v-btn 
-                        icon 
-                        color="primary" 
-                        :disabled="hasScan(item) === ''"
-                        @click="showScanWindow = true"
-                        >
-                        <v-icon v-if="hasScan(item) === ''">mdi-image-off </v-icon>
-                        <v-icon v-else>mdi-image </v-icon>
-                        </v-btn>
-                      <v-dialog
+                    <v-btn
+                      icon
+                      color="primary"
+                      :disabled="hasScan(item) === ''"
+                      @click="openScanWindow(item)"
+                    >
+                      <v-icon v-if="hasScan(item) === ''"
+                        >mdi-image-off
+                      </v-icon>
+                      <v-icon v-else>mdi-image </v-icon>
+                    </v-btn>
+                    <v-dialog
                       class="mx-auto my-12"
                       max-width="1000"
                       scrollable
                       v-model="showScanWindow"
-                      v-if="hasScan(item) !== ''"
-                      >
+                      v-if="infoScan.link !== ''"
+                    >
                       <template>
-                      <v-card text class="fill-height pa-4">
-                        <!-- <v-btn @click="showScanWindow = false" text icon><v-icon dark>close</v-icon></v-btn> -->
-                        <!-- <div>
-                          <v-img :src="decodeURIComponent(header.renderFnc(item))"></v-img>
-                        </div> -->
-                        <v-card-title>Details {{item.ID}}</v-card-title>
-                        <!-- <v-card-text>
-                          <v-col>
-                            <div>
-                              HL: {{item.HL}}
-                            </div>
-                            <div>
-                              QU: {{item.QU}}
-                            </div>
-                            <div>
-                              QDB: {{item.QDB}}
-                            </div>
-                            <div>
-                              NR: {{item.NR}}
-                            </div>
-                            <div>
-                              LT1: {{item.LT1_teuthonista}}
-                            </div>
-                          </v-col>
-
-                        </v-card-text> -->
-                      </v-card>
+                        <v-card text class="fill-height">
+                          <v-toolbar>
+                            <v-btn icon color="primary" @click="closeScanWindow()">
+                              <v-icon>mdi-close</v-icon>
+                            </v-btn>
+                          </v-toolbar>
+                          <div>
+                            <v-img
+                              :src="decodeURIComponent(infoScan.link)"
+                            ></v-img>
+                          </div>
+                          <v-card-title>Details zum Scan: {{ infoScan.ID }}</v-card-title>
+                          <v-card-text>
+                            <v-col>
+                              <div>HL: {{ infoScan.HL }}</div>
+                              <div>QU: {{ infoScan.QU }}</div>
+                              <div>QDB: {{ infoScan.QDB }}</div>
+                              <div>NR: {{ infoScan.NR }}</div>
+                              <div>LT1: {{ infoScan.LT1 }}</div>
+                            </v-col>
+                          </v-card-text>
+                        </v-card>
                       </template>
-                      </v-dialog> 
-               <!-- <v-btn 
+                    </v-dialog>
+
+                    <!-- <v-btn 
                         icon 
                         color="primary" 
                         :disabled="header.renderFnc(item) === ''"
@@ -405,10 +403,11 @@
                         <v-icon v-else>mdi-image </v-icon>
 
                         </v-btn> -->
-                    </template>
-                    <template v-else>
-                      {{ header.renderFnc(item) }} 
-                    </template>
+                  </template>
+
+                  <template v-else>
+                    {{ header.renderFnc(item) }}
+                  </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
 
@@ -791,12 +790,26 @@ export default class Database extends Vue {
     this.$tours["databaseTour"].start();
   }
 
-  openScanWindow() {
+  openScanWindow(item: any) {
     this.showScanWindow = true;
+    this.infoScan["link"] = item.entry["@facs"];
+    this.infoScan["ID"] = item["ID"];
+    this.infoScan["HL"] = item["HL"];
+    this.infoScan["QU"] = item["QU"];
+    this.infoScan["QDB"] = item["QDB"];
+    this.infoScan["NR"] = item["NR"];
+    this.infoScan["LT1"] = item["LT1_teuthonista"];
   }
 
   closeScanWindow() {
     this.showScanWindow = false;
+    this.infoScan["link"] = "";
+    this.infoScan["ID"] = "";
+    this.infoScan["HL"] = "";
+    this.infoScan["QU"] = "";
+    this.infoScan["QDB"] = "";
+    this.infoScan["NR"] = "";
+    this.infoScan["LT1"] = "";
   }
 
   sortedHeaders: any[] = [
@@ -820,7 +833,7 @@ export default class Database extends Vue {
     "Bundesland1",
     "Großregion1",
     "Kleinregion1",
-    "Gemeinde1"
+    "Gemeinde1",
   ];
 
   headers: TableHeader[] = [
@@ -833,14 +846,15 @@ export default class Database extends Vue {
       infoUrl: "",
       sortable: false,
     },
-    { // Scans
+    {
+      // Scans
       searchable: false,
       show: true,
       text: "Scan",
       value: "entry",
       infoUrl: "",
-      renderFnc: (val: any) => this.hasScan(val), 
-      sortable: false
+      renderFnc: (val: any) => this.hasScan(val),
+      sortable: false,
     },
     {
       searchable: true,
@@ -1079,8 +1093,18 @@ export default class Database extends Vue {
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
 
+  infoScan = {
+    link: "",
+    ID: "",
+    HL: "",
+    QU: "",
+    QDB: "",
+    NR: "",
+    LT1: "",
+  };
+
   hasScan(val: any) {
-    return "@facs" in val.entry ? val.entry["@facs"] : '';
+    return "@facs" in val.entry ? val.entry["@facs"] : "";
   }
 
   get temp_coll() {
@@ -1286,7 +1310,7 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
-    console.log("item in customSelect: ", item)
+    console.log("item in customSelect: ", item);
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
@@ -1447,27 +1471,25 @@ export default class Database extends Vue {
     } else false;
   }
 
-  onImageClick(imgLink:string) {
+  onImageClick(imgLink: string) {
+    //   export const patchDocument = (id: string, body: any) =>
+    // api.patch(`/api/documents/${id}/`, body); -> wird zu einem body <-> this.connectDocument
 
-    
-  //   export const patchDocument = (id: string, body: any) =>
-  // api.patch(`/api/documents/${id}/`, body); -> wird zu einem body <-> this.connectDocument 
-
-//   get info() {
-//     return `A: ${this.connectDocument.A}
-// HL: ${this.connectDocument.HL}
-// QU: ${this.connectDocument.QU}
-// QDB: ${this.connectDocument.QDB}
-// NR: ${this.connectDocument.NR}
-// LT1: ${this.connectDocument.LT1}`;
-//   }
+    //   get info() {
+    //     return `A: ${this.connectDocument.A}
+    // HL: ${this.connectDocument.HL}
+    // QU: ${this.connectDocument.QU}
+    // QDB: ${this.connectDocument.QDB}
+    // NR: ${this.connectDocument.NR}
+    // LT1: ${this.connectDocument.LT1}`;
+    //   }
     // ToDo: Implement Image Open on click
     const decodedUrl = decodeURIComponent(imgLink);
     // console.log('on image click: ' + decodedUrl);
     // @ts-ignore
     window.open(decodedUrl);
     // navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
-    // $addNotification({message: 'Der Link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
+    // $addNotification({message: 'Der link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
   }
 
   async mounted() {
@@ -1902,9 +1924,9 @@ export default class Database extends Vue {
   }
 
   editValuesForExport(): any[] {
-    console.log('we are in editValuesExport, localselect: ')
+    console.log("we are in editValuesExport, localselect: ");
     var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
-    console.log(localSelect)
+    console.log(localSelect);
     // sorting the columns based on the order of the table
     var orderedSelect: any[] = [];
 
