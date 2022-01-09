@@ -348,9 +348,54 @@
                     "
                     ><i> {{ header.renderFnc(item) }} </i>
                   </template>
-                  <template v-else>
-                    <template v-if="header.text === 'Scan'">
-                      <v-btn 
+                  <template v-else-if="header.text === 'Scan'">
+                     <v-btn 
+                        icon 
+                        color="primary" 
+                        :disabled="hasScan(item) === ''"
+                        @click="showScanWindow = true"
+                        >
+                        <v-icon v-if="hasScan(item) === ''">mdi-image-off </v-icon>
+                        <v-icon v-else>mdi-image </v-icon>
+                        </v-btn>
+                      <v-dialog
+                      class="mx-auto my-12"
+                      max-width="1000"
+                      scrollable
+                      v-model="showScanWindow"
+                      v-if="hasScan(item) !== ''"
+                      >
+                      <template>
+                      <v-card text class="fill-height pa-4">
+                        <!-- <v-btn @click="showScanWindow = false" text icon><v-icon dark>close</v-icon></v-btn> -->
+                        <!-- <div>
+                          <v-img :src="decodeURIComponent(header.renderFnc(item))"></v-img>
+                        </div> -->
+                        <v-card-title>Details {{item.ID}}</v-card-title>
+                        <!-- <v-card-text>
+                          <v-col>
+                            <div>
+                              HL: {{item.HL}}
+                            </div>
+                            <div>
+                              QU: {{item.QU}}
+                            </div>
+                            <div>
+                              QDB: {{item.QDB}}
+                            </div>
+                            <div>
+                              NR: {{item.NR}}
+                            </div>
+                            <div>
+                              LT1: {{item.LT1_teuthonista}}
+                            </div>
+                          </v-col>
+
+                        </v-card-text> -->
+                      </v-card>
+                      </template>
+                      </v-dialog> 
+               <!-- <v-btn 
                         icon 
                         color="primary" 
                         :disabled="header.renderFnc(item) === ''"
@@ -359,16 +404,13 @@
                         <v-icon v-if="header.renderFnc(item) === ''">mdi-image-off </v-icon>
                         <v-icon v-else>mdi-image </v-icon>
 
-                        </v-btn>
+                        </v-btn> -->
                     </template>
                     <template v-else>
                       {{ header.renderFnc(item) }} 
                     </template>
-                  </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
-
-
 
                 <template
                   v-if="showSelectedCollection && header.text === 'Sammlung'"
@@ -656,6 +698,8 @@ export default class Database extends Vue {
 
   localStorage = window.localStorage;
 
+  showScanWindow: boolean = false;
+
   databaseTour_Steps = [
     {
       target: "#dbSearchbar",
@@ -745,6 +789,14 @@ export default class Database extends Vue {
   startTour() {
     // @ts-ignore
     this.$tours["databaseTour"].start();
+  }
+
+  openScanWindow() {
+    this.showScanWindow = true;
+  }
+
+  closeScanWindow() {
+    this.showScanWindow = false;
   }
 
   sortedHeaders: any[] = [
@@ -1417,8 +1469,6 @@ export default class Database extends Vue {
     // navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
     // $addNotification({message: 'Der Link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
   }
-
-
 
   async mounted() {
     if (this.type === "collection" && this.collection_ids) {
