@@ -332,6 +332,7 @@
                 :value="isSelected"
                 @change="customSelect(item)"
                 @click.prevent=""
+                v-if="!showScanWindow"
               ></v-checkbox>
             </td>
 
@@ -363,36 +364,15 @@
                     <v-dialog
                       class="mx-auto my-12"
                       max-width="1000"
-                      scrollable
                       v-model="showScanWindow"
-                      v-if="infoScan.link !== ''"
+                      scrollable
+                      transition="dialog-top-transition"
                     >
-                      <template>
-                        <v-card text class="fill-height">
-                          <v-toolbar>
-                            <v-btn icon color="primary" @click="closeScanWindow()">
-                              <v-icon>mdi-close</v-icon>
-                            </v-btn>
-                          </v-toolbar>
-                          <div>
-                            <v-img
-                              :src="decodeURIComponent(infoScan.link)"
-                            ></v-img>
-                          </div>
-                          <v-card-title>Details zum Scan: {{ infoScan.ID }}</v-card-title>
-                          <v-card-text>
-                            <v-col>
-                              <div>HL: {{ infoScan.HL }}</div>
-                              <div>QU: {{ infoScan.QU }}</div>
-                              <div>QDB: {{ infoScan.QDB }}</div>
-                              <div>NR: {{ infoScan.NR }}</div>
-                              <div>LT1: {{ infoScan.LT1 }}</div>
-                            </v-col>
-                          </v-card-text>
-                        </v-card>
-                      </template>
+                      <v-img
+                        :src="decodeURIComponent(infoScan.link)"
+                        @click="closeScanWindow()"
+                      />
                     </v-dialog>
-
                     <!-- <v-btn 
                         icon 
                         color="primary" 
