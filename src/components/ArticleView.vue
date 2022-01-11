@@ -158,14 +158,14 @@
     >
       <span>{{ noteAuthor.name }}</span>
     </v-tooltip>
-    <div class="text-xs-right pa-4">
+    <div class="text-xs-right pa-4 text-right">
       <v-tooltip top color="ci">
         <template v-slot:activator="{ on }">
           <span v-on="on">{{
             autor.initials ? autor.initials : autor.fullname || ""
           }}</span>
         </template>
-        <span>{{ autor.fullname || "" }}</span>
+        <span>{{ autor.fullname || "" }} </span>
       </v-tooltip>
     </div>
     <QuotationSection
