@@ -332,6 +332,7 @@
                 :value="isSelected"
                 @change="customSelect(item)"
                 @click.prevent=""
+                v-if="!showScanWindow"
               ></v-checkbox>
             </td>
 
@@ -348,9 +349,31 @@
                     "
                     ><i> {{ header.renderFnc(item) }} </i>
                   </template>
-                  <template v-else>
-                    <template v-if="header.text === 'Scan'">
-                      <v-btn 
+                  <template v-else-if="header.text === 'Scan'">
+                    <v-btn
+                      icon
+                      color="primary"
+                      :disabled="hasScan(item) === ''"
+                      @click="openScanWindow(item)"
+                    >
+                      <v-icon v-if="hasScan(item) === ''"
+                        >mdi-image-off
+                      </v-icon>
+                      <v-icon v-else>mdi-image </v-icon>
+                    </v-btn>
+                    <v-dialog
+                      class="mx-auto my-12"
+                      max-width="1000"
+                      v-model="showScanWindow"
+                      scrollable
+                      transition="dialog-top-transition"
+                    >
+                      <v-img
+                        :src="decodeURIComponent(infoScan.link)"
+                        @click="closeScanWindow()"
+                      />
+                    </v-dialog>
+                    <!-- <v-btn 
                         icon 
                         color="primary" 
                         :disabled="header.renderFnc(item) === ''"
@@ -359,16 +382,14 @@
                         <v-icon v-if="header.renderFnc(item) === ''">mdi-image-off </v-icon>
                         <v-icon v-else>mdi-image </v-icon>
 
-                        </v-btn>
-                    </template>
-                    <template v-else>
-                      {{ header.renderFnc(item) }} 
-                    </template>
+                        </v-btn> -->
+                  </template>
+
+                  <template v-else>
+                    {{ header.renderFnc(item) }}
                   </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
-
-
 
                 <template
                   v-if="showSelectedCollection && header.text === 'Sammlung'"
@@ -656,6 +677,8 @@ export default class Database extends Vue {
 
   localStorage = window.localStorage;
 
+  showScanWindow: boolean = false;
+
   databaseTour_Steps = [
     {
       target: "#dbSearchbar",
@@ -747,6 +770,28 @@ export default class Database extends Vue {
     this.$tours["databaseTour"].start();
   }
 
+  openScanWindow(item: any) {
+    this.showScanWindow = true;
+    this.infoScan["link"] = item.entry["@facs"];
+    this.infoScan["ID"] = item["ID"];
+    this.infoScan["HL"] = item["HL"];
+    this.infoScan["QU"] = item["QU"];
+    this.infoScan["QDB"] = item["QDB"];
+    this.infoScan["NR"] = item["NR"];
+    this.infoScan["LT1"] = item["LT1_teuthonista"];
+  }
+
+  closeScanWindow() {
+    this.showScanWindow = false;
+    this.infoScan["link"] = "";
+    this.infoScan["ID"] = "";
+    this.infoScan["HL"] = "";
+    this.infoScan["QU"] = "";
+    this.infoScan["QDB"] = "";
+    this.infoScan["NR"] = "";
+    this.infoScan["LT1"] = "";
+  }
+
   sortedHeaders: any[] = [
     "ID",
     "Scan",
@@ -768,7 +813,7 @@ export default class Database extends Vue {
     "Bundesland1",
     "Großregion1",
     "Kleinregion1",
-    "Gemeinde1"
+    "Gemeinde1",
   ];
 
   headers: TableHeader[] = [
@@ -781,14 +826,15 @@ export default class Database extends Vue {
       infoUrl: "",
       sortable: false,
     },
-    { // Scans
+    {
+      // Scans
       searchable: false,
       show: true,
       text: "Scan",
       value: "entry",
       infoUrl: "",
-      renderFnc: (val: any) => this.hasScan(val), 
-      sortable: false
+      renderFnc: (val: any) => this.hasScan(val),
+      sortable: false,
     },
     {
       searchable: true,
@@ -1027,8 +1073,18 @@ export default class Database extends Vue {
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
 
+  infoScan = {
+    link: "",
+    ID: "",
+    HL: "",
+    QU: "",
+    QDB: "",
+    NR: "",
+    LT1: "",
+  };
+
   hasScan(val: any) {
-    return "@facs" in val.entry ? val.entry["@facs"] : '';
+    return "@facs" in val.entry ? val.entry["@facs"] : "";
   }
 
   get temp_coll() {
@@ -1234,7 +1290,7 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
-    console.log("item in customSelect: ", item)
+    console.log("item in customSelect: ", item);
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
@@ -1395,30 +1451,26 @@ export default class Database extends Vue {
     } else false;
   }
 
-  onImageClick(imgLink:string) {
+  onImageClick(imgLink: string) {
+    //   export const patchDocument = (id: string, body: any) =>
+    // api.patch(`/api/documents/${id}/`, body); -> wird zu einem body <-> this.connectDocument
 
-    
-  //   export const patchDocument = (id: string, body: any) =>
-  // api.patch(`/api/documents/${id}/`, body); -> wird zu einem body <-> this.connectDocument 
-
-//   get info() {
-//     return `A: ${this.connectDocument.A}
-// HL: ${this.connectDocument.HL}
-// QU: ${this.connectDocument.QU}
-// QDB: ${this.connectDocument.QDB}
-// NR: ${this.connectDocument.NR}
-// LT1: ${this.connectDocument.LT1}`;
-//   }
+    //   get info() {
+    //     return `A: ${this.connectDocument.A}
+    // HL: ${this.connectDocument.HL}
+    // QU: ${this.connectDocument.QU}
+    // QDB: ${this.connectDocument.QDB}
+    // NR: ${this.connectDocument.NR}
+    // LT1: ${this.connectDocument.LT1}`;
+    //   }
     // ToDo: Implement Image Open on click
     const decodedUrl = decodeURIComponent(imgLink);
     // console.log('on image click: ' + decodedUrl);
     // @ts-ignore
     window.open(decodedUrl);
     // navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
-    // $addNotification({message: 'Der Link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
+    // $addNotification({message: 'Der link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
   }
-
-
 
   async mounted() {
     if (this.type === "collection" && this.collection_ids) {
@@ -1852,9 +1904,9 @@ export default class Database extends Vue {
   }
 
   editValuesForExport(): any[] {
-    console.log('we are in editValuesExport, localselect: ')
+    console.log("we are in editValuesExport, localselect: ");
     var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
-    console.log(localSelect)
+    console.log(localSelect);
     // sorting the columns based on the order of the table
     var orderedSelect: any[] = [];
 
