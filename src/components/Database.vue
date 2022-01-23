@@ -332,9 +332,9 @@
                 :value="isSelected"
                 @change="customSelect(item)"
                 @click.prevent=""
-                v-if="!showScanWindow"
               ></v-checkbox>
             </td>
+            <!-- v-if="!showScanWindow" -->
 
             <template v-for="header in visibleHeaders">
               <td
@@ -353,36 +353,14 @@
                     <v-btn
                       icon
                       color="primary"
-                      :disabled="hasScan(item) === ''"
-                      @click="openScanWindow(item)"
+                      :disabled="header.renderFnc(item) === ''"
+                      @click.stop="onImageClick(header.renderFnc(item))"
                     >
-                      <v-icon v-if="hasScan(item) === ''"
+                      <v-icon v-if="header.renderFnc(item) === ''"
                         >mdi-image-off
                       </v-icon>
                       <v-icon v-else>mdi-image </v-icon>
                     </v-btn>
-                    <v-dialog
-                      class="mx-auto my-12"
-                      max-width="1000"
-                      v-model="showScanWindow"
-                      scrollable
-                      transition="dialog-top-transition"
-                    >
-                      <v-img
-                        :src="decodeURIComponent(infoScan.link)"
-                        @click="closeScanWindow()"
-                      />
-                    </v-dialog>
-                    <!-- <v-btn 
-                        icon 
-                        color="primary" 
-                        :disabled="header.renderFnc(item) === ''"
-                        @click.stop="onImageClick(header.renderFnc(item))"
-                        >
-                        <v-icon v-if="header.renderFnc(item) === ''">mdi-image-off </v-icon>
-                        <v-icon v-else>mdi-image </v-icon>
-
-                        </v-btn> -->
                   </template>
 
                   <template v-else>
@@ -768,28 +746,6 @@ export default class Database extends Vue {
   startTour() {
     // @ts-ignore
     this.$tours["databaseTour"].start();
-  }
-
-  openScanWindow(item: any) {
-    this.showScanWindow = true;
-    this.infoScan["link"] = item.entry["@facs"];
-    this.infoScan["ID"] = item["ID"];
-    this.infoScan["HL"] = item["HL"];
-    this.infoScan["QU"] = item["QU"];
-    this.infoScan["QDB"] = item["QDB"];
-    this.infoScan["NR"] = item["NR"];
-    this.infoScan["LT1"] = item["LT1_teuthonista"];
-  }
-
-  closeScanWindow() {
-    this.showScanWindow = false;
-    this.infoScan["link"] = "";
-    this.infoScan["ID"] = "";
-    this.infoScan["HL"] = "";
-    this.infoScan["QU"] = "";
-    this.infoScan["QDB"] = "";
-    this.infoScan["NR"] = "";
-    this.infoScan["LT1"] = "";
   }
 
   sortedHeaders: any[] = [
@@ -1452,24 +1408,8 @@ export default class Database extends Vue {
   }
 
   onImageClick(imgLink: string) {
-    //   export const patchDocument = (id: string, body: any) =>
-    // api.patch(`/api/documents/${id}/`, body); -> wird zu einem body <-> this.connectDocument
-
-    //   get info() {
-    //     return `A: ${this.connectDocument.A}
-    // HL: ${this.connectDocument.HL}
-    // QU: ${this.connectDocument.QU}
-    // QDB: ${this.connectDocument.QDB}
-    // NR: ${this.connectDocument.NR}
-    // LT1: ${this.connectDocument.LT1}`;
-    //   }
-    // ToDo: Implement Image Open on click
     const decodedUrl = decodeURIComponent(imgLink);
-    // console.log('on image click: ' + decodedUrl);
-    // @ts-ignore
     window.open(decodedUrl);
-    // navigator.clipboard.writeText(decodedUrl); // Copies link to clipboard
-    // $addNotification({message: 'Der link zum Bild wurde in Ihrer Zwischenablage gespeichert (kopiert).', type: 'success'});
   }
 
   async mounted() {
