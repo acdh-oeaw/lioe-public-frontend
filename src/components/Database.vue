@@ -1029,16 +1029,6 @@ export default class Database extends Vue {
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
 
-  infoScan = {
-    link: "",
-    ID: "",
-    HL: "",
-    QU: "",
-    QDB: "",
-    NR: "",
-    LT1: "",
-  };
-
   hasScan(val: any) {
     return "@facs" in val.entry ? val.entry["@facs"] : "";
   }
@@ -1246,7 +1236,6 @@ export default class Database extends Vue {
   }
 
   customSelect(item: any) {
-    console.log("item in customSelect: ", item);
     if (this.selected.find((i) => item.id === i.id)) {
       this.selected = this.selected.filter((i) => i.id !== item.id);
     } else {
@@ -1844,15 +1833,12 @@ export default class Database extends Vue {
   }
 
   editValuesForExport(): any[] {
-    console.log("we are in editValuesExport, localselect: ");
     var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
-    console.log(localSelect);
     // sorting the columns based on the order of the table
     var orderedSelect: any[] = [];
 
     localSelect.forEach((x) => {
       var localOrdered: any = {};
-      console.log("scnas in export? ", x["Scan"]);
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
       delete x["colSources"];
       delete x["Bundesland"];
