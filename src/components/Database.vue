@@ -846,7 +846,7 @@ export default class Database extends Vue {
       text: "Grammatik",
       infoUrl: "wboe-artikel/dbheaderinfo-grammatik/",
       renderFnc: this.renderGrammatikAngabe,
-      value: "BD/KT",
+      value: "GRAM/LT1",
       extended: true,
       sortable: true,
     },
@@ -1254,7 +1254,6 @@ export default class Database extends Vue {
 
   @Watch("extended")
   onUpdateExtended(val: boolean) {
-    console.log(val)
     this.headers.forEach((h: any) => {
       if (h.extended) {
         h.show = !h.show;

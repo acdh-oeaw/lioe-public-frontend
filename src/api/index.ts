@@ -428,7 +428,7 @@ function getFinalQuery(
       let shouldArr: any[] = []
       let tmpFields: any[] = []
 
-      if (obj.field === 'BD/KT') {
+      if (obj.field === 'GRAM/LT1') {
         tmpFields = gramString.slice(0, gramString.length - 1).split(',');
       } else if (obj.field === 'LT1_teuthonista') {
         tmpFields = teuLT.slice(0, teuLT.length - 1).split(',');
@@ -536,7 +536,7 @@ function getFinalQuery(
   if (searchAllMult !== null) {
     // Adding multi_match objects per search term
     if (searchAllMult[0].fields != null) {
-      let searchFields = searchAllMult[0].fields.replace('BD/KT,', gramString).replace('LT1_teuthonista,', teuLT).replace('BD/KT1,', kotextString).split(',');
+      let searchFields = searchAllMult[0].fields.replace('GRAM/LT1,', gramString).replace('LT1_teuthonista,', teuLT).replace('BD/KT1,', kotextString).split(',');
       // create one or multiple multi_match queries, no need for filtering out any signs or to lower case the search term
       if (fuzzlevel === 3) {
         for (var i = 0; i < searchAllMult.length; i++) {
