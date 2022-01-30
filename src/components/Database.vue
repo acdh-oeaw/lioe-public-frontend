@@ -303,9 +303,9 @@
                 style="margin-top: 10px"
                 class="mx-1 text-no-transform"
                 text
-                @click="extended = !extended"
-                v-model="extended"
+                @click="onExtendedChanged()"
               >
+                <!-- v-model="extended" -->
                 <v-icon v-if="extended" color="grey">mdi-check</v-icon>
                 Alle Spalten anzeigen
               </v-btn>
@@ -1247,13 +1247,20 @@ export default class Database extends Vue {
     return this.headers.filter((h: any) => h.show);
   }
 
+  // @Watch("extended")
+  onExtendedChanged() {
+    this.extended = !this.extended;
+}
+
   @Watch("extended")
-  onExtendedChanged(val: boolean) {
+  onUpdateExtended(val: boolean) {
+    console.log(val)
     this.headers.forEach((h: any) => {
       if (h.extended) {
-        h.show = val;
+        h.show = !h.show;
       }
     });
+    
   }
 
   // the changed function - was before under the renderBedeutung function

@@ -88,14 +88,14 @@ export function isLocalUrl(url: string): string | null {
  */
 export async function getDocumentTotalCount(): Promise<number> {
   const query_tmp = { match_all: {} };
-  const params = {query: query_tmp}
+  const params = { query: query_tmp }
   const r = (await axios(localEndpoint + '/es-count', {
     method: 'GET',
     params: params
-   })
+  })
   ).data
   return r.count ? r.count : 0;
-  
+
   // const r = await await axios({
   //   method: 'GET',
   //   url: apiEndpoint + '/documents/?page=1&page_size=1',
@@ -109,8 +109,8 @@ export async function getDocumentTotalCount(): Promise<number> {
  * Get total number of documents while sending a search query
  */
 export async function getDocumentTotalCountPerRequest(): Promise<number> {
-  
-  const params = {query: finalQuery}
+
+  const params = { query: finalQuery }
 
   const r = (await axios(localEndpoint + '/es-count', {
     method: 'GET',
@@ -118,8 +118,8 @@ export async function getDocumentTotalCountPerRequest(): Promise<number> {
   })
   ).data
 
-  
-  
+
+
   return r.count ? r.count : 0; // && r.data && r.data.count ? r.data.count : 0;
 }
 
@@ -384,20 +384,30 @@ function getFinalQuery(
   searchAllMult: SearchRequest[] | null,
   searchInd: SearchRequest[] | null,
   fuzzlevel: number
-  ): Object {
-    let indvidualArr: individualRequest[] = []
-    
-    let mustArr: any[] = []
-    
-    // first case, drop down of all the values
-    if (searchAllMult === null && searchInd === null) {
-      return { match_all: {} }
-    }
-    
-    let gramString = '';
-    for (let i = 1; i < 10; i += 1) {
-      gramString += `GRAM/LT${i},`;
-    }
+): Object {
+  let indvidualArr: individualRequest[] = []
+
+  let mustArr: any[] = []
+
+  // first case, drop down of all the values
+  if (searchAllMult === null && searchInd === null) {
+    return { match_all: {} }
+  }
+
+  let gramString = '';
+  for (let i = 1; i < 10; i += 1) {
+    gramString += `GRAM/LT${i},`;
+  }
+
+  let teuLT = '';
+  for (let i = 1; i < 10; i += 1) {
+    teuLT += `LT${i}_teuthonista,`;
+  }
+
+  let kotextString = '';
+  for (let i = 1; i < 9; i += 1) {
+    kotextString += `KT${i},`;
+  }
 
   // handle the individual cols search
   if (searchInd !== null) {
@@ -414,98 +424,100 @@ function getFinalQuery(
         indvidualArr.push({ query: el[el.groupName], field: el.groupName })
       })
 
-      let times = 0;
-      indvidualArr.forEach((obj) => {
-        let shouldArr: any[] = []
-        let tmpFields: any[] = []
-        
-        if (obj.field === 'BD/KT') { 
-          tmpFields = gramString.slice(0, gramString.length - 1).split(',');
-        } else {
-          tmpFields.push(obj.field)
-        }
+    indvidualArr.forEach((obj) => {
+      let shouldArr: any[] = []
+      let tmpFields: any[] = []
+
+      if (obj.field === 'BD/KT') {
+        tmpFields = gramString.slice(0, gramString.length - 1).split(',');
+      } else if (obj.field === 'LT1_teuthonista') {
+        tmpFields = teuLT.slice(0, teuLT.length - 1).split(',');
+      } else if (obj.field === 'BD/KT1') {
+        tmpFields = kotextString.slice(0, kotextString.length - 1).split(',');
+      } else {
+        tmpFields.push(obj.field)
+      }
 
       tmpFields.forEach((tmpField) => {
-        times++;
 
-      if (Array.isArray(obj.query)) {
-        // create a fuzzy query, add the designed queries under the boolean query 'should'
-        if (fuzzlevel === 3) {
-          obj.query.forEach((element) => {
+        if (Array.isArray(obj.query)) {
+          // create a fuzzy query, add the designed queries under the boolean query 'should'
+          if (fuzzlevel === 3) {
+            obj.query.forEach((element) => {
+              shouldArr.push({
+                fuzzy: {
+                  [tmpField]: {
+                    term: !!element
+                      ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+                      : element,
+                    fuzziness: fuzzlevel,
+                  },
+                },
+              })
+            })
+          }
+          // create a wildcard query, add the designed queries under the boolean query 'should'
+          else if (fuzzlevel === 1) {
+            obj.query.forEach((element) => {
+              shouldArr.push({
+                wildcard: {
+                  [tmpField]: {
+                    value: !!element
+                      ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+                      : element,
+                  },
+                },
+              })
+            })
+          }
+          // fuzzlevel is 2 and there is a prefix query search
+          else {
+            obj.query.forEach((element) => {
+              shouldArr.push({
+                prefix: {
+                  [tmpField]: {
+                    value: !!element
+                      ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+                      : element,
+                  },
+                },
+              })
+            })
+          }
+          // handle non - array object, same scheme
+        } else {
+          if (fuzzlevel === 3) {
             shouldArr.push({
               fuzzy: {
                 [tmpField]: {
-                  term: !!element
-                    ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
-                    : element,
+                  term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
                   fuzziness: fuzzlevel,
                 },
               },
             })
-          })
-        }
-        // create a wildcard query, add the designed queries under the boolean query 'should'
-        else if (fuzzlevel === 1) {
-          obj.query.forEach((element) => {
+          } else if (fuzzlevel === 1) {
             shouldArr.push({
               wildcard: {
                 [tmpField]: {
-                  value: !!element
-                    ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
-                    : element,
+                  value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
                 },
               },
             })
-          })
-        }
-        // fuzzlevel is 2 and there is a prefix query search
-        else {
-          obj.query.forEach((element) => {
+          } else {
+            // fuzzlevel is 2
             shouldArr.push({
               prefix: {
                 [tmpField]: {
-                  value: !!element
-                    ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
-                    : element,
+                  value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
                 },
               },
             })
-          })
+          }
         }
-        // handle non - array object, same scheme
-      } else {
-        if (fuzzlevel === 3) {
-          shouldArr.push({
-            fuzzy: {
-              [tmpField]: {
-                term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-                fuzziness: fuzzlevel,
-              },
-            },
-          })
-        } else if (fuzzlevel === 1) {
-          shouldArr.push({
-            wildcard: {
-              [tmpField]: {
-                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-              },
-            },
-          })
-        } else {
-          // fuzzlevel is 2
-          shouldArr.push({
-            prefix: {
-              [tmpField]: {
-                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-              },
-            },
-          })
-        }
-      }
-      // add the designed query under the boolean query 'should'
-    }) 
-    mustArr.push({ bool: { should: shouldArr } })
-  })
+        // add the designed query under the boolean query 'should'
+      })
+      mustArr.push({ bool: { should: shouldArr } })
+    })
 
     // if no multiple search field is needed, wrap up the should queries with one 'must' boolean query and return
     if (searchAllMult === null) {
@@ -524,7 +536,7 @@ function getFinalQuery(
   if (searchAllMult !== null) {
     // Adding multi_match objects per search term
     if (searchAllMult[0].fields != null) {
-      let searchFields = searchAllMult[0].fields.length > 12 ? searchAllMult[0].fields.replace('BD/KT,', gramString).split(',') : searchAllMult[0].fields.split(',')
+      let searchFields = searchAllMult[0].fields.replace('BD/KT,', gramString).replace('LT1_teuthonista,', teuLT).replace('BD/KT1,', kotextString).split(',');
       // create one or multiple multi_match queries, no need for filtering out any signs or to lower case the search term
       if (fuzzlevel === 3) {
         for (var i = 0; i < searchAllMult.length; i++) {
