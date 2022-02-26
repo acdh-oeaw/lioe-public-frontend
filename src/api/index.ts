@@ -439,7 +439,9 @@ function getFinalQuery(
       }
 
       tmpFields.forEach((tmpField) => {
-
+        
+        if (tmpField === 'ID') tmpField = 'ID.keyword';
+ 
         if (Array.isArray(obj.query)) {
           // create a fuzzy query, add the designed queries under the boolean query 'should'
           if (fuzzlevel === 3) {
@@ -447,7 +449,7 @@ function getFinalQuery(
               shouldArr.push({
                 fuzzy: {
                   [tmpField]: {
-                    term: !!element
+                    term: !!element && (tmpField !== 'ID.keyword')
                       ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
                       : element,
                     fuzziness: fuzzlevel,
@@ -462,7 +464,7 @@ function getFinalQuery(
               shouldArr.push({
                 wildcard: {
                   [tmpField]: {
-                    value: !!element
+                    value: !!element && (tmpField !== 'ID.keyword')
                       ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
                       : element,
                   },
@@ -476,7 +478,7 @@ function getFinalQuery(
               shouldArr.push({
                 prefix: {
                   [tmpField]: {
-                    value: !!element
+                    value: !!element && (tmpField !== 'ID.keyword')
                       ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
                       : element,
                   },
@@ -490,7 +492,7 @@ function getFinalQuery(
             shouldArr.push({
               fuzzy: {
                 [tmpField]: {
-                  term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
+                  term: tmpField !== 'ID.keyword' ? obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : obj.query,
                   fuzziness: fuzzlevel,
                 },
               },
@@ -499,7 +501,7 @@ function getFinalQuery(
             shouldArr.push({
               wildcard: {
                 [tmpField]: {
-                  value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
+                  value: tmpField !== 'ID.keyword' ? obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : obj.query,
                 },
               },
             })
@@ -508,7 +510,7 @@ function getFinalQuery(
             shouldArr.push({
               prefix: {
                 [tmpField]: {
-                  value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
+                  value: tmpField !== 'ID.keyword' ? obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : obj.query,
                 },
               },
             })
