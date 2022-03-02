@@ -44,7 +44,7 @@ interface individualRequest {
 }
 
 const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
-const txtEndpoint = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
+const txtEndpoint = 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
 export const localEndpoint = process.env.API_HOST
 const articleEndpoint = localEndpoint + '/api/article'
 

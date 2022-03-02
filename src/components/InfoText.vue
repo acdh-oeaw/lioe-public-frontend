@@ -74,7 +74,7 @@ export default class InfoText extends Vue {
   subInternalUrl: string|null = null
   showSubDialog: boolean = false
   error = false
-  prefix = 'https://vawadioe.acdh.oeaw.ac.at/lioetxt/'
+  prefix = 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
 
   maybeInternalLink(l: string) {
     if (l.indexOf(this.prefix) > -1) {

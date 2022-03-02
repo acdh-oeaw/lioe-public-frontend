@@ -23,7 +23,7 @@
     </v-form>
     <p class="grey--text">
       Bitte geben Sie das Ihnen zugewiesene Passwort an.<br>
-      Hinweise zu unserem Forschungsdatenmanagement finden Sie <a href="https://vawadioe.acdh.oeaw.ac.at/lioetxt/wboe-artikel/hinweise-zum-forschungsdatenmanagement/" target="_blank" @click.prevent="subDialog = true">hier</a>.<br>
+      Hinweise zu unserem Forschungsdatenmanagement finden Sie <a href="https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/wboe-artikel/hinweise-zum-forschungsdatenmanagement/" target="_blank" @click.prevent="subDialog = true">hier</a>.<br>
       Bei Fragen wenden sie sich bitte an <a href="mailto:philipp.stoeckle@oeaw.ac.at">Dr. Philipp Stöckle</a>.
     </p>
     <v-dialog v-model="subDialog" max-width="1000" color="#2b2735" scrollable>

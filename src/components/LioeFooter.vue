@@ -4,13 +4,13 @@
     <h4 class="mb-4 mt-3 grey--text">Ein Projekt von</h4>
     <v-layout align-center justify-space-around wrap>
       <a target="_blank" href="https://www.oeaw.ac.at">
-        <v-img aspect-ratio="1" width="170" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/oeaw_logo_446x192.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="170" max-height="70" contain src="https://lioe-cms.acdh-dev.oeaw.ac.at/fileadmin/bilder/oeaw_logo_446x192.png" alt="" class="src" />
       </a>
       <a target="_blank" href="https://acdh.oeaw.ac.at">
         <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/acdh-ch-logo-with-text.png" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.oeaw.ac.at/acdh/sprachwissenschaft/projekte/wboe">
-        <v-img aspect-ratio="1" width="150" max-height="70" contain src="https://vawadioe.acdh.oeaw.ac.at/fileadmin/bilder/wboelogo_230px_transp.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="150" max-height="70" contain src="https://lioe-cms.acdh-dev.oeaw.ac.at/fileadmin/bilder/wboelogo_230px_transp.png" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.fwf.ac.at">
         <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/fwf-logo.gif" alt="" class="src" />
