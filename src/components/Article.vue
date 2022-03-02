@@ -170,7 +170,7 @@ export default class Article extends Vue {
 
   get commentUrl(): string {
     return (
-      "https://vawadioe.acdh.oeaw.ac.at/lioecomment/?artikel=" +
+      "https://lioe-cms.acdh-dev.oeaw.ac.at/lioecomment/?artikel=" +
       this.title +
       "&author=" +
       (this.editor.initials

@@ -1999,7 +1999,7 @@ export default class Database extends Vue {
 
   downloadFiduz() {
     window.open(
-      "https://vawadioe.acdh.oeaw.ac.at/lioetxt/informationen/fiduz/"
+      "https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/informationen/fiduz/"
     );
   }
 }
