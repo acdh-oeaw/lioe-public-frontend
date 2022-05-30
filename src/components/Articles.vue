@@ -64,7 +64,7 @@
             <v-list-item-icon v-if="article.filename.indexOf('%23') > -1">
               <v-tooltip top max-width="220" >
                 <template v-slot:activator="{ on }">
-                  <v-icon v-on="on">mdi-archive </v-icon>
+                  <v-icon v-on="on">&#128366; </v-icon>
                 </template>
                 <span>
                   Retrodigitalisierter Artikel
