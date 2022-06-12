@@ -17,7 +17,14 @@
             clearable
           />
         </v-flex>
-        <v-flex>
+        <v-col cols="auto" class="pa-0 divider-left">
+          <v-btn-toggle v-model="toggleModel" mandatory>
+            <v-btn class="text-no-transform" text>Retrodigitalisierte Artikel</v-btn>
+            <v-btn class="text-no-transform" text>Aktuelle Artikel</v-btn>
+            <v-btn class="text-no-transform" text>Alle Artikel</v-btn>
+          </v-btn-toggle>
+        </v-col>
+        <!-- <v-flex>
           <v-menu open-on-hover max-width="700" max-height="95vh" top left :close-on-content-click="false" @input="onFilterMenuToggle">
             <template v-slot:activator="{ on }">
               <v-btn v-on="on" color="accent" icon text class="pt-2">
@@ -33,7 +40,7 @@
               </v-list-item>
             </v-list>
         </v-menu>
-      </v-flex>
+      </v-flex> -->
         <v-flex>
           <v-menu open-on-hover max-width="700" max-height="95vh" top left>
             <template v-slot:activator="{ on }">
@@ -100,6 +107,7 @@ export default class Articles extends Vue {
   letter = 0
   searchTerm = ''
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
+  toggleModel: number = 2;
 
   articleStatusFilters = [
     {
@@ -142,6 +150,36 @@ export default class Articles extends Vue {
         .replace('-', '')[0] || ''
       )
       .toUpperCase()
+  }
+
+  @Watch("toggleModel", { deep: true })
+  updateFilterStatus() {
+    switch(this.toggleModel) { 
+      case 0: { // RETRO
+        this.articleStatusFilters[0].selected = true;
+        for (var i = 1; i < 3; i++) {
+          this.articleStatusFilters[i].selected = false;
+        } 
+      break; 
+      } 
+      case 1: { // AKTUELLE - TODO: fertiggestellt? 
+        for (var i = 0; i < 3; i++) {
+          this.articleStatusFilters[i].selected = i == 1 ? true : false;
+        }
+      break; 
+      } 
+      case 2: { // ALLE
+        for (var i = 0; i < 3; i++) {
+          this.articleStatusFilters[i].selected = true;
+        } 
+      break; 
+      } 
+      default: { 
+      //statements; 
+      break; 
+      } 
+    } 
+      this.searchArticle(this.searchTerm);
   }
 
   get filteredArticlesByInitial() {
