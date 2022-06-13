@@ -1,6 +1,6 @@
 test:
   stage: test
-  image: registry.gitlab.com/acdh-oeaw/docker/herokuish-for-cypress/master:latest
+  image: ghcr.io/acdh-oeaw/herokuish-for-cypress/main:latest
   needs: []
   script:
     - cp -R . /tmp/app
