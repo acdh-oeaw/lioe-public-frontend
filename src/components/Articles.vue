@@ -156,20 +156,19 @@ export default class Articles extends Vue {
   updateFilterStatus() {
     switch(this.toggleModel) { 
       case 0: { // RETRO
-        this.articleStatusFilters[0].selected = true;
-        for (var i = 1; i < 3; i++) {
-          this.articleStatusFilters[i].selected = false;
+        for (var i = 1; i < 4; i++) {
+          this.articleStatusFilters[i].selected = i >= 2 ? true : false;
         } 
       break; 
       } 
-      case 1: { // AKTUELLE - TODO: fertiggestellt? 
-        for (var i = 0; i < 3; i++) {
-          this.articleStatusFilters[i].selected = i == 1 ? true : false;
-        }
+      case 1: {
+        for (var i = 1; i < 4; i++) {
+          this.articleStatusFilters[i].selected = i >= 2 ? false : true;
+        } 
       break; 
       } 
       case 2: { // ALLE
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < 4; i++) {
           this.articleStatusFilters[i].selected = true;
         } 
       break; 
