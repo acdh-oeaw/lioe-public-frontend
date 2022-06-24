@@ -13,6 +13,19 @@
         :items="articles"
         prepend-inner-icon="search"
       />
+      
+<template>
+  <div>
+    <!-- <h2>carosela {{articles.length}}</h2> -->
+       <vue-horizontal-list :items="articles" :options="{}">
+      <template v-slot:default="{ item }">
+        <div class="item" :to="`/articles/${item.value}`" :key="item.content">
+          <h3>{{ item.title }}</h3>
+        </div>
+      </template>
+    </vue-horizontal-list>
+  </div>
+</template>
       <template v-if="articleAvailable">
         <v-layout align-end>
           <v-flex @click="handleArticleClick" xs12>
@@ -127,6 +140,7 @@ import * as FileSaver from "file-saver"
 import { userStore, ArticleStatus } from "../store/user"
 import { concat } from "lodash"
 import { stateProxy } from "@src/store/collections"
+import VueHorizontalList from "@/vue-horizontal-list.vue";
 
 @Component({
   components: {
@@ -151,6 +165,12 @@ export default class Article extends Vue {
     fullname: "",
   }
   expanded: number[] = [3]
+
+   items: [{ title: `Item 1`, content: `1` },
+   { title: `Item 2`, content: `2` },
+   { title: `Item 3`, content: `3` },
+   { title: `Item 4`, content: `4` }]
+  options: {}
 
   articleXML: string | null = ""
   title: string | null = null
