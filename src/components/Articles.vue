@@ -132,40 +132,41 @@ export default class Articles extends Vue {
     }
   ]
 
-  characters_to_delete_for_search = /[-;%\u1AB0–\u1AFF\u1DC0–\u1DFF\u02B0-\u02FF\u20D0–\u20FF\u26a0\u0300-\u036F\uFE20–\uFE2F;()\[\]"']/u
-  replace_for_search_map: Record<string, string> = {
+  characters_to_delete_for_search = /[-;%†\u1AB0–\u1AFF\u1DC0–\u1DFF\u02B0-\u02FF\u20D0–\u20FF\u26a0\u0300-\u036F\uFE20–\uFE2F()\[\]"']/g
+  restore_umlaut_for_search_map: Record<string, string> = {
     '\u203Aa':'ä', '\u203AA':'Ä',
     '\u203Ao':'ö', '\u203AO':'Ö',
     '\u203Au':'ü', '\u203AU':'Ü',
     '\u203As':'ß'  
   }
-  restore_umlaut_for_search_map = Object.keys(this.replace_for_search_map).reduce((ret: Record<string, string>, key: string) => {
-    ret[this.replace_for_search_map[key]] = key;
+  
+  replace_for_search_map = Object.keys(this.restore_umlaut_for_search_map).reduce((ret: Record<string, string>, key: string) => {
+    ret[this.restore_umlaut_for_search_map[key]] = key;
     return ret;
   }, {});
-  
-  getCleanInitial(lemmaName: string) {
-    return (
+
+  getEasySearchLemma(lemmaName: string) {
+    var ret: string = (
       lemmaName
+        .replace(/[äöüÄÖÜß]/g, 
+          (c) => this.replace_for_search_map[c]
+        )
         .normalize('NFKD')
         .replace(/\(.*\)/g, '')
-        .replace(/[-†]+/, '')[0] || ''
         .replace(this.characters_to_delete_for_search, '')
+        .replace(/\u203A./g, (s) => this.restore_umlaut_for_search_map[s])
       )
-      .toUpperCase()
-      + (lemmaName.replace(/\(.*\)/g, '')[1] || '')
-      .toLowerCase()
+    return ret
+  }
+  
+  getCleanInitial(lemmaName: string) {
+    var ret: string = this.getEasySearchLemma(lemmaName)
+    return (ret[0] || '').toUpperCase() + (ret[1] || '').toLowerCase()
   }
 
   getCleanFirstLetter(lemmaName: string) {
-    return (
-      lemmaName
-        .normalize('NFKD')
-        .replace(/\(.*\)/g, '')
-        .replace(/[-†]+/, '')[0] || ''
-        .replace(this.characters_to_delete_for_search, '')
-      )
-      .toUpperCase()
+    var ret: string = this.getEasySearchLemma(lemmaName)     
+    return (ret[0] || '').toUpperCase()
   }
 
   @Watch("toggleModel", { deep: true })
@@ -223,8 +224,8 @@ export default class Articles extends Vue {
         char: k,
         length: v.length
       }))
-      .sortBy(v => v.char)
-      .value())]
+      .value())
+      .sort((a, b) => a.char.localeCompare(b.char))]     
   }
 
   get activeFiltersAsString() {
