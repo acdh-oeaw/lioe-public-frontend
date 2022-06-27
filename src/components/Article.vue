@@ -16,11 +16,11 @@
       
 <template>
   <div>
-    <!-- <h2>carosela {{articles.length}}</h2> -->
-       <vue-horizontal-list :items="articles" :options="{}">
+    <h2>carosela {{articles.length}}</h2>
+    <vue-horizontal-list :items="articles" :options="{}">
       <template v-slot:default="{ item }">
         <div class="item" :to="`/articles/${item.value}`" :key="item.content">
-          <h3>{{ item.title }}</h3>
+          <h3>{{ item.text }}</h3>
         </div>
       </template>
     </vue-horizontal-list>
@@ -140,7 +140,7 @@ import * as FileSaver from "file-saver"
 import { userStore, ArticleStatus } from "../store/user"
 import { concat } from "lodash"
 import { stateProxy } from "@src/store/collections"
-import VueHorizontalList from "@/vue-horizontal-list.vue";
+import VueHorizontalList from "vue-horizontal-list"
 
 @Component({
   components: {
@@ -148,6 +148,7 @@ import VueHorizontalList from "@/vue-horizontal-list.vue";
     InfoText,
     ArticleViewLegacy,
     ArticleView,
+    VueHorizontalList,
   },
 })
 export default class Article extends Vue {
