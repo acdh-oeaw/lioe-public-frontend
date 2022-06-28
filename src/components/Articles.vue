@@ -132,21 +132,21 @@ export default class Articles extends Vue {
     }
   ]
 
-  characters_to_delete_for_search = /[-;%†\u1AB0–\u1AFF\u1DC0–\u1DFF\u02B0-\u02FF\u20D0–\u20FF\u26a0\u0300-\u036F\uFE20–\uFE2F()\[\]"']/g
-  restore_umlaut_for_search_map: Record<string, string> = {
+  readonly characters_to_delete_for_search = /[-;%†\u1AB0–\u1AFF\u1DC0–\u1DFF\u02B0-\u02FF\u20D0–\u20FF\u26a0\u0300-\u036F\uFE20–\uFE2F()\[\]"']/g
+  readonly restore_umlaut_for_search_map: Record<string, string> = {
     '\u203Aa':'ä', '\u203AA':'Ä',
     '\u203Ao':'ö', '\u203AO':'Ö',
     '\u203Au':'ü', '\u203AU':'Ü',
     '\u203As':'ß'  
   }
   
-  replace_for_search_map = Object.keys(this.restore_umlaut_for_search_map).reduce((ret: Record<string, string>, key: string) => {
+  readonly replace_for_search_map = Object.keys(this.restore_umlaut_for_search_map).reduce((ret: Record<string, string>, key: string) => {
     ret[this.restore_umlaut_for_search_map[key]] = key;
     return ret;
   }, {});
 
   getEasySearchLemma(lemmaName: string) {
-    var ret: string = (
+    const ret: string = (
       lemmaName
         .replace(/[äöüÄÖÜß]/g, 
           (c) => this.replace_for_search_map[c]
@@ -160,12 +160,12 @@ export default class Articles extends Vue {
   }
   
   getCleanInitial(lemmaName: string) {
-    var ret: string = this.getEasySearchLemma(lemmaName)
+    const ret: string = this.getEasySearchLemma(lemmaName)
     return (ret[0] || '').toUpperCase() + (ret[1] || '').toLowerCase()
   }
 
   getCleanFirstLetter(lemmaName: string) {
-    var ret: string = this.getEasySearchLemma(lemmaName)     
+    const ret: string = this.getEasySearchLemma(lemmaName)     
     return (ret[0] || '').toUpperCase()
   }
 
@@ -207,14 +207,15 @@ export default class Articles extends Vue {
   }
 
   get articlesByInitial() {
-    return _(this.articles)
+    const ret = _(this.articles)
       .groupBy((a) => this.getCleanInitial(a.title))
       .map((v, k) => ({
         initials: k,
-        articles: v.sort((a, b) => a.title.localeCompare(b.title))
+        articles: v.sort((a, b) => this.getEasySearchLemma(a.title).localeCompare(this.getEasySearchLemma(b.title)))
       }))
       .value()
       .sort((a, b) => a.initials.localeCompare(b.initials))
+    return ret
   }
 
   get articlesFirstLetter() {
