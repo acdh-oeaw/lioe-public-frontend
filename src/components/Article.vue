@@ -13,6 +13,16 @@
         :items="articles"
         prepend-inner-icon="search"
       />
+      
+<template>
+  <div>
+    <vue-horizontal-list :items="articles" :options="{responsive: [{end: 576, size: 1}, {start: 576, end: 768, size: 6},{size: 6}]}">
+      <template v-slot:default="{ item }">
+      <v-btn text :to="`/articles/${item.value}`" :key="item.content">{{item.text}}</v-btn>
+      </template>
+    </vue-horizontal-list>
+  </div>
+</template>
       <template v-if="articleAvailable">
         <v-layout align-end>
           <v-flex @click="handleArticleClick" xs12>
@@ -127,6 +137,7 @@ import * as FileSaver from "file-saver"
 import { userStore, ArticleStatus } from "../store/user"
 import { concat } from "lodash"
 import { stateProxy } from "@src/store/collections"
+import VueHorizontalList from "vue-horizontal-list"
 
 @Component({
   components: {
@@ -134,6 +145,7 @@ import { stateProxy } from "@src/store/collections"
     InfoText,
     ArticleViewLegacy,
     ArticleView,
+    VueHorizontalList,
   },
 })
 export default class Article extends Vue {
@@ -151,6 +163,12 @@ export default class Article extends Vue {
     fullname: "",
   }
   expanded: number[] = [3]
+
+   items: [{ title: `Item 1`, content: `1` },
+   { title: `Item 2`, content: `2` },
+   { title: `Item 3`, content: `3` },
+   { title: `Item 4`, content: `4` }]
+  options: {}
 
   articleXML: string | null = ""
   title: string | null = null
