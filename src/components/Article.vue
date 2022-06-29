@@ -16,12 +16,9 @@
       
 <template>
   <div>
-    <h2>carosela {{articles.length}}</h2>
-    <vue-horizontal-list :items="articles" :options="{}">
+    <vue-horizontal-list :items="articles" :options="{responsive: [{end: 576, size: 1}, {start: 576, end: 768, size: 6},{size: 6}]}">
       <template v-slot:default="{ item }">
-        <div class="item" :to="`/articles/${item.value}`" :key="item.content">
-          <h3>{{ item.text }}</h3>
-        </div>
+      <v-btn text :to="`/articles/${item.value}`" :key="item.content">{{item.text}}</v-btn>
       </template>
     </vue-horizontal-list>
   </div>
