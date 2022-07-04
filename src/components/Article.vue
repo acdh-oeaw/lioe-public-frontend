@@ -4,26 +4,42 @@
       <v-autocomplete
         class="article-search"
         label="Suche Artikel…"
-        :value="{ title: title, value: filename.replace('.xml', '') }"
         :loading="loading"
         clearable
         solo
         text
         @change="loadArticle"
-        :items="localArticles"
+        :items="articleList"
+        item-text="title"
+        item-value="filename"
         prepend-inner-icon="search"
-      />
-      
-<template>
-  <div>
-    <vue-horizontal responsive snap="center" ref="horizontal_articles">
-      <section v-for="item in localArticles" :key="item.i">
-        <v-btn class="mx-2" text :to="`/articles/${item.filename}`" :key="item.content">{{item.title}}</v-btn>
-      </section>
-    </vue-horizontal>
-    <v-btn class="mx-2" @click="scrollToArticle()">Scroll to Article</v-btn>
-  </div>
-</template>
+      />      
+      <template>
+        <div>   
+            <v-row class="px-2 py-0 my-0" justify="center" align="center" v-if="listLoading === true">
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+            </v-row> 
+          <vue-horizontal v-else responsive snap="center" ref="horizontal_articles">
+            <section v-for="item in articleList" :key="item.i">
+              <v-btn class="mx-2" text :to="`/articles/${item.filename}`" :key="item.content">{{item.title}}</v-btn>
+            </section>
+          </vue-horizontal>
+        </div>
+      </template>
       <template v-if="articleAvailable">
         <v-layout align-end>
           <v-flex @click="handleArticleClick" xs12>
@@ -153,19 +169,7 @@ export default class Article extends Vue {
 
   @Prop() filename: string
 
-  horizontalListOptions = {
-    responsive: [
-      {end: 576, size: 1}, 
-      {start: 576, end: 768, size: 6},
-      {size: 6}
-    ],
-    position: {
-      start: 0
-    },
-  }
-
   showEditor = false
-  localArticles: Array<{ title: string; filename: string }> = []
   geoStore = geoStore
   loading = false
   articleAvailable = true
@@ -192,29 +196,16 @@ export default class Article extends Vue {
   isRetro: boolean | null = false
   userStore = userStore
 
-  @Watch("articleList", { deep: true })
-  onArticlesChange(){
-    console.log('On artci change')
-    this.localArticles = this.articleList;
-
-  }
-
-  @Watch('localArticles', { deep: true})
-  onLocalArticlesChange() {
-    // @ts-ignore
-    this.$refs.horizontal_articles.refresh();
-    console.log('Refreshes horiz');
-
-    this.scrollToArticle();
-  }
-
-  articles() {
-    return articleStore.articles;
-  }
+  updateHorizontalArticleList: boolean = true;
 
   get articleList() {
     return articleStore.articles.articles;
   }
+
+  get listLoading() {
+    return articleStore.articles.loading;
+  }
+
 
   get commentUrl(): string {
     return (
@@ -444,6 +435,7 @@ export default class Article extends Vue {
   @Watch("filename")
   onFileChange() {
     this.initArticle(this.filename);
+    this.updateHorizontalArticleList = true;
   }
 
   saveEditorXML() {
@@ -459,9 +451,6 @@ export default class Article extends Vue {
   }
 
   async activated() {
-    if(!articleStore.articles.articles){
-      articleStore.articles.fetchArticles();
-    }
 
     // this.articles = articleStore.articles.articles;
 
@@ -510,7 +499,7 @@ export default class Article extends Vue {
 
   articleContainsStatuses(xml: string, statuses: ArticleStatus[]): boolean {
     const f = this.fragementFromSelector('teiHeader listChange change', xml)
-    console.log({f}, {statuses}, statuses.some(s => f.includes(s)))
+    // console.log({f}, {statuses}, statuses.some(s => f.includes(s)))
     return statuses.length === 0 || statuses.some(s => f.includes(s))
   }
 
@@ -602,39 +591,38 @@ export default class Article extends Vue {
       aFileName += '.xml'
       this.isRetro = false
     }
-    console.log('initArticle', aFileName)
+    // console.log('initArticle', aFileName)
     this.articleXML = await getArticleByFileName(aFileName);
     this.initXML(this.articleXML);
     this.loading = false;
   }
 
-  async created() {
-    
-    // console.log('created');
-  }
-
   mounted() {
-    
-    // console.log('mounted');
-  }
-
-  update() {
-
-    // console.log('update');
+    this.updateHorizontalArticleList = true;
   }
 
   updated() {
-    this.scrollToArticle();
-
+    if(this.updateHorizontalArticleList){
+      this.scrollToArticle();
+      
+      if(this.$refs.horizontal_articles){
+        // @ts-ignore
+        this.$refs.horizontal_articles.refresh();
+        this.updateHorizontalArticleList = false;
+      }
+    }
     //console.log('updated');
   }
 
-  scrollToArticle() {
+  @Watch('articleList')
+  onArticleListChange() {
+    this.updateHorizontalArticleList = true;
+  }
 
-    // if(this.localArticles.map( a => a.filename).indexOf(this.filename))
+  scrollToArticle() {
     const artIndex = this.getArticleIndex() - 2;
 
-    if(artIndex > 0){
+    if(artIndex > 0 && this.$refs.horizontal_articles){
     // @ts-ignore
       this.$refs.horizontal_articles.scrollToIndex(artIndex);
     }
@@ -643,10 +631,10 @@ export default class Article extends Vue {
   getArticleIndex(): number {
     const encodedFilename = encodeURIComponent( this.filename.replace('.xml', ''));
 
-    let artIndex = this.localArticles.map( a => a.filename.replace('.xml', '')).indexOf(encodedFilename);
+    let artIndex = this.articleList.map( a => a.filename.replace('.xml', '')).indexOf(encodedFilename);
 
-    console.log('scroll to article filename', this.filename);
-    console.log('scroll to article index', artIndex);
+    // console.log('scroll to article filename', this.filename);
+    // console.log('scroll to article index', artIndex);
     return artIndex
   }
 

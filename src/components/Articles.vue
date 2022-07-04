@@ -92,7 +92,6 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { getArticles } from '../api'
 import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
-import { filter } from 'vue/types/umd'
 import { articleStore } from '@src/store/articles-store'
 
 @Component({

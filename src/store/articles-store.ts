@@ -18,10 +18,6 @@ class ArticlesModule extends VuexModule {
 
     loading: boolean = false;
 
-    @mutation
-    setLoading(loading:boolean){
-        this.loading = loading;
-    }
 
     @action
     async fetchArticles(forceUpdate?:boolean) : Promise<Array<{ title: string; filename: string }>> {
@@ -30,7 +26,7 @@ class ArticlesModule extends VuexModule {
             return this.articlesPromise;
         }
 
-        this.setLoading(true);
+        this.loading = true;
 
         if(!this.articles || this.articles.length === 0) {
             this.articlesPromise = getArticles();
@@ -42,7 +38,7 @@ class ArticlesModule extends VuexModule {
                     .filter((a) => a.title !== "" && a.title !== undefined)
                     .map((t) => ({ title: t.title, filename: t.filename.replace(".xml", "") }))
                     .sort((a, b) => a.title.localeCompare(b.title));
-                this.setLoading(false);
+                this.loading = false;
                 console.log('normal article fetched')
             })
             return this.articlesPromise;
@@ -55,10 +51,10 @@ class ArticlesModule extends VuexModule {
                     .filter((a) => a.title !== "" && a.title !== undefined)
                     .map((t) => ({ title: t.title, filename: t.filename.replace(".xml", "") }))
                     .sort((a, b) => a.title.localeCompare(b.title));
-                this.setLoading(false);
                 console.log('force update article fetched');
             })
         } 
+        this.loading = false;
         return this.articlesPromise;
     }
 
