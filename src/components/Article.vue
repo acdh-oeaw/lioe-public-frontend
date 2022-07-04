@@ -4,23 +4,24 @@
       <v-autocomplete
         class="article-search"
         label="Suche Artikel…"
-        :value="{ text: title, value: filename.replace('.xml', '') }"
+        :value="{ title: title, value: filename.replace('.xml', '') }"
         :loading="loading"
         clearable
         solo
         text
         @change="loadArticle"
-        :items="articles"
+        :items="localArticles"
         prepend-inner-icon="search"
       />
       
 <template>
   <div>
-    <vue-horizontal-list :items="articles" :options="{responsive: [{end: 576, size: 1}, {start: 576, end: 768, size: 6},{size: 6}]}">
-      <template v-slot:default="{ item }">
-      <v-btn text :to="`/articles/${item.value}`" :key="item.content">{{item.text}}</v-btn>
-      </template>
-    </vue-horizontal-list>
+    <vue-horizontal responsive snap="center" ref="horizontal_articles">
+      <section v-for="item in localArticles" :key="item.i">
+        <v-btn class="mx-2" text :to="`/articles/${item.filename}`" :key="item.content">{{item.title}}</v-btn>
+      </section>
+    </vue-horizontal>
+    <v-btn class="mx-2" @click="scrollToArticle()">Scroll to Article</v-btn>
   </div>
 </template>
       <template v-if="articleAvailable">
@@ -126,7 +127,7 @@
 <script lang="ts">
 // tslint:disable:max-line-length
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { getArticleByFileName, getArticles, getCollectionByIds, getDocumentsByCollection } from "../api"
+import { getArticleByFileName, getCollectionByIds, getDocumentsByCollection } from "../api"
 import XmlEditor from "@components/XmlEditor.vue"
 import { geoStore } from "../store/geo"
 import * as _ from "lodash"
@@ -135,9 +136,9 @@ import ArticleViewLegacy from "@components/ArticleViewLegacy.vue"
 import ArticleView from "@components/ArticleView.vue"
 import * as FileSaver from "file-saver"
 import { userStore, ArticleStatus } from "../store/user"
-import { concat } from "lodash"
 import { stateProxy } from "@src/store/collections"
-import VueHorizontalList from "vue-horizontal-list"
+import VueHorizontal from 'vue-horizontal';
+import { articleStore }from "@src/store/articles-store"
 
 @Component({
   components: {
@@ -145,15 +146,26 @@ import VueHorizontalList from "vue-horizontal-list"
     InfoText,
     ArticleViewLegacy,
     ArticleView,
-    VueHorizontalList,
+    VueHorizontal,
   },
 })
 export default class Article extends Vue {
 
   @Prop() filename: string
 
+  horizontalListOptions = {
+    responsive: [
+      {end: 576, size: 1}, 
+      {start: 576, end: 768, size: 6},
+      {size: 6}
+    ],
+    position: {
+      start: 0
+    },
+  }
+
   showEditor = false
-  articles: Array<{ text: string; value: string }> = []
+  localArticles: Array<{ title: string; filename: string }> = []
   geoStore = geoStore
   loading = false
   articleAvailable = true
@@ -163,12 +175,6 @@ export default class Article extends Vue {
     fullname: "",
   }
   expanded: number[] = [3]
-
-   items: [{ title: `Item 1`, content: `1` },
-   { title: `Item 2`, content: `2` },
-   { title: `Item 3`, content: `3` },
-   { title: `Item 4`, content: `4` }]
-  options: {}
 
   articleXML: string | null = ""
   title: string | null = null
@@ -185,6 +191,30 @@ export default class Article extends Vue {
   pbFacsPdfLink: string | null = null
   isRetro: boolean | null = false
   userStore = userStore
+
+  @Watch("articleList", { deep: true })
+  onArticlesChange(){
+    console.log('On artci change')
+    this.localArticles = this.articleList;
+
+  }
+
+  @Watch('localArticles', { deep: true})
+  onLocalArticlesChange() {
+    // @ts-ignore
+    this.$refs.horizontal_articles.refresh();
+    console.log('Refreshes horiz');
+
+    this.scrollToArticle();
+  }
+
+  articles() {
+    return articleStore.articles;
+  }
+
+  get articleList() {
+    return articleStore.articles.articles;
+  }
 
   get commentUrl(): string {
     return (
@@ -229,9 +259,6 @@ export default class Article extends Vue {
       }, 500);
     });
   }
-
-
-
 
   isPlaceNameElement(el: HTMLElement | any) {
     return el.nodeName === "PLACENAME" && el.hasAttribute("ref");
@@ -286,7 +313,6 @@ export default class Article extends Vue {
         ) {
           const s = this.getLemmaLinkElement(e.target as HTMLElement) as string;
           const t = /(.+)\.xml/g.exec(s);
-          console.log(t);
           if (t !== null && t[1] !== null) {
             this.$router.push({ path: "/articles/" + t[1] });
           }
@@ -354,7 +380,6 @@ export default class Article extends Vue {
   }
   
   openDBWithPlaces(placeIds: string[]) {
-    console.log(placeIds);
     const routingStr = '/db?q=Sigle1,'.concat(placeIds[0]); 
     this.$router.push(routingStr);
     
@@ -362,7 +387,6 @@ export default class Article extends Vue {
 
   getColStr(val: any) {
     let output;
-    console.log(val.split(","));
     output = JSON.stringify([
       {
         id: 0,
@@ -435,10 +459,12 @@ export default class Article extends Vue {
   }
 
   async activated() {
-    this.articles = (await getArticles())
-      .filter((a) => a.title !== "" && a.title !== undefined)
-      .map((t) => ({ text: t.title, value: t.filename.replace(".xml", "") }))
-      .sort((a, b) => a.text.localeCompare(b.text));
+    if(!articleStore.articles.articles){
+      articleStore.articles.fetchArticles();
+    }
+
+    // this.articles = articleStore.articles.articles;
+
     this.initArticle(this.filename);
   }
 
@@ -551,7 +577,7 @@ export default class Article extends Vue {
             this.pbFacsPdfLink = (<any>tPbFacs.item(0).attributes).facs.value;
           }
         }
-        console.log('pbFacs', this.pbFacs, this.pbFacsPdfLink)
+        // console.log('pbFacs', this.pbFacs, this.pbFacsPdfLink)
       } else {
         this.retroXML = null;
         let aInitials = aEditor.getAttribute("ref");
@@ -581,6 +607,49 @@ export default class Article extends Vue {
     this.initXML(this.articleXML);
     this.loading = false;
   }
+
+  async created() {
+    
+    // console.log('created');
+  }
+
+  mounted() {
+    
+    // console.log('mounted');
+  }
+
+  update() {
+
+    // console.log('update');
+  }
+
+  updated() {
+    this.scrollToArticle();
+
+    //console.log('updated');
+  }
+
+  scrollToArticle() {
+
+    // if(this.localArticles.map( a => a.filename).indexOf(this.filename))
+    const artIndex = this.getArticleIndex() - 2;
+
+    if(artIndex > 0){
+    // @ts-ignore
+      this.$refs.horizontal_articles.scrollToIndex(artIndex);
+    }
+  }
+
+  getArticleIndex(): number {
+    const encodedFilename = encodeURIComponent( this.filename.replace('.xml', ''));
+
+    let artIndex = this.localArticles.map( a => a.filename.replace('.xml', '')).indexOf(encodedFilename);
+
+    console.log('scroll to article filename', this.filename);
+    console.log('scroll to article index', artIndex);
+    return artIndex
+  }
+
 }
 </script>
 <style lang="scss">

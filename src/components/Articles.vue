@@ -93,6 +93,7 @@ import { getArticles } from '../api'
 import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
 import { filter } from 'vue/types/umd'
+import { articleStore } from '@src/store/articles-store'
 
 @Component({
   components: {
@@ -236,9 +237,18 @@ export default class Articles extends Vue {
     .join('|');
   }
 
+  articleList() {
+    return articleStore.articles.articles;
+  }
+
   async mounted() {
     this.loading = true
-    this.articles = await this.getArticles()
+    
+    if(!this.articleList || this.articleList.length === 0) {
+      await articleStore.articles.fetchArticles().then(() => this.articles = this.articleList())
+    } else {
+      this.articles = this.articleList();
+    }
     this.loading = false
   }
 
@@ -252,7 +262,7 @@ export default class Articles extends Vue {
     if (search) {
       this.articles = await this.getArticles(search)
     } else {
-      this.articles = await this.getArticles()
+      this.articles = articleStore.articles.articles;
     }
     this.loading = false
   }

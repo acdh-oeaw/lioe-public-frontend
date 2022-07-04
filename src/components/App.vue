@@ -51,6 +51,7 @@
   </v-app>
 </template>
 <script lang="ts">
+import { articleStore } from '@src/store/articles-store';
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { initialize as initGeo } from '../store/geo'
 import LioeFooter from './LioeFooter.vue'
@@ -63,8 +64,12 @@ import NotificationsModule from './NotificationsModule.vue'
   }
 })
 export default class App extends Vue {
-  mounted() {
+  created() {
+  }
+
+  async mounted() {
     initGeo();
+    articleStore.articles.fetchArticles();
   }
 }
 </script>
