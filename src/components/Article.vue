@@ -35,7 +35,7 @@
             </v-row> 
           <vue-horizontal v-else responsive snap="center" ref="horizontal_articles">
             <section v-for="item in articleList" :key="item.i">
-              <v-btn class="mx-2" text :to="`/articles/${item.filename}`" :key="item.content">{{item.title}}</v-btn>
+              <v-btn class="ml-6 mx-2" text :to="`/articles/${item.filename}`" :key="item.content">{{item.title}}</v-btn>
             </section>
           </vue-horizontal>
         </div>
