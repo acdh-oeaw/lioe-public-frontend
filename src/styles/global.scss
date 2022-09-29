@@ -2,6 +2,7 @@
   border-radius: 5px !important;
 }
 .text-no-transform{
+  letter-spacing: normal;
   text-transform: none;
 }
 .absolute{
@@ -15,10 +16,10 @@
   letter-spacing: .2em !important;
 }
 
-.application {
-  font-family: 'HKGrotesk', sans-serif
+.v-application {
+  font-family: 'fiduz', sans-serif
 }
-.application h2 {
+.v-application h2 {
   font-weight: 400;
 }
 

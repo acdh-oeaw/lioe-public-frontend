@@ -22,8 +22,8 @@ module.exports = {
       }
     ], [
       {
-        from: path.resolve(__dirname, "./article"),
-        to: "./static/article"
+        from: path.resolve(__dirname, "./parser-xml"),
+        to: "./dist/static/parser-xml"
       }
     ]),
   ],
@@ -39,9 +39,21 @@ module.exports = {
         loader: 'arraybuffer-loader',
       },
       {
+        test: /\.js$/,
+        // Exclude transpiling `node_modules`, except `bootstrap-vue/src`
+        exclude: /node_modules\/(?!bootstrap-vue\/src\/)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
+      },
+      {
         test: /\.vue$/,
         loader: "vue-loader",
         options: {
+          preserveWhitespace: false,
           loaders: {
             // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
             // the "scss" and "sass" values for the lang attribute to the right configs here.
@@ -118,6 +130,7 @@ module.exports = {
 };
 // process.env.NODE_ENV = 'development'
 console.log('process.env.NODE_ENV',process.env.NODE_ENV)
+console.log('process.env.API_HOST',process.env.API_HOST)
 if(process.env.NODE_ENV === 'development'){
   require('dotenv').config({ path : './env-dev.env' })
   module.exports.plugins = (module.exports.plugins || []).concat([
@@ -143,11 +156,14 @@ if (process.env.NODE_ENV === 'production') {
         return JSON.stringify(v)
       }).value()
     }),
-    // new UglifyJsPlugin({
-    //   sourceMap: false
-    // }),
+    new UglifyJsPlugin({
+      sourceMap: false
+    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
-    })
+    }),
+    // new BundleAnalyzerPlugin({
+
+    // })
   ])
 }

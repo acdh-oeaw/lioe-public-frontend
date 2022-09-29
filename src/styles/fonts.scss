@@ -22,3 +22,27 @@
   font-weight: 700;
   src: url('/static/fonts/hk-bold.woff2') format('woff2');
 }
+@font-face {
+  font-family: 'fiduz';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/static/fonts/fiduz/woff/Fiduz-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'fiduz';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/static/fonts/fiduz/woff/Fiduz-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'fiduz';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/static/fonts/fiduz/woff/Fiduz-Italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'fiduz';
+  font-style: italic;
+  font-weight: 600;
+  src: url('/static/fonts/fiduz/woff/Fiduz-BoldItalic.woff2') format('woff2');
+}

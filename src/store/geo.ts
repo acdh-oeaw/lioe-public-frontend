@@ -3,24 +3,54 @@ import * as geojson from 'geojson'
 import * as _ from 'lodash'
 
 export const geoStore = {
-  gemeinden: null as geojson.FeatureCollection|null,
+  gemeindenPoints: null as geojson.FeatureCollection|null,
+  gemeindenArea: null as geojson.FeatureCollection|null,
   grossregionen: null as geojson.FeatureCollection|null,
   bundeslaender: null as geojson.FeatureCollection|null,
+  kleinregionen: null as geojson.FeatureCollection|null,
   dialektregionen: null as geojson.FeatureCollection|null,
   ortslistenDaten: null as any|null,
   ortsliste: null as any|null,
-  ortslisteGeo: null as any|null
+  ortslisteGeo: [] as any[]
 }
 
 async function init() {
-  geoStore.gemeinden = await (await fetch('/static/gemeinden-punkte-geojson.json')).json() as geojson.FeatureCollection
+  geoStore.kleinregionen = await (await fetch('/static/Kleinregionen.geojson.json')).json() as geojson.FeatureCollection
+  geoStore.gemeindenPoints = getPointsNotPoly(await (await fetch('/static/Gemeinden.geojson.json')).json() as geojson.FeatureCollection, await( await fetch('/static/sigle-polygone.json')).json() as geojson.FeatureCollection)
+  geoStore.gemeindenArea = await (await fetch('/static/Gemeinden.geojson.json')).json() as geojson.FeatureCollection
   geoStore.grossregionen = await (await fetch('/static/grossregionen-geojson-optimized.json')).json() as geojson.FeatureCollection
   geoStore.bundeslaender = await (await fetch('/static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
-  geoStore.dialektregionen = await (await fetch('/static/WBOE_Dialektregionen.geojson')).json() as geojson.FeatureCollection
+  geoStore.dialektregionen = addIDToDialekt(await (await fetch('/static/SFB_Dialektregionen.geojson')).json() as geojson.FeatureCollection)
   geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json')).json() as geojson.FeatureCollection)
-  geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || null : null
-  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(geoStore.ortsliste, [...geoStore.gemeinden!.features, ...geoStore.grossregionen!.features, ...geoStore.bundeslaender!.features])
+  geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || [] : []
+  geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(
+    geoStore.ortsliste,
+    [
+      ...geoStore.gemeindenPoints!.features,
+      ...geoStore.grossregionen!.features,
+      ...geoStore.bundeslaender!.features,
+      ...geoStore.kleinregionen!.features])?.sort(orderByName("name")) || []
 }
+
+function addIDToDialekt(dialekt: any) {
+  let i = 0;
+  dialekt.features.forEach((feature:any) => {
+    feature.properties.id = i;
+    i++
+  });
+  return dialekt
+}
+
+function orderByName(prop:any) {    
+  return function(a:any, b:any) {    
+      if (a[prop] > b[prop]) {    
+          return 1;    
+      } else if (a[prop] < b[prop]) {    
+          return -1;    
+      }    
+      return 0;    
+  }    
+} 
 
 function filterOrtslisteByGeoJSON (oList: any, gList: any) {
   if (oList !== null && gList !== null) {
@@ -43,6 +73,15 @@ function filterOrtslisteByGeoJSON (oList: any, gList: any) {
   } else {
     return null
   }
+}
+
+function getPointsNotPoly(DataG: any , DataPoint:any ) {
+  DataG.features.forEach((gemeinde: any) => {
+    if(DataPoint[gemeinde.properties.sigle]) {
+      gemeinde.geometry = {"type":"Point","coordinates": DataPoint[gemeinde.properties.sigle].locationCenter.split(",").reverse()}
+    }
+  });
+  return DataG;
 }
 
 function getOrtslistenDaten (aOlDaten: any): any|null {
@@ -84,18 +123,15 @@ function getOrtslistenDaten (aOlDaten: any): any|null {
 
 function getOrtsliste(aOlDatenObj: any): any|null {
   let aList: any[] = []
-  if (Array.isArray(aOlDatenObj)) {
-    aOlDatenObj.forEach((aObj: any) => {
-      aList = [...aList, ...aObj, ...getOrtsliste(aObj.childs)]
-    })
-  }
+  aOlDatenObj.forEach((aObj: any) => {
+    if ( aObj.childs && Array.isArray(aObj.childs)) {
+      aList = [...aList, aObj, ...getOrtsliste(aObj.childs)]
+    }
+    else {
+      aList = [...aList, aObj ]
+    }
+  });
   return aList
-}
-
-export const methods = {
-  test() {
-    console.log('hello')
-  }
 }
 
 export const initialize = _.once(init)

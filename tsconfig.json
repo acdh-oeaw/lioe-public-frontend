@@ -1,16 +1,21 @@
 {
     "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
         "outDir": "./built/",
         "sourceMap": true,
         "strict": true,
         "strictPropertyInitialization": false,
         "noImplicitAny": true,
         "module": "es2015",
-        "lib": ["webworker", "es2015", "dom"],
+        "lib": ["webworker", "es2017", "dom"],
         "moduleResolution": "node",
         "target": "es5",
+        "allowJs": true,
         "experimentalDecorators": true,
         "baseUrl": "src",
+        "types":[
+            "vuetify"
+        ],
         "paths": {
             "@src/*": [
               "./*"
@@ -32,6 +37,9 @@
             ],
             "@models/*": [
                 "models/*"
+            ],
+            "@/functions/*": [
+              "service/parser-functions/*"
             ]
         }
     },
