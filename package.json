@@ -86,7 +86,7 @@
     "concurrently": "^5.2.0",
     "css-loader": "^0.28.7",
     "env-cmd": "^10.1.0",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "nodemon": "^1.19.4",
     "sass-loader": "^6.0.6",
     "scss-loader": "0.0.1",
