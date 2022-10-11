@@ -1,0 +1,395 @@
+﻿<head>
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=9" />
+	<title>June</title>
+	<style type="text/css" media="screen">
+		@font-face { font-family: 'WOFF Fiduz-Regular'; src: url('Fiduz-Regular.woff'); }
+		@font-face { font-family: 'WOFF Fiduz-Bold'; src: url('Fiduz-Bold.woff'); }
+		@font-face { font-family: 'WOFF2 Fiduz-Regular'; src: url('Fiduz-Regular.woff2'); }
+		@font-face { font-family: 'WOFF2 Fiduz-Bold'; src: url('Fiduz-Bold.woff2'); }
+		
+		body { 
+			background: white;
+			color: black;
+		}
+		.features, .label, a, #controls {
+			font: normal normal normal small sans-serif;
+		}
+		.features .emojiButton {
+			vertical-align: -5%;
+			font-size: small;
+		}
+		.emojiButton {
+			cursor: pointer;
+		}
+		#flexbox {
+			display: flex;
+			flex-flow: column;
+			height: 100%;
+		}
+		#controls {
+			flex: 0 1 auto;
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			border: 0px solid transparent;
+			height: auto;
+			user-select: none;
+			-moz-user-select: none;
+			-webkit-user-select: none;
+		}
+		#waterfall {
+			flex: 1 1 auto;
+			border: 0 solid transparent;
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			color: black;
+			overflow-x: hidden;
+			overflow-y: scroll;
+			font-family: "WOFF Fiduz-Regular"; 
+			font-feature-settings: "kern" on, "liga" on, "calt" on;
+			-moz-font-feature-settings: "kern" on, "liga" on, "calt" on;
+			-webkit-font-feature-settings: "kern" on, "liga" on, "calt" on;
+			-ms-font-feature-settings: "kern" on, "liga" on, "calt" on;
+			-o-font-feature-settings: "kern" on, "liga" on, "calt" on;
+		}
+		div, p	{
+			padding: 0;
+			margin: 0;
+		}
+		#waterfall p {
+			margin-bottom: 0.8em;
+			overflow-wrap: break-word;
+		}
+		.○ .sampletext {
+			-webkit-text-stroke: 1px black;
+			-webkit-text-fill-color: #FFF0;
+		}
+		.features, .label, a {
+			color: #888;
+		}
+		.label {
+			background-color: #ddd;
+			padding: 2px 3px;
+		}
+		
+		span#p08 { font-size: 08pt; padding: 08pt 0; }
+		span#p09 { font-size: 09pt; padding: 09pt 0; }
+		span#p10 { font-size: 10pt; padding: 10pt 0; }
+		span#p11 { font-size: 11pt; padding: 11pt 0; }
+		span#p12 { font-size: 12pt; padding: 12pt 0; }
+		span#p13 { font-size: 13pt; padding: 13pt 0; }
+		span#p14 { font-size: 14pt; padding: 14pt 0; }
+		span#p15 { font-size: 15pt; padding: 15pt 0; }
+		span#p16 { font-size: 16pt; padding: 16pt 0; }
+		span#largeParagraph { font-size: 32pt; padding: 32pt 0; }
+		span#veryLargeParagraph { font-size: 100pt; padding: 100pt 0; }
+		
+		.otFeatureLabel {
+			color: #666;
+			background-color: #ddd;
+			padding: 0.2em 0.5em 0.3em 0.5em;
+			margin: 0 .04em;
+			line-height: 2em;
+			border-radius: 0.3em;
+			border: 0;
+			text-align:center;
+		}
+		.otFeatureLabel, .otFeature {
+			position: relative;
+			opacity: 1;
+			pointer-events: auto;
+			white-space: nowrap;
+		}
+		.otFeatureLabel {
+			padding: 0.2em 0.5em 0.3em 0.5em;
+			margin: 0 .04em;
+			line-height: 2em;
+			color: #666;
+			background-color: #ddd;
+			border-radius: 0.3em;
+			border: 0;
+			text-align: center;
+			z-index: 6;
+		}
+		.wrapper {
+			width: auto;
+			overflow: hidden;
+			border: 0 solid transparent;
+		}
+		select {
+			float: left;
+			margin: 0 0.5em 0 0;
+			padding: 0;
+		}
+		input[type=text] {
+			border: 1px solid #999;
+			margin: 0;
+			width: 100%;
+		}
+		.features {
+			clear: left;
+		}
+		input[type=checkbox]:checked + label { 
+			visibility: visible;
+			color: #fff;
+			background-color: #888; 
+		}
+		.otFeature {
+			visibility: collapse;
+			margin: 0 -1em 0 0;
+		}
+		.otFeatureLabel .tooltip {
+			visibility: hidden;
+			background-color: #333;
+			color: white;
+			text-align: center;
+			padding: 0px 5px;
+			top: -2em;
+			left: 0;
+			position: absolute;
+			z-index: 8;
+		}
+		.otFeatureLabel:hover .tooltip {
+			visibility: visible;
+		}
+		#featureLine {
+			display: none;
+			border-bottom: 1px solid #999;
+			padding: 0.5em 0;
+			margin-bottom: 0.5em;
+		}
+		
+/* Footer paragraph: */
+		#helptext {
+			color: black;
+			background-color: #ddd;
+		    position: fixed;
+		    bottom: 0;
+			padding: 2px
+		    width: 100%;
+			font: x-small sans-serif;
+		}
+		
+		@media (prefers-color-scheme: dark) {
+			body { 
+				background: #333;
+			}
+			.features, .label, a, body, p  {
+				color: white;
+			}
+			.label {
+				background-color: black;
+				padding: 2px 3px;
+			}
+			.otFeatureLabel, input[type=text] {
+				color: white;
+				background-color: black;
+			}
+			input[type=checkbox]:checked + label { 
+				color: black;
+				background-color: #aaa;
+			}
+			#helptext {
+				background-color: #777;
+			}
+			.○ .sampletext {
+				-webkit-text-stroke: 1px white;
+				-webkit-text-fill-color: #0000;
+			}
+		}
+	</style>
+</head>
+<body onload="document.getElementById('textInput').focus();setCharset();">
+<div id="flexbox">
+<div id="controls">
+	<div>
+		<select size="1" id="fontFamilySelector" name="fontFamilySelector" onchange="changeFont()">
+			<option value="Fiduz-Regular.woff">WOFF Fiduz-Regular</option>
+		<option value="Fiduz-Bold.woff">WOFF Fiduz-Bold</option>
+		<option value="Fiduz-Regular.woff2">WOFF2 Fiduz-Regular</option>
+		<option value="Fiduz-Bold.woff2">WOFF2 Fiduz-Bold</option>
+		</select>
+		<div class="wrapper">
+			<input type="text" value="Type Text Here." id="textInput" onclick="this.select();" onkeyup="updateParagraph()" />
+		</div>
+	</div>
+	<p class="features">
+		<a href="javascript:setCharset();">Charset</a>
+		<a href="javascript:setLat1();">Lat1</a>
+		&ensp;
+		<a href="https://caniuse.com/#feat=woff">woff</a>
+		<a href="https://caniuse.com/#feat=woff2">woff2</a>
+		&ensp;
+		<a onclick="toggleInverse();" id="invert" class="emojiButton">🔲</a>
+		<label><input type="checkbox" id="kern" value="kern" class="otFeature" onchange="updateFeatures()" checked><label for="kern" class="otFeatureLabel">kern</label>
+		<label><input type="checkbox" id="liga" value="liga" class="otFeature" onchange="updateFeatures()" checked><label for="liga" class="otFeatureLabel">liga/clig</label>
+		<label><input type="checkbox" id="calt" value="calt" class="otFeature" onchange="updateFeatures()" checked><label for="calt" class="otFeatureLabel">calt</label>
+		<input type="checkbox" id="subs" value="subs" class="otFeature" onchange="updateFeatures()"><label for="subs" class="otFeatureLabel">subs</label>
+		<input type="checkbox" id="sinf" value="sinf" class="otFeature" onchange="updateFeatures()"><label for="sinf" class="otFeatureLabel">sinf</label>
+		<input type="checkbox" id="sups" value="sups" class="otFeature" onchange="updateFeatures()"><label for="sups" class="otFeatureLabel">sups</label>
+		<input type="checkbox" id="numr" value="numr" class="otFeature" onchange="updateFeatures()"><label for="numr" class="otFeatureLabel">numr</label>
+		<input type="checkbox" id="dnom" value="dnom" class="otFeature" onchange="updateFeatures()"><label for="dnom" class="otFeatureLabel">dnom</label>
+		<input type="checkbox" id="frac" value="frac" class="otFeature" onchange="updateFeatures()"><label for="frac" class="otFeatureLabel">frac</label>
+		<input type="checkbox" id="ordn" value="ordn" class="otFeature" onchange="updateFeatures()"><label for="ordn" class="otFeatureLabel">ordn</label>
+		<input type="checkbox" id="case" value="case" class="otFeature" onchange="updateFeatures()"><label for="case" class="otFeatureLabel">case</label>
+		<input type="checkbox" id="salt" value="salt" class="otFeature" onchange="updateFeatures()"><label for="salt" class="otFeatureLabel">salt</label>
+		<input type="checkbox" id="ss01" value="ss01" class="otFeature" onchange="updateFeatures()"><label for="ss01" class="otFeatureLabel">ss01<span class="tooltip">Single-storey a</span></label>
+		<input type="checkbox" id="ss02" value="ss02" class="otFeature" onchange="updateFeatures()"><label for="ss02" class="otFeatureLabel">ss02<span class="tooltip">Double-storey g</span></label>
+		<label><input type="checkbox" id="show" value="show" onchange="updateFeatures();document.getElementById('featureLine').style.display=this.checked?'block':'none'">Show CSS</label>
+	</p>
+	<p class="features" id="featureLine">font-feature-settings: "kern" on, "liga" on, "calt" on;</p>
+</div>
+<div id="waterfall" class="●">
+	<p><span class="label">08</span>&nbsp;<span class="sampletext" id="p08"></span></p>
+	<p><span class="label">09</span>&nbsp;<span class="sampletext" id="p09"></span></p>
+	<p><span class="label">10</span>&nbsp;<span class="sampletext" id="p10"></span></p>
+	<p><span class="label">11</span>&nbsp;<span class="sampletext" id="p11"></span></p>
+	<p><span class="label">12</span>&nbsp;<span class="sampletext" id="p12"></span></p>
+	<p><span class="label">13</span>&nbsp;<span class="sampletext" id="p13"></span></p>
+	<p><span class="label">14</span>&nbsp;<span class="sampletext" id="p14"></span></p>
+	<p><span class="label">15</span>&nbsp;<span class="sampletext" id="p15"></span></p>
+	<p><span class="label">16</span>&nbsp;<span class="sampletext" id="p16"></span></p>
+	<p><span class="sampletext" id="largeParagraph"></span></p>
+	<p><span class="sampletext" id="veryLargeParagraph"></span></p>
+</div>
+</div>
+
+<!-- Disclaimer -->
+<p id="helptext" onmouseleave="vanish(this);">
+	Ctrl-R: Reset Charset. Ctrl-L: Latin1. Ctrl-J: LTR/RTL. Ctrl-comma/period: step through fonts. Pull mouse across this note to make it disappear.
+</p>
+
+<script type="text/javascript">
+	const selector = document.getElementById("fontFamilySelector");
+	const selectorOptions = selector.options;
+	const selectorLength = selectorOptions.length;
+
+	document.addEventListener('keyup', keyAnalysis);
+	
+	function keyAnalysis(event) {
+		if (event.ctrlKey) {
+			if (event.code == 'KeyR') {
+				setCharset();
+			} else if (event.code == 'KeyL') {
+				setLat1();
+			} else if (event.code == 'KeyJ') {
+				toggleLeftRight();
+			} else if (event.code == 'Period') {
+				selector.selectedIndex = (selector.selectedIndex + 1) % selectorLength;
+				changeFont();
+			} else if (event.code == 'Comma') {
+				var newIndex = selector.selectedIndex - 1;
+				if (newIndex<0) {
+					newIndex = selectorLength - 1;
+				}
+				selector.selectedIndex = newIndex;
+				changeFont();
+			}
+		}
+	}
+			
+	function updateParagraph() {
+		// update paragraph text based on user input:
+		const txt = document.getElementById('textInput');
+		const paragraphs = document.getElementsByClassName('sampletext');
+		for (i = 0; i < paragraphs.length; i++) {
+			paragraph = paragraphs[i];
+			paragraph.textContent = txt.value;
+		}
+	}
+	function updateFeatures() {
+		// update features based on user input:
+		// first, get feature on/off line:
+		var cssCode = "";
+		var codeLine = "";
+		var checkboxes = document.getElementsByClassName("otFeature")
+		for (i = 0; i < checkboxes.length; i++) {
+			var checkbox = checkboxes[i];
+			codeLine += '"'+checkbox.id+'" ';
+			codeLine += checkbox.checked ? 'on, ' : 'off, ';
+			if (checkbox.name=="kern") {
+				cssCode += "font-kerning: "
+				cssCode += checkbox.checked ? 'normal; ' : 'none; ';
+			} else if (checkbox.name=="liga") {
+				codeLine += '"clig" '
+				codeLine += checkbox.checked ? 'on, ' : 'off, ';
+				cssCode += "font-variant-ligatures: "
+				cssCode += checkbox.checked ? 'common-ligatures contextual; ' : 'no-common-ligatures no-contextual; ';
+			} else if (checkbox.name=="dlig") {
+				cssCode += "font-variant-ligatures: "
+				cssCode += checkbox.checked ? 'discretionary-ligatures; ' : 'no-discretionary-ligatures; ';
+			} else if (checkbox.name=="hlig") {
+				cssCode += "font-variant-ligatures: "
+				cssCode += checkbox.checked ? 'historical-ligatures; ' : 'no-historical-ligatures; ';
+			}
+		}
+		codeLine = codeLine.slice(0, -2)
+		
+		// then, apply line for every browser:
+		const prefixes = ["","-moz-","-webkit-","-ms-","-o-",];
+		const suffix = "font-feature-settings: "
+		for (i = 0; i < prefixes.length; i++) {
+			var prefix = prefixes[i];
+			cssCode += prefix
+			cssCode += suffix
+			cssCode += codeLine
+			cssCode += "; "
+		}
+		
+		document.getElementById('waterfall').style.cssText = cssCode;
+		document.getElementById('featureLine').innerHTML = cssCode.replace(/;/g,";<br/>");
+		changeFont();
+	}
+	function changeFont() {
+		var selected_index = selector.selectedIndex;
+		var selected_option_text = selector.options[selected_index].text;
+		document.getElementById('waterfall').style.fontFamily = selected_option_text;
+	}
+	function setDefaultText(defaultText) {
+		document.getElementById('textInput').value = decodeEntities(defaultText);
+		updateParagraph();
+	}
+	function setLat1() {
+		const lat1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz &Agrave;&Aacute;&Acirc;&Atilde;&Auml;&Aring;&AElig;&Ccedil;&Egrave;&Eacute;&Ecirc;&Euml;&Igrave;&Iacute;&Icirc;&Iuml;&ETH;&Ntilde;&Ograve;&Oacute;&Ocirc;&Otilde;&Ouml;&Oslash;&OElig;&THORN;&Ugrave;&Uacute;&Ucirc;&Uuml;&Yacute;&Yuml; &agrave;&aacute;&acirc;&atilde;&auml;&aring;&aelig;&ccedil;&egrave;&eacute;&ecirc;&euml;&igrave;&iacute;&icirc;&iuml;&eth;&ntilde;&ograve;&oacute;&ocirc;&otilde;&ouml;&oslash;&oelig;&thorn;&szlig;&ugrave;&uacute;&ucirc;&uuml;&yacute;&yuml; .,:;&middot;&hellip;&iquest;?&iexcl;!&laquo;&raquo;&lsaquo;&rsaquo; /|&brvbar;\()[]{}_-&ndash;&mdash;&sbquo;&bdquo;&lsquo;&rsquo;&ldquo;&rdquo;&quot;&#x27; #&amp;&sect;@&bull;&shy;*&dagger;&Dagger;&para; +&times;&divide;&plusmn;=&lt;&gt;&not;&mu; ^~&acute;`&circ;&macr;&tilde;&uml;&cedil; &yen;&euro;&pound;$&cent;&curren;&fnof; &trade;&reg;&copy; 1234567890 &ordf;&ordm;&deg;%&permil; &sup1;&sup2;&sup3;&frac14;&frac12;&frac34;";
+		return setDefaultText(lat1);
+	}
+	function setCharset() {
+		const completeCharSet = '&#x0041;&#x00C1;&#x0102;&#x1EAE;&#x1EB6;&#x1EB0;&#x1EB2;&#x1EB4;&#x01CD;&#x00C2;&#x1EA4;&#x1EAC;&#x1EA6;&#x1EA8;&#x1EAA;&#x00C4;&#x01DE;&#x0226;&#x1EA0;&#x01E0;&#x00C0;&#x1EA2;&#x0202;&#x0100;&#x0104;&#x00C5;&#x01FA;&#x1E00;&#x00C3;&#x00C6;&#x0042;&#x1E02;&#x1E04;&#x1E06;&#x0043;&#x0106;&#x010C;&#x00C7;&#x0108;&#x010A;&#x0044;&#x00D0;&#x010E;&#x1E10;&#x0110;&#x1E0A;&#x1E0C;&#x1E0E;&#x0045;&#x00C9;&#x0114;&#x011A;&#x00CA;&#x1EBE;&#x1E18;&#x1EC6;&#x1EC0;&#x1EC2;&#x1EC4;&#x00CB;&#x0116;&#x1EB8;&#x00C8;&#x1EBA;&#x0206;&#x0112;&#x0118;&#x1EBC;&#x0046;&#x1E1E;&#x0191;&#x0047;&#x011E;&#x01E6;&#x011C;&#x0122;&#x0120;&#x1E20;&#x0048;&#x0126;&#x0124;&#x1E26;&#x1E22;&#x0049;&#x0132;&#x00CD;&#x012C;&#x01CF;&#x00CE;&#x00CF;&#x0130;&#x1ECA;&#x00CC;&#x1EC8;&#x012A;&#x012E;&#x0197;&#x0128;&#x004A;&#x0134;&#x004B;&#x1E30;&#x01E8;&#x0136;&#x1E32;&#x1E34;&#x004C;&#x0139;&#x013D;&#x013B;&#x013F;&#x1E36;&#x0141;&#x004D;&#x1E3E;&#x1E40;&#x1E42;&#x004E;&#x0143;&#x0147;&#x0145;&#x014A;&#x00D1;&#x004F;&#x00D3;&#x014E;&#x01D1;&#x00D4;&#x1ED0;&#x1ED8;&#x1ED2;&#x1ED4;&#x1ED6;&#x00D6;&#x022E;&#x1ECC;&#x00D2;&#x1ECE;&#x01A0;&#x1EDA;&#x1EE2;&#x1EDC;&#x1EDE;&#x1EE0;&#x0150;&#x020E;&#x014C;&#x01EA;&#x00D8;&#x00D5;&#x0152;&#x0050;&#x1E54;&#x1E56;&#x00DE;&#x0051;&#x0052;&#x0154;&#x0158;&#x0156;&#x1E5A;&#x0053;&#x015A;&#x0160;&#x015E;&#x015C;&#x0218;&#x1E60;&#x1E62;&#x1E68;&#x1E9E;&#x018F;&#x0054;&#x0164;&#x0162;&#x1E70;&#x021A;&#x1E6A;&#x1E6C;&#x0055;&#x00DA;&#x016C;&#x01D3;&#x00DB;&#x00DC;&#x01D7;&#x01D9;&#x01DB;&#x01D5;&#x1EE4;&#x00D9;&#x1EE6;&#x01AF;&#x1EE8;&#x1EF0;&#x1EEA;&#x1EEC;&#x1EEE;&#x0170;&#x016A;&#x0172;&#x016E;&#x0168;&#x0056;&#x0057;&#x1E82;&#x0174;&#x1E84;&#x1E80;&#x0058;&#x0059;&#x00DD;&#x0176;&#x0178;&#x1EF4;&#x1EF2;&#x1EF6;&#x0232;&#x1EF8;&#x005A;&#x0179;&#x017D;&#x1E90;&#x017B;&#x1E92;&#x1E94;&#x0299;&#x0262;&#x029C;&#x026A;&#x029F;&#x0274;&#x0276;&#x0280;&#x0281;&#x1D21;&#x028F;&#x0061;&#x00E1;&#x0103;&#x1EAF;&#x1EB7;&#x1EB1;&#x1EB3;&#x1EB5;&#x01CE;&#x00E2;&#x1EA5;&#x1EAD;&#x1EA7;&#x1EA9;&#x1EAB;&#x00E4;&#x01DF;&#x0227;&#x1EA1;&#x01E1;&#x00E0;&#x1EA3;&#x0203;&#x0251;&#x0252;&#x0101;&#x0105;&#x00E5;&#x01FB;&#x1E01;&#x00E3;&#x0250;&#x00E6;&#x0062;&#x1E03;&#x1E05;&#x1E07;&#x0180;&#x0063;&#x0107;&#x010D;&#x00E7;&#x0109;&#x010B;&#xAB53;&#x0064;&#x00F0;&#x010F;&#x1E11;&#x1E13;&#x0111;&#x1E0B;&#x1E0D;&#x1E0F;&#x0065;&#x00E9;&#x0115;&#x011B;&#x0229;&#x00EA;&#x1EBF;&#x1E19;&#x1EC7;&#x1EC1;&#x1EC3;&#x1EC5;&#x00EB;&#x0117;&#x1EB9;&#x00E8;&#x1EBB;&#x0207;&#x0113;&#x1E17;&#x0119;&#x025B;&#x025C;&#x0258;&#x1EBD;&#x1E1B;&#x0259;&#x0292;&#x01EF;&#x0066;&#x1E1F;&#xAB35;&#x0067;&#x01F5;&#x011F;&#x01E7;&#x011D;&#x0123;&#x0121;&#x1E21;&#x0261;&#x01E5;&#x0068;&#x0127;&#x1E2B;&#x021F;&#x1E29;&#x0125;&#x1E27;&#x1E23;&#x1E25;&#x1E96;&#x0265;&#x0069;&#x0131;&#x00ED;&#x012D;&#x01D0;&#x00EE;&#x00EF;&#x1E2F;&#x1ECB;&#x00EC;&#x1EC9;&#x020B;&#x0133;&#x012B;&#x012F;&#x0269;&#x0268;&#x0129;&#x1E2D;&#x006A;&#x0237;&#x01F0;&#x0135;&#x025F;&#x006B;&#x1E31;&#x01E9;&#x0137;&#x1E33;&#x1E35;&#x006C;&#x013A;&#x013E;&#x1E3D;&#x013C;&#x0140;&#x1E37;&#x1E39;&#x1E3B;&#x026B;&#x0142;&#x006D;&#x1E3F;&#x1E41;&#x1E43;&#x006E;&#x0144;&#x0148;&#x1E4B;&#x0146;&#x1E45;&#x1E47;&#x014B;&#x1E49;&#x00F1;&#x006F;&#x00F3;&#x014F;&#x01D2;&#x00F4;&#x1ED1;&#x1ED9;&#x1ED3;&#x1ED5;&#x1ED7;&#x00F6;&#x022B;&#x022F;&#x0231;&#x1ECD;&#x00F2;&#x1ECF;&#x01A1;&#x1EDB;&#x1EE3;&#x1EDD;&#x1EDF;&#x1EE1;&#x0151;&#x020F;&#x014D;&#x1E53;&#x1E51;&#x01EB;&#x01ED;&#x0254;&#x00F8;&#x00F5;&#x1E4D;&#x022D;&#x0153;&#x0070;&#x1E55;&#x1E57;&#x0278;&#x00FE;&#x0071;&#x0072;&#x0155;&#x0159;&#x0157;&#x1E59;&#x1E5B;&#x1E5D;&#x0213;&#x1E5F;&#x0279;&#x0073;&#x015B;&#x1E65;&#x0161;&#x1E67;&#x015F;&#x015D;&#x0219;&#x1E61;&#x1E63;&#x1E69;&#x00DF;&#x0074;&#x0165;&#x0163;&#x1E71;&#x021B;&#x1E97;&#x1E6B;&#x1E6D;&#x1E6F;&#x0075;&#x00FA;&#x016D;&#x01D4;&#x00FB;&#x1E77;&#x00FC;&#x01D8;&#x1E73;&#x01DA;&#x01DC;&#x01D6;&#x1EE5;&#x00F9;&#x1EE7;&#x01B0;&#x1EE9;&#x1EF1;&#x1EEB;&#x1EED;&#x1EEF;&#x0171;&#x0217;&#x016B;&#x1E7B;&#x0173;&#x028A;&#x016F;&#x0169;&#x1E79;&#x1E75;&#x0076;&#x1E7F;&#x1E7D;&#x028C;&#x0077;&#x1E83;&#x0175;&#x1E85;&#x1E87;&#x1E89;&#x1E81;&#x1E98;&#x028D;&#x0078;&#x1E8B;&#xAB57;&#x0079;&#x00FD;&#x0177;&#x00FF;&#x1E8F;&#x1EF5;&#x1EF3;&#x1EF7;&#x0233;&#x1E99;&#x1EF9;&#x028E;&#x007A;&#x017A;&#x017E;&#x1E91;&#x017C;&#x1E93;&#x1E95;&#xFB01;&#xFB02;&#x00AA;&#x00BA;&#x02B0;&#x2071;&#x1D62;&#x02B2;&#x2C7C;&#xAB5E;&#x02E1;&#x207F;&#x1DB2;&#x02B3;&#x2094;&#x02E2;&#x1D65;&#x02B7;&#x02E3;&#x02B8;&#x2090;&#xE057;&#x2091;&#x2095;&#x2096;&#x2097;&#x2098;&#x2099;&#x2092;&#xE058;&#x209A;&#x1D63;&#x209B;&#x209C;&#x1D64;&#x2093;&#xE059;&#x044C;&#x044A;&#x0394;&#x03A0;&#x03A9;&#x03B1;&#x03B2;&#x03B3;&#x03B4;&#x03B5;&#x03B8;&#x03B9;&#x03BA;&#x03BB;&#x03BC;&#x03C0;&#x03C2;&#x03C3;&#x03C4;&#x03C6;&#x03C7;&#x03AF;&#x03CA;&#x03DD;&#x1F30;&#x1F31;&#x1FD6;&#x1FD1;&#x1FD7;&#x1D6A;&#x1D69;&#xE05A;&#xE000;&#x1D40;&#x1D44;&#x1D43;&#x1D47;&#x1D61;&#x1D9C;&#x1D48;&#x1D4B;&#x1D49;&#x1D51;&#x1DA0;&#x1D4D;&#x1DA5;&#x1DA8;&#x1D4F;&#x1D50;&#x1D53;&#x1D52;&#x1D56;&#x1D4A;&#x1D57;&#x1D58;&#xE003;&#xE004;&#xE005;&#xE006;&#xE007;&#xE008;&#xE009;&#xE00A;&#xE00B;&#xE00C;&#xE00D;&#xE00E;&#xE00F;&#xE010;&#xE011;&#xE012;&#xE013;&#xE014;&#xE015;&#xE016;&#xE017;&#xE018;&#xE019;&#xE01A;&#xE01B;&#xE01C;&#xE01D;&#xE01E;&#xE01F;&#xE020;&#xE021;&#xE022;&#xE023;&#xE024;&#xE025;&#xE026;&#xE027;&#xE028;&#xE029;&#xE02A;&#xE02B;&#xE02C;&#xE02D;&#xE02E;&#xE02F;&#xE030;&#xE031;&#xE032;&#xE033;&#xE034;&#xE035;&#xE036;&#xE037;&#xE038;&#xE039;&#xE03A;&#xE03B;&#xE03C;&#xE03D;&#xE03E;&#xE03F;&#xE040;&#xE041;&#xE042;&#xE043;&#xE044;&#xE045;&#xE046;&#xE047;&#xE048;&#xE049;&#xE04A;&#xE04B;&#xE04C;&#xE04D;&#xE04E;&#xE04F;&#xE050;&#xE051;&#xE052;&#xE053;&#xE054;&#xE055;&#xE056;&#x2E2F;&#x1D5B;&#x1DBA;&#x1DBB;&#x0030;&#x0031;&#x0032;&#x0033;&#x0034;&#x0035;&#x0036;&#x0037;&#x0038;&#x0039;&#x2080;&#x2081;&#x2082;&#x2083;&#x2084;&#x2085;&#x2086;&#x2087;&#x2088;&#x2089;&#x2070;&#x00B9;&#x00B2;&#x00B3;&#x2074;&#x2075;&#x2076;&#x2077;&#x2078;&#x2079;&#x2044;&#x00BD;&#x00BC;&#x00BE;&#x215B;&#x215C;&#x215D;&#x215E;&#x002E;&#x002C;&#x003A;&#x003B;&#x2026;&#x0021;&#x00A1;&#x003F;&#x00BF;&#x00B7;&#x2022;&#x002A;&#x2016;&#x0023;&#x002F;&#x005C;&#x203F;&#x208D;&#x208E;&#x0028;&#x0029;&#x007B;&#x007D;&#x005B;&#x005D;&#x2329;&#x232A;&#x207D;&#x207E;&#x002D;&#x00AD;&#x2013;&#x2014;&#x005F;&#x201A;&#x201E;&#x201C;&#x201D;&#x2018;&#x2019;&#x00AB;&#x00BB;&#x2039;&#x203A;&#x0022;&#x0027;&#x205F;&#x2001;&#x2003;&#x2000;&#x2002;&#x2007;&#x2005;&#x200A;&#x202F;&#x2008;&#x2006;&#x0020;&#x00A0;&#x2009;&#x2004;&#x200B;&#x00A2;&#x00A4;&#x0024;&#x20AC;&#x0192;&#x00A3;&#x00A5;&#x002B;&#x2212;&#x00D7;&#x00F7;&#x003D;&#x2260;&#x003E;&#x003C;&#x2265;&#x2264;&#x00B1;&#x2248;&#x00AC;&#x007E;&#x005E;&#x221E;&#x222B;&#x220F;&#x2211;&#x221A;&#x00B5;&#x2202;&#x0025;&#x2030;&#x2191;&#x2197;&#x2192;&#x2198;&#x2193;&#x2199;&#x2190;&#x2196;&#x2194;&#x2195;&#x25CF;&#x25CA;&#x25A0;&#x2502;&#x0040;&#x0026;&#x00B6;&#x00A7;&#x00A9;&#x00AE;&#x2122;&#x00B0;&#x007C;&#x00A6;&#x2020;&#x2021;&#x212E;&#x02BC;&#x02BF;&#x02BE;&#x00A8;&#x02D9;&#x0060;&#x00B4;&#x02DD;&#x02C6;&#x02C7;&#x02D8;&#x02DA;&#x02DC;&#x00AF;&#x00B8;&#x02DB;&#x0384;&#x1FBF;&#x1FFE;&#x1FC1;&#x1FC0; &#x0308; &#x0307; &#x0300; &#x0301; &#x030B; &#x0302; &#x030C; &#x0306; &#x030A; &#x0303; &#x0304; &#x0309; &#x0310; &#x0311; &#x0312; &#x0313; &#x0314; &#x0316; &#x0317; &#x031B; &#x0323; &#x0324; &#x0325; &#x0326; &#x0327; &#x0328; &#x0329; &#x032C; &#x032D; &#x032E; &#x032F; &#x0330; &#x0331; &#x0332; &#x033D; &#x0348; &#x0353; &#x035C; &#x0361; &#x1DE8; &#x1AB1; &#x1AB8; &#x1DEB; &#x1DF3; &#x1DEE; &#x1DEA; &#x1DF4; &#xE001; &#xE002; &#xE05B; &#xE05C; &#xE05D; &#xE05E; &#xE05F; &#xE060; &#xE061; &#xE062; &#xE063; &#xE064; &#x1DF1; &#x0345; &#x0363; &#x1DF2; &#x1DE7; &#x0368; &#x0369; &#x0364; &#x1DDA; &#x036A; &#x0365; &#x1DDC; &#x1DDD; &#x036B; &#x1DE0; &#x0366; &#x1DCA; &#x036C; &#x1DE4; &#x036D; &#x0367; &#x036E; &#x036F; &#x1DE6;';
+		setDefaultText(completeCharSet);
+	}
+	function decodeEntities(string){
+		var elem = document.createElement('div');
+		elem.innerHTML = string;
+		return elem.textContent;
+	}
+	function vanish(item) {
+		item.style.setProperty("display", "none");
+	}
+	function toggleLeftRight() {
+		const waterfall = document.getElementById("waterfall");
+		if (waterfall.dir != "rtl") {
+			waterfall.dir = "rtl";
+			waterfall.align = "right";
+		} else {
+			waterfall.dir = "";
+			waterfall.align = "";
+		}
+	}
+	function toggleInverse() {
+		const testText = document.getElementById("waterfall");
+		if (testText) {
+			const link = document.getElementById("invert");
+			if (testText.className == "●") {
+				testText.className = "○";
+				link.textContent = "🔳";
+			} else {
+				testText.className = "●";
+				link.textContent = "🔲";
+			}
+		}
+	}
+</script>
+</body>

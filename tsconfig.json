@@ -1,0 +1,52 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "outDir": "./built/",
+        "sourceMap": true,
+        "strict": true,
+        "strictPropertyInitialization": false,
+        "noImplicitAny": true,
+        "module": "es2015",
+        "lib": ["webworker", "es2017", "dom"],
+        "moduleResolution": "node",
+        "target": "es5",
+        "allowJs": true,
+        "experimentalDecorators": true,
+        "baseUrl": "src",
+        "types":[
+            "vuetify"
+        ],
+        "paths": {
+            "@src/*": [
+              "./*"
+            ],
+            "@components/*": [
+                "components/*"
+            ],
+            "@util/*": [
+                "util/*"
+            ],
+            "@api" : [
+                "api/index.ts"
+            ],
+            "@api/*": [
+                "api/*"
+            ],
+            "@store/*": [
+                "store/*"
+            ],
+            "@models/*": [
+                "models/*"
+            ],
+            "@/functions/*": [
+              "service/parser-functions/*"
+            ]
+        }
+    },
+    "exclude": [
+      "./src/**/wasm"
+    ],
+    "include": [
+        "./src/**/*"
+    ]
+}
