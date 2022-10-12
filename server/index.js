@@ -42,7 +42,7 @@ app.use(compression())
 app.use(bodyParser.json())
 app.get('/api/article', async (req, res) => {
   const r = (await axios({
-    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=5000'
+    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=10000'
       + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
     headers: {
       Accept: 'application/json'
