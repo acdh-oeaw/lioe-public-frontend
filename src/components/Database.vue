@@ -876,7 +876,7 @@ export default class Database extends Vue {
       text: "Lautung",
       infoUrl: "wboe-artikel/dbheaderinfo-lautung/",
       renderFnc: this.renderLautung,
-      sortable: false,
+      sortable: true,
       value: "LT1_teuthonista",
     },
     {
@@ -886,7 +886,7 @@ export default class Database extends Vue {
       renderFnc: this.renderBedeutung,
       infoUrl: "wboe-artikel/dbheaderinfo-bedeutunglautung/",
       value: "BD/LT*",
-      sortable: false,
+      sortable: true,
     },
     {
       searchable: true,
