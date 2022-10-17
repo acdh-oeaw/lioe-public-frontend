@@ -1,10 +1,14 @@
 
-var path = require('path')
-var webpack = require('webpack')
-var UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-var CopyWebpackPlugin = require('copy-webpack-plugin')
+const path = require('path')
+const webpack = require('webpack')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const {GitRevisionPlugin} = require('git-revision-webpack-plugin')
+const gitRevisionPlugin = new GitRevisionPlugin({
+  lightweightTags: true
+})
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
-var _ = require('lodash')
+const _ = require('lodash')
 
 module.exports = {
   entry: "./src/index.ts",
@@ -131,6 +135,10 @@ module.exports = {
 // process.env.NODE_ENV = 'development'
 console.log('process.env.NODE_ENV',process.env.NODE_ENV)
 console.log('process.env.API_HOST',process.env.API_HOST)
+process.env['VUE_APP_VERSION'] = gitRevisionPlugin.version()
+console.log(process.env.VUE_APP_VERSION, 'process.env.VUE_APP_VERSION')
+process.env['VUE_APP_COMMIT_HASH'] = gitRevisionPlugin.commithash()
+process.env['VUE_APP_BRANCH'] = gitRevisionPlugin.branch()  
 if(process.env.NODE_ENV === 'development'){
   require('dotenv').config({ path : './env-dev.env' })
   module.exports.plugins = (module.exports.plugins || []).concat([

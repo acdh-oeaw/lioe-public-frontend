@@ -104,6 +104,7 @@
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^2.11.5",
-    "webpack-filter-warnings-plugin": "^1.2.1"
+    "webpack-filter-warnings-plugin": "^1.2.1",
+    "git-revision-webpack-plugin": "^2.5.1"
   }
 }

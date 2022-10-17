@@ -17,6 +17,8 @@ class ArticlesModule extends VuexModule {
     articlesPromise: Promise<Array<{ title: string; filename: string }>>
 
     loading: boolean = false;
+    // @ts-ignore
+    version: String = process.env.VUE_APP_VERSION
 
     @action
     async fetchArticles(forceUpdate?:boolean) : Promise<Array<{ title: string; filename: string }>> {
