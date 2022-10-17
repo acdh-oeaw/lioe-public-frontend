@@ -48,13 +48,13 @@
                 <v-icon>info</v-icon>
               </v-btn>
             </template>
-            <info-text class="elevation-24 pa-4 white" path="wboe-artikel/showcases/" />
+            <info-text class="elevation-24 pa-4 white" path="wboe-artikel/" />
           </v-menu>
         </v-flex>
       </v-layout>
     </v-card>
     <v-flex xs12>
-      <info-text subDialog="true" class="pa-4" path="wboe-artikel/wboe-artikelstruktur/" />
+      <info-text subDialog="true" class="pa-4" path="wboe-artikelstruktur/" />
       <v-tabs grow v-model="letter" class="tabs-letter my-3" color="ci" background-color="transparent" center-active centered>
         <v-tab v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
           {{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span>

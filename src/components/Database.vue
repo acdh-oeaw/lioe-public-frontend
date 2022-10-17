@@ -797,7 +797,7 @@ export default class Database extends Vue {
       show: false,
       text: "ID",
       value: "ID",
-      infoUrl: "wboe-artikel/dbheaderinfo-id/",
+      infoUrl: "dbheaderinfo/id",
       extended: true,
       sortable: true,
     },
@@ -805,7 +805,7 @@ export default class Database extends Vue {
       searchable: true,
       show: true,
       text: "Lemma",
-      infoUrl: "wboe-artikel/dbheaderinfo-lemma/",
+      infoUrl: "dbheaderinfo/lemma/",
       renderFnc: (val: any) => (Array.isArray(val.HL) ? val.HL[0] : val.HL),
       value: "HL",
       sortable: true,
@@ -814,7 +814,7 @@ export default class Database extends Vue {
       searchable: true,
       show: false,
       text: "Nebenlemma",
-      infoUrl: "wboe-artikel/dbheaderinfo-nebenlemma",
+      infoUrl: "dbheaderinfo/nebenlemma",
       value: "NL",
       renderFnc: (val: any) => (Array.isArray(val.NL) ? val.NL[0] : val.NL),
       extended: true,
@@ -824,7 +824,7 @@ export default class Database extends Vue {
       searchable: false,
       show: false,
       text: "Lemma oS",
-      infoUrl: "wboe-artikel/dbheaderinfo-lemmaos/",
+      infoUrl: "dbheaderinfo/lemmaos/",
       renderFnc: (val: any) =>
         Array.isArray(val.HL) && val.HL.length > 1
           ? val.HL[1].replace("≈", "")
@@ -835,7 +835,7 @@ export default class Database extends Vue {
     {
       searchable: true,
       show: true,
-      infoUrl: "wboe-artikel/dbheaderinfo-wortart/",
+      infoUrl: "dbheaderinfo/wortart/",
       text: "Wortart",
       value: "POS",
       sortable: true,
@@ -844,7 +844,7 @@ export default class Database extends Vue {
       searchable: true,
       show: false,
       text: "Grammatik",
-      infoUrl: "wboe-artikel/dbheaderinfo-grammatik/",
+      infoUrl: "dbheaderinfo/grammatik/",
       renderFnc: this.renderGrammatikAngabe,
       value: "GRAM/LT1",
       extended: true,
@@ -854,7 +854,7 @@ export default class Database extends Vue {
       searchable: true,
       show: false,
       text: "Fragenummer",
-      infoUrl: "wboe-artikel/dbheaderinfo-fragenummer/",
+      infoUrl: "dbheaderinfo/fragenummer/",
       renderFnc: this.renderFragenummer,
       value: "NR",
       extended: true,
@@ -864,7 +864,7 @@ export default class Database extends Vue {
       searchable: false,
       show: false,
       text: "Frage",
-      infoUrl: "wboe-artikel/dbheaderinfo-frage/",
+      infoUrl: "dbheaderinfo/frage/",
       renderFnc: this.renderGefragterAusdruck,
       value: "NR2",
       sortable: false,
@@ -874,7 +874,7 @@ export default class Database extends Vue {
       searchable: true,
       show: true,
       text: "Lautung",
-      infoUrl: "wboe-artikel/dbheaderinfo-lautung/",
+      infoUrl: "dbheaderinfo/lautung/",
       renderFnc: this.renderLautung,
       sortable: false,
       value: "LT1_teuthonista",
@@ -884,7 +884,7 @@ export default class Database extends Vue {
       show: true,
       text: "Bedeutung/Lautung",
       renderFnc: this.renderBedeutung,
-      infoUrl: "wboe-artikel/dbheaderinfo-bedeutunglautung/",
+      infoUrl: "dbheaderinfo/bedeutunglautung/",
       value: "BD/LT*",
       sortable: false,
     },
@@ -892,7 +892,7 @@ export default class Database extends Vue {
       searchable: true,
       show: false,
       text: "Ort/Lautung",
-      infoUrl: "wboe-artikel/dbheaderinfo-ortlautung/",
+      infoUrl: "dbheaderinfo/ortlautung/",
       value: "Ort/LT",
       sortable: false,
       extended: true,
@@ -901,7 +901,7 @@ export default class Database extends Vue {
       searchable: true,
       show: true,
       text: "Kontext", // Belegsatz
-      infoUrl: "wboe-artikel/dbheaderinfo-kontext/",
+      infoUrl: "dbheaderinfo/kontext/",
       renderFnc: this.renderBelegsaetze,
       value: "BD/KT1", //'belegsaetze',
       sortable: true,
@@ -910,7 +910,7 @@ export default class Database extends Vue {
       searchable: true,
       show: true,
       text: "Bedeutung/Kontext", //Bedeutung/Belegsatz
-      infoUrl: "wboe-artikel/dbheaderinfo-bedeutungkontext",
+      infoUrl: "dbheaderinfo/bedeutungkontext",
       renderFnc: this.renderBedeutungBelegsaetze,
       value: "BD/KT*",
       sortable: true,
@@ -920,7 +920,7 @@ export default class Database extends Vue {
       show: false,
       text: "Quelle",
       value: "QU",
-      infoUrl: "wboe-artikel/dbheaderinfo-quelle/",
+      infoUrl: "dbheaderinfo/quelle/",
       extended: true,
       sortable: true,
     },
@@ -929,7 +929,7 @@ export default class Database extends Vue {
       show: false,
       text: "Bibliographische Angabe",
       value: "BIBL",
-      infoUrl: "wboe-artikel/dbheaderinfo-bibliographischeangabe/",
+      infoUrl: "dbheaderinfo/bibliographischeangabe/",
       extended: true,
       sortable: true,
     },
@@ -938,7 +938,7 @@ export default class Database extends Vue {
       show: true,
       text: "Sigle",
       value: "Sigle1",
-      infoUrl: "wboe-artikel/dbheaderinfo-sigle/",
+      infoUrl: "dbheaderinfo/sigle/",
       renderFnc: (val: any) =>
         `${_(val.Sigle1)
           .flatten()
@@ -954,7 +954,7 @@ export default class Database extends Vue {
       searchable: false,
       show: true,
       text: "Staat",
-      infoUrl: "wboe-artikel/dbheaderinfo-staat/",
+      infoUrl: "dbheaderinfo/staat/",
       value: "Sigle10",
       renderFnc: (val: any) =>
         regions.generalMapStaat(`${_(val.Sigle1).flatten()}`),
@@ -965,7 +965,7 @@ export default class Database extends Vue {
       show: true,
       text: "Land",
       value: "Bundesland1",
-      infoUrl: "wboe-artikel/dbheaderinfo-land/",
+      infoUrl: "dbheaderinfo/land/",
       renderFnc: (val: any) =>
         regions.mapBundeslaender(
           _(val.Bundesland1)
@@ -981,7 +981,7 @@ export default class Database extends Vue {
       show: true,
       text: "Großregion",
       value: "Großregion1",
-      infoUrl: "wboe-artikel/dbheaderinfo-grossregion/",
+      infoUrl: "dbheaderinfo/grossregion/",
       renderFnc: (val: any) =>
         regions.mapGrossreg(
           _(val.Großregion1)
@@ -997,7 +997,7 @@ export default class Database extends Vue {
       show: true,
       text: "Kleinregion",
       value: "Kleinregion1",
-      infoUrl: "wboe-artikel/dbheaderinfo-kleinregionen",
+      infoUrl: "dbheaderinfo/kleinregionen",
       renderFnc: (val: any) =>
         regions.mapKleinreg(
           _(val.Kleinregion1)
@@ -1013,7 +1013,7 @@ export default class Database extends Vue {
       show: true,
       text: "Gemeinde",
       value: "Gemeinde1",
-      infoUrl: "wboe-artikel/dbheaderinfo-gemeinde/",
+      infoUrl: "dbheaderinfo/gemeinde/",
       renderFnc: (val: any) =>
         `${_(val.Gemeinde1)
           .flatten()
@@ -1999,7 +1999,8 @@ export default class Database extends Vue {
 
   downloadFiduz() {
     window.open(
-      "https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/informationen/fiduz/"
+      "https://lioe-cms.dioe.at/informationen/fiduz/"
+      // "https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/informationen/fiduz/"
     );
   }
 }
