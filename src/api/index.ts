@@ -44,16 +44,16 @@ interface individualRequest {
 }
 
 const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
-const txtEndpoint = 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
+const txtEndpoint = 'https://lioe-cms.dioe.at/' // 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
 export const localEndpoint = process.env.API_HOST
 const articleEndpoint = localEndpoint + '/api/article'
 
 const localUrls: { [remoteUrl: string]: string } = {
-  '/lioetxt/home/': '/',
-  '/lioetxt/wboe-artikel/': '/articles',
-  '/lioetxt/karten/': '/maps',
-  '/lioetxt/materialien/': '/resources',
-  '/lioetxt/belegdatenbank/': '/db',
+  '/home/': '/',
+  '/wboe-artikel/': '/articles',
+  '/karten/': '/maps',
+  '/materialien/': '/resources',
+  '/belegdatenbank/': '/db',
 }
 
 var finalQuery: Object = {};
@@ -66,7 +66,16 @@ export async function getWebsiteHtml(path: string): Promise<string> {
   if (path.substr(path.length - 1) !== '/') {
     path += '/'
   }
-  return (await fetch(txtEndpoint + path)).text()
+  let html = await (await fetch(txtEndpoint + path)).text()
+  if (html.indexOf('id="content"') > -1) {
+    let htmlDom = new DOMParser().parseFromString(html, 'text/html')
+    let contentHtml = htmlDom.getElementById('content')
+    if (contentHtml) {
+      // console.log('xxx', { html, htmlDom, contentHtml })
+      html = contentHtml.innerHTML
+    }
+  }
+  return html
 }
 
 export function isExternUrl(url: string): boolean {
