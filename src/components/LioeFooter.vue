@@ -22,16 +22,23 @@
         <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/logodioe.png" alt="" class="src" />
       </a>
     </v-layout>
-    <div class="mt-5 text-center footer">
-      <v-btn exact to="/resources?link=home%2Fimpressum%2F" small rounded text>Impressum</v-btn>
-      <v-btn exact to="/resources?link=home%2Fkontakt%2F" small rounded text>Kontakt</v-btn>
-      <v-btn exact to="/resources?link=home%2Fdatenschutz%2F" small rounded text>Datenschutz</v-btn>
-      <v-btn :to="'/password?initial_url=' + $route.fullPath" small rounded text>Login</v-btn>
+
+
+    <div class="footer mt-5" >
+      <p class="text-center">
+        <v-btn exact to="/resources?link=home%2Fimpressum%2F" small rounded text>Impressum</v-btn>
+        <v-btn exact to="/resources?link=home%2Fkontakt%2F" small rounded text>Kontakt</v-btn>
+        <v-btn exact to="/resources?link=home%2Fdatenschutz%2F" small rounded text>Datenschutz</v-btn>
+        <v-btn :to="'/password?initial_url=' + $route.fullPath" small rounded text>Login</v-btn>
+      </p>
+      <p class="text-center mt-3 mb-0" style="font-size: 0.75em">
+        Version: {{version}} - {{branch}}
+      </p>
     </div>
     </v-flex>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component } from 'vue-property-decorator'
 
 @Component
 export default class LioeFooter extends Vue {
@@ -40,6 +47,19 @@ export default class LioeFooter extends Vue {
   // onChangeRoute(newRoute: string) {
 
   // }
+
+  created() {
+    this.version = process.env.VUE_APP_VERSION ?? 'version';
+
+    this.commit_hash = process.env.VUE_APP_COMMIT_HASH ?? 'commit hash';
+
+    this.branch = process.env.VUE_APP_BRANCH ?? 'branch';
+  }
+
+  version: String = 'version';
+  commit_hash: String = 'commit hash';
+  branch: String = 'branch';
+
 }
 </script>
 <style lang="scss" scoped>
