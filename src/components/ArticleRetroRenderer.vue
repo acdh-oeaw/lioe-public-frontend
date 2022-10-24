@@ -56,7 +56,12 @@ export default class ArticleRetroRenderer extends Vue {
           if (tVal[0] !== ',' && tVal[0] !== '.' && tVal[0] !== ';' && tVal[0] !== ':' && tVal[0] !== ')' && tVal[0] !== ']' && tVal[0] !== '}') {
             out += '<span class="ws"> </span>'
           }
-          out += e.value
+          if (tVal === 'Belegauswahl (Lautung)') {
+            out += 'Lautung'
+          } else {
+            out += e.value
+          }
+          console.log(e.value)
           t += tVal
         } else if (e.type === "PROCESSING_INSTRUCTION") {
           out += '<span class="pi p-' + e.name + '">' + e.value + '</span>'
@@ -147,6 +152,9 @@ export default class ArticleRetroRenderer extends Vue {
     }
     .e-pb.a-facs {
       display: none;
+    }
+    .e-usg > .e-pRef {
+      font-style: italic;
     }
   }
 </style>
