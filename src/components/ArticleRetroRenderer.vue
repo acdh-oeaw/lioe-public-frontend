@@ -58,6 +58,8 @@ export default class ArticleRetroRenderer extends Vue {
           }
           if (tVal === 'Belegauswahl (Lautung)') {
             out += 'Lautung'
+          } else if (tVal === 'Wortbildung (Komposita)') {
+            out += 'Wortbildung'
           } else {
             out += e.value
           }
@@ -99,6 +101,13 @@ export default class ArticleRetroRenderer extends Vue {
       margin-right: -16px;
       border-top: 1px solid #ddd;
       padding-top: 16px;
+    }
+    .e-entry > .e-q {
+      font-style: italic;
+    }
+    .e-entry > .e-form > .e-usg,
+    .e-entry > .e-form > .a-type-diminutive {
+      display: table;
     }
     .a-type-header {
       display: block;
@@ -149,6 +158,12 @@ export default class ArticleRetroRenderer extends Vue {
     .e-sense.a-n > .e-usg {
       display: block;
       margin-bottom: 0.3rem;
+    }
+    .e-sense > .e-sense {
+      display: table;
+    }
+    .e-sense > .e-def:first-child {
+      display: table;
     }
     .e-pb.a-facs {
       display: none;
