@@ -760,7 +760,7 @@ export default class Database extends Vue {
     "LT1_teuthonista",
     "BD/LT*",
     "Ort/LT",
-    "BD/KT1",
+    "KT1",
     "BD/KT*",
     "QU",
     "BIBL",
@@ -903,7 +903,7 @@ export default class Database extends Vue {
       text: "Kontext", // Belegsatz
       infoUrl: "dbheaderinfo/kontext/",
       renderFnc: this.renderBelegsaetze,
-      value: "BD/KT1", //'belegsaetze',
+      value: "KT1", //'belegsaetze',
       sortable: true,
     },
     {
@@ -1924,7 +1924,7 @@ export default class Database extends Vue {
           case "BD/LT*":
             x[key] = this.renderBedeutung(x);
             break;
-          case "BD/KT1":
+          case "KT1":
             x[key] = this.renderBelegsaetze(x);
             break;
           case "BD/KT*":
@@ -1932,8 +1932,6 @@ export default class Database extends Vue {
             break;
           case "Sigle1":
             x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, "");
-          case "KT1":
-            x[key] = x[key].replace(/(  )( )*/, " ");
           default:
             break;
         }
