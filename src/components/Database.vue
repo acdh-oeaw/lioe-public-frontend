@@ -534,7 +534,7 @@
             </v-btn>
           </template>
           <v-list class="context-menu-list" dense>
-            <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
+            <v-list-item @click="saveXLSX">EXCEL</v-list-item>
             <v-list-item @click="saveJSON">JSON</v-list-item>
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
@@ -1838,6 +1838,7 @@ export default class Database extends Vue {
     });
   }
 
+  // ToDo: Delete "editValuesForExport" and "sortedHeaders" if not needed anymore ?!?
   editValuesForExport(): any[] {
     var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
     // sorting the columns based on the order of the table
@@ -1958,8 +1959,27 @@ export default class Database extends Vue {
     return orderedSelect;
   }
 
-  saveXLSX() {
-    var localSelect: any[] = this.editValuesForExport();
+  editValuesForExport2(): any[] {
+    var localSelect: any[] = _.cloneDeep(this.selected) // creating a deep copy
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = []
+
+    localSelect.forEach((x) => {
+      var localOrdered: any = {}
+      this.headers.forEach(h => {
+        if (h.show) {
+          let aVal:any = h.renderFnc ? h.renderFnc(x) : x[h.value]
+          localOrdered[h.text || h.value] = aVal && aVal.join ? aVal.join(', ') : aVal
+        }
+      })
+      orderedSelect.push(localOrdered);
+    })
+    // console.log('orderedSelect', orderedSelect)
+    return orderedSelect
+  }
+
+  saveTable(type: string) {
+    var localSelect: any[] = this.editValuesForExport2();
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
@@ -1967,25 +1987,20 @@ export default class Database extends Vue {
         Sheets: { sheet: x },
         SheetNames: ["sheet"],
       },
-      "wboe-lioe-export.xlsx"
+      "wboe-lioe-export." + type
     );
+  }
+
+  saveXLSX() {
+    this.saveTable('xlsx')
   }
 
   saveCSV() {
-    var localSelect: any[] = this.editValuesForExport();
-
-    const x = xlsx.utils.json_to_sheet(localSelect || this.items);
-    const y = xlsx.writeFile(
-      {
-        Sheets: { sheet: x },
-        SheetNames: ["sheet"],
-      },
-      "wboe-lioe-export.csv"
-    );
+    this.saveTable('csv')
   }
 
   saveJSON() {
-    var localSelected = this.editValuesForExport();
+    var localSelected = this.editValuesForExport2();
     // var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
     // localSelected.forEach((x) => {
     //   delete x['colSources'];
