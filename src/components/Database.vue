@@ -1969,10 +1969,13 @@ export default class Database extends Vue {
       this.headers.forEach(h => {
         if (h.show) {
           let aVal:any = h.renderFnc ? h.renderFnc(x) : x[h.value]
+          if (h.text === 'Sammlung' && x['colSources'] && x['colSources'].length > 0) {
+            aVal = x['colSources'].map((cs: any) => cs.collection_name)
+          }
           localOrdered[h.text || h.value] = aVal && aVal.join ? aVal.join(', ') : aVal
         }
       })
-      orderedSelect.push(localOrdered);
+      orderedSelect.push(localOrdered)
     })
     // console.log('orderedSelect', orderedSelect)
     return orderedSelect
