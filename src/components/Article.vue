@@ -138,6 +138,13 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <div
+      tabindex="0"
+      :style="{left: bibliographieToolTip.x + 'px', top: bibliographieToolTip.y + 'px', 'margin-top': -(5 + bibliographieToolTip.h) + 'px'}"
+      @blur="bibliographieToolTipBlur"
+      ref="bibliographieToolTip"
+      v-if="bibliographieToolTip.show" v-html="bibliographieToolTip.html" class="bib-tool-tip"
+    />
   </v-layout>
 </template>
 <script lang="ts">
@@ -155,6 +162,7 @@ import { userStore, ArticleStatus } from "../store/user"
 import { stateProxy } from "@src/store/collections"
 import VueHorizontal from 'vue-horizontal';
 import { articleStore }from "@src/store/articles-store"
+import { getWebsiteHtml } from '../api'
 
 @Component({
   components: {
@@ -195,6 +203,15 @@ export default class Article extends Vue {
   pbFacsPdfLink: string | null = null
   isRetro: boolean | null = false
   userStore = userStore
+
+  bibliographieObj: any | null = null
+  bibliographieToolTip: any = {
+    x: 0,
+    y: 0,
+    h: 0,
+    html: null,
+    show: false
+  }
 
   updateHorizontalArticleList: boolean = true;
 
@@ -270,16 +287,20 @@ export default class Article extends Vue {
     );
   }
 
-  getLemmaLinkElement(el: HTMLElement): string | false | null {
-    // this is awful.
-    return (
-      el.getAttribute("data-target") ||
-      (el.parentElement !== null &&
-        el.parentElement.getAttribute("data-target")) ||
-      (el.parentElement !== null &&
-        el.parentElement.parentElement !== null &&
-        el.parentElement.parentElement.getAttribute("data-target"))
-    );
+  getDataTargetElement(el: HTMLElement): any[] {
+    let dt = el.getAttribute("data-target")
+    let maxDg = 10
+    let aEl = el
+    while (!dt && aEl.parentElement !== null && maxDg > 0) {
+      aEl = aEl.parentElement
+      dt = aEl.getAttribute("data-target")
+      maxDg -= 1
+    }
+    return [dt, aEl]
+  }
+
+  bibliographieToolTipBlur() {
+    this.bibliographieToolTip.show = false
   }
 
   handleArticleClick(e: MouseEvent) {
@@ -299,13 +320,33 @@ export default class Article extends Vue {
           this.goToDB(id);
           // this.$router.push({ path: "/db", query: { collection_ids: id } });
           // Verweis auf anderes Lemma
-        } else if (
-          typeof this.getLemmaLinkElement(e.target as HTMLElement) === "string"
-        ) {
-          const s = this.getLemmaLinkElement(e.target as HTMLElement) as string;
-          const t = /(.+)\.xml/g.exec(s);
-          if (t !== null && t[1] !== null) {
-            this.$router.push({ path: "/articles/" + t[1] });
+        } else {
+          if (typeof this.getDataTargetElement(e.target as HTMLElement)[0] === "string") {
+            const o = this.getDataTargetElement(e.target as HTMLElement)
+            const s = o[0] as string
+            const t = /(.+)\.xml/g.exec(s)
+            console.log('lemmaLink', {s, t})
+            if (t !== null && t[1] !== null) {
+              this.$router.push({ path: "/articles/" + t[1] })
+            } else {
+              if (s.charAt(0) === '#') {
+                if (this.bibliographieObj && this.bibliographieObj.htmlDom) {
+                  let bHtml = this.bibliographieObj.htmlDom.getElementById(s.substring(1))
+                  if (bHtml) {
+                    bHtml = bHtml.innerHTML
+                    this.bibliographieToolTip.html = bHtml
+                    this.bibliographieToolTip.x = o[1].getBoundingClientRect().left
+                    this.bibliographieToolTip.y = o[1].getBoundingClientRect().top + document.documentElement.scrollTop
+                    this.bibliographieToolTip.h = 60
+                    this.bibliographieToolTip.show = true
+                    this.$nextTick(() => {
+                      (this.$refs.bibliographieToolTip as any).focus()
+                    })
+                    console.log('bHtml', bHtml, this.bibliographieToolTip, o[1].getBoundingClientRect(), o[1])
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -597,8 +638,21 @@ export default class Article extends Vue {
     this.loading = false;
   }
 
+  async init() {
+    try {
+      this.bibliographieObj = {
+        html: await getWebsiteHtml('https://lioe-cms.dioe.at/materialien/bibliographie')
+      }
+      this.bibliographieObj.htmlDom = new DOMParser().parseFromString(this.bibliographieObj.html, 'text/html')
+      console.log('bibliographieObj', this.bibliographieObj)
+    } catch (e) {
+      console.log('error', e)
+    }
+  }
+
   mounted() {
     this.updateHorizontalArticleList = true;
+    this.init()
   }
 
   updated() {
@@ -760,5 +814,14 @@ iframe.comment {
   &:hover {
     text-decoration: underline;
   }
+}
+.bib-tool-tip {
+  position: absolute;
+  z-index: 100;
+  background: #fff;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+  padding: 5px 10px;
+  width: 380px;
+  margin-left: -10px;
 }
 </style>
