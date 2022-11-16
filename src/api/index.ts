@@ -46,7 +46,7 @@ interface individualRequest {
 const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
 const txtEndpoint = 'https://lioe-cms.dioe.at/' // 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
 export const localEndpoint = process.env.API_HOST
-const articleEndpoint = localEndpoint + '/api/article'
+const articleEndpoint = localEndpoint + '/api/articles'
 
 const localUrls: { [remoteUrl: string]: string } = {
   '/home/': '/',
@@ -448,9 +448,9 @@ function getFinalQuery(
       }
 
       tmpFields.forEach((tmpField) => {
-        
+
         if (tmpField === 'ID') tmpField = 'ID.keyword';
- 
+
         if (Array.isArray(obj.query)) {
           // create a fuzzy query, add the designed queries under the boolean query 'should'
           if (fuzzlevel === 3) {
@@ -647,13 +647,29 @@ export async function getDocumentsByCollection(
   }
 }
 
+export interface Article{
+  title: string,
+  lemma: string,
+  filename: string,
+  status?: string,
+  xmlUrl?: string,
+  word_type?: Array<string>,
+  compositum?: Array<string>,
+  references?: {
+    id: string,
+    text: string
+  },
+  retro?: [],
+  main?: []
+}
+
 export async function getArticles(
   search?: string,
   filter?: string
-): Promise<Array<{ title: string; filename: string }>> {
+): Promise<Array<Article>> {
   // tslint:disable-next-line:max-line-length
-  const searchStatus = filter !== null && filter !== undefined ? filter : userStore.articleStatus.join('|');
-  console.log('searchStatus', searchStatus, filter, userStore.articleStatus.join('|'))
+  const searchStatus = filter !== null && filter !== undefined ? filter : userStore.articleStatus.join(',');
+  console.log('searchStatus', searchStatus, filter, userStore.articleStatus.join(','))
   if (search !== undefined) {
     const r = await (
       await fetch(
@@ -664,10 +680,10 @@ export async function getArticles(
         searchStatus
       )
     ).json()
-    return r.results.article
-      ? r.results.article.length
-        ? r.results.article
-        : [r.results.article]
+    return r.results
+      ? r.results.length
+        ? r.results
+        : [r.results]
       : []
   } else {
     const r = await (
@@ -675,10 +691,10 @@ export async function getArticles(
         articleEndpoint + '?status=' + searchStatus
       )
     ).json()
-    return r.results.article
-      ? r.results.article.length
-        ? r.results.article
-        : [r.results.article]
+    return r.results
+      ? r.results.length
+        ? r.results
+        : [r.results]
       : []
   }
 }

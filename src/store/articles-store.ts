@@ -1,7 +1,7 @@
 import { createModule, mutation, action, extractVuexModule, Module, createProxy, } from "vuex-class-component";
 import Vuex from 'vuex'
 import Vue from 'vue'
-import { getArticles } from "@src/api";
+import { Article, getArticles } from "@src/api";
 Vue.use(Vuex)
 
 const VuexModule = createModule({
@@ -12,16 +12,16 @@ const VuexModule = createModule({
 
 class ArticlesModule extends VuexModule {
 
-    articles: Array<{ title: string; filename: string }> = [];
+    articles: Array<Article> = [];
 
-    articlesPromise: Promise<Array<{ title: string; filename: string }>>
+    articlesPromise: Promise<Array<Article>>
 
     loading: boolean = false;
     // @ts-ignore
     version: String = process.env.VUE_APP_VERSION
 
     @action
-    async fetchArticles(forceUpdate?:boolean) : Promise<Array<{ title: string; filename: string }>> {
+    async fetchArticles(forceUpdate?:boolean) : Promise<Array<Article>> {
 
         if(this.loading){
             return this.articlesPromise;
@@ -48,7 +48,7 @@ class ArticlesModule extends VuexModule {
                 this.articles = sortArticles(articles);
                 console.log('force update article fetched');
             })
-        } 
+        }
         this.loading = false;
         return this.articlesPromise;
     }
@@ -61,7 +61,7 @@ const restore_umlaut_for_search_map: Record<string, string> = {
   '\u203Aa':'ä', '\u203AA':'Ä',
   '\u203Ao':'ö', '\u203AO':'Ö',
   '\u203Au':'ü', '\u203AU':'Ü',
-  '\u203As':'ß'  
+  '\u203As':'ß'
 }
 
 const  replace_for_search_map = Object.keys(restore_umlaut_for_search_map).reduce((ret: Record<string, string>, key: string) => {
@@ -72,7 +72,7 @@ const  replace_for_search_map = Object.keys(restore_umlaut_for_search_map).reduc
 function getEasySearchLemma(lemmaName: string) {
   const ret: string = (
     lemmaName
-      .replace(/[äöüÄÖÜß]/g, 
+      .replace(/[äöüÄÖÜß]/g,
         (c) => replace_for_search_map[c]
       )
       .normalize('NFKD')
@@ -87,7 +87,11 @@ function sortArticles(articles:any[]) {
     console.log('articles', articles);
     return articles
         .filter((a) => a.title !== "" && a.title !== undefined)
-        .map((t) => ({ title: t.title, filename: t.filename.replace(".xml", "") }))
+        .map((t) => {
+          const art: Article = t;
+          art.filename.replace(".xml", "");
+          return art;
+        })
         .sort((a, b) => getEasySearchLemma(a.title).localeCompare(getEasySearchLemma(b.title)));
 }
 

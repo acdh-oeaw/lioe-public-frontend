@@ -40,20 +40,20 @@ app.use((request, response, next) => {
 
 app.use(compression())
 app.use(bodyParser.json())
-app.get('/api/article', async (req, res) => {
+app.get('/api/articles', async (req, res) => {
   const r = (await axios({
-    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=10000'
-      + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
+    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/articles?max=10000'
+      + (req.query.initial ? '&initial='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
     headers: {
       Accept: 'application/json'
     }
   })).data
   res.send(r)
 })
-app.get('/api/article/:article', async (req, res) => {
+app.get('/api/articles/:article', async (req, res) => {
   console.log(req.params.article)
   const r = (await axios({
-    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article/'+ encodeURIComponent(req.params.article),
+    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/articles/'+ encodeURIComponent(req.params.article),
     headers: {
       Accept: 'application/xml'
     }

@@ -64,7 +64,7 @@
       <v-list v-if="filteredArticlesByInitial.length > 0">
         <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
-          <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="article in articles.articles" :key="article.filename">
+          <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="(article, index) in articles.articles" :key="index">
             <v-list-item-title>
               {{ article.title }}
             </v-list-item-title>
@@ -89,7 +89,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { getArticles } from '../api'
+import { Article, getArticles } from '../api'
 import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
 import { articleStore } from '@src/store/articles-store'
@@ -102,7 +102,7 @@ import { articleStore } from '@src/store/articles-store'
 // tslint:disable:max-line-length
 export default class Articles extends Vue {
 
-  articles: Array<{ title: string, filename: string }> = []
+  articles: Array<Article> = []
   loading = false
   letter = 0
   searchTerm = ''
@@ -114,7 +114,7 @@ export default class Articles extends Vue {
       selected: true,
       label: 'Kontroliert',
       filter: 'proofed'
-    }, 
+    },
     {
       selected: true,
       label: 'Fertiggestellt',
@@ -137,9 +137,9 @@ export default class Articles extends Vue {
     '\u203Aa':'ä', '\u203AA':'Ä',
     '\u203Ao':'ö', '\u203AO':'Ö',
     '\u203Au':'ü', '\u203AU':'Ü',
-    '\u203As':'ß'  
+    '\u203As':'ß'
   }
-  
+
   readonly replace_for_search_map = Object.keys(this.restore_umlaut_for_search_map).reduce((ret: Record<string, string>, key: string) => {
     ret[this.restore_umlaut_for_search_map[key]] = key;
     return ret;
@@ -148,7 +148,7 @@ export default class Articles extends Vue {
   getEasySearchLemma(lemmaName: string) {
     const ret: string = (
       lemmaName
-        .replace(/[äöüÄÖÜß]/g, 
+        .replace(/[äöüÄÖÜß]/g,
           (c) => this.replace_for_search_map[c]
         )
         .normalize('NFKD')
@@ -158,43 +158,43 @@ export default class Articles extends Vue {
       )
     return ret
   }
-  
+
   getCleanInitial(lemmaName: string) {
     const ret: string = this.getEasySearchLemma(lemmaName)
     return (ret[0] || '').toUpperCase() + (ret[1] || '').toLowerCase()
   }
 
   getCleanFirstLetter(lemmaName: string) {
-    const ret: string = this.getEasySearchLemma(lemmaName)     
+    const ret: string = this.getEasySearchLemma(lemmaName)
     return (ret[0] || '').toUpperCase()
   }
 
   @Watch("toggleModel", { deep: true })
   updateFilterStatus() {
-    switch(this.toggleModel) { 
+    switch(this.toggleModel) {
       case 0: { // RETRO
         for (var i = 1; i < 4; i++) {
           this.articleStatusFilters[i].selected = i >= 2 ? true : false;
-        } 
-      break; 
-      } 
+        }
+      break;
+      }
       case 1: {
         for (var i = 1; i < 4; i++) {
           this.articleStatusFilters[i].selected = i >= 2 ? false : true;
-        } 
-      break; 
-      } 
+        }
+      break;
+      }
       case 2: { // ALLE
         for (var i = 0; i < 4; i++) {
           this.articleStatusFilters[i].selected = true;
-        } 
-      break; 
-      } 
-      default: { 
-      //statements; 
-      break; 
-      } 
-    } 
+        }
+      break;
+      }
+      default: {
+      //statements;
+      break;
+      }
+    }
       this.searchArticle(this.searchTerm);
   }
 
@@ -226,14 +226,14 @@ export default class Articles extends Vue {
         length: v.length
       }))
       .value())
-      .sort((a, b) => a.char.localeCompare(b.char))]     
+      .sort((a, b) => a.char.localeCompare(b.char))]
   }
 
   get activeFiltersAsString() {
     return this.articleStatusFilters
     .filter((item) => { return item.selected === true})
     .map((item) => { return item.filter})
-    .join('|');
+    .join(',');
   }
 
   articleList() {
@@ -242,7 +242,7 @@ export default class Articles extends Vue {
 
   async mounted() {
     this.loading = true
-    
+
     if(!this.articleList || this.articleList.length === 0) {
       await articleStore.articles.fetchArticles().then(() => this.articles = this.articleList())
     } else {
@@ -276,7 +276,7 @@ export default class Articles extends Vue {
         // Todo
         this.searchArticle(this.searchTerm);
       }
-        
+
     }
   }
 }
