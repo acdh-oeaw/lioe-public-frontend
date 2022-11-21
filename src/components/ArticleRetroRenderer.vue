@@ -61,8 +61,8 @@ export default class ArticleRetroRenderer extends Vue {
           }
           if (tVal === 'Belegauswahl (Lautung)') {
             out += 'Lautung'
-          } else if (tVal === 'Wortbildung (Komposita)') {
-            out += 'Wortbildung'
+          // } else if (tVal === 'Wortbildung (Komposita)') {
+          //   out += 'Wortbildung'
           } else {
             out += e.value
           }
