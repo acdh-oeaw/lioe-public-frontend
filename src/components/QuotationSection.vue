@@ -1,5 +1,5 @@
 <template>
-  <v-col class="cgrey" v-if="pubDatePfusch && title && autName && noteName">
+  <v-col class="cgrey" v-if="(pubDatePfusch && title && autName && noteName) || isRetro">
     <h4>
       Zitation
       <v-btn fab icon>
@@ -9,6 +9,7 @@
     <span v-html="content"></span>
   </v-col>
 </template>
+
 <script lang="ts">
 // tslint:disable:max-line-length
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
@@ -21,42 +22,65 @@ import { log } from "util";
   components: {},
 })
 export default class QuotationSection extends Vue {
-  @Prop() autor: any;
-  @Prop() noteAutor: any;
-  @Prop() publicationDate: any;
-  @Prop({ default: "" }) xml: string;
-  @Prop({ default: "" }) filename: string;
-  @Prop() article: any;
+  @Prop() autor: any
+  @Prop() noteAutor: any
+  @Prop() publicationDate: any
+  @Prop({ default: "" }) xml: string
+  @Prop({ default: "" }) filename: string
+  @Prop() article: any
+  @Prop() isRetro: boolean
+  @Prop({ default: null}) pbFacs: string[];
   get autName() {
-    if (!this.autor) return "";
-    const ns = this.autor.fullname.split(" ");
-    ns.unshift(",");
-    ns.unshift(ns[ns.length - 1]);
-    ns.pop();
-    return ns.join(' ').replace(/ , /, ", ");
+    if (!this.autor) return ""
+    const ns = this.autor.fullname.split(" ")
+    ns.unshift(",")
+    ns.unshift(ns[ns.length - 1])
+    ns.pop()
+    return ns.join(' ').replace(/ , /, ", ")
   }
 
   get content() {
-    return `
+    if (this.isRetro) {
+      return this.title + '. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). ' +
+        'URL: <a href="https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '">https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '</a> [Zugriff: ' + this.date + '] ' +
+        '(Originalquelle: Wörterbuch der bairischen Mundarten in Österreich.' + this.facsTxt + ').'
+    } else {
+      return `
 ${this.autName} (${this.pubDatePfusch}): <i>${this.title}</i>.
-Mit einem Lautungsüberblick von ${this.noteName}. In: Wörterbuch der bairischen
-Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische
-Informationssystem Österreich (LIÖ).
-URL: <a href="https://lioe.dioe.at/articles/${
-      this.filename || this.title
-    }">https://lioe.dioe.at/articles/${this.filename || this.title}</a>
+Mit einem Lautungsüberblick von ${this.noteName}. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ).
+URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">https://lioe.dioe.at/articles/${this.filename || this.title}</a>
 [Zugriff: ${this.date}].`;
+    }
+  }
+
+  get facsTxt() {
+    let facsTxt = ''
+    if (this.pbFacs) {
+      console.log('yyyyy', (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || [])
+      const facsData = (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || []
+      if (facsData[1]) {
+        facsTxt += ' Bd. ' + facsData[1] + '. Herausgegeben im Auftrag der Österreichischen Akademie der Wissenschaften von der Kommission zur Schaffung des Österreichisch-Bayerischen Wörterbuches und zur Erforschung unserer Mundarten. Wien: Kommissionsverlag der Österreichischen Akademie der Wissenschaften.'
+        facsTxt += facsData[1] === '1' ? ' 1970.' : ''
+        facsTxt += facsData[2] ? ' S. ' + facsData[2] : ''
+      }
+    }
+    return facsTxt
   }
 
   get quote() {
-    return `
-${this.autName} (${this.pubDatePfusch}): ${
-      this.title
-    }. Mit einem Lautungsüberblick von ${
-      this.noteName
-    }. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
-      this.filename || this.title
-    } [Zugriff: ${this.date}].`;
+    if (this.isRetro) {
+      return this.title + '. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). ' +
+        'URL: https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + ' [Zugriff: ' + this.date + '] ' +
+        '(Originalquelle: Wörterbuch der bairischen Mundarten in Österreich.' + this.facsTxt + ').'
+    } else {
+      return `${this.autName} (${this.pubDatePfusch}): ${
+        this.title
+      }. Mit einem Lautungsüberblick von ${
+        this.noteName
+      }. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
+        this.filename || this.title
+      } [Zugriff: ${this.date}].`;
+    }
   }
 
   copyContent() {
@@ -66,17 +90,23 @@ ${this.autName} (${this.pubDatePfusch}): ${
 
   get title() {
     if (!this.xml) return "";
-    const w = this.xml
-      .replace(/\n/g, "")
-      .match(/<form type="lemma"(\n|.)*?<\/form>/gm);
-    console.log("w", w);
+    if (this.isRetro) {
+      let lemma = (this.xml.replace(/\n/g, '').match(/<form type="lemma"(\n|.)*?<\/form>/gm) || [])[0]
+      lemma = lemma ? (lemma.match(/<orth[^>]*>(.*)<\/orth>/) || [])[1] : '?'
+      return lemma
+    } else {
+      const w = this.xml
+        .replace(/\n/g, "")
+        .match(/<form type="lemma"(\n|.)*?<\/form>/gm);
+      console.log("w", w);
 
-    const names: any = [];
-    (w || []).forEach((a: string) => {
-      names.push((a.match(/<orth>(.*)<\/orth>/) || [])[1]);
-    });
+      const names: any = [];
+      (w || []).forEach((a: string) => {
+        names.push((a.match(/<orth>(.*)<\/orth>/) || [])[1]);
+      });
 
-    return names.join(", ");
+      return names.join(", ");
+    }
   }
 
   get noteName() {
