@@ -1,0 +1,72 @@
+.v-card, .menu__content{
+  border-radius: 5px !important;
+}
+.text-no-transform{
+  letter-spacing: normal;
+  text-transform: none;
+}
+.absolute{
+  position: absolute;
+}
+.text-light{
+  font-weight: 300;
+}
+.text-uppercase{
+  text-transform: uppercase;
+  letter-spacing: .2em !important;
+}
+
+.v-application {
+  font-family: 'fiduz', sans-serif
+}
+.v-application h2 {
+  font-weight: 400;
+}
+
+.theme--light .table tfoot tr{
+  border-top: 0;
+}
+
+table.v-table thead th,
+table.v-table tbody td{
+  padding: 0 8px !important;
+}
+
+table thead tr{
+  border-bottom: 0 !important;
+}
+
+table tfoot .datatable__actions{
+  justify-content: flex-start;
+}
+
+.btn:not(.btn--depressed){
+  box-shadow: none;
+}
+img{
+  transition: opacity .2s;
+}
+img[lazy=loading] {
+  opacity: 0;
+}
+img[lazy=loaded] {
+  opacity: 1;
+}
+.no-outline{
+  outline: 0;
+}
+.bold{
+  font-weight: bold;
+}
+.divider-left::before{
+  content: ' ';
+  width: 1px;
+  background: rgba(0,0,0,.1);
+  height: 60%;
+  position: absolute;
+  z-index: 1;
+  top: 20%;
+}
+.w-100 {
+  width: 100%;
+}
