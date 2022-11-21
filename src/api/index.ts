@@ -1,7 +1,6 @@
 import { Collection } from '@src/store/collections'
 import axios from 'axios'
 import * as _ from 'lodash'
-import { concat, isNull } from 'lodash'
 import { userStore } from '../store/user'
 
 declare var process: {
@@ -674,10 +673,8 @@ export async function getArticles(
     const r = await (
       await fetch(
         articleEndpoint +
-        '?initial=' +
-        search +
-        '&status=' +
-        searchStatus
+        '?initial=' + search +
+        '&status=' + searchStatus
       )
     ).json()
     return r.results
@@ -698,6 +695,19 @@ export async function getArticles(
       : []
   }
 }
+
+export interface ArticleVersion {
+  version: {
+    sw: String,
+    data: String,
+  }
+}
+
+export async function getArticlesVersion() : Promise<ArticleVersion> {
+  return await (await fetch(articleEndpoint + '-version')).json();
+}
+
+
 
 export async function getArticleByFileName(fileName: string): Promise<string> {
   console.log('getArticleByFileName', encodeURIComponent(fileName))

@@ -31,13 +31,23 @@
         <v-btn exact to="/resources?link=home%2Fdatenschutz%2F" small rounded text>Datenschutz</v-btn>
         <v-btn :to="'/password?initial_url=' + $route.fullPath" small rounded text>Login</v-btn>
       </p>
-      <p class="text-center mt-3 mb-0" style="font-size: 0.75em">
-        Version: {{version}} - {{branch}}
-      </p>
+      <div class="text-center mt-3 mb-0" style="font-size: 0.75em">
+        <b>Versions:</b>
+        <p class="my-1">
+          Frontend: {{frontendVersion}} - {{branch}}
+        </p>
+        <p class="my-1">
+          Article API: {{articleApiVersion}}
+        </p>
+        <p class="my-1">
+          Article Data: {{articleDataVersion}}
+        </p>
+      </div>
     </div>
     </v-flex>
 </template>
 <script lang="ts">
+import { articleStore } from '@src/store/articles-store';
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
@@ -49,16 +59,30 @@ export default class LioeFooter extends Vue {
   // }
 
   created() {
-    this.version = process.env.VUE_APP_VERSION ?? 'version';
-
-    this.commit_hash = process.env.VUE_APP_COMMIT_HASH ?? 'commit hash';
-
-    this.branch = process.env.VUE_APP_BRANCH ?? 'branch';
+    articleStore.articles.fetchVersion();
   }
 
-  version: String = 'version';
-  commit_hash: String = 'commit hash';
-  branch: String = 'branch';
+  get frontendVersion() {
+    return process.env.VUE_APP_VERSION ?? 'version';
+  }
+
+  get commit_hash()  {
+    return process.env.VUE_APP_COMMIT_HASH ?? 'commit hash';
+  }
+
+  get branch(){
+    return process.env.VUE_APP_BRANCH ?? 'branch';
+  }
+
+  get articleApiVersion() {
+    return articleStore.articles.articleApiVersion;
+  }
+
+  get articleDataVersion() {
+    return articleStore.articles.articleDataVersion;
+  }
+
+
 
 }
 </script>

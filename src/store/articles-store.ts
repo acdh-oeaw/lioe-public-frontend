@@ -1,7 +1,7 @@
-import { createModule, mutation, action, extractVuexModule, Module, createProxy, } from "vuex-class-component";
+import { createModule, action, extractVuexModule, createProxy, } from "vuex-class-component";
 import Vuex from 'vuex'
 import Vue from 'vue'
-import { Article, getArticles } from "@src/api";
+import { Article, getArticles, getArticlesVersion } from "@src/api";
 Vue.use(Vuex)
 
 const VuexModule = createModule({
@@ -18,7 +18,18 @@ class ArticlesModule extends VuexModule {
 
     loading: boolean = false;
     // @ts-ignore
-    version: String = process.env.VUE_APP_VERSION
+    frontendVersion: String = process.env.VUE_APP_VERSION;
+
+    articleApiVersion: String = 'version';
+
+    articleDataVersion: String = 'version';
+
+    @action
+    async fetchVersion() {
+      const r = await getArticlesVersion();
+      this.articleApiVersion = r.version.sw;
+      this.articleDataVersion = r.version.data;
+    }
 
     @action
     async fetchArticles(forceUpdate?:boolean) : Promise<Array<Article>> {

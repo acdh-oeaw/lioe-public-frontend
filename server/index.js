@@ -16,6 +16,8 @@ const axios = require('axios')
 
 var cors = require('cors')
 
+const articleAPIEndpoint = 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/';
+
 // This app runs behind an
 // application load balancer
 // which handles the Certificate
@@ -42,7 +44,7 @@ app.use(compression())
 app.use(bodyParser.json())
 app.get('/api/articles', async (req, res) => {
   const r = (await axios({
-    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/articles?max=10000'
+    url: articleAPIEndpoint + 'articles?max=10000'
       + (req.query.initial ? '&initial='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
     headers: {
       Accept: 'application/json'
@@ -53,12 +55,27 @@ app.get('/api/articles', async (req, res) => {
 app.get('/api/articles/:article', async (req, res) => {
   console.log(req.params.article)
   const r = (await axios({
-    url: 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/articles/'+ encodeURIComponent(req.params.article),
+    url: articleAPIEndpoint + 'articles/'+ encodeURIComponent(req.params.article),
     headers: {
       Accept: 'application/xml'
     }
   })).data
   res.send(r)
+})
+
+app.get('/api/articles-version', async (_req, res) => {
+  try {
+    const r = (await axios({
+      url: articleAPIEndpoint + 'version',
+      headers: {
+        Accept: 'application/json'
+      }
+    })).data;
+    res.send(r);
+  } catch(e) {
+    console.log(e.response.data)
+    res.send(500, e.response.data)
+  }
 })
 
 app.post('/es-query', async (req, res) => {
