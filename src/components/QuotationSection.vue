@@ -58,9 +58,16 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
     if (this.pbFacs) {
       console.log('yyyyy', (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || [])
       const facsData = (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || []
+      const baende: any = {
+        '1': '1970',
+        '2': '1976',
+        '3': '1983',
+        '4': '1998',
+        '5': '2015',
+      }
       if (facsData[1]) {
         facsTxt += ' Bd. ' + facsData[1] + '. Herausgegeben im Auftrag der Österreichischen Akademie der Wissenschaften von der Kommission zur Schaffung des Österreichisch-Bayerischen Wörterbuches und zur Erforschung unserer Mundarten. Wien: Kommissionsverlag der Österreichischen Akademie der Wissenschaften.'
-        facsTxt += facsData[1] === '1' ? ' 1970.' : ''
+        facsTxt += baende[facsData[1]] ? ' ' + baende[facsData[1]] + '.' : ''
         facsTxt += facsData[2] ? ' S. ' + facsData[2] : ''
       }
     }
