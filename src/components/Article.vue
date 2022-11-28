@@ -34,8 +34,8 @@
               </v-col>
             </v-row> 
           <vue-horizontal v-else responsive snap="center" ref="horizontal_articles">
-            <section v-for="item in articleList" :key="item.i">
-              <v-btn class="ml-6 mx-2" text :to="`/articles/${item.filename}`" :key="item.content">{{item.title}}</v-btn>
+            <section v-for="item in articleList" :key="item.xmlUrl">
+              <v-btn class="ml-6 mx-2" text :to="`/articles/${ getFileLink(item.xmlUrl) }`" :key="item.xmlUrl">{{item.title}}</v-btn>
             </section>
           </vue-horizontal>
         </div>
@@ -163,6 +163,7 @@ import { stateProxy } from "@src/store/collections"
 import VueHorizontal from 'vue-horizontal';
 import { articleStore }from "@src/store/articles-store"
 import { getWebsiteHtml } from '../api'
+import { fileLinkFromXMLUrl } from "@src/utilities/helper-functions"
 
 @Component({
   components: {
@@ -216,11 +217,11 @@ export default class Article extends Vue {
   updateHorizontalArticleList: boolean = true;
 
   get articleList() {
-    return articleStore.articles.articles;
+    return articleStore.articles.AllArticles;
   }
 
   get listLoading() {
-    return articleStore.articles.loading;
+    return articleStore.articles.loadingAll;
   }
 
 
@@ -233,6 +234,10 @@ export default class Article extends Vue {
         ? this.editor.initials.toLowerCase()
         : this.editor.fullname)
     );
+  }
+
+  getFileLink(xmlUrl?: string) : string {
+    return fileLinkFromXMLUrl(xmlUrl);
   }
 
   getGrossregionFromGemeinde(sigle: string): string | null {

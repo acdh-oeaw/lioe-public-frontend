@@ -39,9 +39,8 @@
                 test-id="omni-search-result"
                 :to="
                   item.type === 'article'
-                    ? `/articles/${findArticleByTitle(
-                        item.text
-                      ).filename.replace('.xml', '')}`
+                    ? `/articles/${
+                      getArticleFileLinkByTitle(item.text)}`
                     : item.type !== 'collection'
                     ? `/db?q=Sigle1,${item.value}`
                     : ``
@@ -176,19 +175,16 @@
         <template slot-scope="{ text, weight, word }">
           <router-link
             class="word-cloud-link"
-            :to="`/articles/${findArticleByTitle(text).filename.replace(
-              '.xml',
-              ''
-            )}`"
+            :to="`/articles/${getArticleFileLinkByTitle(text)}`"
           >
             {{ text }}
           </router-link>
         </template>
       </vue-word-cloud>
     </v-flex>
-    <div v-if="loading" class="text-center grey--text mt-5">Laden…</div>
+    <div v-if="!articlesCount" class="text-center grey--text mt-5">Laden…</div>
     <div v-else class="text-center grey--text mt-5">
-      {{ !loading && articlesCount ? articlesCount.toLocaleString() : '?' }} WBÖ-Artikel
+      {{ articlesCount ? articlesCount.toLocaleString() : '?' }} WBÖ-Artikel
     </div>
 
     <v-flex class="pt-4">
@@ -227,6 +223,7 @@ import { stateProxy } from '../store/collections';
 import InfoBox from '@components/InfoBox.vue';
 import { geoStore } from '../store/geo';
 import { articleStore } from '@src/store/articles-store';
+import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions';
 
 @Component({
   components: {
@@ -329,11 +326,11 @@ export default class Main extends Vue {
   searchLemma: string = '';
 
   get loading() {
-    return articleStore.articles.loading;
+    return articleStore.articles.loading || articleStore.articles.loadingAll;
   }
 
   get articles() {
-    return articleStore.articles.allArticles;
+    return articleStore.articles.AllArticles;
   }
   get articlesCount() {
     return articleStore.articles.articleCount;
@@ -369,7 +366,7 @@ export default class Main extends Vue {
       const articles = this.articles.map((a) => ({
         type: 'article',
         text: a.title,
-        value: a.filename,
+        value: a.xmlUrl,
         description: '',
       }));
       const places = this.geoStore.ortslisteGeo.map((f: any) => ({
@@ -393,6 +390,16 @@ export default class Main extends Vue {
   findArticleByTitle(title: string) {
     //check also based on ort
     return this.articles.find((a) => a.title === title);
+  }
+
+  getArticleFileLinkByTitle(title: string) {
+    const article = this.findArticleByTitle(title);
+
+    const xmlUrl = article?.xmlUrl;
+    if(!xmlUrl) return '';
+
+
+    return fileLinkFromXMLUrl(xmlUrl);
   }
 
   get words(): string[] {
@@ -522,7 +529,6 @@ export default class Main extends Vue {
   }
 
   async mounted() {
-    articleStore.articles.fetchAllArticlesSuccesively();
     this.onLandingTourHandler();
 
   }

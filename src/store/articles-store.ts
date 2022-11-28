@@ -25,12 +25,22 @@ class ArticlesModule extends VuexModule {
     // All Articles
     loadingAll: boolean = false;
 
-    allArticles: Array<Article> = [];
+    private allArticles: Array<Article> = [];
+
+    get AllArticles() {
+      if((!this.allArticles || this.allArticles.length < 1 ) && !this.loadingAll) {
+        this.fetchAllArticlesSuccesively();
+      }
+
+      return this.allArticles;
+    }
 
     // Search
     loadingArticleSearch: boolean = false;
 
     searchedArticles: Array<Article> = [];
+
+    searchArticleCount?: Number = void 0;
 
     lastSearch: string = '';
     lastFilter: string = '';
@@ -50,7 +60,7 @@ class ArticlesModule extends VuexModule {
     }
 
     @action
-    async fetchArticleSearch(search?: string, filter?: string, pageSize: number = 500) {
+    async fetchArticleSearch(search?: string, filter?: string, pageSize: number = 1000) {
       if(this.loadingArticleSearch) {
         return;
       }
@@ -64,6 +74,7 @@ class ArticlesModule extends VuexModule {
       await getArticles(search, filter, pageSize, pageNr).then( resp => {
         this.searchedArticles = sortArticles(filterAndMapArticles(resp.articles));
         totalPages = resp.page.totalPages.valueOf();
+        this.searchArticleCount = resp.page.totalElements;
       })
 
       let requests: Promise<any>[] = [];
@@ -71,9 +82,6 @@ class ArticlesModule extends VuexModule {
       for (pageNr = 2; pageNr <= totalPages; pageNr++) {
         requests.push(
           getArticles(search, filter, pageSize, pageNr).then( resp => {
-            console.log("🚀 ~ file: articles-store.ts ~ line 70 ~ ArticlesModule ~ getArticles ~ pageNr", pageNr);
-            console.log("🚀 ~ file: articles-store.ts ~ line 71 ~ ArticlesModule ~ getArticles ~ resp.articles", resp.articles);
-
             this.searchedArticles.push( ...sortArticles(filterAndMapArticles(resp.articles)));
           })
         );
@@ -81,12 +89,13 @@ class ArticlesModule extends VuexModule {
 
       Promise.all(requests).then( () => {
         this.searchedArticles = sortArticles(this.searchedArticles);
+      }).then( () => {
         this.loadingArticleSearch = false;
-      })
+      });
     }
 
     @action
-    async fetchAllArticlesSuccesively(pageSize: number = 500) {
+    async fetchAllArticlesSuccesively(pageSize: number = 1000) {
       if(this.loadingAll){
         return;
       }
@@ -99,26 +108,24 @@ class ArticlesModule extends VuexModule {
 
       await getArticles(void 0, void 0, pageSize, pageNr).then( response => {
         this.allArticles = sortArticles(filterAndMapArticles(response.articles));
-        console.log("🚀 ~ file: articles-store.ts ~ line 95 ~ ArticlesModule ~ awaitgetArticles ~ response.articles", response.articles)
         totalPages = response.page.totalPages.valueOf();
       });
 
       let requests: Promise<any>[] = [];
 
+      const articleCache: Article[] = [];
+
       for (pageNr = 2; pageNr <= totalPages; pageNr++) {
         requests.push(
           getArticles(void 0, void 0, pageSize, pageNr).then( resp => {
-            console.log("🚀 ~ file: articles-store.ts ~ line 104 ~ ArticlesModule ~ getArticles ~ pageNr", resp.page.pageNr);
-            console.log("🚀 ~ file: articles-store.ts ~ line 106 ~ ArticlesModule ~ getArticles ~ resp.articles", resp.articles);
-
-            this.allArticles.push( ...sortArticles(filterAndMapArticles(resp.articles)));
+            articleCache.push( ...sortArticles(filterAndMapArticles(resp.articles)));
           })
         );
       }
 
       Promise.all(requests).then( () => {
-        console.log('allarts', this.allArticles);
-        this.allArticles = sortArticles(this.allArticles);
+        this.allArticles = sortArticles( [...this.allArticles, ...articleCache]);
+      }).then( () => {
         this.loadingAll = false;
       })
     }
@@ -208,3 +215,4 @@ export const store = new Vuex.Store({
 export const articleStore = {
     articles: createProxy(store, ArticlesModule)
 }
+

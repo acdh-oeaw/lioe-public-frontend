@@ -40,17 +40,19 @@
       <info-text subDialog="true" class="pa-4" path="wboe-artikelstruktur/" />
       <v-tabs grow v-model="letter" class="tabs-letter my-3" color="ci" background-color="transparent" center-active centered>
         <v-tab v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
-          {{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span>
+          
+          <p>{{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span></p>
+          
         </v-tab>
       </v-tabs>
       <v-list v-if="filteredArticlesByInitial.length > 0">
         <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
-          <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="(article, index) in articles.articles" :key="index + article.lemma">
+          <v-list-item :to="`/articles/${ getFileLink(article.xmlUrl) }`" v-for="(article, index) in articles.articles" :key="index + article.lemma">
             <v-list-item-title>
               {{ article.title }}
             </v-list-item-title>
-            <v-list-item-icon v-if="article.filename.indexOf('%23') > -1">
+            <v-list-item-icon v-if="article.xmlUrl && article.xmlUrl.indexOf('%23') > -1">
               <v-tooltip top max-width="220" >
                 <template v-slot:activator="{ on }">
                   <v-icon v-on="on">&#128366; </v-icon>
@@ -76,6 +78,7 @@ import { Article, getArticles } from '../api'
 import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
 import { articleStore } from '@src/store/articles-store'
+import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions'
 
 @Component({
   components: {
@@ -85,9 +88,16 @@ import { articleStore } from '@src/store/articles-store'
 // tslint:disable:max-line-length
 export default class Articles extends Vue {
 
+  getFileLink(xmlUrl?: string) :string {
+    return fileLinkFromXMLUrl(xmlUrl);
+  }
 
   get loading() {
     return articleStore.articles.loadingAll || articleStore.articles.loadingArticleSearch
+  }
+
+  get totalArticleCount() {
+    return this.searchActive ? articleStore.articles.searchArticleCount :  articleStore.articles.articleCount;
   }
 
   letter = 0
@@ -205,7 +215,7 @@ export default class Articles extends Vue {
   }
 
   get articlesFirstLetter() {
-    return [{ char: 'Alle', length: this.articles.length}, ...(_(this.articles)
+    return [{ char: 'Alle', length:  this.articles.length + '/' + (this.totalArticleCount ? this.totalArticleCount : '?') }, ...(_(this.articles)
       .groupBy((a) => this.getCleanFirstLetter(a.title))
       .map((v, k) => ({
         char: k,
@@ -223,7 +233,7 @@ export default class Articles extends Vue {
   }
 
   get allArticles() : Array<Article> {
-    return articleStore.articles.allArticles;
+    return articleStore.articles.AllArticles;
   }
 
   get showSearchedArticles() {
@@ -241,9 +251,7 @@ export default class Articles extends Vue {
   }
 
   async mounted() {
-    if(!this.allArticles || this.allArticles.length === 0) {
-      await articleStore.articles.fetchAllArticlesSuccesively();
-    }
+
   }
 
   async getArticles(search?: string) {

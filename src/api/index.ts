@@ -699,14 +699,10 @@ export async function getArticles(
           (pageNr ? '&pageNr=' + pageNr : '') +
           '&status=' + searchStatus;
 
-          console.log("🚀 ~ file: index.ts ~ line 697 ~ req", req)
-
-
   if (search !== undefined) {
     const r = await (
       await fetch(req)
     ).json();
-    console.log("🚀 ~ file: index.ts ~ line 709 ~ r", r)
 
     const response: ArticlesResponse = {
       articles: r.results ?

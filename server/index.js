@@ -62,8 +62,9 @@ app.get('/api/articles', async (req, res) => {
 
   res.send(r)
 })
-app.get('/api/articles/:article', async (req, res) => {
-  console.log(req.params.article)
+app.get('/api/articles/:article', async (req, res) => {  
+  console.log('request for article: ', encodeURIComponent(req.params.article));
+  
   const r = (await axios({
     url: articleAPIEndpoint + 'articles/'+ encodeURIComponent(req.params.article),
     headers: {
