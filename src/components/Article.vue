@@ -11,7 +11,7 @@
         @change="loadArticle"
         :items="articleList"
         item-text="title"
-        item-value="filename"
+        :item-value="getFileLink(xmlUrl)"
         prepend-inner-icon="search"
       />      
       <template>
@@ -224,7 +224,6 @@ export default class Article extends Vue {
   get listLoading() {
     return articleStore.articles.loadingAll;
   }
-
 
   get commentUrl(): string {
     return (

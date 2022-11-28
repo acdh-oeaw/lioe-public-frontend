@@ -60,7 +60,7 @@ class ArticlesModule extends VuexModule {
     }
 
     @action
-    async fetchArticleSearch(search?: string, filter?: string, pageSize: number = 1000) {
+    async fetchArticleSearch(search?: string, filter?: string, pageSize: number = 500) {
       if(this.loadingArticleSearch) {
         return;
       }
@@ -95,7 +95,7 @@ class ArticlesModule extends VuexModule {
     }
 
     @action
-    async fetchAllArticlesSuccesively(pageSize: number = 1000) {
+    async fetchAllArticlesSuccesively(pageSize: number = 500) {
       if(this.loadingAll){
         return;
       }

@@ -215,7 +215,9 @@ export default class Articles extends Vue {
   }
 
   get articlesFirstLetter() {
-    return [{ char: 'Alle', length:  this.articles.length + '/' + (this.totalArticleCount ? this.totalArticleCount : '?') }, ...(_(this.articles)
+    const totalArticles = ((this.totalArticleCount == this.articles.length) ? '' : ('/' + (this.totalArticleCount ? this.totalArticleCount : '?')));
+
+    return [{ char: 'Alle', length:  this.articles.length + totalArticles }, ...(_(this.articles)
       .groupBy((a) => this.getCleanFirstLetter(a.title))
       .map((v, k) => ({
         char: k,
