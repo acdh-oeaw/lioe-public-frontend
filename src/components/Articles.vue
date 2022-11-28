@@ -46,9 +46,12 @@
         </v-tab>
       </v-tabs>
       <v-list v-if="filteredArticlesByInitial.length > 0">
-        <template v-for="(articles, i) in filteredArticlesByInitial">
-          <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
-          <v-list-item :to="`/articles/${ getFileLink(article.xmlUrl) }`" v-for="(article, index) in articles.articles" :key="index + article.lemma">
+        <template v-for="(articles, i) in visibleArticles">
+          <v-subheader class="sticky" :key="'subheader' + i">
+            {{ articles.initials }}
+            <div style="height: 1px;" v-if="i === visibleArticles.length - 1 && moreArticlesAvailable" v-intersect="loadMoreVisible"/>
+          </v-subheader>
+          <v-list-item :to="`/articles/${ getFileLink(article.xmlUrl) }`" v-for="(article, index) in articles.articles" :key="i + index + article.filename + article.lemma">
             <v-list-item-title>
               {{ article.title }}
             </v-list-item-title>
@@ -64,6 +67,7 @@
             </v-list-item-icon>
           </v-list-item>
         </template>
+        <v-skeleton-loader class="mt-4" v-if="moreArticlesAvailable" type="heading, list-item-two-line@2, heading, list-item@3" v-intersect="loadMoreVisible"></v-skeleton-loader>
       </v-list>
       <div v-else>
         <span v-if="!loading">Keine Artikel gefunden.</span>
@@ -80,6 +84,11 @@ import * as _ from 'lodash'
 import { articleStore } from '@src/store/articles-store'
 import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions'
 
+interface articleGroup {
+  initials: string,
+  articles: Article[],
+}
+
 @Component({
   components: {
     InfoText
@@ -87,6 +96,32 @@ import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions'
 })
 // tslint:disable:max-line-length
 export default class Articles extends Vue {
+
+  visibleArticles: articleGroup[] = [];
+
+  visibleArticleStepSize: number = 3;
+
+  get moreArticlesAvailable() {
+    return this.visibleArticles.length < this.filteredArticlesByInitial.length;
+    
+  }
+
+  loadMoreVisible(entries: IntersectionObserverEntry[]) {
+      if (entries[0].isIntersecting && this.moreArticlesAvailable) {
+        this.visibleArticles.push( ...this.filteredArticlesByInitial.slice(this.visibleArticles.length, Math.min((this.visibleArticles.length + this.visibleArticleStepSize), this.filteredArticlesByInitial.length)));
+      }
+      console.log("🚀 ~ file: Articles.vue ~ line 109 ~ Articles ~ loadMoreVisible ~ moreArticlesAvailable", this.moreArticlesAvailable)
+
+  }
+
+  @Watch('letter')
+  OnLetterChanged() {
+    this.changeVisible();
+  }
+
+  changeVisible() {
+    this.visibleArticles = [];
+  }
 
   getFileLink(xmlUrl?: string) :string {
     return fileLinkFromXMLUrl(xmlUrl);
@@ -98,6 +133,10 @@ export default class Articles extends Vue {
 
   get totalArticleCount() {
     return this.searchActive ? articleStore.articles.searchArticleCount :  articleStore.articles.articleCount;
+  }
+
+  get filterByLetter() {
+    return this.letter === 0 || !(this.articlesFirstLetter && this.articlesFirstLetter[this.letter]);
   }
 
   letter = 0
@@ -195,7 +234,7 @@ export default class Articles extends Vue {
   }
 
   get filteredArticlesByInitial() {
-    if (this.letter === 0 || !(this.articlesFirstLetter && this.articlesFirstLetter[this.letter])) {
+    if (this.filterByLetter) {
       return this.articlesByInitial
     } else {
       return this.articlesByInitial.filter(a => a.initials.substr(0, 1) === this.articlesFirstLetter[this.letter].char )
