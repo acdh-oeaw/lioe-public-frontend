@@ -15,7 +15,7 @@
         prepend-inner-icon="search"
       />      
       <template>
-        <div>   
+        <div class="mb-3">
             <v-row class="px-2 py-0 my-0" justify="center" align="center" v-if="listLoading === true">
               <v-col class="py-0 my-0">
                 <v-skeleton-loader class="py-0" type="button"></v-skeleton-loader>
@@ -81,6 +81,7 @@
           :geo-store="geoStore"
           :retro-xml="retroXML"
           :is-retro="isRetro"
+          :pb-facs="pbFacs"
         />
         <v-flex
           class="comment-box"
@@ -598,6 +599,7 @@ export default class Article extends Vue {
         let aTitle = this.elementsFromDom("teiHeader > fileDesc > titleStmt > title", xml)[0]
         // Hack to remove lemma link! ToDo: Make link working ?!?
         this.lemmaXML = this.lemmaXML.replace('collection-href="/collections-wboe.xml#start"', '')
+        this.lemmaXML += this.fragementFromSelector("entry > gramGrp > gram[type=pos]", xml) + this.fragementFromSelector("entry > gramGrp > gram[type=gender]", xml)
         this.editor = {
           id: 'retro',
           initials: aTitle && aTitle.innerHTML || 'Retro',
@@ -766,6 +768,10 @@ iframe.comment {
   }
   > form[type="lemma"] + form[type="lemma"]::before {
     content: ",";
+  }
+  gram[type="pos"],
+  gram[type="gender"] {
+    display: block;
   }
 }
 

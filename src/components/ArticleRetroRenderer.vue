@@ -50,6 +50,9 @@ export default class ArticleRetroRenderer extends Vue {
           if (e.name === 'pc') {
             out += ' '
           }
+          if (e.name === 'def' && e.parents[0].name === 're' && out.trim().slice(-1) === ',') {
+            out += '<br>'
+          }
           out += '</span>'
         } else if (e.type === "TEXT") {
           let tVal = e.value.trim()
@@ -58,8 +61,8 @@ export default class ArticleRetroRenderer extends Vue {
           }
           if (tVal === 'Belegauswahl (Lautung)') {
             out += 'Lautung'
-          } else if (tVal === 'Wortbildung (Komposita)') {
-            out += 'Wortbildung'
+          // } else if (tVal === 'Wortbildung (Komposita)') {
+          //   out += 'Wortbildung'
           } else {
             out += e.value
           }
@@ -102,12 +105,14 @@ export default class ArticleRetroRenderer extends Vue {
       border-top: 1px solid #ddd;
       padding-top: 16px;
     }
-    .e-entry > .e-q {
-      font-style: italic;
-    }
     .e-entry > .e-form > .e-usg,
     .e-entry > .e-form > .a-type-diminutive {
       display: table;
+    }
+    .e-entry > .e-form.a-type-lemma,
+    .e-entry > .e-gramGrp > .e-gram.a-type-pos,
+    .e-entry > .e-gramGrp > .e-gram.a-type-gender {
+      display: none;
     }
     .a-type-header {
       display: block;
@@ -124,21 +129,15 @@ export default class ArticleRetroRenderer extends Vue {
       margin-bottom: 16px;
       margin-top: 16px;
     }
-    .e-quote {
-      font-style: italic;
-    }
     .e-re {
       display: block;
-    }
-    .e-form.a-type.a-type-lemma.a-subtype.a-subtype-compound {
-      font-style: italic;
     }
     .e-form.a-type.a-type-lemma.a-subtype.a-subtype-compound:first-child {
       margin-right: 2rem;
     }
     .e-note {
       display: block;
-      margin: 1rem 0;
+      margin-bottom: 1rem;
     }
     .e-sense.a-n {
       display: block;
@@ -158,6 +157,7 @@ export default class ArticleRetroRenderer extends Vue {
     .e-sense.a-n > .e-usg {
       display: block;
       margin-bottom: 0.3rem;
+      letter-spacing: 0.15rem;
     }
     .e-sense > .e-sense {
       display: table;
@@ -168,7 +168,22 @@ export default class ArticleRetroRenderer extends Vue {
     .e-pb.a-facs {
       display: none;
     }
-    .e-usg > .e-pRef {
+    .e-form.a-type.a-type-lemma.a-subtype.a-subtype-compound {
+      font-style: italic;
+    }
+    .e-pRef {
+      font-style: italic;
+    }
+    .e-q {
+      font-style: italic;
+    }
+    .e-quote {
+      font-style: italic;
+    }
+    .e-orth {
+      font-style: italic;
+    }
+    .e-sense > .e-def {
       font-style: italic;
     }
   }

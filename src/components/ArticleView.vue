@@ -173,6 +173,8 @@
       :filename="filename"
       :autor="autor"
       :xml="xml"
+      :isRetro="isRetro"
+      :pbFacs="pbFacs"
     />
   </div>
 </template>
@@ -242,6 +244,7 @@ export default class ArticleView extends Vue {
   @Prop() autor: any;
   @Prop({ default: null}) retroXml: string[];
   @Prop({ default: false}) isRetro: boolean[];
+  @Prop({ default: null}) pbFacs: string[];
 
   parser: any = null;
   parserDefinitionPath = "/static/parser-xml/";
