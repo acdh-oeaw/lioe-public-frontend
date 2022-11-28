@@ -1,7 +1,7 @@
 import { createModule, action, extractVuexModule, createProxy, } from "vuex-class-component";
 import Vuex from 'vuex'
 import Vue from 'vue'
-import { Article, getArticles, getArticlesVersion } from "@src/api";
+import { Article, ArticlesResponse, getArticles, getArticlesVersion } from "@src/api";
 Vue.use(Vuex)
 
 const VuexModule = createModule({
@@ -12,11 +12,29 @@ const VuexModule = createModule({
 
 class ArticlesModule extends VuexModule {
 
+
+    articleCount?: Number = void 0;
+
+    articlesResponse: Promise<ArticlesResponse>;
+
+    // General Articles
+    loading: boolean = false;
+
     articles: Array<Article> = [];
 
-    articlesPromise: Promise<Array<Article>>
+    // All Articles
+    loadingAll: boolean = false;
 
-    loading: boolean = false;
+    allArticles: Array<Article> = [];
+
+    // Search
+    loadingArticleSearch: boolean = false;
+
+    searchedArticles: Array<Article> = [];
+
+    lastSearch: string = '';
+    lastFilter: string = '';
+
     // @ts-ignore
     frontendVersion: String = process.env.VUE_APP_VERSION;
 
@@ -32,36 +50,109 @@ class ArticlesModule extends VuexModule {
     }
 
     @action
-    async fetchArticles(forceUpdate?:boolean) : Promise<Array<Article>> {
+    async fetchArticleSearch(search?: string, filter?: string, pageSize: number = 500) {
+      if(this.loadingArticleSearch) {
+        return;
+      }
+      this.loadingArticleSearch = true;
+      let pageNr = 1;
+      let totalPages = 1;
+
+      this.lastSearch = search ?? '';
+      this.lastFilter = filter ?? '';
+
+      await getArticles(search, filter, pageSize, pageNr).then( resp => {
+        this.searchedArticles = sortArticles(filterAndMapArticles(resp.articles));
+        totalPages = resp.page.totalPages.valueOf();
+      })
+
+      let requests: Promise<any>[] = [];
+
+      for (pageNr = 2; pageNr <= totalPages; pageNr++) {
+        requests.push(
+          getArticles(search, filter, pageSize, pageNr).then( resp => {
+            console.log("🚀 ~ file: articles-store.ts ~ line 70 ~ ArticlesModule ~ getArticles ~ pageNr", pageNr);
+            console.log("🚀 ~ file: articles-store.ts ~ line 71 ~ ArticlesModule ~ getArticles ~ resp.articles", resp.articles);
+
+            this.searchedArticles.push( ...sortArticles(filterAndMapArticles(resp.articles)));
+          })
+        );
+      }
+
+      Promise.all(requests).then( () => {
+        this.searchedArticles = sortArticles(this.searchedArticles);
+        this.loadingArticleSearch = false;
+      })
+    }
+
+    @action
+    async fetchAllArticlesSuccesively(pageSize: number = 500) {
+      if(this.loadingAll){
+        return;
+      }
+
+      console.log('start fetching all');
+
+      this.loadingAll = true;
+      let pageNr = 1;
+      let totalPages = 1;
+
+      await getArticles(void 0, void 0, pageSize, pageNr).then( response => {
+        this.allArticles = sortArticles(filterAndMapArticles(response.articles));
+        console.log("🚀 ~ file: articles-store.ts ~ line 95 ~ ArticlesModule ~ awaitgetArticles ~ response.articles", response.articles)
+        totalPages = response.page.totalPages.valueOf();
+      });
+
+      let requests: Promise<any>[] = [];
+
+      for (pageNr = 2; pageNr <= totalPages; pageNr++) {
+        requests.push(
+          getArticles(void 0, void 0, pageSize, pageNr).then( resp => {
+            console.log("🚀 ~ file: articles-store.ts ~ line 104 ~ ArticlesModule ~ getArticles ~ pageNr", resp.page.pageNr);
+            console.log("🚀 ~ file: articles-store.ts ~ line 106 ~ ArticlesModule ~ getArticles ~ resp.articles", resp.articles);
+
+            this.allArticles.push( ...sortArticles(filterAndMapArticles(resp.articles)));
+          })
+        );
+      }
+
+      Promise.all(requests).then( () => {
+        console.log('allarts', this.allArticles);
+        this.allArticles = sortArticles(this.allArticles);
+        this.loadingAll = false;
+      })
+    }
+
+    @action
+    async fetchArticles(forceUpdate?:boolean) : Promise<any> {
 
         if(this.loading){
-            return this.articlesPromise;
+            return this.articlesResponse;
         }
 
         this.loading = true;
 
         if(!this.articles || this.articles.length === 0) {
-            this.articlesPromise = getArticles();
-            this.articlesPromise.then( articles => {
+            this.articlesResponse = getArticles();
 
-                console.log('Missing title:', articles.filter((a) => a.title === "" || a.title === undefined));
-
-                this.articles = sortArticles(articles);
-                this.loading = false;
-                console.log('normal article fetched')
+            this.articlesResponse.then( response => {
+              this.articles = sortArticles(filterAndMapArticles(response.articles));
+              this.articleCount = response.page.totalElements;
+              this.loading = false;
             })
-            return this.articlesPromise;
+            return this.articlesResponse;
         }
 
         if(forceUpdate === true){
-            this.articlesPromise = getArticles();
-            this.articlesPromise.then( articles => {
-                this.articles = sortArticles(articles);
-                console.log('force update article fetched');
-            })
+          this.articlesResponse = getArticles();
+
+          this.articlesResponse.then( response => {
+            this.articles = sortArticles(filterAndMapArticles(response.articles));
+            this.articleCount = response.page.totalElements;
+          })
         }
         this.loading = false;
-        return this.articlesPromise;
+        return this.articlesResponse;
     }
 
 
@@ -94,16 +185,18 @@ function getEasySearchLemma(lemmaName: string) {
   return ret
 }
 
+function filterAndMapArticles(articles:Article[]) :Article[] {
+  return articles
+  .filter((a) => a.title !== "" && a.title !== undefined)
+  .map((t) => {
+    const art: Article = t;
+    art.filename.replace(".xml", "");
+    return art;
+  });
+}
+
 function sortArticles(articles:any[]) {
-    console.log('articles', articles);
-    return articles
-        .filter((a) => a.title !== "" && a.title !== undefined)
-        .map((t) => {
-          const art: Article = t;
-          art.filename.replace(".xml", "");
-          return art;
-        })
-        .sort((a, b) => getEasySearchLemma(a.title).localeCompare(getEasySearchLemma(b.title)));
+    return articles.sort((a, b) => getEasySearchLemma(a.title).localeCompare(getEasySearchLemma(b.title)));
 }
 
 export const store = new Vuex.Store({

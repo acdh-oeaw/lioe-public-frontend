@@ -24,23 +24,6 @@
             <v-btn class="text-no-transform" text>Alle Artikel</v-btn>
           </v-btn-toggle>
         </v-col>
-        <!-- <v-flex>
-          <v-menu open-on-hover max-width="700" max-height="95vh" top left :close-on-content-click="false" @input="onFilterMenuToggle">
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" color="accent" icon text class="pt-2">
-                <v-icon>mdi-filter</v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item v-for="filter in articleStatusFilters" :key="filter.label">
-                <v-list-item-action>
-                  <v-checkbox v-model="filter.selected"/>
-                </v-list-item-action>
-                {{filter.label}}
-              </v-list-item>
-            </v-list>
-        </v-menu>
-      </v-flex> -->
         <v-flex>
           <v-menu open-on-hover max-width="700" max-height="95vh" top left>
             <template v-slot:activator="{ on }">
@@ -60,11 +43,10 @@
           {{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span>
         </v-tab>
       </v-tabs>
-      <v-skeleton-loader v-if="loading" type="heading, list-item-two-line@3, heading, list-item@5"></v-skeleton-loader>
       <v-list v-if="filteredArticlesByInitial.length > 0">
         <template v-for="(articles, i) in filteredArticlesByInitial">
           <v-subheader class="sticky" :key="'subheader' + i">{{ articles.initials }}</v-subheader>
-          <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="(article, index) in articles.articles" :key="index">
+          <v-list-item :to="`/articles/${ article.filename.replace('.xml', '') }`" v-for="(article, index) in articles.articles" :key="index + article.lemma">
             <v-list-item-title>
               {{ article.title }}
             </v-list-item-title>
@@ -84,6 +66,7 @@
       <div v-else>
         <span v-if="!loading">Keine Artikel gefunden.</span>
       </div>
+      <v-skeleton-loader v-if="loading" type="heading, list-item-two-line@3, heading, list-item@5"></v-skeleton-loader>
     </v-flex>
   </v-layout>
 </template>
@@ -102,8 +85,11 @@ import { articleStore } from '@src/store/articles-store'
 // tslint:disable:max-line-length
 export default class Articles extends Vue {
 
-  articles: Array<Article> = []
-  loading = false
+
+  get loading() {
+    return articleStore.articles.loadingAll || articleStore.articles.loadingArticleSearch
+  }
+
   letter = 0
   searchTerm = ''
   debouncedSearchArticle = _.debounce(this.searchArticle, 250)
@@ -236,34 +222,44 @@ export default class Articles extends Vue {
     .join(',');
   }
 
-  articleList() {
-    return articleStore.articles.articles;
+  get allArticles() : Array<Article> {
+    return articleStore.articles.allArticles;
+  }
+
+  get showSearchedArticles() {
+    return this.searchActive;
+  }
+
+  searchActive: boolean = false;
+
+  get articles() : Array<Article> {
+    return this.showSearchedArticles ? this.searchedArticles : this.allArticles;
+  }
+
+  get searchedArticles() : Array<Article> {
+    return articleStore.articles.searchedArticles;
   }
 
   async mounted() {
-    this.loading = true
-
-    if(!this.articleList || this.articleList.length === 0) {
-      await articleStore.articles.fetchArticles().then(() => this.articles = this.articleList())
-    } else {
-      this.articles = this.articleList();
+    if(!this.allArticles || this.allArticles.length === 0) {
+      await articleStore.articles.fetchAllArticlesSuccesively();
     }
-    this.loading = false
   }
 
   async getArticles(search?: string) {
     console.log(this.activeFiltersAsString);
-    return (await getArticles(search, this.activeFiltersAsString)).filter(a => a.title !== '' && a.title !== undefined)
+    return (await getArticles(search, this.activeFiltersAsString)).articles.filter(a => a.title !== '' && a.title !== undefined)
   }
 
   async searchArticle(search: string) {
-    this.loading = true
     if (search) {
-      this.articles = await this.getArticles(search)
+      this.searchActive = true;
+      if(search !== articleStore.articles.lastSearch || this.activeFiltersAsString !== articleStore.articles.lastFilter) {
+        articleStore.articles.fetchArticleSearch(search, this.activeFiltersAsString, 500);
+      }
     } else {
-      this.articles = articleStore.articles.articles;
+      this.searchActive = false;
     }
-    this.loading = false
   }
 
   menuFilterStatus = '';

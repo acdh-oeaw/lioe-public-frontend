@@ -646,6 +646,17 @@ export async function getDocumentsByCollection(
   }
 }
 
+export interface Page {
+  totalElements: Number,
+  pageSize: Number,
+  totalPages: Number,
+  pageNr: Number,
+  prev: string,
+  next: string,
+  first: string,
+  last: string,
+}
+
 export interface Article{
   title: string,
   lemma: string,
@@ -662,37 +673,70 @@ export interface Article{
   main?: []
 }
 
+export interface ExtendedArticle{
+  article: Article,
+  ort: string
+}
+
+
+export interface ArticlesResponse {
+  articles: Array<Article>,
+  page: Page,
+  version: ArticleVersion
+}
+
 export async function getArticles(
   search?: string,
-  filter?: string
-): Promise<Array<Article>> {
+  filter?: string,
+  pageSize?: Number,
+  pageNr?: Number,
+): Promise<ArticlesResponse> {
   // tslint:disable-next-line:max-line-length
   const searchStatus = filter !== null && filter !== undefined ? filter : userStore.articleStatus.join(',');
-  console.log('searchStatus', searchStatus, filter, userStore.articleStatus.join(','))
+  const req = articleEndpoint +
+          '?initial=' + ((search && search != 'undefined') ? search : '') +
+          (pageSize ? '&pageSize=' + pageSize : '') +
+          (pageNr ? '&pageNr=' + pageNr : '') +
+          '&status=' + searchStatus;
+
+          console.log("🚀 ~ file: index.ts ~ line 697 ~ req", req)
+
+
   if (search !== undefined) {
     const r = await (
-      await fetch(
-        articleEndpoint +
-        '?initial=' + search +
-        '&status=' + searchStatus
-      )
-    ).json()
-    return r.results
-      ? r.results.length
-        ? r.results
-        : [r.results]
-      : []
+      await fetch(req)
+    ).json();
+    console.log("🚀 ~ file: index.ts ~ line 709 ~ r", r)
+
+    const response: ArticlesResponse = {
+      articles: r.results ?
+                  r.results.length ?
+                    r.results
+                    : [r.results]
+                  : [],
+      page: r.page,
+      version: r.version
+    }
+    return response;
   } else {
     const r = await (
       await fetch(
-        articleEndpoint + '?status=' + searchStatus
+        articleEndpoint + '?status=' + searchStatus  +
+        (pageSize ? '&pageSize=' + pageSize : '') +
+        (pageNr ? '&pageNr=' + pageNr : '')
       )
     ).json()
-    return r.results
-      ? r.results.length
-        ? r.results
-        : [r.results]
-      : []
+
+    const response: ArticlesResponse = {
+      articles: r.results ?
+                  r.results.length ?
+                    r.results
+                    : [r.results]
+                  : [],
+      page: r.page,
+      version: r.version
+    }
+    return response;
   }
 }
 

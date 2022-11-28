@@ -43,13 +43,23 @@ app.use((request, response, next) => {
 app.use(compression())
 app.use(bodyParser.json())
 app.get('/api/articles', async (req, res) => {
+
+  const reqUrl = articleAPIEndpoint + 'articles?'
+  + (req.query.initial ? '&initial='+ encodeURIComponent(req.query.initial) : '')
+  + (req.query.status ? '&status=' + encodeURIComponent(req.query.status) : '')
+  + (req.query.pageNr ? '&pageNr=' + req.query.pageNr : '')
+  + (req.query.pageSize ? '&pageSize=' + req.query.pageSize : '');
+  console.log(reqUrl);
+
   const r = (await axios({
-    url: articleAPIEndpoint + 'articles?max=10000'
-      + (req.query.initial ? '&initial='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
+    url: reqUrl,
     headers: {
       Accept: 'application/json'
     }
   })).data
+
+
+
   res.send(r)
 })
 app.get('/api/articles/:article', async (req, res) => {
