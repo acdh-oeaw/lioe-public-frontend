@@ -500,9 +500,6 @@ export default class Article extends Vue {
   }
 
   async activated() {
-
-    // this.articles = articleStore.articles.articles;
-
     this.initArticle(this.filename);
   }
 
@@ -641,7 +638,6 @@ export default class Article extends Vue {
       aFileName += '.xml'
       this.isRetro = false
     }
-    // console.log('initArticle', aFileName)
     this.articleXML = await getArticleByFileName(aFileName);
     this.initXML(this.articleXML);
     this.loading = false;
@@ -674,7 +670,6 @@ export default class Article extends Vue {
         this.updateHorizontalArticleList = false;
       }
     }
-    //console.log('updated');
   }
 
   get loadingArticles() {
@@ -707,8 +702,6 @@ export default class Article extends Vue {
 
     let artIndex = this.articleList.map( a => fileLinkFromXMLUrl(a.xmlUrl)).indexOf(encodedFilename);
 
-    // console.log('scroll to article filename', this.filename);
-    // console.log('scroll to article index', artIndex);
     return artIndex
   }
 
