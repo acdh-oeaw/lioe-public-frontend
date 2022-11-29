@@ -11,9 +11,9 @@
         @change="loadArticle"
         :items="articleList"
         item-text="title"
-        :item-value="getFileLink(xmlUrl)"
+        item-value="xmlUrl"
         prepend-inner-icon="search"
-      />      
+      />
       <template>
         <div class="mb-3">
             <v-row class="px-2 py-0 my-0" justify="center" align="center" v-if="listLoading === true">
@@ -32,7 +32,7 @@
               <v-col class="py-0 my-0">
                 <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
               </v-col>
-            </v-row> 
+            </v-row>
           <vue-horizontal v-else responsive snap="center" ref="horizontal_articles">
             <section v-for="item in articleList" :key="item.xmlUrl">
               <v-btn class="ml-6 mx-2" text :to="`/articles/${ getFileLink(item.xmlUrl) }`" :key="item.xmlUrl">{{item.title}}</v-btn>
@@ -165,6 +165,7 @@ import VueHorizontal from 'vue-horizontal';
 import { articleStore }from "@src/store/articles-store"
 import { getWebsiteHtml } from '../api'
 import { fileLinkFromXMLUrl } from "@src/utilities/helper-functions"
+import { watch } from "fs"
 
 @Component({
   components: {
@@ -265,7 +266,7 @@ export default class Article extends Vue {
 
       // open print dialog
          window.print();
-    
+
       // reset title
           document.title = oldTitle;
         });
@@ -386,7 +387,7 @@ export default class Article extends Vue {
     let relevant_coll = cs[0];
     let coll_name = relevant_coll.name;
     let coll_desc = relevant_coll.description;
-    
+
     stateProxy.collections.addWBOE_coll({
       changedColl: {
         id: Math.random() * 1000,
@@ -407,7 +408,7 @@ export default class Article extends Vue {
       });
   }
 
-  
+
 
   openMapsWithPlaces(placeIds: string[]) {
     stateProxy.collections.setLocations(placeIds)
@@ -415,11 +416,11 @@ export default class Article extends Vue {
       path: "/maps",
     });
   }
-  
+
   openDBWithPlaces(placeIds: string[]) {
-    const routingStr = '/db?q=Sigle1,'.concat(placeIds[0]); 
+    const routingStr = '/db?q=Sigle1,'.concat(placeIds[0]);
     this.$router.push(routingStr);
-    
+
   }
 
   getColStr(val: any) {
@@ -448,8 +449,10 @@ export default class Article extends Vue {
   }
 
   loadArticle(e: string) {
-    if (e && e.trim() !== "") {
-      this.$router.push(`/articles/${e}`);
+    const link = this.getFileLink(e);
+
+    if (link && link.trim() !== "") {
+      this.$router.push(`/articles/${link}`);
     } else {
       this.$router.push("/articles/");
     }
@@ -664,7 +667,7 @@ export default class Article extends Vue {
   updated() {
     if(this.updateHorizontalArticleList){
       this.scrollToArticle();
-      
+
       if(this.$refs.horizontal_articles){
         // @ts-ignore
         this.$refs.horizontal_articles.refresh();
@@ -672,6 +675,17 @@ export default class Article extends Vue {
       }
     }
     //console.log('updated');
+  }
+
+  get loadingArticles() {
+    return articleStore.articles.loadingAll;
+  }
+
+  @Watch('loadingArticles')
+  OnLoadingChanged() {
+    if(!this.loadArticle) {
+      this.updateHorizontalArticleList = true;
+    }
   }
 
   @Watch('articleList')
@@ -691,7 +705,7 @@ export default class Article extends Vue {
   getArticleIndex(): number {
     const encodedFilename = encodeURIComponent( this.filename.replace('.xml', ''));
 
-    let artIndex = this.articleList.map( a => a.filename.replace('.xml', '')).indexOf(encodedFilename);
+    let artIndex = this.articleList.map( a => fileLinkFromXMLUrl(a.xmlUrl)).indexOf(encodedFilename);
 
     // console.log('scroll to article filename', this.filename);
     // console.log('scroll to article index', artIndex);
