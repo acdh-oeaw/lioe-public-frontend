@@ -40,9 +40,9 @@
       <info-text subDialog="true" class="pa-4" path="wboe-artikelstruktur/" />
       <v-tabs grow v-model="letter" class="tabs-letter my-3" color="ci" background-color="transparent" center-active centered>
         <v-tab v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
-          
+
           <p>{{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span></p>
-          
+
         </v-tab>
       </v-tabs>
       <v-list v-if="filteredArticlesByInitial.length > 0">
@@ -103,15 +103,13 @@ export default class Articles extends Vue {
 
   get moreArticlesAvailable() {
     return this.visibleArticles.length < this.filteredArticlesByInitial.length;
-    
+
   }
 
   loadMoreVisible(entries: IntersectionObserverEntry[]) {
       if (entries[0].isIntersecting && this.moreArticlesAvailable) {
         this.visibleArticles.push( ...this.filteredArticlesByInitial.slice(this.visibleArticles.length, Math.min((this.visibleArticles.length + this.visibleArticleStepSize), this.filteredArticlesByInitial.length)));
       }
-      console.log("🚀 ~ file: Articles.vue ~ line 109 ~ Articles ~ loadMoreVisible ~ moreArticlesAvailable", this.moreArticlesAvailable)
-
   }
 
   @Watch('letter')
@@ -275,6 +273,13 @@ export default class Articles extends Vue {
 
   get allArticles() : Array<Article> {
     return articleStore.articles.AllArticles;
+  }
+
+  @Watch('loading')
+  OnLoadingChanged() {
+    if(!this.loading) {
+      this.changeVisible();
+    }
   }
 
   get showSearchedArticles() {
