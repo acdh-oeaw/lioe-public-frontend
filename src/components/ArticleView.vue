@@ -159,7 +159,7 @@
       <span>{{ noteAuthor.name }}</span>
     </v-tooltip>
     <div class="text-xs-right pa-4 text-right">
-      <v-tooltip top color="ci">
+      <v-tooltip top color="ci" :disabled="!autor.initials || autor.fullname.length === 0">
         <template v-slot:activator="{ on }">
           <span v-on="on">{{
             autor.initials ? autor.initials : autor.fullname || ""
