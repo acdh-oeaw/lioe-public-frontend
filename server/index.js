@@ -51,27 +51,39 @@ app.get('/api/articles', async (req, res) => {
   + (req.query.pageSize ? '&pageSize=' + req.query.pageSize : '');
   console.log(reqUrl);
 
-  const r = (await axios({
-    url: reqUrl,
-    headers: {
-      Accept: 'application/json'
-    }
-  })).data
+
+  try {
+    const r = (await axios({
+      url: reqUrl,
+      headers: {
+        Accept: 'application/json'
+      }
+    })).data
+    res.send(r)
+  } catch(e) {
+    console.log('Error from Articles request');
+    console.log(e.response.data)
+    res.send(500, e.response.data)
+  }
 
 
-
-  res.send(r)
 })
-app.get('/api/articles/:article', async (req, res) => {  
+app.get('/api/articles/:article', async (req, res) => {
   console.log('request for article: ', encodeURIComponent(req.params.article));
-  
-  const r = (await axios({
-    url: articleAPIEndpoint + 'articles/'+ encodeURIComponent(req.params.article),
-    headers: {
-      Accept: 'application/xml'
-    }
-  })).data
-  res.send(r)
+
+  try {
+    const r = (await axios({
+      url: articleAPIEndpoint + 'articles/'+ encodeURIComponent(req.params.article),
+      headers: {
+        Accept: 'application/xml'
+      }
+    })).data
+    res.send(r)
+  } catch(e) {
+    console.log('Error from single Article request');
+    console.log(e.response.data)
+    res.send(500, e.response.data)
+  }
 })
 
 app.get('/api/articles-version', async (_req, res) => {
@@ -84,6 +96,7 @@ app.get('/api/articles-version', async (_req, res) => {
     })).data;
     res.send(r);
   } catch(e) {
+    console.log('Error from article Version request');
     console.log(e.response.data)
     res.send(500, e.response.data)
   }
@@ -99,6 +112,7 @@ app.post('/es-query', async (req, res) => {
     })).data
     res.send(r)
   } catch (e) {
+    console.log('Error from es query request');
     console.log(e.response.data)
     res.send(500, e.response.data)
   }
@@ -120,6 +134,7 @@ app.get('/es-count', async (req, res) => {
     )).data
     res.send(r)
   } catch (e) {
+    console.log('Error from es count request');
     console.log(e)
     res.send(500, e.response.data)
   }

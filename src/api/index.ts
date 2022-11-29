@@ -665,13 +665,14 @@ export interface Article{
   xmlUrl?: string,
   word_type?: Array<string>,
   compositum?: Array<string>,
-  references?: {
-    id: string,
-    text: string
-  },
+  references?: ArticleReference[],
   retro?: [],
   main?: []
 }
+
+export interface ArticleReference {
+  id: string,
+  text: string}
 
 export interface ExtendedArticle{
   article: Article,

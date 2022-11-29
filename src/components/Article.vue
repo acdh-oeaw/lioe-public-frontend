@@ -13,7 +13,78 @@
         item-text="title"
         item-value="xmlUrl"
         prepend-inner-icon="search"
-      />
+        v-model:search-input="searchTerm"
+      >
+        <template v-slot:item="{ props, item, on }">
+          <v-list-item
+            v-bind="props"
+            v-on="on"
+          >
+            <article-search-item
+            :article="item"
+            :search="searchTerm">
+
+            </article-search-item>
+            <!-- <v-list-item-content class="py-0">
+              <v-list-item-title>
+                {{item.lemma}} <span class="pl-2" style="color: grey; font-size: 14px;"> {{ item.title }} </span>
+              </v-list-item-title>
+              <v-list-item-subtitle
+                v-if="(item.compositum && item.compositum.length > 0) || (item.references && item.references.length > 0)"
+                class="ma-0 pa-0">
+                <div class="composita-container">
+                  <div
+                    v-for="(composita, index) in item.compositum"
+                    v-bind:key="index"
+                    class="ma-0 composita-item"
+                  >
+                    <template
+                    v-if="index <= 3">
+                      <p class="ma-0">
+                        {{ composita }}
+                      </p>
+                      <v-divider
+                        v-if="index > 0 && index < item.compositum.length - 1"
+                        class="mx-2 ma-0"
+                        style="height: inherit"
+                        vertical
+                      ></v-divider>
+                    </template>
+                  </div>
+                  <p v-if="item.compositum + item.compositum.length > 3">
+                    ...
+                  </p>
+                </div>
+
+                <div class="reference-container">
+                  <div
+                  v-for="(reference, index) in item.references"
+                  v-bind:key="index"
+                  class="ma-0 reference-item"
+                >
+                  <template
+                  v-if="index <= 3">
+                    <p>
+                      {{ reference.text }}
+                    </p>
+                    <v-divider
+                      v-if="index > 0 && index < item.references.length - 1"
+                      class="mx-2 py-3"
+                      vertical
+                    ></v-divider>
+                  </template>
+                </div>
+                <p v-if="item.compositum + item.compositum.length > 3">
+                  ...
+                </p>
+                </div>
+
+
+              </v-list-item-subtitle>
+            </v-list-item-content> -->
+          </v-list-item>
+        </template>
+      </v-autocomplete>
       <template>
         <div class="mb-3">
             <v-row class="px-2 py-0 my-0" justify="center" align="center" v-if="listLoading === true">
@@ -166,6 +237,7 @@ import { articleStore }from "@src/store/articles-store"
 import { getWebsiteHtml } from '../api'
 import { fileLinkFromXMLUrl } from "@src/utilities/helper-functions"
 import { watch } from "fs"
+import ArticleSearchItem  from "../components/ArticleSearchItem.vue"
 
 @Component({
   components: {
@@ -174,11 +246,14 @@ import { watch } from "fs"
     ArticleViewLegacy,
     ArticleView,
     VueHorizontal,
+    ArticleSearchItem
   },
 })
 export default class Article extends Vue {
 
   @Prop() filename: string
+
+  searchTerm: string = '';
 
   showEditor = false
   geoStore = geoStore
