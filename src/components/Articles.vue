@@ -51,12 +51,24 @@
             <div style="height: 1px;" v-if="i === visibleArticles.length - 1 && moreArticlesAvailable" v-intersect="loadMoreVisible"/>
           </v-subheader>
           <v-list-item :to="`/articles/${ getFileLink(article.xmlUrl) }`" v-for="(article, index) in articles.articles" :key="i + index + article.filename + article.lemma">
-            <v-list-item-title>
+            <v-list-item-title
+              style="
+                display:flex;
+                flex-direction: row;"
+            >
               {{ article.title }}
-              <span class="ml-2" v-if="searchActive">
-                <span v-for="(hit, index) in getHitsFromArticle(article).slice(0, 4)" v-bind:key="index" style="font-size: 14px; color: gray;">{{hit}} <v-divider class="mx-1" vertical/> <span v-if="index === 3 && getHitsFromArticle(article).length > 3">...</span></span>
+              <div class="ml-2" v-if="searchActive"
+              style="
+                display:flex;
+                flex-direction: row;">
+                <span
+                  v-for="(hit, index) in getHitsFromArticle(article).slice(0, 4)"
+                  v-bind:key="index"
+                  style="font-size: 14px; color: gray;">{{hit}}
+                  <v-divider v-if="(index !== getHitsFromArticle(article).length - 1)" class="mx-1" vertical/>
+                  <span v-if="index === 3 && getHitsFromArticle(article).length > 3">...</span></span>
 
-              </span>
+              </div>
             </v-list-item-title>
             <v-list-item-icon v-if="article.xmlUrl && article.xmlUrl.indexOf('%23') > -1">
               <v-tooltip top max-width="220" >
@@ -106,21 +118,21 @@ export default class Articles extends Vue {
   getHitsFromArticle(article: Article) :string[] {
     const hits = [];
 
-    if(article.lemma.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+    const normalizedSearchTerm = this.searchTerm.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    if(article.lemma.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(normalizedSearchTerm)) {
       hits.push(article.lemma);
     }
 
-
-
     article.compositum?.forEach(composita => {
-      if(composita.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+      if(composita.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(normalizedSearchTerm)) {
 
         hits.push(composita);
       }
     });
 
     article.references?.forEach(reference => {
-      if(reference.text.toLowerCase().includes(this.searchTerm.toLowerCase())){
+      if(reference.text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(normalizedSearchTerm)){
         hits.push(reference.text);
       }
     });
@@ -140,8 +152,6 @@ export default class Articles extends Vue {
         this.visibleArticles.push( ...this.filteredArticlesByInitial.slice(this.visibleArticles.length, Math.min((this.visibleArticles.length + this.visibleArticleStepSize), this.filteredArticlesByInitial.length)));
       }
   }
-
-
 
   @Watch('letter')
   OnLetterChanged() {
@@ -318,6 +328,7 @@ export default class Articles extends Vue {
   @Watch('loading')
   OnLoadingChanged() {
     if(!this.loading) {
+      this.resetVisible();
       this.changeVisible();
     }
   }

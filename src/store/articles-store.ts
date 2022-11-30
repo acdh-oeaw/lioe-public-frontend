@@ -83,6 +83,11 @@ class ArticlesModule extends VuexModule {
           this.searchedArticles = sortArticles(filterAndMapArticles(resp.articles));
           totalPages = resp.page.totalPages.valueOf();
           this.searchArticleCount = resp.page.totalElements;
+
+          if(totalPages <= 1) {
+            this.loadingArticleSearch = false;
+            return;
+          }
         }
       })
 
@@ -144,7 +149,6 @@ class ArticlesModule extends VuexModule {
 
     @action
     async fetchArticles(forceUpdate?:boolean) : Promise<any> {
-
         if(this.loading){
             return this.articlesResponse;
         }
