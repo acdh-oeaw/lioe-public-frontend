@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import router from '@src/router'
 import VueRouter from 'vue-router'
 import * as fontLoader from 'webfontloader'
+import VueMatomo from 'vue-matomo'
 
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
@@ -52,6 +53,19 @@ if (window) {
   })
 }
 
+Vue.use(VueMatomo, {
+  host: "https://matomo.acdh.oeaw.ac.at",
+  siteId: "194",
+  router: router,
+  requireConsent: true,
+  trackInitialView: true,
+  enableHeartBeatTimer: true,
+  debug: process.env.NODE_ENV === 'development',
+  preInitActions: [
+    ['setSecureCookie', window.location.protocol === 'https:'],
+    ['setCookieSameSite', 'Strict']
+  ]
+})
 
 // @ts-ignore
 // Ts Ignore needed since VueTour has a different (non exposed part (.util) which breaks the compilation)

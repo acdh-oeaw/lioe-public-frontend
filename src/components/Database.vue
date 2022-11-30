@@ -1811,6 +1811,7 @@ export default class Database extends Vue {
         this.totalItems = res.total.value || 0;
       }
       this.searching = false;
+      this.$matomo && this.$matomo.trackSiteSearch(req, 'search in DB', 0);
     } else {
       this.init();
     }
