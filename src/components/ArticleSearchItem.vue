@@ -4,7 +4,7 @@
       {{article.lemma}} <span class="pl-2" style="color: grey; font-size: 14px;"> {{ article.title }} </span>
     </v-list-item-title>
     <v-list-item-subtitle
-      v-if="(article.compositum && article.compositum.length > 0) || (article.references && article.references.length > 0)"
+      v-if="displayCompositaAndReferences"
       class="ma-0 pa-0 mb-1">
       <div class="composita-container" v-if="sortedComposita && sortedComposita.length > 0">
 
@@ -77,6 +77,13 @@ export default class ArticleSearchItem extends Vue {
 
   @Prop()
   search: string;
+
+  hideExtras = true;
+
+  get displayCompositaAndReferences() {
+    return (this.article.compositum && this.article.compositum.length > 0) || (this.article.references && this.article.references.length > 0)
+      && !this.hideExtras;
+  }
 
   get sortedComposita() {
     if(!this.article.compositum) return void 0;
