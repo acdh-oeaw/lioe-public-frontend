@@ -11,7 +11,6 @@
             hide-details
             label="Suche Artikel…"
             prepend-inner-icon="search"
-            @input="debouncedSearchArticle"
             append-inner-icon="info"
             solo
             clearable
@@ -54,6 +53,10 @@
           <v-list-item :to="`/articles/${ getFileLink(article.xmlUrl) }`" v-for="(article, index) in articles.articles" :key="i + index + article.filename + article.lemma">
             <v-list-item-title>
               {{ article.title }}
+              <span class="ml-2" v-if="searchActive">
+                <span v-for="(hit, index) in getHitsFromArticle(article).slice(0, 4)" v-bind:key="index" style="font-size: 14px; color: gray;">{{hit}} <v-divider class="mx-1" vertical/> <span v-if="index === 3 && getHitsFromArticle(article).length > 3">...</span></span>
+
+              </span>
             </v-list-item-title>
             <v-list-item-icon v-if="article.xmlUrl && article.xmlUrl.indexOf('%23') > -1">
               <v-tooltip top max-width="220" >
@@ -83,6 +86,7 @@ import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
 import { articleStore } from '@src/store/articles-store'
 import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions'
+import { watch } from 'fs'
 
 interface articleGroup {
   initials: string,
@@ -99,6 +103,31 @@ export default class Articles extends Vue {
 
   visibleArticles: articleGroup[] = [];
 
+  getHitsFromArticle(article: Article) :string[] {
+    const hits = [];
+
+    if(article.lemma.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+      hits.push(article.lemma);
+    }
+
+
+
+    article.compositum?.forEach(composita => {
+      if(composita.toLowerCase().includes(this.searchTerm.toLowerCase())) {
+
+        hits.push(composita);
+      }
+    });
+
+    article.references?.forEach(reference => {
+      if(reference.text.toLowerCase().includes(this.searchTerm.toLowerCase())){
+        hits.push(reference.text);
+      }
+    });
+
+    return hits;
+  }
+
   visibleArticleStepSize: number = 3;
 
   get moreArticlesAvailable() {
@@ -107,18 +136,24 @@ export default class Articles extends Vue {
   }
 
   loadMoreVisible(entries: IntersectionObserverEntry[]) {
-      if (entries[0].isIntersecting && this.moreArticlesAvailable) {
+      if ((entries[0].isIntersecting && this.moreArticlesAvailable) || this.visibleArticles.length < 1) {
         this.visibleArticles.push( ...this.filteredArticlesByInitial.slice(this.visibleArticles.length, Math.min((this.visibleArticles.length + this.visibleArticleStepSize), this.filteredArticlesByInitial.length)));
       }
   }
 
+
+
   @Watch('letter')
   OnLetterChanged() {
-    this.changeVisible();
+    this.resetVisible();
+  }
+
+  resetVisible() {
+    this.visibleArticles = [];
   }
 
   changeVisible() {
-    this.visibleArticles = [];
+    this.visibleArticles = this.filteredArticlesByInitial.slice(this.visibleArticles.length, Math.min((this.visibleArticles.length + this.visibleArticleStepSize), this.filteredArticlesByInitial.length));
   }
 
   getFileLink(xmlUrl?: string) :string {
@@ -139,8 +174,13 @@ export default class Articles extends Vue {
 
   letter = 0
   searchTerm = ''
-  debouncedSearchArticle = _.debounce(this.searchArticle, 250)
+  debouncedSearchArticle = _.debounce(this.searchArticle, 500)
   toggleModel: number = 2;
+
+  @Watch('searchTerm')
+  OnSearchTermChanged() {
+    this.debouncedSearchArticle(this.searchTerm);
+  }
 
   articleStatusFilters = [
     {
@@ -306,13 +346,17 @@ export default class Articles extends Vue {
   }
 
   async searchArticle(search: string) {
-    if (search) {
-      this.searchActive = true;
-      if(search !== articleStore.articles.lastSearch || this.activeFiltersAsString !== articleStore.articles.lastFilter) {
-        articleStore.articles.fetchArticleSearch(search, this.activeFiltersAsString, 500);
+
+    if(search === this.searchTerm) {
+      if (search) {
+        this.searchActive = true;
+        if(search !== articleStore.articles.lastSearch || this.activeFiltersAsString !== articleStore.articles.lastFilter) {
+
+          articleStore.articles.fetchArticleSearch({search: search, filter: this.activeFiltersAsString, pageSize: 500});
+        }
+      } else {
+        this.searchActive = false;
       }
-    } else {
-      this.searchActive = false;
     }
   }
 

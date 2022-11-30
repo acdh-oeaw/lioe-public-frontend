@@ -8,7 +8,7 @@
       class="ma-0 pa-0 mb-1">
       <div class="composita-container" v-if="sortedComposita && sortedComposita.length > 0">
 
-        <b class="mr-1">Compositat:  </b>
+        <b class="mr-1">Komposita:  </b>
         <div
           v-for="(composita, index) in sortedComposita"
           v-bind:key="index"

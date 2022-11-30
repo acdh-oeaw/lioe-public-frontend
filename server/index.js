@@ -62,8 +62,8 @@ app.get('/api/articles', async (req, res) => {
     res.send(r)
   } catch(e) {
     console.log('Error from Articles request');
-    console.log(e.response.data)
-    res.send(500, e.response.data)
+    console.log(e)
+    res.send(500, e)
   }
 
 
@@ -81,8 +81,8 @@ app.get('/api/articles/:article', async (req, res) => {
     res.send(r)
   } catch(e) {
     console.log('Error from single Article request');
-    console.log(e.response.data)
-    res.send(500, e.response.data)
+    console.log(e)
+    res.send(500, e)
   }
 })
 
@@ -97,8 +97,8 @@ app.get('/api/articles-version', async (_req, res) => {
     res.send(r);
   } catch(e) {
     console.log('Error from article Version request');
-    console.log(e.response.data)
-    res.send(500, e.response.data)
+    console.log(e.response)
+    res.send(500, e.response)
   }
 })
 

@@ -18,6 +18,7 @@ export const $bus = new Vue();
 
 Vue.prototype.$bus = $bus;
 
+Vue.config.devtools = true;
 Vue.config.productionTip = true
 // Vue.directive('line-clamp', lineClamp)
 Vue.use(Vuex)

@@ -10,6 +10,12 @@ const VuexModule = createModule({
     target: "nuxt",
 })
 
+export interface searchOptions {
+  search?: string,
+  filter?: string,
+  pageSize: number,
+}
+
 class ArticlesModule extends VuexModule {
 
 
@@ -60,37 +66,43 @@ class ArticlesModule extends VuexModule {
     }
 
     @action
-    async fetchArticleSearch(search?: string, filter?: string, pageSize: number = 500) {
-      if(this.loadingArticleSearch) {
+    async fetchArticleSearch(options : searchOptions = { search: void 0, filter: void 0, pageSize: 500 }) {
+      if(!options.search) {
         return;
       }
+
       this.loadingArticleSearch = true;
       let pageNr = 1;
       let totalPages = 1;
 
-      this.lastSearch = search ?? '';
-      this.lastFilter = filter ?? '';
+      this.lastSearch = options.search ?? '';
+      this.lastFilter = options.filter ?? '';
 
-      await getArticles(search, filter, pageSize, pageNr).then( resp => {
-        this.searchedArticles = sortArticles(filterAndMapArticles(resp.articles));
-        totalPages = resp.page.totalPages.valueOf();
-        this.searchArticleCount = resp.page.totalElements;
+      await getArticles(options.search, options.filter, options.pageSize, pageNr).then( resp => {
+        if(this.lastSearch === options.search) {
+          this.searchedArticles = sortArticles(filterAndMapArticles(resp.articles));
+          totalPages = resp.page.totalPages.valueOf();
+          this.searchArticleCount = resp.page.totalElements;
+        }
       })
 
       let requests: Promise<any>[] = [];
 
       for (pageNr = 2; pageNr <= totalPages; pageNr++) {
         requests.push(
-          getArticles(search, filter, pageSize, pageNr).then( resp => {
-            this.searchedArticles.push( ...sortArticles(filterAndMapArticles(resp.articles)));
+          getArticles(options.search, options.filter, options.pageSize, pageNr).then( resp => {
+
+            if(options.search === this.lastSearch)
+              this.searchedArticles.push( ...sortArticles(filterAndMapArticles(resp.articles)));
           })
         );
       }
 
       Promise.all(requests).then( () => {
-        this.searchedArticles = sortArticles(this.searchedArticles);
-      }).then( () => {
-        this.loadingArticleSearch = false;
+        if(this.lastSearch === options.search) {
+          this.searchedArticles = sortArticles(this.searchedArticles);
+          this.loadingArticleSearch = false;
+        }
       });
     }
 
