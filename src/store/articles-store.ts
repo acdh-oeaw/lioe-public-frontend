@@ -78,6 +78,8 @@ class ArticlesModule extends VuexModule {
       this.lastSearch = options.search ?? '';
       this.lastFilter = options.filter ?? '';
 
+      this.searchedArticles = [];
+
       await getArticles(options.search, options.filter, options.pageSize, pageNr).then( resp => {
         if(this.lastSearch === options.search) {
           this.searchedArticles = sortArticles(filterAndMapArticles(resp.articles));

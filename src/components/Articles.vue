@@ -60,15 +60,20 @@
               <div class="ml-2" v-if="searchActive"
               style="
                 display:flex;
-                flex-direction: row;">
+                flex-direction: row;
+                align-items:center;
+                max-width: 40%;
+                overflow:hidden;"
+              >
                 <span
-                  v-for="(hit, index) in getHitsFromArticle(article).slice(0, 4)"
-                  v-bind:key="index"
-                  style="font-size: 14px; color: gray;">{{hit}}
-                  <v-divider v-if="(index !== getHitsFromArticle(article).length - 1)" class="mx-1" vertical/>
-                  <span v-if="index === 3 && getHitsFromArticle(article).length > 3">...</span></span>
-
+                v-for="(hit, index) in getHitsFromArticle(article).slice(0, 3)"
+                v-bind:key="index"
+                style="font-size: 14px; color: gray;">
+                  {{hit}}
+                  <span v-if="(index !== getHitsFromArticle(article).length - 1)" class="mx-3">•</span>
+                </span>
               </div>
+              <span class="ml-1" v-if="(getHitsFromArticle(article).length > 2 && searchActive)">...</span>
             </v-list-item-title>
             <v-list-item-icon v-if="article.xmlUrl && article.xmlUrl.indexOf('%23') > -1">
               <v-tooltip top max-width="220" >
@@ -82,12 +87,12 @@
             </v-list-item-icon>
           </v-list-item>
         </template>
-        <v-skeleton-loader class="mt-4" v-if="moreArticlesAvailable" type="heading, list-item-two-line@2, heading, list-item@3" v-intersect="loadMoreVisible"></v-skeleton-loader>
+        <v-skeleton-loader id="intersect-skeleton-loader" class="mt-4" v-if="moreArticlesAvailable" type="heading, list-item-two-line@2, heading, list-item@3" v-intersect="loadMoreVisible"></v-skeleton-loader>
       </v-list>
       <div v-else>
         <span v-if="!loading">Keine Artikel gefunden.</span>
       </div>
-      <v-skeleton-loader v-if="loading" type="heading, list-item-two-line@3, heading, list-item@5"></v-skeleton-loader>
+      <v-skeleton-loader id="loading-skeleton-loader" v-if="loading" type="heading, list-item-two-line@3, heading, list-item@5"></v-skeleton-loader>
     </v-flex>
   </v-layout>
 </template>
@@ -98,7 +103,6 @@ import InfoText from '@components/InfoText.vue'
 import * as _ from 'lodash'
 import { articleStore } from '@src/store/articles-store'
 import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions'
-import { watch } from 'fs'
 
 interface articleGroup {
   initials: string,
@@ -118,21 +122,23 @@ export default class Articles extends Vue {
   getHitsFromArticle(article: Article) :string[] {
     const hits = [];
 
-    const normalizedSearchTerm = this.searchTerm.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const cleanupRegex = /[\u0300-\u036f\W_]/g;
 
-    if(article.lemma.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(normalizedSearchTerm)) {
+    const normalizedSearchTerm = this.searchTerm.toLocaleLowerCase().normalize("NFD").replace(cleanupRegex, "");
+
+    if(article.lemma.toLowerCase().normalize("NFD").replace(cleanupRegex, "").includes(normalizedSearchTerm)) {
       hits.push(article.lemma);
     }
 
     article.compositum?.forEach(composita => {
-      if(composita.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(normalizedSearchTerm)) {
+      if(composita.toLowerCase().normalize("NFD").replace(cleanupRegex, "").includes(normalizedSearchTerm)) {
 
         hits.push(composita);
       }
     });
 
     article.references?.forEach(reference => {
-      if(reference.text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(normalizedSearchTerm)){
+      if(reference.text.toLowerCase().normalize("NFD").replace(cleanupRegex, "").includes(normalizedSearchTerm)){
         hits.push(reference.text);
       }
     });
@@ -144,7 +150,6 @@ export default class Articles extends Vue {
 
   get moreArticlesAvailable() {
     return this.visibleArticles.length < this.filteredArticlesByInitial.length;
-
   }
 
   loadMoreVisible(entries: IntersectionObserverEntry[]) {
@@ -171,7 +176,7 @@ export default class Articles extends Vue {
   }
 
   get loading() {
-    return articleStore.articles.loadingAll || articleStore.articles.loadingArticleSearch
+    return this.searchActive ? articleStore.articles.loadingArticleSearch : articleStore.articles.loadingAll;
   }
 
   get totalArticleCount() {
@@ -357,13 +362,13 @@ export default class Articles extends Vue {
   }
 
   async searchArticle(search: string) {
-
     if(search === this.searchTerm) {
       if (search) {
         this.searchActive = true;
         if(search !== articleStore.articles.lastSearch || this.activeFiltersAsString !== articleStore.articles.lastFilter) {
 
           articleStore.articles.fetchArticleSearch({search: search, filter: this.activeFiltersAsString, pageSize: 500});
+          this.resetVisible();
         }
       } else {
         this.searchActive = false;
