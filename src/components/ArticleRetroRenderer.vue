@@ -5,13 +5,28 @@
       class="retro-box"
     />
     <!-- <code class="mt-4">{{ retroXml }}</code> -->
+    <template v-for="(h, k) in htmlHeader">
+      <v-menu open-on-hover max-width="400" max-height="95vh" top left :key="k" v-if="htmlHeaderUrls[h.name]">
+        <template v-slot:activator="{ on }">
+          <v-btn color="grey" class="fx-header-info-btn" :style="{top: h.top + 'px'}" small v-on="on" icon text>
+            <v-icon>info_outline</v-icon>
+          </v-btn>
+        </template>
+        <info-text
+          class="elevation-24 pa-4 white"
+          :path="htmlHeaderUrls[h.name]"
+        />
+      </v-menu>
+    </template>
   </v-card>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import InfoText from "@components/InfoText.vue";
 
 @Component({
   components: {
+    InfoText,
   }
 })
 // tslint:disable:max-line-length
@@ -19,20 +34,31 @@ export default class ArticleRetroRenderer extends Vue {
   @Prop({ required: true }) retroXml: string;
   @Prop({ default: {} }) xmlObjRetro: any;
 
-  htmlRetro: any = null;
+  htmlRetro: any = null
+  htmlHeader: any = []
+  htmlHeaderUrls: any = {
+    'start': 'wboe-artikel/artikel-einleitung-retro',
+    'etym': 'wboe-artikel/etymologie-retro/',
+    'urkundlich': 'wboe-artikel/urkundlich-retro/',
+    'belegauswahl-lautung': 'wboe-artikel/lautung-retro/',
+    'bedeutung': 'wboe-artikel/bedeutung-retro/',
+    'wortbildung-komposita': 'wboe-artikel/wortbildungen-komposita-retro/',
+    'wortbildung-ableitung': 'wboe-artikel/wortbildungen-ableitungen-retro/',
+  }
 
   @Watch("retroXml")
   makeHtmlRetro() {
-    let renderer = (e: any, t: any) => {
+    let htmlHeader: any = [{name: 'start', top: 0}]
+    const renderer = (e: any, t: any) => {
       let out = '';
       if (e) {
-        if (e.type === "ELEMENT") {
+        if (e.type === 'ELEMENT') {
           let classes: any = []
           let before = ''
           if (e.attributes && Object.keys(e.attributes).length > 0) {
             Object.keys(e.attributes).forEach((a: any) => {
-              let av = e.attributes[a].trim()
-              let ac = 'a-' + a.toLowerCase()
+              const av = e.attributes[a].trim()
+              const ac = 'a-' + a.toLowerCase()
               classes.push(ac + ' ' + ac + '-' + av.toLowerCase().replaceAll(/[^a-z0-9\s]/g, '').replaceAll(/\s/g, '-'))
               if (a === 'n') {
                 before += '<span class="fx-n">' + av + '</span>'
@@ -41,6 +67,15 @@ export default class ArticleRetroRenderer extends Vue {
             // console.log(e)
           }
           out += '<span class="element e-' + e.name + (classes.length > 0 ? ' ' + classes.join(' ') : '') + '">'
+          if (e.name === 'etym' && e.parents[0].name === 'entry') {
+            out += '<span class="fx-element a-type-header"><div id="i-marker-etym" class="i-marker"></div><span class="ws"> </span>Etymologie</span>'
+            htmlHeader.push({name: 'etym', top: 0})
+          }
+          if (e.attributes['type'] && e.attributes['type'].toLowerCase() === 'header' && e.childs && e.childs[0] && e.childs[0].type === 'TEXT') {
+            const markerName = e.childs[0].value.toLowerCase().replace(' ', '-').replace(/[\(\)]/g, '')
+            out += '<div id="i-marker-' + markerName + '" class="i-marker"></div>'
+            htmlHeader.push({name: markerName, top: 0})
+          }
           out += before
           if (e.childs && e.childs.length > 0) {
             e.childs.forEach((c: any) => {
@@ -54,8 +89,8 @@ export default class ArticleRetroRenderer extends Vue {
             out += '<br>'
           }
           out += '</span>'
-        } else if (e.type === "TEXT") {
-          let tVal = e.value.trim()
+        } else if (e.type === 'TEXT') {
+          const tVal = e.value.trim()
           if (tVal[0] !== ',' && tVal[0] !== '.' && tVal[0] !== ';' && tVal[0] !== ':' && tVal[0] !== ')' && tVal[0] !== ']' && tVal[0] !== '}') {
             out += '<span class="ws"> </span>'
           }
@@ -66,7 +101,7 @@ export default class ArticleRetroRenderer extends Vue {
           } else {
             out += e.value
           }
-          console.log(e.value)
+          // console.log(e.value)
           t += tVal
         } else if (e.type === "PROCESSING_INSTRUCTION") {
           out += '<span class="pi p-' + e.name + '">' + e.value + '</span>'
@@ -77,7 +112,22 @@ export default class ArticleRetroRenderer extends Vue {
       }
       return out
     }
-    this.htmlRetro = renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '');
+    this.htmlRetro = '<div id="i-marker-start" class="i-marker"></div>' + renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '');
+    this.htmlHeader = htmlHeader
+    this.$nextTick(() => {
+      this.getHtmlHeaderTop()
+    })
+    setTimeout(this.getHtmlHeaderTop, 500)
+  }
+
+  getHtmlHeaderTop () {
+    console.log('getHtmlHeaderTop')
+    this.htmlHeader.forEach((h: any) => {
+      const aD = document.getElementById('i-marker-' + h.name)
+      if (aD) {
+        h.top = aD.offsetTop
+      }
+    })
   }
 
   async mounted() {
@@ -86,24 +136,17 @@ export default class ArticleRetroRenderer extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  .fx-header-info-btn {
+    position: absolute;
+    margin-top: 0;
+    right: 0.5rem;
+  }
   .retro-box /deep/ {
     .e-entry {
       display: block;
     }
     .e-entry > .e-etym {
       display: block;
-    }
-    .e-entry > .e-etym:before {
-      content: "Etymologie";
-      display: block;
-      font-weight: bold;
-      margin: 0.5rem 0 0.2rem 0;
-      padding-left: 16px;
-      padding-right: 16px;
-      margin-left: -16px;
-      margin-right: -16px;
-      border-top: 1px solid #ddd;
-      padding-top: 16px;
     }
     .e-entry > .e-form > .e-usg,
     .e-entry > .e-form > .a-type-diminutive {
@@ -185,6 +228,9 @@ export default class ArticleRetroRenderer extends Vue {
     }
     .e-sense > .e-def {
       font-style: italic;
+    }
+    .i-marker {
+      position: relative;
     }
   }
 </style>

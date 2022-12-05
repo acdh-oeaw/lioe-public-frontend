@@ -45,7 +45,7 @@
           </v-flex>
           <lioe-footer id="logo" v-if="$route.name !== 'maps'"/>
           <notifications-module/>
-          <div>
+          <div class="d-print-none">
             <v-chip class="mx-1 mb-1" label link small v-on:click="revokeCookieAndTrackingConsent" v-if="userOptedTracking" data-testid="revokeTracking">Stop tracking me</v-chip>
           </div>
         </v-layout>

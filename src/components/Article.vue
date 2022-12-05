@@ -60,7 +60,7 @@
               </template>
               <info-text
                 class="elevation-24 pa-4 white"
-                path="wboe-artikel/lemma-short/"
+                :path="isRetro ? 'wboe-artikel/lemma-retro/' : 'wboe-artikel/lemma-short/'"
               />
               <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
             </v-menu>
