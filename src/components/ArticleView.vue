@@ -31,7 +31,7 @@
           </template>
           <info-text
             class="elevation-24 pa-4 white"
-            path="wboe-artikel/grammatische-angaben-short/"
+            :path="isRetro ? 'wboe-artikel/grammatische-angaben-retro/' : 'wboe-artikel/grammatische-angaben-short/'"
           />
           <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
         </v-menu>
