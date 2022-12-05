@@ -152,8 +152,8 @@ export default class Articles extends Vue {
     return this.visibleArticles.length < this.filteredArticlesByInitial.length;
   }
 
-  loadMoreVisible(entries: IntersectionObserverEntry[]) {
-      if ((entries[0].isIntersecting && this.moreArticlesAvailable) || this.visibleArticles.length < 1) {
+  loadMoreVisible(entries?: IntersectionObserverEntry[]) {
+      if ((entries && entries[0].isIntersecting && this.moreArticlesAvailable) || this.visibleArticles.length < 1) {
         this.visibleArticles.push( ...this.filteredArticlesByInitial.slice(this.visibleArticles.length, Math.min((this.visibleArticles.length + this.visibleArticleStepSize), this.filteredArticlesByInitial.length)));
       }
   }
@@ -161,6 +161,7 @@ export default class Articles extends Vue {
   @Watch('letter')
   OnLetterChanged() {
     this.resetVisible();
+    this.loadMoreVisible();
   }
 
   resetVisible() {
