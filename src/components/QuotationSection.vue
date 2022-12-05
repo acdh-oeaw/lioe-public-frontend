@@ -56,7 +56,7 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
   get facsTxt() {
     let facsTxt = ''
     if (this.pbFacs) {
-      console.log('yyyyy', (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || [])
+      // console.log('yyyyy', (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || [])
       const facsData = (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || []
       const baende: any = {
         '1': '1970',

@@ -33,6 +33,7 @@
         <name>
           <?options {
                       "title": "Editor",
+                      "tag": ["multiple", "shouldTag"],
                       "attributes": [{
                         "xml:id": {"type": "edit", "canBeEmpty": {"use": true}, "remove": {"use": true}},
                         "ref": {"type": "variable", "canBeEmpty": {"use": true}}
@@ -50,7 +51,8 @@
                           {"value": "Eva Wahlmüller", "attribute": {"ref": "#EW"}},
                           {"value": "David Gschösser", "attribute": {"ref": "#DG"}},
                           {"value": "Stefanie Schöberl", "attribute": {"ref": "#StS"}},
-                          {"value": "Fabian Fleißner", "attribute": {"ref": "#FF"}}
+                          {"value": "Fabian Fleißner", "attribute": {"ref": "#FF"}},
+                          {"value": "Markus Kunzmann", "attribute": {"ref": "#MK"}}
                         ]
                       }}],
                       "layout": { "frame": "line" }
@@ -90,6 +92,7 @@
         <name xml:id="DG"><?copyOptions { "fromId": "nameSimple" } ?>David Gschösser</name>
         <name xml:id="StS"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Stefanie Schöberl</name>
         <name xml:id="FF"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Fabian Fleißner</name>
+        <name xml:id="MK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Markus Kunzmann</name>
       </respStmt>
       <respStmt>
         <?options { "title": "Student assistants", "layout": { "frame": "panelClosed" } } ?>
@@ -212,7 +215,8 @@
                                                                                 {"title": "Eva Wahlmüller", "value": "EW"},
                                                                                 {"title": "David Gschösser", "value": "DG"},
                                                                                 {"title": "Stefanie Schöberl", "value": "StS"},
-                                                                                {"title": "Fabian Fleißner", "value": "FF"}
+                                                                                {"title": "Fabian Fleißner", "value": "FF"},
+                                                                                {"title": "Markus Kunzmann", "value": "MK"}
                                                                               ]}
                     }],
                     "tag": ["multiple", "possibleTag", "shouldTag"],

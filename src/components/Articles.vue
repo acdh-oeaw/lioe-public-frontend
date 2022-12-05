@@ -369,6 +369,7 @@ export default class Articles extends Vue {
         this.searchActive = false;
       }
     }
+    this.$matomo && this.$matomo.trackSiteSearch(search, 'search article', 0);
   }
 
   menuFilterStatus = '';

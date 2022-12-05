@@ -115,12 +115,12 @@
         <v-layout align-end>
           <v-flex @click="handleArticleClick" xs12>
             <div v-html="lemmaXML" class="lemma" />
-            <div
+            <!-- <div
               :title="pbFacsPdfLink"
               v-if="pbFacs"
             >
               {{ pbFacs }}
-            </div>
+            </div> -->
           </v-flex>
           <v-flex class="text-xs-right">
             <v-menu open-on-hover max-width="400" max-height="95vh" top left>
@@ -674,11 +674,6 @@ export default class Article extends Vue {
         // Hack to remove lemma link! ToDo: Make link working ?!?
         this.lemmaXML = this.lemmaXML.replace('collection-href="/collections-wboe.xml#start"', '')
         this.lemmaXML += this.fragementFromSelector("entry > gramGrp > gram[type=pos]", xml) + this.fragementFromSelector("entry > gramGrp > gram[type=gender]", xml)
-        this.editor = {
-          id: 'retro',
-          initials: aTitle && aTitle.innerHTML || 'Retro',
-          fullname: 'OEAW-Verlag (H. Rosenkranz)',
-        };
         // <pb facs="lieferung6.pdf#page=28" n="WBÖ 1, 344."/>
         let tPbFacs = this.elementsFromDom("entry > pb", xml)
         if (tPbFacs && tPbFacs.item(0) && tPbFacs.item(0).attributes && (<any>tPbFacs.item(0).attributes).n) {
@@ -688,6 +683,13 @@ export default class Article extends Vue {
             this.pbFacsPdfLink = (<any>tPbFacs.item(0).attributes).facs.value;
           }
         }
+        const facsData = (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || []
+        // console.log(facsData, aTitle, aTitle.innerHTML)
+        this.editor = {
+          id: 'retro',
+          initials: facsData.length > 2 ? ('WBÖ Band ' + facsData[1] + ', S. ' + facsData[2]) : (aTitle && aTitle.innerHTML || 'Retro'),
+          fullname: '', // 'OEAW-Verlag (H. Rosenkranz)',
+        };
         // console.log('pbFacs', this.pbFacs, this.pbFacsPdfLink)
       } else {
         this.retroXML = null;
