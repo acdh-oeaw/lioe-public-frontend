@@ -74,7 +74,7 @@ mirror-on-github:
     git checkout $current_branch
     to_revert=$(git rev-parse HEAD)
     git checkout origin/main -B main
-    git merge --squash --allow-unrelated-histories $to_revert -s ort -X theirs | ":"
+    git merge --squash --allow-unrelated-histories $to_revert -s ort -X theirs || ":"
     git submodule update --init --force --checkout
     git submodule -q foreach git add .
     git commit -a -m "$msg"
