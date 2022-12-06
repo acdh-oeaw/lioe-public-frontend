@@ -4,19 +4,123 @@
       <v-autocomplete
         class="article-search"
         label="Suche Artikel…"
-        :value="{ text: title, value: filename.replace('.xml', '') }"
         :loading="loading"
         clearable
         solo
         text
         @change="loadArticle"
-        :items="articles"
+        :items="articleList"
+        item-text="title"
+        item-value="xmlUrl"
         prepend-inner-icon="search"
-      />
+        v-model:search-input="searchTerm"
+      >
+        <template v-slot:item="{ props, item, on }">
+          <v-list-item
+            v-bind="props"
+            v-on="on"
+          >
+            <article-search-item
+            :article="item"
+            :search="searchTerm">
+
+            </article-search-item>
+            <!-- <v-list-item-content class="py-0">
+              <v-list-item-title>
+                {{item.lemma}} <span class="pl-2" style="color: grey; font-size: 14px;"> {{ item.title }} </span>
+              </v-list-item-title>
+              <v-list-item-subtitle
+                v-if="(item.compositum && item.compositum.length > 0) || (item.references && item.references.length > 0)"
+                class="ma-0 pa-0">
+                <div class="composita-container">
+                  <div
+                    v-for="(composita, index) in item.compositum"
+                    v-bind:key="index"
+                    class="ma-0 composita-item"
+                  >
+                    <template
+                    v-if="index <= 3">
+                      <p class="ma-0">
+                        {{ composita }}
+                      </p>
+                      <v-divider
+                        v-if="index > 0 && index < item.compositum.length - 1"
+                        class="mx-2 ma-0"
+                        style="height: inherit"
+                        vertical
+                      ></v-divider>
+                    </template>
+                  </div>
+                  <p v-if="item.compositum + item.compositum.length > 3">
+                    ...
+                  </p>
+                </div>
+
+                <div class="reference-container">
+                  <div
+                  v-for="(reference, index) in item.references"
+                  v-bind:key="index"
+                  class="ma-0 reference-item"
+                >
+                  <template
+                  v-if="index <= 3">
+                    <p>
+                      {{ reference.text }}
+                    </p>
+                    <v-divider
+                      v-if="index > 0 && index < item.references.length - 1"
+                      class="mx-2 py-3"
+                      vertical
+                    ></v-divider>
+                  </template>
+                </div>
+                <p v-if="item.compositum + item.compositum.length > 3">
+                  ...
+                </p>
+                </div>
+
+
+              </v-list-item-subtitle>
+            </v-list-item-content> -->
+          </v-list-item>
+        </template>
+      </v-autocomplete>
+      <template>
+        <div class="mb-3">
+            <v-row class="px-2 py-0 my-0" justify="center" align="center" v-if="listLoading === true">
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+              <v-col class="py-0 my-0">
+                <v-skeleton-loader class="py-0 my-0" type="button"></v-skeleton-loader>
+              </v-col>
+            </v-row>
+          <vue-horizontal v-else responsive snap="center" ref="horizontal_articles">
+            <section v-for="item in articleList" :key="item.xmlUrl">
+              <v-btn class="ml-6 mx-2" text :to="`/articles/${ getFileLink(item.xmlUrl) }`" :key="item.xmlUrl">{{item.title}}</v-btn>
+            </section>
+          </vue-horizontal>
+        </div>
+      </template>
       <template v-if="articleAvailable">
         <v-layout align-end>
           <v-flex @click="handleArticleClick" xs12>
             <div v-html="lemmaXML" class="lemma" />
+            <!-- <div
+              :title="pbFacsPdfLink"
+              v-if="pbFacs"
+            >
+              {{ pbFacs }}
+            </div> -->
           </v-flex>
           <v-flex class="text-xs-right">
             <v-menu open-on-hover max-width="400" max-height="95vh" top left>
@@ -27,7 +131,7 @@
               </template>
               <info-text
                 class="elevation-24 pa-4 white"
-                path="wboe-artikel/lemma-short/"
+                :path="isRetro ? 'wboe-artikel/lemma-retro/' : 'wboe-artikel/lemma-short/'"
               />
               <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
             </v-menu>
@@ -46,6 +150,9 @@
           :filename="filename"
           v-model="expanded"
           :geo-store="geoStore"
+          :retro-xml="retroXML"
+          :is-retro="isRetro"
+          :pb-facs="pbFacs"
         />
         <v-flex
           class="comment-box"
@@ -103,12 +210,19 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <div
+      tabindex="0"
+      :style="{left: bibliographieToolTip.x + 'px', top: bibliographieToolTip.y + 'px', 'margin-top': -(5 + bibliographieToolTip.h) + 'px'}"
+      @blur="bibliographieToolTipBlur"
+      ref="bibliographieToolTip"
+      v-if="bibliographieToolTip.show" v-html="bibliographieToolTip.html" class="bib-tool-tip"
+    />
   </v-layout>
 </template>
 <script lang="ts">
 // tslint:disable:max-line-length
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { getArticleByFileName, getArticles, getCollectionByIds, getDocumentsByCollection } from "../api"
+import { getArticleByFileName, getCollectionByIds, getDocumentsByCollection } from "../api"
 import XmlEditor from "@components/XmlEditor.vue"
 import { geoStore } from "../store/geo"
 import * as _ from "lodash"
@@ -117,8 +231,13 @@ import ArticleViewLegacy from "@components/ArticleViewLegacy.vue"
 import ArticleView from "@components/ArticleView.vue"
 import * as FileSaver from "file-saver"
 import { userStore, ArticleStatus } from "../store/user"
-import { concat } from "lodash"
 import { stateProxy } from "@src/store/collections"
+import VueHorizontal from 'vue-horizontal';
+import { articleStore }from "@src/store/articles-store"
+import { getWebsiteHtml } from '../api'
+import { fileLinkFromXMLUrl } from "@src/utilities/helper-functions"
+import { watch } from "fs"
+import ArticleSearchItem  from "../components/ArticleSearchItem.vue"
 
 @Component({
   components: {
@@ -126,14 +245,17 @@ import { stateProxy } from "@src/store/collections"
     InfoText,
     ArticleViewLegacy,
     ArticleView,
+    VueHorizontal,
+    ArticleSearchItem
   },
 })
 export default class Article extends Vue {
 
   @Prop() filename: string
 
+  searchTerm: string = '';
+
   showEditor = false
-  articles: Array<{ text: string; value: string }> = []
   geoStore = geoStore
   loading = false
   articleAvailable = true
@@ -153,8 +275,31 @@ export default class Article extends Vue {
   wortbildungXML: string | null = null
   redewendungenXML: string | null = null
   lemmaXML: string | null = null
+  retroXML: string | null = null
   diminutiveXML: string | null = null
+  pbFacs: string | null = null
+  pbFacsPdfLink: string | null = null
+  isRetro: boolean | null = false
   userStore = userStore
+
+  bibliographieObj: any | null = null
+  bibliographieToolTip: any = {
+    x: 0,
+    y: 0,
+    h: 0,
+    html: null,
+    show: false
+  }
+
+  updateHorizontalArticleList: boolean = true;
+
+  get articleList() {
+    return articleStore.articles.AllArticles;
+  }
+
+  get listLoading() {
+    return articleStore.articles.loadingAll;
+  }
 
   get commentUrl(): string {
     return (
@@ -165,6 +310,10 @@ export default class Article extends Vue {
         ? this.editor.initials.toLowerCase()
         : this.editor.fullname)
     );
+  }
+
+  getFileLink(xmlUrl?: string) : string {
+    return fileLinkFromXMLUrl(xmlUrl);
   }
 
   getGrossregionFromGemeinde(sigle: string): string | null {
@@ -192,16 +341,13 @@ export default class Article extends Vue {
 
       // open print dialog
          window.print();
-    
+
       // reset title
           document.title = oldTitle;
         });
       }, 500);
     });
   }
-
-
-
 
   isPlaceNameElement(el: HTMLElement | any) {
     return el.nodeName === "PLACENAME" && el.hasAttribute("ref");
@@ -222,42 +368,67 @@ export default class Article extends Vue {
     );
   }
 
-  getLemmaLinkElement(el: HTMLElement): string | false | null {
-    // this is awful.
-    return (
-      el.getAttribute("data-target") ||
-      (el.parentElement !== null &&
-        el.parentElement.getAttribute("data-target")) ||
-      (el.parentElement !== null &&
-        el.parentElement.parentElement !== null &&
-        el.parentElement.parentElement.getAttribute("data-target"))
-    );
+  getDataTargetElement(el: HTMLElement): any[] {
+    let dt = el.getAttribute("data-target")
+    let maxDg = 10
+    let aEl = el
+    while (!dt && aEl.parentElement !== null && maxDg > 0) {
+      aEl = aEl.parentElement
+      dt = aEl.getAttribute("data-target")
+      maxDg -= 1
+    }
+    return [dt, aEl]
+  }
+
+  bibliographieToolTipBlur() {
+    this.bibliographieToolTip.show = false
   }
 
   handleArticleClick(e: MouseEvent) {
     if (e.target instanceof HTMLElement) {
-      if (this.isPlaceNameElement(e.target)) {
-        const sigle = this.getPlacenameSigleFromRef(
-          e.target.getAttribute("ref")
-        );
-        if (sigle !== null) {
-          this.openMapsWithPlaces([sigle]);
-        }
-      } else if (e.target.dataset.geoSigle !== undefined) {
-        this.openMapsWithPlaces([e.target.dataset.geoSigle]);
-      } else if (this.getCollectionLink(e.target) !== null) {
-        const id = this.getCollectionLink(e.target)!;
-        this.goToDB(id);
-        // this.$router.push({ path: "/db", query: { collection_ids: id } });
-        // Verweis auf anderes Lemma
-      } else if (
-        typeof this.getLemmaLinkElement(e.target as HTMLElement) === "string"
-      ) {
-        const s = this.getLemmaLinkElement(e.target as HTMLElement) as string;
-        const t = /(.+)\.xml/g.exec(s);
-        console.log(t);
-        if (t !== null && t[1] !== null) {
-          this.$router.push({ path: "/articles/" + t[1] });
+      if (!this.isRetro) {
+        if (this.isPlaceNameElement(e.target)) {
+          const sigle = this.getPlacenameSigleFromRef(
+            e.target.getAttribute("ref")
+          );
+          if (sigle !== null) {
+            this.openMapsWithPlaces([sigle]);
+          }
+        } else if (e.target.dataset.geoSigle !== undefined) {
+          this.openMapsWithPlaces([e.target.dataset.geoSigle]);
+        } else if (this.getCollectionLink(e.target) !== null) {
+          const id = this.getCollectionLink(e.target)!;
+          this.goToDB(id);
+          // this.$router.push({ path: "/db", query: { collection_ids: id } });
+          // Verweis auf anderes Lemma
+        } else {
+          if (typeof this.getDataTargetElement(e.target as HTMLElement)[0] === "string") {
+            const o = this.getDataTargetElement(e.target as HTMLElement)
+            const s = o[0] as string
+            const t = /(.+)\.xml/g.exec(s)
+            console.log('lemmaLink', {s, t})
+            if (t !== null && t[1] !== null) {
+              this.$router.push({ path: "/articles/" + t[1] })
+            } else {
+              if (s.charAt(0) === '#') {
+                if (this.bibliographieObj && this.bibliographieObj.htmlDom) {
+                  let bHtml = this.bibliographieObj.htmlDom.getElementById(s.substring(1))
+                  if (bHtml) {
+                    bHtml = bHtml.innerHTML
+                    this.bibliographieToolTip.html = bHtml
+                    this.bibliographieToolTip.x = o[1].getBoundingClientRect().left
+                    this.bibliographieToolTip.y = o[1].getBoundingClientRect().top + document.documentElement.scrollTop
+                    this.bibliographieToolTip.h = 60
+                    this.bibliographieToolTip.show = true
+                    this.$nextTick(() => {
+                      (this.$refs.bibliographieToolTip as any).focus()
+                    })
+                    console.log('bHtml', bHtml, this.bibliographieToolTip, o[1].getBoundingClientRect(), o[1])
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -291,7 +462,7 @@ export default class Article extends Vue {
     let relevant_coll = cs[0];
     let coll_name = relevant_coll.name;
     let coll_desc = relevant_coll.description;
-    
+
     stateProxy.collections.addWBOE_coll({
       changedColl: {
         id: Math.random() * 1000,
@@ -312,7 +483,7 @@ export default class Article extends Vue {
       });
   }
 
-  
+
 
   openMapsWithPlaces(placeIds: string[]) {
     stateProxy.collections.setLocations(placeIds)
@@ -320,17 +491,15 @@ export default class Article extends Vue {
       path: "/maps",
     });
   }
-  
+
   openDBWithPlaces(placeIds: string[]) {
-    console.log(placeIds);
-    const routingStr = '/db?q=Sigle1,'.concat(placeIds[0]); 
+    const routingStr = '/db?q=Sigle1,'.concat(placeIds[0]);
     this.$router.push(routingStr);
-    
+
   }
 
   getColStr(val: any) {
     let output;
-    console.log(val.split(","));
     output = JSON.stringify([
       {
         id: 0,
@@ -355,8 +524,10 @@ export default class Article extends Vue {
   }
 
   loadArticle(e: string) {
-    if (e && e.trim() !== "") {
-      this.$router.push(`/articles/${e}`);
+    const link = this.getFileLink(e);
+
+    if (link && link.trim() !== "") {
+      this.$router.push(`/articles/${link}`);
     } else {
       this.$router.push("/articles/");
     }
@@ -388,6 +559,7 @@ export default class Article extends Vue {
   @Watch("filename")
   onFileChange() {
     this.initArticle(this.filename);
+    this.updateHorizontalArticleList = true;
   }
 
   saveEditorXML() {
@@ -403,10 +575,6 @@ export default class Article extends Vue {
   }
 
   async activated() {
-    this.articles = (await getArticles())
-      .filter((a) => a.title !== "" && a.title !== undefined)
-      .map((t) => ({ text: t.title, value: t.filename.replace(".xml", "") }))
-      .sort((a, b) => a.text.localeCompare(b.text));
     this.initArticle(this.filename);
   }
 
@@ -452,15 +620,17 @@ export default class Article extends Vue {
 
   articleContainsStatuses(xml: string, statuses: ArticleStatus[]): boolean {
     const f = this.fragementFromSelector('teiHeader listChange change', xml)
-    console.log({f}, {statuses}, statuses.some(s => f.includes(s)))
-    return statuses.some(s => f.includes(s))
+    // console.log({f}, {statuses}, statuses.some(s => f.includes(s)))
+    return statuses.length === 0 || statuses.some(s => f.includes(s))
   }
 
   initXML(xml: string) {
-    this.articleAvailable = this.articleContainsStatuses(xml, userStore.articleStatus)
+    this.articleAvailable = this.isRetro || this.articleContainsStatuses(xml, userStore.articleStatus)
     if (this.articleAvailable) {
       this.articleAvailable = true
       const idInitials: any = { PhS: "PS" };
+      this.pbFacs = null;
+      this.pbFacsPdfLink = null;
       xml = xml.split("<body>").join("").split("</body>").join("");
       xml = this.linkParentsToCollection("ptr[type=collection]", xml);
       xml = this.appendGrossregionViaRef(
@@ -497,22 +667,121 @@ export default class Article extends Vue {
         "teiHeader > fileDesc > titleStmt > respStmt > name[ref]",
         xml
       )[0];
-      let aInitials = aEditor.getAttribute("ref");
-      aInitials = typeof aInitials === "string" ? aInitials.substr(1) : "";
-      this.editor = {
-        id: aInitials,
-        initials: idInitials[aInitials] || aInitials,
-        fullname: aEditor.innerHTML,
-      };
+      if (this.isRetro) {
+        this.retroXML = this.fragementFromSelector("TEI > text", xml);
+        this.articleAvailable = true;
+        let aTitle = this.elementsFromDom("teiHeader > fileDesc > titleStmt > title", xml)[0]
+        // Hack to remove lemma link! ToDo: Make link working ?!?
+        this.lemmaXML = this.lemmaXML.replace('collection-href="/collections-wboe.xml#start"', '')
+        this.lemmaXML += this.fragementFromSelector("entry > gramGrp > gram[type=pos]", xml) + this.fragementFromSelector("entry > gramGrp > gram[type=gender]", xml)
+        // <pb facs="lieferung6.pdf#page=28" n="WBÖ 1, 344."/>
+        let tPbFacs = this.elementsFromDom("entry > pb", xml)
+        if (tPbFacs && tPbFacs.item(0) && tPbFacs.item(0).attributes && (<any>tPbFacs.item(0).attributes).n) {
+          this.pbFacs = (<any>tPbFacs.item(0).attributes).n.value;
+          if ((<any>tPbFacs.item(0).attributes).facs) {
+            // ToDo: Use pdf link !
+            this.pbFacsPdfLink = (<any>tPbFacs.item(0).attributes).facs.value;
+          }
+        }
+        const facsData = (this.pbFacs as any).match(/WBÖ (\d+), (\d+)\./i) || []
+        // console.log(facsData, aTitle, aTitle.innerHTML)
+        this.editor = {
+          id: 'retro',
+          initials: facsData.length > 2 ? ('WBÖ Band ' + facsData[1] + ', S. ' + facsData[2]) : (aTitle && aTitle.innerHTML || 'Retro'),
+          fullname: '', // 'OEAW-Verlag (H. Rosenkranz)',
+        };
+        // console.log('pbFacs', this.pbFacs, this.pbFacsPdfLink)
+      } else {
+        this.retroXML = null;
+        let aInitials = aEditor.getAttribute("ref");
+        aInitials = typeof aInitials === "string" ? aInitials.substr(1) : "";
+        this.editor = {
+          id: aInitials,
+          initials: idInitials[aInitials] || aInitials,
+          fullname: aEditor.innerHTML,
+        };
+      }
     }
   }
 
   async initArticle(fileName: string) {
     this.loading = true;
-    this.articleXML = await getArticleByFileName(fileName + ".xml");
+    let aFileName = fileName;
+    if (aFileName.indexOf('#') > -1) {
+      let tmp = aFileName.split('#')
+      aFileName = tmp[0] + '.xml#' + tmp.splice(1).join('#')
+      this.isRetro = true
+    } else{
+      aFileName += '.xml'
+      this.isRetro = false
+    }
+    this.articleXML = await getArticleByFileName(aFileName);
     this.initXML(this.articleXML);
     this.loading = false;
   }
+
+  async init() {
+    try {
+      this.bibliographieObj = {
+        html: await getWebsiteHtml('https://lioe-cms.dioe.at/materialien/bibliographie')
+      }
+      this.bibliographieObj.htmlDom = new DOMParser().parseFromString(this.bibliographieObj.html, 'text/html')
+      console.log('bibliographieObj', this.bibliographieObj)
+    } catch (e) {
+      console.log('error', e)
+    }
+  }
+
+  mounted() {
+    this.updateHorizontalArticleList = true;
+    this.init()
+  }
+
+  updated() {
+    if(this.updateHorizontalArticleList){
+      this.scrollToArticle();
+
+      if(this.$refs.horizontal_articles){
+        // @ts-ignore
+        this.$refs.horizontal_articles.refresh();
+        this.updateHorizontalArticleList = false;
+      }
+    }
+  }
+
+  get loadingArticles() {
+    return articleStore.articles.loadingAll;
+  }
+
+  @Watch('loadingArticles')
+  OnLoadingChanged() {
+    if(!this.loadArticle) {
+      this.updateHorizontalArticleList = true;
+    }
+  }
+
+  @Watch('articleList')
+  onArticleListChange() {
+    this.updateHorizontalArticleList = true;
+  }
+
+  scrollToArticle() {
+    const artIndex = this.getArticleIndex() - 2;
+
+    if(artIndex > 0 && this.$refs.horizontal_articles){
+    // @ts-ignore
+      this.$refs.horizontal_articles.scrollToIndex(artIndex);
+    }
+  }
+
+  getArticleIndex(): number {
+    const encodedFilename = encodeURIComponent( this.filename.replace('.xml', ''));
+
+    let artIndex = this.articleList.map( a => fileLinkFromXMLUrl(a.xmlUrl)).indexOf(encodedFilename);
+
+    return artIndex
+  }
+
 }
 </script>
 <style lang="scss">
@@ -583,6 +852,10 @@ iframe.comment {
   > form[type="lemma"] + form[type="lemma"]::before {
     content: ",";
   }
+  gram[type="pos"],
+  gram[type="gender"] {
+    display: block;
+  }
 }
 
 .wortbildung,
@@ -635,5 +908,14 @@ iframe.comment {
   &:hover {
     text-decoration: underline;
   }
+}
+.bib-tool-tip {
+  position: absolute;
+  z-index: 100;
+  background: #fff;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+  padding: 5px 10px;
+  width: 380px;
+  margin-left: -10px;
 }
 </style>

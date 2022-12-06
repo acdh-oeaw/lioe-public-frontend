@@ -3,11 +3,10 @@ import { getDocumentsByCollection } from "../api";
 import Vuex from 'vuex'
 import Vue from 'vue'
 import { $addNotification } from "@src/utilities/notifications";
-import { $bus } from "..";
 Vue.use(Vuex)
 
 const VuexModule = createModule({
-    namespaced: "user",
+    namespaced: "collections",
     strict: false,
     target: "nuxt",
 })

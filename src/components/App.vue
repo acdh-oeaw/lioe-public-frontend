@@ -45,12 +45,16 @@
           </v-flex>
           <lioe-footer id="logo" v-if="$route.name !== 'maps'"/>
           <notifications-module/>
+          <div class="d-print-none">
+            <v-chip class="mx-1 mb-1" label link small v-on:click="revokeCookieAndTrackingConsent" v-if="userOptedTracking" data-testid="revokeTracking">Stop tracking me</v-chip>
+          </div>
         </v-layout>
       </v-container>
     </v-content>
   </v-app>
 </template>
 <script lang="ts">
+import { articleStore } from '@src/store/articles-store';
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { initialize as initGeo } from '../store/geo'
 import LioeFooter from './LioeFooter.vue'
@@ -63,8 +67,30 @@ import NotificationsModule from './NotificationsModule.vue'
   }
 })
 export default class App extends Vue {
-  mounted() {
+  
+  userOptedTracking: boolean = true;
+
+
+  created() {
+  }
+
+  async mounted() {
     initGeo();
+    articleStore.articles.fetchArticles();
+  }
+
+  timers = {
+    checkMatomo: { time: 400, autostart: true, repeat: true}
+  }
+
+  checkMatomo() {
+    if (this.$matomo) {
+      this.userOptedTracking = this.$matomo && !this.$matomo.isUserOptedOut()
+    }
+  }
+
+  revokeCookieAndTrackingConsent() {
+    this.$matomo && this.$matomo.forgetConsentGiven() && this.$matomo.orgetCookieConsentGiven() && this.$matomo.optUserOut()
   }
 }
 </script>

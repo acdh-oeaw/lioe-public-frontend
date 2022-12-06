@@ -6,7 +6,7 @@
         autofocus
         text
         v-model="searchTerm"
-        label="Suche…" 
+        label="Suche…"
         prepend-inner-icon="search"
         solo
         clearable
@@ -39,9 +39,8 @@
                 test-id="omni-search-result"
                 :to="
                   item.type === 'article'
-                    ? `/articles/${findArticleByTitle(
-                        item.text
-                      ).filename.replace('.xml', '')}`
+                    ? `/articles/${
+                      getArticleFileLinkByTitle(item.text)}`
                     : item.type !== 'collection'
                     ? `/db?q=Sigle1,${item.value}`
                     : ``
@@ -176,28 +175,25 @@
         <template slot-scope="{ text, weight, word }">
           <router-link
             class="word-cloud-link"
-            :to="`/articles/${findArticleByTitle(text).filename.replace(
-              '.xml',
-              ''
-            )}`"
+            :to="`/articles/${getArticleFileLinkByTitle(text)}`"
           >
             {{ text }}
           </router-link>
         </template>
       </vue-word-cloud>
     </v-flex>
-    <div v-if="loading" class="text-center grey--text mt-5">Laden…</div>
+    <div v-if="!articlesCount" class="text-center grey--text mt-5">Laden…</div>
     <div v-else class="text-center grey--text mt-5">
-      {{ articles ? articles.length.toLocaleString() : '?' }} WBÖ-Artikel
+      {{ articlesCount ? articlesCount.toLocaleString() : '?' }} WBÖ-Artikel
     </div>
 
     <v-flex class="pt-4">
       <info-text subDialog="true" path="home/einleitungstext/" />
     </v-flex>
-        <v-tour 
-      name="mainTour" 
-      :steps="mainTour_Steps" 
-      :options="{ 
+        <v-tour
+      name="mainTour"
+      :steps="mainTour_Steps"
+      :options="{
         useKeyboardNavigation: true,
         highlight: true,
         labels: {
@@ -213,17 +209,21 @@
   </v-layout>
 </template>
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
 import * as _ from 'lodash';
 import InfoText from '@components/InfoText.vue';
 import {
   getArticles,
   searchCollections,
   getDocumentsByCollection,
+  Article,
+  ExtendedArticle,
 } from '../api';
-import { stateProxy, Collection } from '../store/collections';
+import { stateProxy } from '../store/collections';
 import InfoBox from '@components/InfoBox.vue';
 import { geoStore } from '../store/geo';
+import { articleStore } from '@src/store/articles-store';
+import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions';
 
 @Component({
   components: {
@@ -286,7 +286,7 @@ export default class Main extends Vue {
       content: 'Hier finden Sie Informationen rund um das Projekt und die Plattform.',
       params: {
         enableScrolling: false,
-        placement: 'bottom'       
+        placement: 'bottom'
       }
     },
 
@@ -324,11 +324,21 @@ export default class Main extends Vue {
   searchOrt: string = '';
   searchedItem: string = '';
   searchLemma: string = '';
-  articles: Array<{ title: string; filename: string }> = [];
-  articlesPlus: Array<{ title: string; filename: string; ort: string }> = []; //extended articles list
-  loading = false;
+
+  get loading() {
+    return articleStore.articles.loading || articleStore.articles.loadingAll;
+  }
+
+  get articles() {
+    return articleStore.articles.AllArticles;
+  }
+  get articlesCount() {
+    return articleStore.articles.articleCount;
+  }
+
+  articlesPlus: Array<ExtendedArticle> = []; //extended articles list
   visited: boolean = false;
-  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250); 
+  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250);
   autoFit = false;
   loc: string | null;
   geoStore = geoStore;
@@ -356,7 +366,7 @@ export default class Main extends Vue {
       const articles = this.articles.map((a) => ({
         type: 'article',
         text: a.title,
-        value: a.filename,
+        value: a.xmlUrl,
         description: '',
       }));
       const places = this.geoStore.ortslisteGeo.map((f: any) => ({
@@ -380,6 +390,16 @@ export default class Main extends Vue {
   findArticleByTitle(title: string) {
     //check also based on ort
     return this.articles.find((a) => a.title === title);
+  }
+
+  getArticleFileLinkByTitle(title: string) {
+    const article = this.findArticleByTitle(title);
+
+    const xmlUrl = article?.xmlUrl;
+    if(!xmlUrl) return '';
+
+
+    return fileLinkFromXMLUrl(xmlUrl);
   }
 
   get words(): string[] {
@@ -509,11 +529,8 @@ export default class Main extends Vue {
   }
 
   async mounted() {
-    this.loading = true;
-    this.articles = await getArticles();
-    this.loading = false;
     this.onLandingTourHandler();
-    
+
   }
 }
 </script>

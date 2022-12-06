@@ -16,6 +16,8 @@ const axios = require('axios')
 
 var cors = require('cors')
 
+const articleAPIEndpoint = 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/';
+
 // This app runs behind an
 // application load balancer
 // which handles the Certificate
@@ -31,7 +33,7 @@ app.use(cors())
 app.use((request, response, next) => {
   const host = request.headers.host
   const protocol = request.protocol
-  if (process.env.NODE_ENV === 'production' && protocol === 'http') {
+  if (process.env.REDIRECT_HTTPS && protocol === 'http') {
     response.redirect(301, 'https://' + host + request.url)
   } else {
     next()
@@ -40,25 +42,64 @@ app.use((request, response, next) => {
 
 app.use(compression())
 app.use(bodyParser.json())
-app.get('/api/article', async (req, res) => {
-  const r = (await axios({
-    url: 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article?max=1000'
-      + (req.query.initial ? '&lemma='+ encodeURIComponent(req.query.initial) : '') + (req.query.status ? '&status=' + req.query.status : ''),
-    headers: {
-      Accept: 'application/json'
-    }
-  })).data
-  res.send(r)
+app.get('/api/articles', async (req, res) => {
+
+  const reqUrl = articleAPIEndpoint + 'articles?'
+  + (req.query.initial ? '&initial='+ encodeURIComponent(req.query.initial) : '')
+  + (req.query.status ? '&status=' + encodeURIComponent(req.query.status) : '')
+  + (req.query.pageNr ? '&pageNr=' + req.query.pageNr : '')
+  + (req.query.pageSize ? '&pageSize=' + req.query.pageSize : '');
+  console.log(reqUrl);
+
+
+  try {
+    const r = (await axios({
+      url: reqUrl,
+      headers: {
+        Accept: 'application/json'
+      }
+    })).data
+    res.send(r)
+  } catch(e) {
+    console.log('Error from Articles request');
+    console.log(e)
+    res.send(500, e)
+  }
+
+
 })
-app.get('/api/article/:article', async (req, res) => {
-  console.log(req.params.article)
-  const r = (await axios({
-    url: 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v0.1/article/'+ encodeURIComponent(req.params.article),
-    headers: {
-      Accept: 'application/xml'
-    }
-  })).data
-  res.send(r)
+app.get('/api/articles/:article', async (req, res) => {
+  console.log('request for article: ', encodeURIComponent(req.params.article));
+
+  try {
+    const r = (await axios({
+      url: articleAPIEndpoint + 'articles/'+ encodeURIComponent(req.params.article),
+      headers: {
+        Accept: 'application/xml'
+      }
+    })).data
+    res.send(r)
+  } catch(e) {
+    console.log('Error from single Article request');
+    console.log(e)
+    res.send(500, e)
+  }
+})
+
+app.get('/api/articles-version', async (_req, res) => {
+  try {
+    const r = (await axios({
+      url: articleAPIEndpoint + 'version',
+      headers: {
+        Accept: 'application/json'
+      }
+    })).data;
+    res.send(r);
+  } catch(e) {
+    console.log('Error from article Version request');
+    console.log(e.response)
+    res.send(500, e.response)
+  }
 })
 
 app.post('/es-query', async (req, res) => {
@@ -71,6 +112,7 @@ app.post('/es-query', async (req, res) => {
     })).data
     res.send(r)
   } catch (e) {
+    console.log('Error from es query request');
     console.log(e.response.data)
     res.send(500, e.response.data)
   }
@@ -92,6 +134,7 @@ app.get('/es-count', async (req, res) => {
     )).data
     res.send(r)
   } catch (e) {
+    console.log('Error from es count request');
     console.log(e)
     res.send(500, e.response.data)
   }
@@ -99,6 +142,7 @@ app.get('/es-count', async (req, res) => {
 
 app.use('/', express.static(path.join(__dirname, '../dist/')))
 app.use('*', express.static(path.join(__dirname, '../dist/index.html')))
-app.listen(process.env.NODE_PORT || 3333, () => {
-  console.log(`Started server on port ${process.env.NODE_PORT}`)
+const port = process.env.NODE_PORT || process.env.PORT || 3333
+app.listen(port, () => {
+  console.log(`Started server on port ${port}`)
 })

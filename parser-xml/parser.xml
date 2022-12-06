@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objParser type="lioe" version="0.7.0">
+<objParser type="lioe" version="0.8.0">
   <xmlParserHeader>
     &lt;?xml version="1.0" encoding="UTF-8"?&gt;
     &lt;?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?&gt;
@@ -65,6 +65,7 @@
                             "xml:id": {"type": "edit", "canBeEmpty": {"use": true}, "shouldAttribute": {"use": true}, "value": { "fx": "orthId" }}
                           }],
                           "tag": ["possibleTag"],
+                          "editor": { "noAddButton": true },
                           "layout": {
                             "frame": "inline",
                             "hideTitle": true,
@@ -448,7 +449,8 @@
                             "hideTitle": true,
                             "header": "Etymologie",
                             "spaceBefore": 10,
-                            "spaceAfter": 5
+                            "spaceAfter": 5,
+                            "autospace": true
                           },
                           "editor": {
                             "addTitle": "Etym hinzufügen"
@@ -476,7 +478,7 @@
                             }
                           } ?>
                 <?copy { "fromId": "oRef", "options": { "tag": ["possibleTag", "anywhere"] } } ?>
-                <?copy { "fromId": "ref-bibl", "options": { "tag": ["possibleTag"], "layout": { "before": " (", "after": ") " } } } ?>
+                <?copy { "fromId": "ref-bibl", "options": { "tag": ["possibleTag"], "layout": { "before": " (", "after": ")", "autospace": true } } } ?>
                 <?copy { "fromId": "xr-int", "options": { "tag": ["possibleTag", "multiple"], "layout": { "before": "→" } } } ?>
                 <?copy { "fromId": "xr-ext", "options": { "tag": ["possibleTag", "multiple"], "layout": { "before": "→" } } } ?>
                 <?copy { "fromId": "xr-op", "options": { "tag": ["possibleTag", "multiple"], "layout": { "before": "→" } } } ?>
@@ -504,8 +506,9 @@
                    <?copy { "fromId": "orth", "options": { "tag": ["multiple", "possibleTag"], "layout": { "noSpaceAfter": true, "italic": true, "multiple": { "use": true, "join": " " } } } } ?>
                    <?copy { "fromId": "oRef", "options": { "tag": ["possibleTag", "anywhere"], "layout": { "noSpaceAfter": true } } } ?>
                 </form>
-                <?copy { "fromId": "gramGrp", "options": { "tag": ["possibleTag"], "layout": { "frame": "inline" } } } ?>
+                <?copy { "fromId": "gramGrp", "options": { "tag": ["possibleTag", "multiple"], "layout": { "frame": "inline", "autospace": true, "multiple": { "use": true, "join": ", " } } } } ?>
                 <?copy { "fromId": "def", "options": { "tag": ["possibleTag"], "layout": { "autospace": true } } } ?>
+                <?copy { "fromId": "date", "options": { "tag": ["possibleTag", "anywhere"], "layout": { "before": " (", "after": ") " } } } ?>
               </cit>
               <seg>
                 <?options {
@@ -518,15 +521,17 @@
                             "tag": ["possibleTag", "multiple", "anywhere"],
                             "layout": {
                               "frame": "inline",
-                              "hideTitle": true
+                              "hideTitle": true,
+                              "noSpaceAfterHyphen": true
                             },
                             "editor": {
                               "addButtonSort": 2
                             }
                           } ?>
-                <?copy { "fromId": "text", "options": { "layout": { "frame": "inline", "hideTitle": true }, "editor": { "parentInContext": true } } } ?>
+                <?copy { "fromId": "text", "options": { "layout": { "frame": "inline", "hideTitle": true, "noSpaceAfterHyphen": true }, "editor": { "parentInContext": true } } } ?>
+                <?copy { "fromId": "cTag" } ?>
                 <?copy { "fromId": "date" } ?>
-                <?copy { "fromId": "ref-bibl", "options": { "tag": ["possibleTag"], "layout": { "before": " (", "after": ") " } } } ?>
+                <?copy { "fromId": "ref-bibl", "options": { "tag": ["possibleTag"], "layout": { "before": " (", "after": ")" } } } ?>
                 <?copy { "fromId": "xr-int", "options": { "tag": ["possibleTag"] } } ?>
                 <?copy { "fromId": "xr-ext", "options": { "tag": ["possibleTag", "multiple"] } } ?>
                 <?copy { "fromId": "xr-op", "options": { "tag": ["possibleTag", "multiple"] } } ?>
@@ -645,8 +650,8 @@
                         "before": "(",
                         "after": ")",
                         "join": "; ",
-                        "beforeIf": { "id": ["xr-ext"], "value": "" },
-                        "afterIf": { "id": ["xr-ext"], "value": "; " }
+                        "beforeIf": { "id": ["xr-ext", "ref-bibl", "bibl-personal"], "value": "" },
+                        "afterIf": { "id": ["xr-ext", "ref-bibl", "bibl-personal"], "value": "; " }
                       }
                     }
                   } ?>
@@ -711,7 +716,9 @@
                         "use": true,
                         "before": "(",
                         "after": ")",
-                        "join": "; "
+                        "join": "; ",
+                        "beforeIf": { "id": ["ref-bibl", "xr-op"], "value": "" },
+                        "afterIf": { "id": ["ref-bibl", "xr-op"], "value": "; " }
                       }
                     }
                   } ?>
@@ -768,6 +775,7 @@
                       "type": {"type": "fixed", "value": "cf"}
                     }],
                     "tag": ["possibleTag"],
+                    "editor": { "noAddButton": true },
                     "layout": {
                       "frame": "inline",
                       "hideTitle": true,
@@ -1115,7 +1123,7 @@
             "tag": ["possibleTag"],
             "layout": {
               "before": " (",
-              "after": ") ",
+              "after": ")",
               "afterIf": { "id": "usg-geo", "value": "; " }
             },
             "editor": {
@@ -1182,6 +1190,7 @@
                       "title": "quote-ref-bibl",
                       "tag": ["possibleTag"],
                       "layout": {
+                        "autospace": true,
                         "frame": "inline",
                         "hideTitle": true
                       },
@@ -1205,11 +1214,14 @@
                     ],
                     "tag": ["multiple"],
                     "layout": {
-                      "frame": "line",
+                      "frame": "box",
                       "hideTitle": true,
                       "multiple": {
                         "use": true,
                         "enumerateFX": "gt1"
+                      },
+                      "previewLayout": {
+                        "frame": "line"
                       }
                     },
                     "editor": {
@@ -1221,7 +1233,7 @@
         <?copy { "fromId": "ref-form" } ?>
         <?copy { "fromId": "def", "options": { "tag": ["possibleTag"], "editor": { "addButtonSort": 1 } } } ?>
         <?copy { "fromId": "def-um", "options": { "tag": ["possibleTag"], "editor": { "addButtonSort": 2 } } } ?>
-        <?copy { "fromId": "usg-geo", "options": { "tag": ["possibleTag", "multiple"], "editor": { "addButtonSort": 4 } } } ?>
+        <?copy { "fromId": "usg-geo", "options": { "tag": ["possibleTag", "multiple"], "editor": { "addButtonSort": 4, "fxFunction": { "fieldsAfterDef": [ "Großregion", "Bundesland" ] } } } } ?>
         <?copy { "fromId": "cit-example", "options": { "tag": ["possibleTag"], "editor": { "addButtonSort": 6 } } } ?>
         <?copy { "fromId": "ptr-col", "options": { "attributes": [{"subtype": {"type": "fixed", "value": "bedeutung"}}], "editor": { "addButtonSort": 7 } } } ?>
         <?copy { "fromId": "ref-bibl", "options": { "tag": ["possibleTag", "multiple", "anywhere"], "editor": { "addButtonSort": 8 } } } ?>
@@ -1234,6 +1246,9 @@
                                                 "title": "Bedeutung (sub)",
                                                 "tag": ["possibleTag"],
                                                 "layout": {
+                                                  "frame": "line"
+                                                },
+                                                "previewLayout": {
                                                   "frame": "inline"
                                                 },
                                                 "editor": {
@@ -1267,7 +1282,9 @@
                         "use": true,
                         "before": " (",
                         "after": ")",
-                        "join": "; "
+                        "join": "; ",
+                        "beforeIf": { "id": ["xr-op", "bibl-personal"], "value": "" },
+                        "afterIf": { "id": ["xr-op", "bibl-personal"], "value": "; " }
                       }
                     }
                   } ?>
@@ -1342,6 +1359,7 @@
             }],
             "tag": ["possibleTag"],
             "layout": {
+              "autospace": true,
               "frame": "inline",
               "italic": true,
               "hideTitle": true,
@@ -1419,7 +1437,9 @@
                     "tag": ["possibleTag"],
                     "layout": {
                       "frame": "inline",
-                      "hideTitle": true
+                      "hideTitle": true,
+                      "before": "(",
+                      "after": ")"
                     }
                   } ?>
         </gram>
@@ -1618,7 +1638,7 @@
                 "hideTitle": true,
                 "noSpaceAfter": true,
                 "before": "(",
-                "after": ") "
+                "after": ")"
               }
             } ?>
           <usg>
@@ -1705,6 +1725,7 @@
         <?copy { "fromId": "text", "options": { "layout": { "frame": "inline", "hideTitle": true } } } ?>
         <c>
           <?options {
+                      "id": "cTag",
                       "value": ["edit", "required"],
                       "tag": ["multiple", "possibleTag", "anywhere"],
                       "layout": {
@@ -1744,6 +1765,7 @@
                     } ?>
           </ref>
         </xr>
+        <?copy { "fromId": "xr-int", "options": { "tag": ["possibleTag", "multiple", "anywhere"] } } ?>
       </note>
 
     </tags>

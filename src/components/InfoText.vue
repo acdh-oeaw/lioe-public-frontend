@@ -74,7 +74,7 @@ export default class InfoText extends Vue {
   subInternalUrl: string|null = null
   showSubDialog: boolean = false
   error = false
-  prefix = 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
+  prefix = 'https://lioe-cms.dioe.at/' // 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
 
   maybeInternalLink(l: string) {
     if (l.indexOf(this.prefix) > -1) {
@@ -114,7 +114,7 @@ export default class InfoText extends Vue {
         // first remove the handler, so we can’t have duplicate listeners
         aLnk.removeEventListener('click', this.linkClickHandler)
         aLnk.addEventListener('click', this.linkClickHandler)
-        if (aLnk.href !== aLnk.href.replace(this.prefix, '') && !isLocalUrl(aLnk.href)) {
+        if (aLnk.href !== aLnk.href.replace(this.prefix, '') && !isLocalUrl(aLnk.href) && aLnk.href.slice(-1) === '/') {
           aLnk.dataset.infoLnk = aLnk.href
           aLnk.dataset.infoLnkRaw = aLnk.href.replace(this.prefix, '')
           aLnk.href = '/resources?link=' + encodeURIComponent(aLnk.dataset.infoLnkRaw)
@@ -137,7 +137,7 @@ export default class InfoText extends Vue {
           const el = (this.$parent.$el.parentElement as HTMLElement)
           el.scrollTop = 0
         }
-      } else if (!e.target.dataset.infoLnk && isExternUrl(e.target.href)) {
+      } else if (!e.target.dataset.infoLnk && (isExternUrl(e.target.href) || e.target.href.slice(-1) !== '/')) {
         window.open(e.target.href, '_blank')
       } else {
         if (e.target.target === '_top' && e.target.dataset.infoLnkRaw) {
@@ -216,6 +216,9 @@ div /deep/ a.button {
   font-size: 18px;
   border-radius: 5px;
   padding: 10px 15px;
+}
+.info-content {
+  min-width:10em;
 }
 .info-content /deep/ {
   img {

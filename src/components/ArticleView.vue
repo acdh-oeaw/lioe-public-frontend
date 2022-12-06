@@ -9,7 +9,9 @@
           :key="'td' + tdKey"
         />
       </v-flex>
-      <v-flex class="text-xs-right">
+      <v-flex class="text-xs-right"
+        v-if="!isRetro"
+      >
         <v-btn small rounded text @click="$emit('toggleAll')">{{
           isEveryArticleExpanded ? "Einklappen" : "Ausklappen"
         }}</v-btn>
@@ -29,16 +31,24 @@
           </template>
           <info-text
             class="elevation-24 pa-4 white"
-            path="wboe-artikel/grammatische-angaben-short/"
+            :path="isRetro ? 'wboe-artikel/grammatische-angaben-retro/' : 'wboe-artikel/grammatische-angaben-short/'"
           />
           <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
         </v-menu>
       </v-flex>
     </v-layout>
+    <template v-if="isRetro">
+      <article-retro-renderer
+        :xmlObjRetro="xmlObjRetro"
+        :retroXml="retroXml"
+        class="mt-3 article-panels"
+        v-if="retroXml"
+      />
+    </template>
     <v-expansion-panels
       :value="value"
       @change="$emit('input', $event)"
-      v-if="editorObj != null"
+      v-else-if="editorObj != null"
       class="mt-3 article-panels"
       @click.native="$emit('article-click', $event)"
       accordion
@@ -148,14 +158,14 @@
     >
       <span>{{ noteAuthor.name }}</span>
     </v-tooltip>
-    <div class="text-xs-right pa-4">
-      <v-tooltip top color="ci">
+    <div class="text-xs-right pa-4 text-right">
+      <v-tooltip top color="ci" :disabled="!autor.initials || autor.fullname.length === 0">
         <template v-slot:activator="{ on }">
           <span v-on="on">{{
             autor.initials ? autor.initials : autor.fullname || ""
           }}</span>
         </template>
-        <span>{{ autor.fullname || "" }}</span>
+        <span>{{ autor.fullname || "" }} </span>
       </v-tooltip>
     </div>
     <QuotationSection
@@ -163,6 +173,8 @@
       :filename="filename"
       :autor="autor"
       :xml="xml"
+      :isRetro="isRetro"
+      :pbFacs="pbFacs"
     />
   </div>
 </template>
@@ -176,6 +188,7 @@ import EditorObject from "../service/parser-functions/editor/Editor";
 import ParserObject from "../service/parser-functions/parser/Parser";
 import PreviewContent from "@components/ViewPreview/PreviewContent.vue";
 import ArticleFragmentHeader from "@components/ArticleFragmentHeader.vue";
+import ArticleRetroRenderer from "@components/ArticleRetroRenderer.vue";
 import ArticleFragmentPanel from "@components/ArticleFragmentPanel.vue";
 import QuotationSection from "@components/QuotationSection.vue";
 
@@ -217,6 +230,7 @@ interface ParserFile {
     ViewPreview,
     PreviewContent,
     ArticleFragmentHeader,
+    ArticleRetroRenderer,
     ArticleFragmentPanel,
     QuotationSection,
   },
@@ -228,10 +242,15 @@ export default class ArticleView extends Vue {
   @Prop() value: boolean[];
   @Prop() isEveryArticleExpanded: any;
   @Prop() autor: any;
+  @Prop({ default: null}) retroXml: string[];
+  @Prop({ default: false}) isRetro: boolean[];
+  @Prop({ default: null}) pbFacs: string[];
 
   parser: any = null;
   parserDefinitionPath = "/static/parser-xml/";
   editorObj: null | any = null;
+
+  xmlObjRetro: null | any = null;
 
   topDatas: any = null;
   bedeutung: any = null;
@@ -320,55 +339,71 @@ export default class ArticleView extends Vue {
   @Watch("xml")
   showArticle() {
     const xmlObj = new XmlObject.XmlBase(this.xml, () => void 0);
-    const editorObj = new EditorObject.EditorBase(
-      this.parser,
-      xmlObj,
-      () => void 0
-    ) as any;
-    let noteObj = editorObj.getAllEditorObjById("note")[0];
-    let aNotePersons = {} as any;
-    (noteObj.parserObj.options.getOption(
-      "attributes.resp.possibleValues"
-    ) as any).forEach((a: any) => {
-      aNotePersons[a.value] = a.title;
-    });
-    if (noteObj.uId) {
-      this.noteAuthor = {
-        id: "po" + noteObj.uId,
-        name: aNotePersons[noteObj.orgXmlObj.attributes.resp],
-        el: null,
-      };
+    if (this.retroXml) {
+      this.xmlObjRetro = xmlObj
+      this.editorObj = null
+      this.topDatas = null
+      console.log('retro', this.xmlObjRetro)
+    } else {
+      this.xmlObjRetro = null
+      const editorObj = new EditorObject.EditorBase(
+        this.parser,
+        xmlObj,
+        () => void 0
+      ) as any;
+      if (Object.keys(editorObj.errors).length > 0) {
+        Object.keys(editorObj.errors).forEach(e => {
+          editorObj.errors[e].forEach((e2: any, i: any) => {
+            console.log('err', e, i, e2)
+          })
+        })
+        console.log('editorObj Error', Object.keys(editorObj.errors).length, editorObj.errors[Object.keys(editorObj.errors)[0]][0], editorObj)
+      }
+      let noteObj = editorObj.getAllEditorObjById("note")[0];
+      let aNotePersons = {} as any;
+      (noteObj.parserObj.options.getOption(
+        "attributes.resp.possibleValues"
+      ) as any).forEach((a: any) => {
+        aNotePersons[a.value] = a.title;
+      });
+      if (noteObj.uId) {
+        this.noteAuthor = {
+          id: "po" + noteObj.uId,
+          name: aNotePersons[noteObj.orgXmlObj.attributes.resp],
+          el: null,
+        };
+      }
+      this.topDatas = [
+        ...editorObj
+          .getAllEditorObjById("gramGrp")
+          .filter(
+            (aGramGrp: any) => aGramGrp.parents[0].parserObj.name === "entry"
+          ),
+        ...editorObj.getAllEditorObjById("diminutiv"),
+        ...editorObj.getAllEditorObjById("movierung"),
+        ...editorObj.getAllEditorObjById("shortform"),
+        ...editorObj.getAllEditorObjById("kurzform"),
+        ...editorObj.getAllEditorObjById("diminuierteskurzwort"),
+        ...editorObj.getAllEditorObjById("kurzwort"),
+        ...editorObj.getAllEditorObjById("diminuiertekurzform"),
+        ...editorObj.getAllEditorObjById("nebenform"),
+      ];
+      this.bedeutung = editorObj.getEditorObjById("senseMain");
+      this.verbreitung = editorObj.getAllEditorObjById("usg-geo-verbreitung");
+      this.belegauswahl = editorObj.getAllEditorObjById("form-dialect");
+      this.etymologie = editorObj.getEditorObjById("etymologie");
+      this.wortbildungen = editorObj.getAllEditorObjById("re-compound");
+      this.redewendungen = editorObj.getAllEditorObjById("re-MWE");
+      this.lautung = editorObj.getAllEditorObjById("note").filter((e: any) => {
+        return (
+          e.orgXmlObj !== undefined &&
+          e.orgXmlObj.attributes !== undefined &&
+          e.orgXmlObj.attributes.type === "kommentar" &&
+          e.orgXmlObj.childs.length > 0
+        );
+      });
+      this.editorObj = editorObj;
     }
-    this.topDatas = [
-      ...editorObj
-        .getAllEditorObjById("gramGrp")
-        .filter(
-          (aGramGrp: any) => aGramGrp.parents[0].parserObj.name === "entry"
-        ),
-      ...editorObj.getAllEditorObjById("diminutiv"),
-      ...editorObj.getAllEditorObjById("movierung"),
-      ...editorObj.getAllEditorObjById("shortform"),
-      ...editorObj.getAllEditorObjById("kurzform"),
-      ...editorObj.getAllEditorObjById("diminuierteskurzwort"),
-      ...editorObj.getAllEditorObjById("kurzwort"),
-      ...editorObj.getAllEditorObjById("diminuiertekurzform"),
-      ...editorObj.getAllEditorObjById("nebenform"),
-    ];
-    this.bedeutung = editorObj.getEditorObjById("senseMain");
-    this.verbreitung = editorObj.getAllEditorObjById("usg-geo-verbreitung");
-    this.belegauswahl = editorObj.getAllEditorObjById("form-dialect");
-    this.etymologie = editorObj.getEditorObjById("etymologie");
-    this.wortbildungen = editorObj.getAllEditorObjById("re-compound");
-    this.redewendungen = editorObj.getAllEditorObjById("re-MWE");
-    this.lautung = editorObj.getAllEditorObjById("note").filter((e: any) => {
-      return (
-        e.orgXmlObj !== undefined &&
-        e.orgXmlObj.attributes !== undefined &&
-        e.orgXmlObj.attributes.type === "kommentar" &&
-        e.orgXmlObj.childs.length > 0
-      );
-    });
-    this.editorObj = editorObj;
   }
 
   updated() {

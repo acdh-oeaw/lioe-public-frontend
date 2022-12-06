@@ -303,9 +303,9 @@
                 style="margin-top: 10px"
                 class="mx-1 text-no-transform"
                 text
-                @click="extended = !extended"
-                v-model="extended"
+                @click="onExtendedChanged()"
               >
+                <!-- v-model="extended" -->
                 <v-icon v-if="extended" color="grey">mdi-check</v-icon>
                 Alle Spalten anzeigen
               </v-btn>
@@ -334,6 +334,7 @@
                 @click.prevent=""
               ></v-checkbox>
             </td>
+            <!-- v-if="!showScanWindow" -->
 
             <template v-for="header in visibleHeaders">
               <td
@@ -348,7 +349,23 @@
                     "
                     ><i> {{ header.renderFnc(item) }} </i>
                   </template>
-                  <template v-else> {{ header.renderFnc(item) }} </template>
+                  <template v-else-if="header.text === 'Scan'">
+                    <v-btn
+                      icon
+                      color="primary"
+                      :disabled="header.renderFnc(item) === ''"
+                      @click.stop="onImageClick(header.renderFnc(item))"
+                    >
+                      <v-icon v-if="header.renderFnc(item) === ''"
+                        >mdi-image-off
+                      </v-icon>
+                      <v-icon v-else>mdi-image </v-icon>
+                    </v-btn>
+                  </template>
+
+                  <template v-else>
+                    {{ header.renderFnc(item) }}
+                  </template>
                 </template>
                 <template v-else>{{ item[header.value] }}</template>
 
@@ -517,7 +534,7 @@
             </v-btn>
           </template>
           <v-list class="context-menu-list" dense>
-            <v-list-item @click="saveXLSX">Microsoft Excel</v-list-item>
+            <v-list-item @click="saveXLSX">EXCEL</v-list-item>
             <v-list-item @click="saveJSON">JSON</v-list-item>
             <v-list-item @click="saveCSV">CSV</v-list-item>
           </v-list>
@@ -638,6 +655,8 @@ export default class Database extends Vue {
 
   localStorage = window.localStorage;
 
+  showScanWindow: boolean = false;
+
   databaseTour_Steps = [
     {
       target: "#dbSearchbar",
@@ -731,6 +750,7 @@ export default class Database extends Vue {
 
   sortedHeaders: any[] = [
     "ID",
+    "Scan",
     "HL",
     "NL",
     "POS",
@@ -740,7 +760,7 @@ export default class Database extends Vue {
     "LT1_teuthonista",
     "BD/LT*",
     "Ort/LT",
-    "BD/KT1",
+    "KT1",
     "BD/KT*",
     "QU",
     "BIBL",
@@ -763,11 +783,21 @@ export default class Database extends Vue {
       sortable: false,
     },
     {
+      // Scans
+      searchable: false,
+      show: true,
+      text: "Scan",
+      value: "entry",
+      infoUrl: "",
+      renderFnc: (val: any) => this.hasScan(val),
+      sortable: false,
+    },
+    {
       searchable: true,
       show: false,
       text: "ID",
       value: "ID",
-      infoUrl: "wboe-artikel/dbheaderinfo-id/",
+      infoUrl: "dbheaderinfo/id",
       extended: true,
       sortable: true,
     },
@@ -775,7 +805,7 @@ export default class Database extends Vue {
       searchable: true,
       show: true,
       text: "Lemma",
-      infoUrl: "wboe-artikel/dbheaderinfo-lemma/",
+      infoUrl: "dbheaderinfo/lemma/",
       renderFnc: (val: any) => (Array.isArray(val.HL) ? val.HL[0] : val.HL),
       value: "HL",
       sortable: true,
@@ -784,7 +814,7 @@ export default class Database extends Vue {
       searchable: true,
       show: false,
       text: "Nebenlemma",
-      infoUrl: "wboe-artikel/dbheaderinfo-nebenlemma",
+      infoUrl: "dbheaderinfo/nebenlemma",
       value: "NL",
       renderFnc: (val: any) => (Array.isArray(val.NL) ? val.NL[0] : val.NL),
       extended: true,
@@ -794,7 +824,7 @@ export default class Database extends Vue {
       searchable: false,
       show: false,
       text: "Lemma oS",
-      infoUrl: "wboe-artikel/dbheaderinfo-lemmaos/",
+      infoUrl: "dbheaderinfo/lemmaos/",
       renderFnc: (val: any) =>
         Array.isArray(val.HL) && val.HL.length > 1
           ? val.HL[1].replace("≈", "")
@@ -805,7 +835,7 @@ export default class Database extends Vue {
     {
       searchable: true,
       show: true,
-      infoUrl: "wboe-artikel/dbheaderinfo-wortart/",
+      infoUrl: "dbheaderinfo/wortart/",
       text: "Wortart",
       value: "POS",
       sortable: true,
@@ -814,9 +844,9 @@ export default class Database extends Vue {
       searchable: true,
       show: false,
       text: "Grammatik",
-      infoUrl: "wboe-artikel/dbheaderinfo-grammatik/",
+      infoUrl: "dbheaderinfo/grammatik/",
       renderFnc: this.renderGrammatikAngabe,
-      value: "BD/KT",
+      value: "GRAM/LT1",
       extended: true,
       sortable: true,
     },
@@ -824,7 +854,7 @@ export default class Database extends Vue {
       searchable: true,
       show: false,
       text: "Fragenummer",
-      infoUrl: "wboe-artikel/dbheaderinfo-fragenummer/",
+      infoUrl: "dbheaderinfo/fragenummer/",
       renderFnc: this.renderFragenummer,
       value: "NR",
       extended: true,
@@ -834,7 +864,7 @@ export default class Database extends Vue {
       searchable: false,
       show: false,
       text: "Frage",
-      infoUrl: "wboe-artikel/dbheaderinfo-frage/",
+      infoUrl: "dbheaderinfo/frage/",
       renderFnc: this.renderGefragterAusdruck,
       value: "NR2",
       sortable: false,
@@ -844,9 +874,9 @@ export default class Database extends Vue {
       searchable: true,
       show: true,
       text: "Lautung",
-      infoUrl: "wboe-artikel/dbheaderinfo-lautung/",
+      infoUrl: "dbheaderinfo/lautung/",
       renderFnc: this.renderLautung,
-      sortable: false,
+      sortable: true,
       value: "LT1_teuthonista",
     },
     {
@@ -854,15 +884,15 @@ export default class Database extends Vue {
       show: true,
       text: "Bedeutung/Lautung",
       renderFnc: this.renderBedeutung,
-      infoUrl: "wboe-artikel/dbheaderinfo-bedeutunglautung/",
+      infoUrl: "dbheaderinfo/bedeutunglautung/",
       value: "BD/LT*",
-      sortable: false,
+      sortable: true,
     },
     {
       searchable: true,
       show: false,
       text: "Ort/Lautung",
-      infoUrl: "wboe-artikel/dbheaderinfo-ortlautung/",
+      infoUrl: "dbheaderinfo/ortlautung/",
       value: "Ort/LT",
       sortable: false,
       extended: true,
@@ -871,16 +901,16 @@ export default class Database extends Vue {
       searchable: true,
       show: true,
       text: "Kontext", // Belegsatz
-      infoUrl: "wboe-artikel/dbheaderinfo-kontext/",
+      infoUrl: "dbheaderinfo/kontext/",
       renderFnc: this.renderBelegsaetze,
-      value: "BD/KT1", //'belegsaetze',
+      value: "KT1", //'belegsaetze',
       sortable: true,
     },
     {
       searchable: true,
       show: true,
       text: "Bedeutung/Kontext", //Bedeutung/Belegsatz
-      infoUrl: "wboe-artikel/dbheaderinfo-bedeutungkontext",
+      infoUrl: "dbheaderinfo/bedeutungkontext",
       renderFnc: this.renderBedeutungBelegsaetze,
       value: "BD/KT*",
       sortable: true,
@@ -890,7 +920,7 @@ export default class Database extends Vue {
       show: false,
       text: "Quelle",
       value: "QU",
-      infoUrl: "wboe-artikel/dbheaderinfo-quelle/",
+      infoUrl: "dbheaderinfo/quelle/",
       extended: true,
       sortable: true,
     },
@@ -899,7 +929,7 @@ export default class Database extends Vue {
       show: false,
       text: "Bibliographische Angabe",
       value: "BIBL",
-      infoUrl: "wboe-artikel/dbheaderinfo-bibliographischeangabe/",
+      infoUrl: "dbheaderinfo/bibliographischeangabe/",
       extended: true,
       sortable: true,
     },
@@ -908,7 +938,7 @@ export default class Database extends Vue {
       show: true,
       text: "Sigle",
       value: "Sigle1",
-      infoUrl: "wboe-artikel/dbheaderinfo-sigle/",
+      infoUrl: "dbheaderinfo/sigle/",
       renderFnc: (val: any) =>
         `${_(val.Sigle1)
           .flatten()
@@ -924,7 +954,7 @@ export default class Database extends Vue {
       searchable: false,
       show: true,
       text: "Staat",
-      infoUrl: "wboe-artikel/dbheaderinfo-staat/",
+      infoUrl: "dbheaderinfo/staat/",
       value: "Sigle10",
       renderFnc: (val: any) =>
         regions.generalMapStaat(`${_(val.Sigle1).flatten()}`),
@@ -935,7 +965,7 @@ export default class Database extends Vue {
       show: true,
       text: "Land",
       value: "Bundesland1",
-      infoUrl: "wboe-artikel/dbheaderinfo-land/",
+      infoUrl: "dbheaderinfo/land/",
       renderFnc: (val: any) =>
         regions.mapBundeslaender(
           _(val.Bundesland1)
@@ -951,7 +981,7 @@ export default class Database extends Vue {
       show: true,
       text: "Großregion",
       value: "Großregion1",
-      infoUrl: "wboe-artikel/dbheaderinfo-grossregion/",
+      infoUrl: "dbheaderinfo/grossregion/",
       renderFnc: (val: any) =>
         regions.mapGrossreg(
           _(val.Großregion1)
@@ -967,7 +997,7 @@ export default class Database extends Vue {
       show: true,
       text: "Kleinregion",
       value: "Kleinregion1",
-      infoUrl: "wboe-artikel/dbheaderinfo-kleinregionen",
+      infoUrl: "dbheaderinfo/kleinregionen",
       renderFnc: (val: any) =>
         regions.mapKleinreg(
           _(val.Kleinregion1)
@@ -983,7 +1013,7 @@ export default class Database extends Vue {
       show: true,
       text: "Gemeinde",
       value: "Gemeinde1",
-      infoUrl: "wboe-artikel/dbheaderinfo-gemeinde/",
+      infoUrl: "dbheaderinfo/gemeinde/",
       renderFnc: (val: any) =>
         `${_(val.Gemeinde1)
           .flatten()
@@ -998,6 +1028,10 @@ export default class Database extends Vue {
     "items-per-page-text": "Pro Seite",
     "items-per-page-options": [10, 25, 50, 100, 500],
   };
+
+  hasScan(val: any) {
+    return "@facs" in val.entry ? val.entry["@facs"] : "";
+  }
 
   get temp_coll() {
     return stateProxy.collections.temp_coll;
@@ -1213,13 +1247,19 @@ export default class Database extends Vue {
     return this.headers.filter((h: any) => h.show);
   }
 
+  // @Watch("extended")
+  onExtendedChanged() {
+    this.extended = !this.extended;
+}
+
   @Watch("extended")
-  onExtendedChanged(val: boolean) {
+  onUpdateExtended(val: boolean) {
     this.headers.forEach((h: any) => {
       if (h.extended) {
-        h.show = val;
+        h.show = !h.show;
       }
     });
+    
   }
 
   // the changed function - was before under the renderBedeutung function
@@ -1360,6 +1400,11 @@ export default class Database extends Vue {
     if (this.indexField > 1) {
       true;
     } else false;
+  }
+
+  onImageClick(imgLink: string) {
+    const decodedUrl = decodeURIComponent(imgLink);
+    window.open(decodedUrl);
   }
 
   async mounted() {
@@ -1766,6 +1811,7 @@ export default class Database extends Vue {
         this.totalItems = res.total.value || 0;
       }
       this.searching = false;
+      this.$matomo && this.$matomo.trackSiteSearch(req, 'search in DB', 0);
     } else {
       this.init();
     }
@@ -1793,9 +1839,9 @@ export default class Database extends Vue {
     });
   }
 
+  // ToDo: Delete "editValuesForExport" and "sortedHeaders" if not needed anymore ?!?
   editValuesForExport(): any[] {
     var localSelect: any[] = _.cloneDeep(this.selected); // creating a deep copy
-
     // sorting the columns based on the order of the table
     var orderedSelect: any[] = [];
 
@@ -1803,9 +1849,10 @@ export default class Database extends Vue {
       var localOrdered: any = {};
       // excluding the colSources, entry, Bundesland and Großregion from the exported sheet
       delete x["colSources"];
-      delete x["entry"];
       delete x["Bundesland"];
       delete x["Großregion"];
+      if ("@facs" in x.entry) x["Scan"] = decodeURIComponent(x.entry["@facs"]);
+      delete x["entry"];
       for (var key in x) {
         if (Array.isArray(x[key])) {
           x[key] = x[key].join(" ");
@@ -1879,7 +1926,7 @@ export default class Database extends Vue {
           case "BD/LT*":
             x[key] = this.renderBedeutung(x);
             break;
-          case "BD/KT1":
+          case "KT1":
             x[key] = this.renderBelegsaetze(x);
             break;
           case "BD/KT*":
@@ -1887,8 +1934,6 @@ export default class Database extends Vue {
             break;
           case "Sigle1":
             x[key] = x[key].trim().replace(/[›]?[L|K]T[\d]?/g, "");
-          case "KT1":
-            x[key] = x[key].replace(/(  )( )*/, " ");
           default:
             break;
         }
@@ -1915,8 +1960,30 @@ export default class Database extends Vue {
     return orderedSelect;
   }
 
-  saveXLSX() {
-    var localSelect: any[] = this.editValuesForExport();
+  editValuesForExport2(): any[] {
+    var localSelect: any[] = _.cloneDeep(this.selected) // creating a deep copy
+    // sorting the columns based on the order of the table
+    var orderedSelect: any[] = []
+
+    localSelect.forEach((x) => {
+      var localOrdered: any = {}
+      this.headers.forEach(h => {
+        if (h.show) {
+          let aVal:any = h.renderFnc ? h.renderFnc(x) : x[h.value]
+          if (h.text === 'Sammlung' && x['colSources'] && x['colSources'].length > 0) {
+            aVal = x['colSources'].map((cs: any) => cs.collection_name)
+          }
+          localOrdered[h.text || h.value] = aVal && aVal.join ? aVal.join(', ') : aVal
+        }
+      })
+      orderedSelect.push(localOrdered)
+    })
+    // console.log('orderedSelect', orderedSelect)
+    return orderedSelect
+  }
+
+  saveTable(type: string) {
+    var localSelect: any[] = this.editValuesForExport2();
 
     const x = xlsx.utils.json_to_sheet(localSelect || this.items);
     const y = xlsx.writeFile(
@@ -1924,25 +1991,20 @@ export default class Database extends Vue {
         Sheets: { sheet: x },
         SheetNames: ["sheet"],
       },
-      "wboe-lioe-export.xlsx"
+      "wboe-lioe-export." + type
     );
+  }
+
+  saveXLSX() {
+    this.saveTable('xlsx')
   }
 
   saveCSV() {
-    var localSelect: any[] = this.editValuesForExport();
-
-    const x = xlsx.utils.json_to_sheet(localSelect || this.items);
-    const y = xlsx.writeFile(
-      {
-        Sheets: { sheet: x },
-        SheetNames: ["sheet"],
-      },
-      "wboe-lioe-export.csv"
-    );
+    this.saveTable('csv')
   }
 
   saveJSON() {
-    var localSelected = this.editValuesForExport();
+    var localSelected = this.editValuesForExport2();
     // var localSelected = _.cloneDeep(this.mappableSelectionItems); // enables the export only of the items that are mappable to avoid export of hidden selected items
     // localSelected.forEach((x) => {
     //   delete x['colSources'];
@@ -1954,7 +2016,8 @@ export default class Database extends Vue {
 
   downloadFiduz() {
     window.open(
-      "https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/informationen/fiduz/"
+      "https://lioe-cms.dioe.at/informationen/fiduz/"
+      // "https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/informationen/fiduz/"
     );
   }
 }

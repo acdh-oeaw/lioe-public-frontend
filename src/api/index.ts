@@ -1,7 +1,6 @@
 import { Collection } from '@src/store/collections'
 import axios from 'axios'
 import * as _ from 'lodash'
-import { concat, isNull } from 'lodash'
 import { userStore } from '../store/user'
 
 declare var process: {
@@ -44,16 +43,16 @@ interface individualRequest {
 }
 
 const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
-const txtEndpoint = 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
+const txtEndpoint = 'https://lioe-cms.dioe.at/' // 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
 export const localEndpoint = process.env.API_HOST
-const articleEndpoint = localEndpoint + '/api/article'
+const articleEndpoint = localEndpoint + '/api/articles'
 
 const localUrls: { [remoteUrl: string]: string } = {
-  '/lioetxt/home/': '/',
-  '/lioetxt/wboe-artikel/': '/articles',
-  '/lioetxt/karten/': '/maps',
-  '/lioetxt/materialien/': '/resources',
-  '/lioetxt/belegdatenbank/': '/db',
+  '/home/': '/',
+  '/wboe-artikel/': '/articles',
+  '/karten/': '/maps',
+  '/materialien/': '/resources',
+  '/belegdatenbank/': '/db',
 }
 
 var finalQuery: Object = {};
@@ -66,7 +65,16 @@ export async function getWebsiteHtml(path: string): Promise<string> {
   if (path.substr(path.length - 1) !== '/') {
     path += '/'
   }
-  return (await fetch(txtEndpoint + path)).text()
+  let html = await (await fetch(txtEndpoint + path)).text()
+  if (html.indexOf('id="content"') > -1) {
+    let htmlDom = new DOMParser().parseFromString(html, 'text/html')
+    let contentHtml = htmlDom.getElementById('content')
+    if (contentHtml) {
+      // console.log('xxx', { html, htmlDom, contentHtml })
+      html = contentHtml.innerHTML
+    }
+  }
+  return html
 }
 
 export function isExternUrl(url: string): boolean {
@@ -88,14 +96,14 @@ export function isLocalUrl(url: string): string | null {
  */
 export async function getDocumentTotalCount(): Promise<number> {
   const query_tmp = { match_all: {} };
-  const params = {query: query_tmp}
+  const params = { query: query_tmp }
   const r = (await axios(localEndpoint + '/es-count', {
     method: 'GET',
     params: params
-   })
+  })
   ).data
   return r.count ? r.count : 0;
-  
+
   // const r = await await axios({
   //   method: 'GET',
   //   url: apiEndpoint + '/documents/?page=1&page_size=1',
@@ -109,8 +117,8 @@ export async function getDocumentTotalCount(): Promise<number> {
  * Get total number of documents while sending a search query
  */
 export async function getDocumentTotalCountPerRequest(): Promise<number> {
-  
-  const params = {query: finalQuery}
+
+  const params = { query: finalQuery }
 
   const r = (await axios(localEndpoint + '/es-count', {
     method: 'GET',
@@ -118,8 +126,8 @@ export async function getDocumentTotalCountPerRequest(): Promise<number> {
   })
   ).data
 
-  
-  
+
+
   return r.count ? r.count : 0; // && r.data && r.data.count ? r.data.count : 0;
 }
 
@@ -394,6 +402,21 @@ function getFinalQuery(
     return { match_all: {} }
   }
 
+  let gramString = '';
+  for (let i = 1; i < 10; i += 1) {
+    gramString += `GRAM/LT${i},`;
+  }
+
+  let teuLT = '';
+  for (let i = 1; i < 10; i += 1) {
+    teuLT += `LT${i}_teuthonista,`;
+  }
+
+  let kotextString = '';
+  for (let i = 1; i < 9; i += 1) {
+    kotextString += `KT${i},`;
+  }
+
   // handle the individual cols search
   if (searchInd !== null) {
     _(searchInd)
@@ -411,81 +434,98 @@ function getFinalQuery(
 
     indvidualArr.forEach((obj) => {
       let shouldArr: any[] = []
-      if (Array.isArray(obj.query)) {
-        // create a fuzzy query, add the designed queries under the boolean query 'should'
-        if (fuzzlevel === 3) {
-          obj.query.forEach((element) => {
+      let tmpFields: any[] = []
+
+      if (obj.field === 'GRAM/LT1') {
+        tmpFields = gramString.slice(0, gramString.length - 1).split(',');
+      } else if (obj.field === 'LT1_teuthonista') {
+        tmpFields = teuLT.slice(0, teuLT.length - 1).split(',');
+      } else if (obj.field === 'BD/KT1') {
+        tmpFields = kotextString.slice(0, kotextString.length - 1).split(',');
+      } else {
+        tmpFields.push(obj.field)
+      }
+
+      tmpFields.forEach((tmpField) => {
+
+        if (tmpField === 'ID') tmpField = 'ID.keyword';
+
+        if (Array.isArray(obj.query)) {
+          // create a fuzzy query, add the designed queries under the boolean query 'should'
+          if (fuzzlevel === 3) {
+            obj.query.forEach((element) => {
+              shouldArr.push({
+                fuzzy: {
+                  [tmpField]: {
+                    term: !!element && (tmpField !== 'ID.keyword')
+                      ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+                      : element,
+                    fuzziness: fuzzlevel,
+                  },
+                },
+              })
+            })
+          }
+          // create a wildcard query, add the designed queries under the boolean query 'should'
+          else if (fuzzlevel === 1) {
+            obj.query.forEach((element) => {
+              shouldArr.push({
+                wildcard: {
+                  [tmpField]: {
+                    value: !!element && (tmpField !== 'ID.keyword')
+                      ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+                      : element,
+                  },
+                },
+              })
+            })
+          }
+          // fuzzlevel is 2 and there is a prefix query search
+          else {
+            obj.query.forEach((element) => {
+              shouldArr.push({
+                prefix: {
+                  [tmpField]: {
+                    value: !!element && (tmpField !== 'ID.keyword')
+                      ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
+                      : element,
+                  },
+                },
+              })
+            })
+          }
+          // handle non - array object, same scheme
+        } else {
+          if (fuzzlevel === 3) {
             shouldArr.push({
               fuzzy: {
-                [obj.field]: {
-                  term: !!element
-                    ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
-                    : element,
+                [tmpField]: {
+                  term: tmpField !== 'ID.keyword' ? obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : obj.query,
                   fuzziness: fuzzlevel,
                 },
               },
             })
-          })
-        }
-        // create a wildcard query, add the designed queries under the boolean query 'should'
-        else if (fuzzlevel === 1) {
-          obj.query.forEach((element) => {
+          } else if (fuzzlevel === 1) {
             shouldArr.push({
               wildcard: {
-                [obj.field]: {
-                  value: !!element
-                    ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
-                    : element,
+                [tmpField]: {
+                  value: tmpField !== 'ID.keyword' ? obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : obj.query,
                 },
               },
             })
-          })
-        }
-        // fuzzlevel is 2 and there is a prefix query search
-        else {
-          obj.query.forEach((element) => {
+          } else {
+            // fuzzlevel is 2
             shouldArr.push({
               prefix: {
-                [obj.field]: {
-                  value: !!element
-                    ? element.replace(/[\(]|[\)]|[-]/g, '').toLowerCase()
-                    : element,
+                [tmpField]: {
+                  value: tmpField !== 'ID.keyword' ? obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase() : obj.query,
                 },
               },
             })
-          })
+          }
         }
-        // handle non - array object, same scheme
-      } else {
-        if (fuzzlevel === 3) {
-          shouldArr.push({
-            fuzzy: {
-              [obj.field]: {
-                term: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-                fuzziness: fuzzlevel,
-              },
-            },
-          })
-        } else if (fuzzlevel === 1) {
-          shouldArr.push({
-            wildcard: {
-              [obj.field]: {
-                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-              },
-            },
-          })
-        } else {
-          // fuzzlevel is 2
-          shouldArr.push({
-            prefix: {
-              [obj.field]: {
-                value: obj.query.replace(/[\(]|[\)]|[-]/g, '').toLowerCase(),
-              },
-            },
-          })
-        }
-      }
-      // add the designed query under the boolean query 'should'
+        // add the designed query under the boolean query 'should'
+      })
       mustArr.push({ bool: { should: shouldArr } })
     })
 
@@ -501,11 +541,12 @@ function getFinalQuery(
     }
   }
 
+
   // handle the multiple cols search
   if (searchAllMult !== null) {
     // Adding multi_match objects per search term
     if (searchAllMult[0].fields != null) {
-      let searchFields = searchAllMult[0].fields.split(',')
+      let searchFields = searchAllMult[0].fields.replace('GRAM/LT1,', gramString).replace('LT1_teuthonista,', teuLT).replace('BD/KT1,', kotextString).split(',');
       // create one or multiple multi_match queries, no need for filtering out any signs or to lower case the search term
       if (fuzzlevel === 3) {
         for (var i = 0; i < searchAllMult.length; i++) {
@@ -605,40 +646,113 @@ export async function getDocumentsByCollection(
   }
 }
 
+export interface Page {
+  totalElements: Number,
+  pageSize: Number,
+  totalPages: Number,
+  pageNr: Number,
+  prev: string,
+  next: string,
+  first: string,
+  last: string,
+}
+
+export interface Article{
+  title: string,
+  lemma: string,
+  filename: string,
+  status?: string,
+  xmlUrl?: string,
+  word_type?: Array<string>,
+  compositum?: Array<string>,
+  references?: ArticleReference[],
+  retro?: [],
+  main?: []
+}
+
+export interface ArticleReference {
+  id: string,
+  text: string}
+
+export interface ExtendedArticle{
+  article: Article,
+  ort: string
+}
+
+
+export interface ArticlesResponse {
+  articles: Array<Article>,
+  page: Page,
+  version: ArticleVersion
+}
+
 export async function getArticles(
-  search?: string
-): Promise<Array<{ title: string; filename: string }>> {
+  search?: string,
+  filter?: string,
+  pageSize?: Number,
+  pageNr?: Number,
+): Promise<ArticlesResponse> {
   // tslint:disable-next-line:max-line-length
+  const searchStatus = filter !== null && filter !== undefined ? filter : userStore.articleStatus.join(',');
+  const req = articleEndpoint +
+          '?initial=' + ((search && search != 'undefined') ? search : '') +
+          (pageSize ? '&pageSize=' + pageSize : '') +
+          (pageNr ? '&pageNr=' + pageNr : '') +
+          '&status=' + searchStatus;
+
   if (search !== undefined) {
     const r = await (
-      await fetch(
-        articleEndpoint +
-        '?initial=' +
-        search +
-        '&status=' +
-        userStore.articleStatus.join('|')
-      )
-    ).json()
-    return r.results.article
-      ? r.results.article.length
-        ? r.results.article
-        : [r.results.article]
-      : []
+      await fetch(req)
+    ).json();
+
+    const response: ArticlesResponse = {
+      articles: r.results ?
+                  r.results.length ?
+                    r.results
+                    : [r.results]
+                  : [],
+      page: r.page,
+      version: r.version
+    }
+    return response;
   } else {
     const r = await (
       await fetch(
-        articleEndpoint + '?status=' + userStore.articleStatus.join('|')
+        articleEndpoint + '?status=' + searchStatus  +
+        (pageSize ? '&pageSize=' + pageSize : '') +
+        (pageNr ? '&pageNr=' + pageNr : '')
       )
     ).json()
-    return r.results.article
-      ? r.results.article.length
-        ? r.results.article
-        : [r.results.article]
-      : []
+
+    const response: ArticlesResponse = {
+      articles: r.results ?
+                  r.results.length ?
+                    r.results
+                    : [r.results]
+                  : [],
+      page: r.page,
+      version: r.version
+    }
+    return response;
   }
 }
 
+export interface ArticleVersion {
+  version: {
+    sw: String,
+    data: String,
+  }
+}
+
+export async function getArticlesVersion() : Promise<ArticleVersion> {
+  return await (await fetch(articleEndpoint + '-version')).json();
+}
+
+
+
 export async function getArticleByFileName(fileName: string): Promise<string> {
-  const r = await (await fetch(articleEndpoint + '/' + fileName)).text()
+  console.log('getArticleByFileName', encodeURIComponent(fileName))
+  // const r = await (await fetch(articleEndpoint + '/' + fileName)).text()
+  const r = await (await fetch(articleEndpoint + '/' + encodeURIComponent(fileName))).text()
   return r
 }
