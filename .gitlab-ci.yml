@@ -63,6 +63,7 @@ mirror-on-github:
   image: bitnami/git
   script: |
     set -eo pipefail
+    apt-get update && apt-get install -y podman
     git config --global user.email "acdh-ch-filter-bot@oeaw.ac.at"
     git config --global user.name "ACDH-CH filter bot"
     git fetch --unshallow origin
@@ -73,7 +74,9 @@ mirror-on-github:
     git checkout $current_branch
     to_revert=$(git rev-parse HEAD)
     git checkout origin/main -B main
-    git merge --squash --allow-unrelated-histories $to_revert -s ort -X theirs
+    git merge --squash --allow-unrelated-histories $to_revert -s ort -X theirs | ":"
+    git submodule update --init --force --checkout
+    git submodule -q foreach git add .
     git commit -a -m "$msg"
     git tag "$tag-release" -m "$msg"
     git push origin main
