@@ -173,7 +173,7 @@ export default class ArticleRetroRenderer extends Vue {
   .fx-header-info-btn {
     position: absolute;
     margin-top: 0;
-    right: 0.5rem;
+    right: 0.75rem;
   }
   .retro-box /deep/ {
     #i-marker-start {
