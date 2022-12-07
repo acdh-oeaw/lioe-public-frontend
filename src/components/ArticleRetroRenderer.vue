@@ -48,7 +48,7 @@ export default class ArticleRetroRenderer extends Vue {
 
   @Watch("retroXml")
   makeHtmlRetro() {
-    let htmlHeader: any = [{name: 'start', top: 0}]
+    let htmlHeader: any = [{name: 'start', id: 'start', top: 0}]
     const renderer = (e: any, t: any) => {
       let out = '';
       if (e) {
@@ -68,13 +68,17 @@ export default class ArticleRetroRenderer extends Vue {
           }
           out += '<span class="element e-' + e.name + (classes.length > 0 ? ' ' + classes.join(' ') : '') + '">'
           if (e.name === 'etym' && e.parents[0].name === 'entry') {
-            out += '<span class="fx-element a-type-header"><div id="i-marker-etym" class="i-marker"></div><span class="ws"> </span>Etymologie</span>'
-            htmlHeader.push({name: 'etym', top: 0})
+            let markerDg = htmlHeader.filter((h: any) => h.name === 'etym').length
+            let markerId = 'etym' + (markerDg > 0 ? '-' + (markerDg + 1) : '')
+            out += '<span class="fx-element a-type-header"><div id="i-marker-' + markerId + '" class="i-marker"></div><span class="ws"> </span>Etymologie</span>'
+            htmlHeader.push({name: 'etym', id: markerId, top: 0})
           }
           if (e.attributes['type'] && e.attributes['type'].toLowerCase() === 'header' && e.childs && e.childs[0] && e.childs[0].type === 'TEXT') {
             const markerName = e.childs[0].value.toLowerCase().replace(' ', '-').replace(/[\(\)]/g, '')
-            out += '<div id="i-marker-' + markerName + '" class="i-marker"></div>'
-            htmlHeader.push({name: markerName, top: 0})
+            let markerDg = htmlHeader.filter((h: any) => h.name === markerName).length
+            let markerId = markerName + (markerDg > 0 ? '-' + (markerDg + 1) : '')
+            out += '<div id="i-marker-' + markerId + '" class="i-marker"></div>'
+            htmlHeader.push({name: markerName, id: markerId, top: 0})
           }
           out += before
           if (e.childs && e.childs.length > 0) {
@@ -121,9 +125,9 @@ export default class ArticleRetroRenderer extends Vue {
   }
 
   getHtmlHeaderTop () {
-    console.log('getHtmlHeaderTop')
+    // console.log('getHtmlHeaderTop', this.htmlHeader)
     this.htmlHeader.forEach((h: any) => {
-      const aD = document.getElementById('i-marker-' + h.name)
+      const aD = document.getElementById('i-marker-' + h.id)
       if (aD) {
         h.top = aD.offsetTop
       }
