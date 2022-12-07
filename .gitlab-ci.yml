@@ -57,3 +57,48 @@ test:
       - e2e/videos/**/*.mp4
       - e2e/screenshots/**/*.png
     expire_in: 10 days
+
+mirror-on-github:
+  stage: review
+  image: bitnami/git
+  script: |
+    set -eo pipefail
+    apt-get update && apt-get install -y podman
+    git config --global user.email "acdh-ch-filter-bot@oeaw.ac.at"
+    git config --global user.name "ACDH-CH filter bot"
+    git fetch --unshallow origin
+    git remote set-url origin https://${GITLAB_WRITE_USER}:${GITLAB_WRITE_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git
+    current_branch=$(git branch -a --contains $(git show-ref -s $CI_COMMIT_REF_NAME) | grep -v HEAD | sed 's~remotes/origin/~~')
+    tag=$(git describe --tags --abbrev=0)
+    msg=$(git tag -l --format='%(contents)' $tag)
+    git checkout $current_branch
+    to_revert=$(git rev-parse HEAD)
+    git checkout origin/main -B main
+    git merge --squash --allow-unrelated-histories $to_revert -s ort -X theirs || ":"
+    git submodule update --init --force --checkout
+    git submodule -q foreach git add .
+    git commit -a -m "$msg"
+    git tag "$tag-release" -m "$msg"
+    git push origin main
+    git push origin "$tag-release"
+    git remote add public https://filter:${GITHUB_WRITE_TOKEN}@github.com/acdh-oeaw/lioe-public-frontend.git    
+    git pull public main
+    git push public main
+    git push public "$tag-release"
+    git checkout $current_branch
+  rules:
+  - if: '$CI_DEPLOY_FREEZE'
+    when: never
+  - if: '($CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == "") && ($KUBECONFIG == null || $KUBECONFIG == "")'
+    when: never
+  - if: '$STAGING_ENABLED'
+    when: never
+  - if: '$CANARY_ENABLED'
+    when: never
+  - if: '$INCREMENTAL_ROLLOUT_ENABLED'
+    when: never
+  - if: '$INCREMENTAL_ROLLOUT_MODE'
+    when: never
+    # Runs only when a tag with '0.0.0' pattern is created
+  - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+$/'
+
