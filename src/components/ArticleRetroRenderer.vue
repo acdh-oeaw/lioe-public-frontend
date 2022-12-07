@@ -51,7 +51,8 @@ export default class ArticleRetroRenderer extends Vue {
 
   @Watch("retroXml")
   makeHtmlRetro() {
-    let htmlHeader: any = [{name: 'start', id: 'start', top: 0}]
+    let noNote = false
+    let htmlHeader: any = []
     const renderer = (e: any, t: any) => {
       let out = '';
       if (e) {
@@ -69,7 +70,17 @@ export default class ArticleRetroRenderer extends Vue {
             })
             // console.log(e)
           }
+          if (!noNote && e.name === 'etym' && e.parents[0].name === 'entry' && htmlHeader.filter((h: any) => h.name === 'etym').length === 0 && htmlHeader.filter((h: any) => h.name === 'start').length === 0) {
+            classes.push('etym-first-no-note')
+            noNote = true
+          }
           out += '<span class="element e-' + e.name + (classes.length > 0 ? ' ' + classes.join(' ') : '') + '">'
+          if (!noNote && e.name === 'note' && e.parents[0].name === 'entry') {
+            if (htmlHeader.filter((h: any) => h.name === 'start').length === 0) {
+              out += '<div id="i-marker-start" class="i-marker"></div>'
+              htmlHeader.push({name: 'start', id: 'start', top: 0})
+            }
+          }
           if (e.name === 'etym' && e.parents[0].name === 'entry') {
             let markerDg = htmlHeader.filter((h: any) => h.name === 'etym').length
             let markerId = 'etym' + (markerDg > 0 ? '-' + (markerDg + 1) : '')
@@ -135,7 +146,7 @@ export default class ArticleRetroRenderer extends Vue {
       }
       return out
     }
-    this.htmlRetro = '<div id="i-marker-start" class="i-marker"></div>' + renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '');
+    this.htmlRetro = renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '');
     this.htmlHeader = htmlHeader
     this.$nextTick(() => {
       this.getHtmlHeaderTop()
@@ -165,6 +176,10 @@ export default class ArticleRetroRenderer extends Vue {
     right: 0.5rem;
   }
   .retro-box /deep/ {
+    #i-marker-start {
+      position: absolute;
+      top: 0.5rem;
+    }
     .e-entry {
       display: block;
     }
@@ -194,6 +209,13 @@ export default class ArticleRetroRenderer extends Vue {
       margin-right: -16px;
       margin-bottom: 16px;
       margin-top: 16px;
+    }
+    .etym-first-no-note .a-type-header::before {
+      content: none;
+      display: none;
+    }
+    .etym-first-no-note .a-type-header {
+      margin-top: 0;
     }
     .e-re {
       display: block;
