@@ -226,6 +226,7 @@ export default class ArticleRetroRenderer extends Vue {
     .e-note {
       display: block;
       margin-bottom: 1rem;
+      padding-right: 1.5rem;
     }
     .e-sense.a-n {
       display: block;
