@@ -39,16 +39,20 @@ export default class ArticleRetroRenderer extends Vue {
   htmlHeaderUrls: any = {
     'start': 'wboe-artikel/artikel-einleitung-retro',
     'etym': 'wboe-artikel/etymologie-retro/',
-    'urkundlich': 'wboe-artikel/urkundlich-retro/',
+    'historische-belege': 'wboe-artikel/urkundlich-retro/',
     'belegauswahl-lautung': 'wboe-artikel/lautung-retro/',
     'bedeutung': 'wboe-artikel/bedeutung-retro/',
     'wortbildung-komposita': 'wboe-artikel/wortbildungen-komposita-retro/',
     'wortbildung-ableitung': 'wboe-artikel/wortbildungen-ableitungen-retro/',
+    'synonyme': 'wboe-artikel/synonyme-retro/',
+    'redewendungen': 'wboe-artikel/redensarten-retro/',
+    'bestimmungswort': 'wboe-artikel/lemma-bestimmungswort-retro/',
   }
 
   @Watch("retroXml")
   makeHtmlRetro() {
-    let htmlHeader: any = [{name: 'start', top: 0}]
+    let noNote = false
+    let htmlHeader: any = []
     const renderer = (e: any, t: any) => {
       let out = '';
       if (e) {
@@ -66,15 +70,50 @@ export default class ArticleRetroRenderer extends Vue {
             })
             // console.log(e)
           }
-          out += '<span class="element e-' + e.name + (classes.length > 0 ? ' ' + classes.join(' ') : '') + '">'
-          if (e.name === 'etym' && e.parents[0].name === 'entry') {
-            out += '<span class="fx-element a-type-header"><div id="i-marker-etym" class="i-marker"></div><span class="ws"> </span>Etymologie</span>'
-            htmlHeader.push({name: 'etym', top: 0})
+          if (!noNote && e.name === 'etym' && e.parents[0].name === 'entry' && htmlHeader.filter((h: any) => h.name === 'etym').length === 0 && htmlHeader.filter((h: any) => h.name === 'start').length === 0) {
+            classes.push('etym-first-no-note')
+            noNote = true
           }
-          if (e.attributes['type'] && e.attributes['type'].toLowerCase() === 'header' && e.childs && e.childs[0] && e.childs[0].type === 'TEXT') {
-            const markerName = e.childs[0].value.toLowerCase().replace(' ', '-').replace(/[\(\)]/g, '')
-            out += '<div id="i-marker-' + markerName + '" class="i-marker"></div>'
-            htmlHeader.push({name: markerName, top: 0})
+          out += '<span class="element e-' + e.name + (classes.length > 0 ? ' ' + classes.join(' ') : '') + '">'
+          if (!noNote && e.name === 'note' && e.parents[0].name === 'entry') {
+            if (htmlHeader.filter((h: any) => h.name === 'start').length === 0) {
+              out += '<div id="i-marker-start" class="i-marker"></div>'
+              htmlHeader.push({name: 'start', id: 'start', top: 0})
+            }
+          }
+          if (e.name === 'etym' && e.parents[0].name === 'entry') {
+            let markerDg = htmlHeader.filter((h: any) => h.name === 'etym').length
+            let markerId = 'etym' + (markerDg > 0 ? '-' + (markerDg + 1) : '')
+            out += '<span class="fx-element a-type-header"><div id="i-marker-' + markerId + '" class="i-marker"></div><span class="ws"> </span>Etymologie</span>'
+            htmlHeader.push({name: 'etym', id: markerId, top: 0})
+          }
+          if (e.attributes['type'] && e.attributes['type'].toLowerCase() === 'header') {
+            let markerName: any = null
+            if (e.childs && e.childs[0] && e.childs[0].type === 'TEXT') {
+              markerName = e.childs[0].value.toLowerCase().replace(/[\(\)\.\:\,]/g, '').replace(/ /g, '-').trim()
+              const multiNames: any = {
+                'historische-belege': ['urkundlich', 'urkundl', 'urkdl-oft-belegt-auswahl', 'urkdl', 'urkundlich', 'histor-belege', 'hist-belege', 'historische-belege', 'urkdl-belege', 'ältere-spr', 'schreibungen-in-späterer-zeit-auswahl', 'belege-in-ält-spr', 'histor-formen', 'histor-belege', 'historische-belege'],
+                'wortbildung-komposita': ['trikomposs'],
+                'wortbildung-ableitung': ['abtlg'],
+                'synonyme': ['synonym', 'syn', 'synn', 'synn-u-sinnverwandte', 'synonyma', 'synn'],
+                'redewendungen': ['redensarten', 'stehende-wendungen-und-raa', 'redeww-mit-a', 'raa', 'redewendungen-und-redensarten', 'volkskundliches-und-raa', 'redensarten-und-sprüche', 'raa', 'sachliches-und-raa', 'redensarten-bauernregeln-und-volksglaube'],
+              }
+              Object.keys(multiNames).forEach((n: string) => {
+                if (multiNames[n] && multiNames[n].indexOf(markerName) > -1) {
+                  markerName = n
+                }
+              })
+            } else {
+              if (e.getXML().toLowerCase().indexOf('bestimmungswort') > -1 || e.getXML().toLowerCase().indexOf('als bestw') > -1) {
+                markerName = 'bestimmungswort'
+              }
+            }
+            if (markerName) {
+              let markerDg = htmlHeader.filter((h: any) => h.name === markerName).length
+              let markerId = markerName + (markerDg > 0 ? '-' + (markerDg + 1) : '')
+              out += '<div id="i-marker-' + markerId + '" class="i-marker"></div>'
+              htmlHeader.push({name: markerName, id: markerId, top: 0})
+            }
           }
           out += before
           if (e.childs && e.childs.length > 0) {
@@ -112,7 +151,7 @@ export default class ArticleRetroRenderer extends Vue {
       }
       return out
     }
-    this.htmlRetro = '<div id="i-marker-start" class="i-marker"></div>' + renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '');
+    this.htmlRetro = renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '');
     this.htmlHeader = htmlHeader
     this.$nextTick(() => {
       this.getHtmlHeaderTop()
@@ -121,9 +160,9 @@ export default class ArticleRetroRenderer extends Vue {
   }
 
   getHtmlHeaderTop () {
-    console.log('getHtmlHeaderTop')
+    // console.log('getHtmlHeaderTop', this.htmlHeader)
     this.htmlHeader.forEach((h: any) => {
-      const aD = document.getElementById('i-marker-' + h.name)
+      const aD = document.getElementById('i-marker-' + h.id)
       if (aD) {
         h.top = aD.offsetTop
       }
@@ -139,9 +178,13 @@ export default class ArticleRetroRenderer extends Vue {
   .fx-header-info-btn {
     position: absolute;
     margin-top: 0;
-    right: 0.5rem;
+    right: 0.75rem;
   }
   .retro-box /deep/ {
+    #i-marker-start {
+      position: absolute;
+      top: 0.5rem;
+    }
     .e-entry {
       display: block;
     }
@@ -172,6 +215,13 @@ export default class ArticleRetroRenderer extends Vue {
       margin-bottom: 16px;
       margin-top: 16px;
     }
+    .etym-first-no-note .a-type-header::before {
+      content: none;
+      display: none;
+    }
+    .etym-first-no-note .a-type-header {
+      margin-top: 0;
+    }
     .e-re {
       display: block;
     }
@@ -181,6 +231,7 @@ export default class ArticleRetroRenderer extends Vue {
     .e-note {
       display: block;
       margin-bottom: 1rem;
+      padding-right: 1.5rem;
     }
     .e-sense.a-n {
       display: block;
@@ -226,11 +277,17 @@ export default class ArticleRetroRenderer extends Vue {
     .e-orth {
       font-style: italic;
     }
-    .e-sense > .e-def {
-      font-style: italic;
-    }
+    // .e-sense > .e-def {
+    //   font-style: italic;
+    // }
     .i-marker {
       position: relative;
+    }
+    .a-opt-true {
+      letter-spacing: normal!important;
+    }
+    .e-re > .e-def {
+      letter-spacing: 0.15rem;
     }
   }
 </style>

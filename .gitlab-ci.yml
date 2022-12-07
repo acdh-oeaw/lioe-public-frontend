@@ -99,6 +99,6 @@ mirror-on-github:
     when: never
   - if: '$INCREMENTAL_ROLLOUT_MODE'
     when: never
-    # Runs only when a tag with 'v0.0.0' pattern is created
-  - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+    # Runs only when a tag with '0.0.0' pattern is created
+  - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+$/'
 

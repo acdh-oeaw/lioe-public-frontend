@@ -40,7 +40,7 @@
                 :to="
                   item.type === 'article'
                     ? `/articles/${
-                      getArticleFileLinkByTitle(item.text)}`
+                      getArticleFileLinkByLemma(item.text)}`
                     : item.type !== 'collection'
                     ? `/db?q=Sigle1,${item.value}`
                     : ``
@@ -175,7 +175,7 @@
         <template slot-scope="{ text, weight, word }">
           <router-link
             class="word-cloud-link"
-            :to="`/articles/${getArticleFileLinkByTitle(text)}`"
+            :to="`/articles/${getArticleFileLinkByLemma(text)}`"
           >
             {{ text }}
           </router-link>
@@ -338,7 +338,7 @@ export default class Main extends Vue {
 
   articlesPlus: Array<ExtendedArticle> = []; //extended articles list
   visited: boolean = false;
-  debouncedSearchArticle = _.debounce(this.findArticleByTitle, 250);
+  debouncedSearchArticle = _.debounce(this.findArticleByLemma, 250);
   autoFit = false;
   loc: string | null;
   geoStore = geoStore;
@@ -387,13 +387,13 @@ export default class Main extends Vue {
     console.log(input);
   }
 
-  findArticleByTitle(title: string) {
+  findArticleByLemma(lemma: string) {
     //check also based on ort
-    return this.articles.find((a) => a.title === title);
+    return this.articles.find((a) => a.lemma === lemma);
   }
 
-  getArticleFileLinkByTitle(title: string) {
-    const article = this.findArticleByTitle(title);
+  getArticleFileLinkByLemma(lemma: string) {
+    const article = this.findArticleByLemma(lemma);
 
     const xmlUrl = article?.xmlUrl;
     if(!xmlUrl) return '';
@@ -403,7 +403,11 @@ export default class Main extends Vue {
   }
 
   get words(): string[] {
-    return this.articles.map((w) => w.title);
+    return this.articles.map((w) => w.lemma).filter(w => {
+      const test = w.match(/\d/g)
+      if(Boolean(test)) { console.log(w); }
+      return !Boolean(test);
+    }).filter(w => !w.includes('¹') && !w.includes('²'));
   }
 
   get wordsWithWeights(): Array<[string, number]> {
