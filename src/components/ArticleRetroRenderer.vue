@@ -87,28 +87,33 @@ export default class ArticleRetroRenderer extends Vue {
             out += '<span class="fx-element a-type-header"><div id="i-marker-' + markerId + '" class="i-marker"></div><span class="ws"> </span>Etymologie</span>'
             htmlHeader.push({name: 'etym', id: markerId, top: 0})
           }
-          if (e.attributes['type'] && e.attributes['type'].toLowerCase() === 'header' && e.childs && e.childs[0] && e.childs[0].type === 'TEXT') {
-            let markerName = e.childs[0].value.toLowerCase().replace(/[\(\)\.\:\,]/g, '').replace(/ /g, '-').trim()
-            const multiNames: any = {
-              'historische-belege': ['urkundlich', 'urkundl', 'urkdl-oft-belegt-auswahl', 'urkdl', 'urkundlich', 'histor-belege', 'hist-belege', 'historische-belege', 'urkdl-belege', 'ältere-spr', 'schreibungen-in-späterer-zeit-auswahl', 'belege-in-ält-spr', 'histor-formen', 'histor-belege', 'historische-belege'],
-              'wortbildung-komposita': ['trikomposs'],
-              'wortbildung-ableitung': ['abtlg'],
-              'synonyme': ['synonym', 'syn', 'synn', 'synn-u-sinnverwandte', 'synonyma', 'synn'],
-              'redewendungen': ['redensarten', 'stehende-wendungen-und-raa', 'redeww-mit-a', 'raa', 'redewendungen-und-redensarten', 'volkskundliches-und-raa', 'redensarten-und-sprüche', 'raa', 'sachliches-und-raa', 'redensarten-bauernregeln-und-volksglaube'],
-            }
-            Object.keys(multiNames).forEach((n: string) => {
-              if (multiNames[n] && multiNames[n].indexOf(markerName) > -1) {
-                markerName = n
+          if (e.attributes['type'] && e.attributes['type'].toLowerCase() === 'header') {
+            let markerName: any = null
+            if (e.childs && e.childs[0] && e.childs[0].type === 'TEXT') {
+              markerName = e.childs[0].value.toLowerCase().replace(/[\(\)\.\:\,]/g, '').replace(/ /g, '-').trim()
+              const multiNames: any = {
+                'historische-belege': ['urkundlich', 'urkundl', 'urkdl-oft-belegt-auswahl', 'urkdl', 'urkundlich', 'histor-belege', 'hist-belege', 'historische-belege', 'urkdl-belege', 'ältere-spr', 'schreibungen-in-späterer-zeit-auswahl', 'belege-in-ält-spr', 'histor-formen', 'histor-belege', 'historische-belege'],
+                'wortbildung-komposita': ['trikomposs'],
+                'wortbildung-ableitung': ['abtlg'],
+                'synonyme': ['synonym', 'syn', 'synn', 'synn-u-sinnverwandte', 'synonyma', 'synn'],
+                'redewendungen': ['redensarten', 'stehende-wendungen-und-raa', 'redeww-mit-a', 'raa', 'redewendungen-und-redensarten', 'volkskundliches-und-raa', 'redensarten-und-sprüche', 'raa', 'sachliches-und-raa', 'redensarten-bauernregeln-und-volksglaube'],
               }
-            })
-            if (markerName.indexOf('bestimmungswort') > -1 || markerName.indexOf('als-bestw') > -1) {
-              markerName = 'bestimmungswort'
+              Object.keys(multiNames).forEach((n: string) => {
+                if (multiNames[n] && multiNames[n].indexOf(markerName) > -1) {
+                  markerName = n
+                }
+              })
+            } else {
+              if (e.getXML().toLowerCase().indexOf('bestimmungswort') > -1 || e.getXML().toLowerCase().indexOf('als bestw') > -1) {
+                markerName = 'bestimmungswort'
+              }
             }
-
-            let markerDg = htmlHeader.filter((h: any) => h.name === markerName).length
-            let markerId = markerName + (markerDg > 0 ? '-' + (markerDg + 1) : '')
-            out += '<div id="i-marker-' + markerId + '" class="i-marker"></div>'
-            htmlHeader.push({name: markerName, id: markerId, top: 0})
+            if (markerName) {
+              let markerDg = htmlHeader.filter((h: any) => h.name === markerName).length
+              let markerId = markerName + (markerDg > 0 ? '-' + (markerDg + 1) : '')
+              out += '<div id="i-marker-' + markerId + '" class="i-marker"></div>'
+              htmlHeader.push({name: markerName, id: markerId, top: 0})
+            }
           }
           out += before
           if (e.childs && e.childs.length > 0) {
