@@ -39,11 +39,14 @@ export default class ArticleRetroRenderer extends Vue {
   htmlHeaderUrls: any = {
     'start': 'wboe-artikel/artikel-einleitung-retro',
     'etym': 'wboe-artikel/etymologie-retro/',
-    'urkundlich': 'wboe-artikel/urkundlich-retro/',
+    'historische-belege': 'wboe-artikel/urkundlich-retro/',
     'belegauswahl-lautung': 'wboe-artikel/lautung-retro/',
     'bedeutung': 'wboe-artikel/bedeutung-retro/',
     'wortbildung-komposita': 'wboe-artikel/wortbildungen-komposita-retro/',
     'wortbildung-ableitung': 'wboe-artikel/wortbildungen-ableitungen-retro/',
+    'synonyme': 'wboe-artikel/synonyme-retro/',
+    'redewendungen': 'wboe-artikel/redensarten-retro/',
+    'bestimmungswort': 'wboe-artikel/lemma-bestimmungswort-retro/',
   }
 
   @Watch("retroXml")
@@ -74,7 +77,23 @@ export default class ArticleRetroRenderer extends Vue {
             htmlHeader.push({name: 'etym', id: markerId, top: 0})
           }
           if (e.attributes['type'] && e.attributes['type'].toLowerCase() === 'header' && e.childs && e.childs[0] && e.childs[0].type === 'TEXT') {
-            const markerName = e.childs[0].value.toLowerCase().replace(' ', '-').replace(/[\(\)]/g, '')
+            let markerName = e.childs[0].value.toLowerCase().replace(/[\(\)\.\:\,]/g, '').replace(/ /g, '-').trim()
+            const multiNames: any = {
+              'historische-belege': ['urkundlich', 'urkundl', 'urkdl-oft-belegt-auswahl', 'urkdl', 'urkundlich', 'histor-belege', 'hist-belege', 'historische-belege', 'urkdl-belege', 'ältere-spr', 'schreibungen-in-späterer-zeit-auswahl', 'belege-in-ält-spr', 'histor-formen', 'histor-belege', 'historische-belege'],
+              'wortbildung-komposita': ['trikomposs'],
+              'wortbildung-ableitung': ['abtlg'],
+              'synonyme': ['synonym', 'syn', 'synn', 'synn-u-sinnverwandte', 'synonyma', 'synn'],
+              'redewendungen': ['redensarten', 'stehende-wendungen-und-raa', 'redeww-mit-a', 'raa', 'redewendungen-und-redensarten', 'volkskundliches-und-raa', 'redensarten-und-sprüche', 'raa', 'sachliches-und-raa', 'redensarten-bauernregeln-und-volksglaube'],
+            }
+            Object.keys(multiNames).forEach((n: string) => {
+              if (multiNames[n] && multiNames[n].indexOf(markerName) > -1) {
+                markerName = n
+              }
+            })
+            if (markerName.indexOf('bestimmungswort') > -1 || markerName.indexOf('als-bestw') > -1) {
+              markerName = 'bestimmungswort'
+            }
+
             let markerDg = htmlHeader.filter((h: any) => h.name === markerName).length
             let markerId = markerName + (markerDg > 0 ? '-' + (markerDg + 1) : '')
             out += '<div id="i-marker-' + markerId + '" class="i-marker"></div>'
