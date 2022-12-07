@@ -272,11 +272,17 @@ export default class ArticleRetroRenderer extends Vue {
     .e-orth {
       font-style: italic;
     }
-    .e-sense > .e-def {
-      font-style: italic;
-    }
+    // .e-sense > .e-def {
+    //   font-style: italic;
+    // }
     .i-marker {
       position: relative;
+    }
+    .a-opt-true {
+      letter-spacing: normal!important;
+    }
+    .e-re > .e-def {
+      letter-spacing: 0.15rem;
     }
   }
 </style>
