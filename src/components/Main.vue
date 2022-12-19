@@ -422,8 +422,6 @@ export default class Main extends Vue {
       .replace(/\u203A./g, (s) => this.restore_umlaut_for_search_map[s])
     );
 
-    console.log('normalizedLemmaA: ' + normalizedLemmaA);
-    console.log('normalizedLemmaB: ' + normalizedLemmaB);
     return normalizedLemmaA === normalizedLemmaB;
   }
 
