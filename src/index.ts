@@ -59,6 +59,7 @@ Vue.use(VueMatomo, {
   siteId: "194",
   router: router,
   requireConsent: true,
+  requireCookieConsent: true,
   trackInitialView: true,
   enableHeartBeatTimer: true,
   debug: process.env.NODE_ENV === 'development',

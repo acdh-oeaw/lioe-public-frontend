@@ -437,9 +437,8 @@ export default class Main extends Vue {
 
   get words(): string[] {
     return this.articles.map((w) => w.lemma).filter(w => {
-      const test = w.match(/\d/g)
-      if(Boolean(test)) { console.log(w); }
-      return !Boolean(test);
+      const hasSpecialCharsAndNumbers = w.match(/\d/g)
+      return !Boolean(hasSpecialCharsAndNumbers);
     }).filter(w => !w.includes('¹') && !w.includes('²'));
   }
 
