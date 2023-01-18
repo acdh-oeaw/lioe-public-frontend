@@ -52,7 +52,9 @@
                           {"value": "David Gschösser", "attribute": {"ref": "#DG"}},
                           {"value": "Stefanie Schöberl", "attribute": {"ref": "#StS"}},
                           {"value": "Fabian Fleißner", "attribute": {"ref": "#FF"}},
-                          {"value": "Markus Kunzmann", "attribute": {"ref": "#MK"}}
+                          {"value": "Markus Kunzmann", "attribute": {"ref": "#MK"}},
+                          {"value": "Agnes Kim", "attribute": {"ref": "#AK"}},
+                          {"value": "Ingeborg Geyer", "attribute": {"ref": "#IG"}}
                         ]
                       }}],
                       "layout": { "frame": "line" }
@@ -93,6 +95,8 @@
         <name xml:id="StS"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Stefanie Schöberl</name>
         <name xml:id="FF"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Fabian Fleißner</name>
         <name xml:id="MK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Markus Kunzmann</name>
+        <name xml:id="AK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Agnes Kim</name>
+        <name xml:id="IG"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Ingeborg Geyer</name>
       </respStmt>
       <respStmt>
         <?options { "title": "Student assistants", "layout": { "frame": "panelClosed" } } ?>
@@ -216,7 +220,9 @@
                                                                                 {"title": "David Gschösser", "value": "DG"},
                                                                                 {"title": "Stefanie Schöberl", "value": "StS"},
                                                                                 {"title": "Fabian Fleißner", "value": "FF"},
-                                                                                {"title": "Markus Kunzmann", "value": "MK"}
+                                                                                {"title": "Markus Kunzmann", "value": "MK"},
+                                                                                {"title": "Agnes Kim", "value": "AK"},
+                                                                                {"title": "Ingeborg Geyer", "value": "IG"}
                                                                               ]}
                     }],
                     "tag": ["multiple", "possibleTag", "shouldTag"],
