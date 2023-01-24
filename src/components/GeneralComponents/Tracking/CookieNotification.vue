@@ -3,66 +3,51 @@
     <p class="mt-4">
       {{ message }} <a @click="$router.push({
         path: '/resources?link=home%2Fdatenschutz%2F',
-      });">here</a>.
+      });">hier</a>.
     </p>
-    <v-btn @click="onAccept()">Accept</v-btn>
-    <v-btn @click="onDecline()">Decline</v-btn>
+    <v-btn @click="onAccept()">Akzeptieren</v-btn>
+    <v-btn @click="onDecline()">Ablehnen</v-btn>
   </div>
 
 </template>
 <script lang="ts">
+import { getTrackingConsent, giveTrackingConsent, rejectTracking } from '@src/utilities/trackingHelpers';
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
 export default class CookieNotification extends Vue {
 
-  showCookieNotification = true;
+  showCookieNotification = false;
 
-  message: string = 'This project uses website tracking and cookies to collect statistical information about our users.'
-    + ' This information is only used to enhance the user experience. The information is not shared with any third party. We need your consent to gather this information. For more information click '
+
+  message: string = 'Dieses Projekt verwendet Cookies & Websitetracking um statistische Informationen über unsere Nutzer zu sammeln. '
+  + 'Diese Information wird nur verwendet um das Benutzererlebnis zu verbessern. Die Daten die wir sammeln werden nicht an dritte weitergegeben. '
+  + 'Wenn sie damit nicht einverstanden sind klicken sie auf "Ablehnen", um mehr zu erfahren klicken sie '
 
   onAccept() {
     this.acceptCookies();
   }
 
-  async mounted() {
-    // TODO: Try to await Matomo load through Timeout
-    console.log('mounted cookie notification');
-    this.showCookieNotification = !this.$matomo || (this.$matomo && this.$matomo.hasRememberedConsent());
+  mounted() {
+    this.showCookieNotification = (getTrackingConsent() === undefined);
   }
 
   acceptCookies() {
-    this.$matomo.rememberConsentGiven(720)
-
-
-    this.$matomo &&
-    this.$matomo.rememberCookieConsentGiven(720)
-
-    this.$matomo &&
-    this.$matomo.forgetUserOptOut()
-
-    this.logMatomo();
-
+    giveTrackingConsent();
     this.hidePopUp()
   }
 
   onDecline() {
-    this.rejectCookiesAndTracking();
-  }
-  rejectCookiesAndTracking () {
-    this.$matomo && this.$matomo.optUserOut()
-
-    this.logMatomo();
-
+    rejectTracking();
     this.hidePopUp();
   }
 
   logMatomo() {
     console.log("🚀 ~ Matomo: ", this.$matomo )
     if(this.$matomo) {
-      console.log("🚀 ~ file: CookieNotification.vue:28 ~ CookieNotification ~ mounted ~ this.$matomo.hasRememberedConsent())", this.$matomo.hasRememberedConsent());
-
+      console.log("🚀 ~ file: CookieNotification.vue:28 ~ CookieNotification ~ LogMatomo ~ this.$matomo.hasConsent())", this.$matomo.hasConsent());
     }
+    console.log('Consent:', getTrackingConsent());
   }
 
   hidePopUp() {
@@ -77,6 +62,7 @@ export default class CookieNotification extends Vue {
   bottom: 0vh;
   left: 0vw;
   width: 100vw;
+  transform:translateY(100%);
   height: fit-content;
   background-color: var(--primary);
   padding-left: 4vw;
@@ -92,29 +78,12 @@ export default class CookieNotification extends Vue {
   align-items: center;
   gap: 2.5rem;
   z-index: 10;
-  animation: 500ms ease-in-out 1 slideOutBottom forwards;
+  transition: all 500ms ease-in-out;
 
 }
+
 .cookie-notice-container.active {
-  animation: 500ms ease-out 1s 1 slideInBottom both;
-}
-
-@keyframes slideInBottom {
-  0% {
-    transform: translateY(100%);
-  }
-  100% {
-    transform: translateY(0%);
-  }
-}
-
-@keyframes slideOutBottom {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(100%);
-  }
+  transform:translateY(0);
 }
 
 </style>
