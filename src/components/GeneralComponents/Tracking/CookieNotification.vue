@@ -21,7 +21,7 @@ export default class CookieNotification extends Vue {
 
 
   message: string = 'Dieses Projekt verwendet Cookies & Websitetracking um statistische Informationen über unsere Nutzer zu sammeln. '
-  + 'Diese Information wird nur verwendet um das Benutzererlebnis zu verbessern. Die Daten die wir sammeln werden nicht an dritte weitergegeben. '
+  + 'Diese Information wird nur verwendet um das Benutzererlebnis zu verbessern. Die Daten die wir sammeln werden nicht an Dritte weitergegeben. '
   + 'Wenn sie damit nicht einverstanden sind klicken sie auf "Ablehnen", um mehr zu erfahren klicken sie '
 
   onAccept() {

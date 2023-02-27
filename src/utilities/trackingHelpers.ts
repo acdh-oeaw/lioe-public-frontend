@@ -4,8 +4,7 @@ const trackingConsentKey = 'trackingConsent';
 
 export const trackingConsentChangedEvenKey = 'lioe-tracking-consent-changed'
 export function giveTrackingConsent() {
-  // @ts-ignore
-  window._paq.push(['rememberConsentGiven']);
+  startTracking();
 
   safeToLocalStorage<boolean|undefined>(trackingConsentKey, true);
   dispatchTrackingChangedEvent(getTrackingConsent());
@@ -40,14 +39,27 @@ export function getTrackingConsent() : boolean | undefined {
 }
 
 export function initMatomoTracking() : boolean | undefined {
-  if( getTrackingConsent() === false) {
+  if(!getTrackingConsent()) {
+    // require user tracking consent before processing data
+    // @ts-ignore
+    _paq.push(['requireConsent']);
+
     return false;
   }
 
+  startTracking();
+  return true;
+}
+
+
+function startTracking() {
   // @ts-ignore
   window._paq.push(['trackPageView']);
 
   // @ts-ignore
   window._paq.push(['enableLinkTracking']);
-  return true;
+
+  // @ts-ignore
+  window._paq.push(['setConsentGiven']);
+
 }

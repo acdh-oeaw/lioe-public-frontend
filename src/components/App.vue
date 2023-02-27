@@ -53,6 +53,7 @@
 </template>
 <script lang="ts">
 import { articleStore } from '@src/store/articles-store';
+import { initMatomoTracking } from '@src/utilities/trackingHelpers';
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { initialize as initGeo } from '../store/geo'
 import CookieNotification from './GeneralComponents/Tracking/CookieNotification.vue';
@@ -69,6 +70,7 @@ import NotificationsModule from './NotificationsModule.vue'
 export default class App extends Vue {
 
   created() {
+    initMatomoTracking()
   }
 
   async mounted() {
