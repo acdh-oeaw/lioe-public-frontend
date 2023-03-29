@@ -16,3 +16,24 @@ export function sortByTerm(data: string[], term: any) {
       : 1;
   });
 }
+
+const localStorageKeyPrefix = 'lioe-public-frontend';
+
+export function safeToLocalStorage<Type>(key: string, value: Type) {
+  if(!key) {
+    return;
+  }
+  if(value === undefined || value === null) {
+    window.localStorage.removeItem(localStorageKeyPrefix + key);
+    return;
+  }
+  window.localStorage.setItem(localStorageKeyPrefix + key, JSON.stringify(value));
+}
+
+export function loadFromLocalStorage<Type>(key: string) : Type | undefined {
+  let value: any = window.localStorage.getItem(localStorageKeyPrefix + key);
+  if(value) {
+    return JSON.parse(value);
+  }
+  return undefined;
+}

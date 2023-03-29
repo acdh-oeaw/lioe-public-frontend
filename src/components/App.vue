@@ -10,7 +10,7 @@
             </v-flex> -->
             <v-layout>
                 <v-flex xs12 :class="['text-center', 'logo-container', $route.name === 'maps' && 'logo-hidden']">
-                  <router-link to="/"><img  class="logo mt-5" src="/static/img/logo.svg" 
+                  <router-link to="/"><img  class="logo mt-5" src="/static/img/logo.svg"
                     height="100" width="250" /></router-link>
                   <!-- <div class="project-name">Lexikalisches Informationssystem Österreich</div> -->
                 </v-flex>
@@ -45,52 +45,37 @@
           </v-flex>
           <lioe-footer id="logo" v-if="$route.name !== 'maps'"/>
           <notifications-module/>
-          <div class="d-print-none">
-            <v-chip class="mx-1 mb-1" label link small v-on:click="revokeCookieAndTrackingConsent" v-if="userOptedTracking" data-testid="revokeTracking">Stop tracking me</v-chip>
-          </div>
         </v-layout>
       </v-container>
+      <CookieNotification/>
     </v-content>
   </v-app>
 </template>
 <script lang="ts">
 import { articleStore } from '@src/store/articles-store';
+import { initMatomoTracking } from '@src/utilities/trackingHelpers';
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { initialize as initGeo } from '../store/geo'
+import CookieNotification from './GeneralComponents/Tracking/CookieNotification.vue';
 import LioeFooter from './LioeFooter.vue'
 import NotificationsModule from './NotificationsModule.vue'
 
 @Component({
   components: {
+    CookieNotification,
     LioeFooter,
     NotificationsModule
   }
 })
 export default class App extends Vue {
-  
-  userOptedTracking: boolean = true;
-
 
   created() {
+    initMatomoTracking()
   }
 
   async mounted() {
     initGeo();
     articleStore.articles.fetchArticles();
-  }
-
-  timers = {
-    checkMatomo: { time: 400, autostart: true, repeat: true}
-  }
-
-  checkMatomo() {
-    if (this.$matomo) {
-      this.userOptedTracking = this.$matomo && !this.$matomo.isUserOptedOut()
-    }
-  }
-
-  revokeCookieAndTrackingConsent() {
-    this.$matomo && this.$matomo.forgetConsentGiven() && this.$matomo.orgetCookieConsentGiven() && this.$matomo.optUserOut()
   }
 }
 </script>
@@ -112,11 +97,11 @@ export default class App extends Vue {
     color: #fff!important;
   }
   .active-tab{
-    color: #3b89a0!important;
+    color: var(--v-primary-base,#3b89a0)!important;
     background: rgba(255,255,255,.6)
   }
   .active-tab .v-icon{
-    color: #3b89a0!important;
+    color: var(--v-primary-base,#3b89a0)!important;
   }
   .logo-container{
     transition: .5s;

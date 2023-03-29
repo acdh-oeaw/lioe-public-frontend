@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!refresh">
     <v-layout class="article-tools" align-end>
       <v-flex @click="$emit('handleArticleClick')" xs12>
         <PreviewContent
@@ -262,6 +262,8 @@ export default class ArticleView extends Vue {
   lautung: any = null;
   userStore = userStore;
 
+  refresh: boolean = false;
+
   noteAuthor: any = {
     id: null as any,
     name: null as any,
@@ -336,6 +338,15 @@ export default class ArticleView extends Vue {
   }
   publicationDate: Date | any = null;
 
+  @Watch("refresh")
+  refreshing() {
+    if (this.refresh) {
+      this.$nextTick(() => {
+        this.refresh = false
+      })
+    }
+  }
+
   @Watch("xml")
   showArticle() {
     const xmlObj = new XmlObject.XmlBase(this.xml, () => void 0);
@@ -404,6 +415,7 @@ export default class ArticleView extends Vue {
       });
       this.editorObj = editorObj;
     }
+    this.refresh = true
   }
 
   updated() {

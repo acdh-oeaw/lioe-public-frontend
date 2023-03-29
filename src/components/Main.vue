@@ -259,7 +259,7 @@ export default class Main extends Vue {
     },
     {
       target:'#tabWBOE',
-      content: 'Hier geht es zu unseren fertigen Wörterbuchartikeln.',
+      content: 'Hier geht es zu unseren fertigen Wörterbuchartikel.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
@@ -353,6 +353,20 @@ export default class Main extends Vue {
 
   debouncedPerformSearch = _.debounce(this.performSearch, 300);
 
+  // normalization helpers
+  characters_to_delete_for_search = /[-*<>;%†\u1AB0–\u1AFF\u1DC0–\u1DFF\u02B0-\u02FF\u20D0–\u20FF\u26a0\u0300-\u036F\uFE20–\uFE2F()\[\]"']/g;
+  restore_umlaut_for_search_map: Record<string, string> = {
+      '\u203Aa':'ä', '\u203AA':'Ä',
+      '\u203Ao':'ö', '\u203AO':'Ö',
+      '\u203Au':'ü', '\u203AU':'Ü',
+      '\u203As':'ß'
+  };
+  replace_for_search_map = Object.keys(this.restore_umlaut_for_search_map).reduce((ret: Record<string, string>, key: string) => {
+      ret[this.restore_umlaut_for_search_map[key]] = key;
+      return ret;
+  }, {});
+
+
   async performSearch(s: string | null) {
     if (s !== null && s.trim() !== '') {
       this.searchTerm = s;
@@ -389,7 +403,26 @@ export default class Main extends Vue {
 
   findArticleByLemma(lemma: string) {
     //check also based on ort
-    return this.articles.find((a) => a.lemma === lemma);
+    return this.articles.find((a) => this.advanceCompare(a.lemma, lemma));
+  }
+
+  advanceCompare(lemmaA: string, lemmaB: string): boolean {
+    const normalizedLemmaA: string = (lemmaA.replace(/[äöüÄÖÜß]/g,
+        (c) => this.replace_for_search_map[c])
+      .normalize('NFKD')
+      .replace(/\(.*\)/g, '')
+      .replace(this.characters_to_delete_for_search, '')
+      .replace(/\u203A./g, (s) => this.restore_umlaut_for_search_map[s])
+    );
+    const normalizedLemmaB: string = (lemmaB.replace(/[äöüÄÖÜß]/g,
+        (c) => this.replace_for_search_map[c])
+      .normalize('NFKD')
+      .replace(/\(.*\)/g, '')
+      .replace(this.characters_to_delete_for_search, '')
+      .replace(/\u203A./g, (s) => this.restore_umlaut_for_search_map[s])
+    );
+
+    return normalizedLemmaA === normalizedLemmaB;
   }
 
   getArticleFileLinkByLemma(lemma: string) {
@@ -404,9 +437,8 @@ export default class Main extends Vue {
 
   get words(): string[] {
     return this.articles.map((w) => w.lemma).filter(w => {
-      const test = w.match(/\d/g)
-      if(Boolean(test)) { console.log(w); }
-      return !Boolean(test);
+      const hasSpecialCharsAndNumbers = w.match(/\d/g)
+      return !Boolean(hasSpecialCharsAndNumbers);
     }).filter(w => !w.includes('¹') && !w.includes('²'));
   }
 

@@ -23,7 +23,6 @@
       </a>
     </v-layout>
 
-
     <div class="footer mt-5" >
       <p class="text-center">
         <v-btn exact to="/resources?link=home%2Fimpressum%2F" small rounded text>Impressum</v-btn>
@@ -44,19 +43,22 @@
         </p>
       </div>
     </div>
+    <div class="flex space-around justify-center" style="font-size: 0.75em">
+      <tracking-status-area/>
+    </div>
     </v-flex>
 </template>
 <script lang="ts">
 import { articleStore } from '@src/store/articles-store';
+import TrackingStatusArea from './GeneralComponents/Tracking/TrackingStatusArea.vue';
 import { Vue, Component } from 'vue-property-decorator'
 
-@Component
+@Component({
+  components: {
+    TrackingStatusArea
+  }
+})
 export default class LioeFooter extends Vue {
-  // path = this.$router.currentRoute.fullPath
-  // @Watch('$route')
-  // onChangeRoute(newRoute: string) {
-
-  // }
 
   created() {
     articleStore.articles.fetchVersion();
@@ -81,9 +83,6 @@ export default class LioeFooter extends Vue {
   get articleDataVersion() {
     return articleStore.articles.articleDataVersion;
   }
-
-
-
 }
 </script>
 <style lang="scss" scoped>
