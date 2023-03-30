@@ -259,7 +259,7 @@ export default class Main extends Vue {
     },
     {
       target:'#tabWBOE',
-      content: 'Hier geht es zu unseren fertigen Wörterbuchartikel.',
+      content: 'Hier geht es zu unseren fertigen Wörterbuchartikeln.',
       params: {
         enableScrolling: false,
         placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
