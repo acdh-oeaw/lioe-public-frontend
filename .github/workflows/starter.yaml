@@ -27,6 +27,10 @@ jobs:
             echo "environment=production"
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "environment_short=prod" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" = refs/tags/*-release ]]; then
+            echo "environment=production"
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "environment_short=prod" >> $GITHUB_OUTPUT 
           else
             echo "environment=review/${{ github.ref_name }}"
             echo "environment=review/${{ github.ref_name }}" >> $GITHUB_OUTPUT
