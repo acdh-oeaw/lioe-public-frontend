@@ -16,7 +16,7 @@ const axios = require('axios')
 
 var cors = require('cors')
 
-const articleAPIEndpoint = 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/';
+const articleAPIEndpoint = 'https://wboe-api-retro.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/';
 
 // This app runs behind an
 // application load balancer
