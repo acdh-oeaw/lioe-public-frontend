@@ -85,7 +85,7 @@
             :content="u"
           />
         </template>
-        <template v-if="belegauswahl">
+        <template v-if="belegauswahl && belegauswahl.length">
           <article-fragment-header class="mb-3" title="Belegauswahl" />
           <!--  ext-info-url="wboe-artikel/belegauswahl/" info-url="wboe-artikel/belegauswahl-short/" -->
           <PreviewContent
