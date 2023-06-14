@@ -28,6 +28,7 @@ export default class QuotationSection extends Vue {
   @Prop({ default: "" }) xml: string
   @Prop({ default: "" }) filename: string
   @Prop() article: any
+  @Prop() lautung: any
   @Prop() isRetro: boolean
   @Prop({ default: null}) pbFacs: string[];
   get autName() {
@@ -40,6 +41,7 @@ export default class QuotationSection extends Vue {
   }
 
   get content() {
+    let lautungsueberblick = this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
     if (this.isRetro) {
       return this.title + '. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). ' +
         'URL: <a href="https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '">https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '</a> [Zugriff: ' + this.date + '] ' +
@@ -47,7 +49,7 @@ export default class QuotationSection extends Vue {
     } else {
       return `
 ${this.autName} (${this.pubDatePfusch}): <i>${this.title}</i>.
-Mit einem Lautungsüberblick von ${this.noteName}. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ).
+${lautungsueberblick}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ).
 URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">https://lioe.dioe.at/articles/${this.filename || this.title}</a>
 [Zugriff: ${this.date}].`;
     }
@@ -80,11 +82,10 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
         'URL: https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + ' [Zugriff: ' + this.date + '] ' +
         '(Originalquelle: Wörterbuch der bairischen Mundarten in Österreich.' + this.facsTxt + ').'
     } else {
+      let lautungsueberblick = this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
       return `${this.autName} (${this.pubDatePfusch}): ${
         this.title
-      }. Mit einem Lautungsüberblick von ${
-        this.noteName
-      }. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
+      }. ${lautungsueberblick}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
         this.filename || this.title
       } [Zugriff: ${this.date}].`;
     }

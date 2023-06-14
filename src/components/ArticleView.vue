@@ -171,6 +171,7 @@
     <QuotationSection
       :noteAutor="noteAuthor"
       :filename="filename"
+      :lautung="lautung"
       :autor="autor"
       :xml="xml"
       :isRetro="isRetro"
