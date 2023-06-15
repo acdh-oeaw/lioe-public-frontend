@@ -1,5 +1,5 @@
 <template>
-  <v-col class="cgrey" v-if="(pubDatePfusch && title && autName && noteName) || isRetro">
+  <v-col class="cgrey" v-if="(pubDatePfusch && title && autName) || isRetro">
     <h4>
       Zitation
       <v-btn fab icon>
@@ -41,7 +41,7 @@ export default class QuotationSection extends Vue {
   }
 
   get content() {
-    let lautungsueberblick = this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
+    let lautungsueberblick = this.noteName && this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
     if (this.isRetro) {
       return this.title + '. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). ' +
         'URL: <a href="https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '">https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '</a> [Zugriff: ' + this.date + '] ' +
@@ -82,7 +82,7 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
         'URL: https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + ' [Zugriff: ' + this.date + '] ' +
         '(Originalquelle: Wörterbuch der bairischen Mundarten in Österreich.' + this.facsTxt + ').'
     } else {
-      let lautungsueberblick = this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
+      let lautungsueberblick = this.noteName && this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
       return `${this.autName} (${this.pubDatePfusch}): ${
         this.title
       }. ${lautungsueberblick}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${

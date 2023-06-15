@@ -373,12 +373,12 @@ export default class ArticleView extends Vue {
       }
       let noteObj = editorObj.getAllEditorObjById("note")[0];
       let aNotePersons = {} as any;
-      (noteObj.parserObj.options.getOption(
-        "attributes.resp.possibleValues"
-      ) as any).forEach((a: any) => {
-        aNotePersons[a.value] = a.title;
-      });
-      if (noteObj.uId) {
+      if (noteObj && noteObj.parserObj && noteObj.parserObj.options) {
+        (noteObj.parserObj.options.getOption("attributes.resp.possibleValues") as any).forEach((a: any) => {
+          aNotePersons[a.value] = a.title;
+        });
+      }
+      if (noteObj && noteObj.uId) {
         this.noteAuthor = {
           id: "po" + noteObj.uId,
           name: aNotePersons[noteObj.orgXmlObj.attributes.resp],
