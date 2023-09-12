@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objParser type="lioe" version="0.8.1">
+<objParser type="lioe" version="0.8.3">
   <xmlParserHeader>
     &lt;?xml version="1.0" encoding="UTF-8"?&gt;
     &lt;?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?&gt;
@@ -1704,7 +1704,11 @@
                                               {"title": "Eva Wahlmüller", "value": "#EW"},
                                               {"title": "David Gschösser", "value": "#DG"},
                                               {"title": "Stefanie Schöberl", "value": "#StS"},
-                                              {"title": "Fabian Fleißner", "value": "#FF"}
+                                              {"title": "Fabian Fleißner", "value": "#FF"},
+                                              {"title": "Markus Kunzmann", "value": "#MK"},
+                                              {"title": "Agnes Kim", "value": "#AK"},
+                                              {"title": "Ingeborg Geyer", "value": "#IG"},
+                                              {"title": "Manfred Glauninger", "value": "#MG"}
                                             ]}
                     }],
                     "layout": {

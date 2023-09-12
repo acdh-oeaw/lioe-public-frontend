@@ -85,7 +85,7 @@
             :content="u"
           />
         </template>
-        <template v-if="belegauswahl">
+        <template v-if="belegauswahl && belegauswahl.length">
           <article-fragment-header class="mb-3" title="Belegauswahl" />
           <!--  ext-info-url="wboe-artikel/belegauswahl/" info-url="wboe-artikel/belegauswahl-short/" -->
           <PreviewContent
@@ -171,6 +171,7 @@
     <QuotationSection
       :noteAutor="noteAuthor"
       :filename="filename"
+      :lautung="lautung"
       :autor="autor"
       :xml="xml"
       :isRetro="isRetro"
@@ -372,12 +373,12 @@ export default class ArticleView extends Vue {
       }
       let noteObj = editorObj.getAllEditorObjById("note")[0];
       let aNotePersons = {} as any;
-      (noteObj.parserObj.options.getOption(
-        "attributes.resp.possibleValues"
-      ) as any).forEach((a: any) => {
-        aNotePersons[a.value] = a.title;
-      });
-      if (noteObj.uId) {
+      if (noteObj && noteObj.parserObj && noteObj.parserObj.options) {
+        (noteObj.parserObj.options.getOption("attributes.resp.possibleValues") as any).forEach((a: any) => {
+          aNotePersons[a.value] = a.title;
+        });
+      }
+      if (noteObj && noteObj.uId) {
         this.noteAuthor = {
           id: "po" + noteObj.uId,
           name: aNotePersons[noteObj.orgXmlObj.attributes.resp],

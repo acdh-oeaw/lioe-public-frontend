@@ -54,7 +54,9 @@
                           {"value": "Fabian Fleißner", "attribute": {"ref": "#FF"}},
                           {"value": "Markus Kunzmann", "attribute": {"ref": "#MK"}},
                           {"value": "Agnes Kim", "attribute": {"ref": "#AK"}},
-                          {"value": "Ingeborg Geyer", "attribute": {"ref": "#IG"}}
+                          {"value": "Ingeborg Geyer", "attribute": {"ref": "#IG"}},
+                          {"value": "Katharina Korecky-Kröll", "attribute": {"ref": "#KK"}},
+                          {"value": "Manfred Glauninger", "attribute": {"ref": "#MG"}}
                         ]
                       }}],
                       "layout": { "frame": "line" }
@@ -97,6 +99,8 @@
         <name xml:id="MK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Markus Kunzmann</name>
         <name xml:id="AK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Agnes Kim</name>
         <name xml:id="IG"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Ingeborg Geyer</name>
+        <name xml:id="KK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Katharina Korecky-Kröll</name>
+        <name xml:id="MG"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Manfred Glauninger</name>
       </respStmt>
       <respStmt>
         <?options { "title": "Student assistants", "layout": { "frame": "panelClosed" } } ?>
@@ -118,6 +122,8 @@
         <name><?copyOptions { "fromId": "nameSimplePossible", "options": { "editor": { "addTitle": "Alexandra Grohe" } } } ?>Alexandra Grohe</name>
         <name><?copyOptions { "fromId": "nameSimplePossible", "options": { "editor": { "addTitle": "Klemens Wagner" } } } ?>Klemens Wagner</name>
         <name><?copyOptions { "fromId": "nameSimple" } ?>Manuela Stütz</name>
+        <name><?copyOptions { "fromId": "nameSimplePossible", "options": { "editor": { "addTitle": "Marlene Haslinger-Fenzl" } } } ?>Marlene Haslinger-Fenzl</name>
+        <name><?copyOptions { "fromId": "nameSimplePossible", "options": { "editor": { "addTitle": "Susanne Schmalwieser " } } } ?>Susanne Schmalwieser </name>
         <name><?copyOptions { "fromId": "nameSimple", "options": { "layout": { "after": null } } } ?>Christina Hemetsberger</name>
       </respStmt>
     </titleStmt>
@@ -222,7 +228,9 @@
                                                                                 {"title": "Fabian Fleißner", "value": "FF"},
                                                                                 {"title": "Markus Kunzmann", "value": "MK"},
                                                                                 {"title": "Agnes Kim", "value": "AK"},
-                                                                                {"title": "Ingeborg Geyer", "value": "IG"}
+                                                                                {"title": "Ingeborg Geyer", "value": "IG"},
+                                                                                {"title": "Katharina Korecky-Kröll", "value": "KK"},
+                                                                                {"title": "Manfred Glauninger", "value": "MG"}
                                                                               ]}
                     }],
                     "tag": ["multiple", "possibleTag", "shouldTag"],
