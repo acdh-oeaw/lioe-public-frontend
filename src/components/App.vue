@@ -134,6 +134,12 @@ html{
 .lines{
   color: #AAA;
 }
+
+/* Needed to disable the click prevention from the tour */
+body.v-tour--active {
+  pointer-events: auto!important;
+}
+
 </style>
 
 <style lang="scss" scoped>
