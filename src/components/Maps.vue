@@ -20,7 +20,7 @@
     >
       <v-card elevation="0">
         <v-card-title>
-          Karten
+          Kartierung
           <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
             <template v-slot:activator="{ on }">
               <v-btn style="left: 63%" color="accent" small icon text v-on="on">
@@ -141,8 +141,8 @@
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
-    <v-card class="sticky-card" 
-    :style="{ 'left': showPlaylistSidebar === true ? '655px' : '0px', 
+    <v-card class="sticky-card"
+    :style="{ 'left': showPlaylistSidebar === true ? '655px' : '0px',
           width: showPlaylistSidebar === true ? '96.5%' : '100%' }">
       <v-layout>
         <v-flex xs12>
@@ -911,7 +911,7 @@ export default class Maps extends Vue {
         layer.bindPopup(
           `<div>  ${feature.properties[regionType]} | Dokumente: ${
             docs.total.value
-          }   <hr style="margin-bottom: 5px;"> 
+          }   <hr style="margin-bottom: 5px;">
           ${_(docs.documents)
             .take(5)
             .map((d) => `<div>${d._source.HL}</div>`)
@@ -1027,7 +1027,7 @@ export default class Maps extends Vue {
             feature.properties[regionType]
           } | Dokumente (in Sammlung): ${
             correctSigleItems.length
-          }   <hr style="margin-bottom: 5px;"> 
+          }   <hr style="margin-bottom: 5px;">
           ${_(correctSigleItems)
             .take(5)
             .map((d) => `<div>${d.HL}</div>`)
