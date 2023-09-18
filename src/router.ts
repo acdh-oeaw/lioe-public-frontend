@@ -6,7 +6,6 @@ import Articles from '@components/Articles.vue'
 import Article from '@components/Article.vue'
 import Database from '@components/Database.vue'
 import Resources from '@components/Resources.vue'
-import Password from '@components/Password.vue'
 
 const r = new Router({
   mode : 'history',
@@ -40,12 +39,6 @@ const r = new Router({
     {
       path: '/db',
       component: Database,
-      // combine route params and query params into props
-      props: (route) => ({ ...route.params, ...route.query })
-    },
-    {
-      path: '/password',
-      component: Password,
       // combine route params and query params into props
       props: (route) => ({ ...route.params, ...route.query })
     },
