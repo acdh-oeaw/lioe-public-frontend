@@ -190,22 +190,22 @@
     <v-flex class="pt-4">
       <info-text subDialog="true" path="home/einleitungstext/" />
     </v-flex>
-        <v-tour
-      name="mainTour"
-      :steps="mainTour_Steps"
-      :options="{
-        useKeyboardNavigation: true,
-        highlight: true,
-        labels: {
-          buttonSkip: 'Tour schließen',
-          buttonPrevious: 'Zurück',
-          buttonNext: 'Weiter',
-          buttonStop: 'Tour beenden'
-        }
-      }"
-      :callbacks="tourCallbacks"
-    >
-    </v-tour>
+      <v-tour
+        name="mainTour"
+        :steps="mainTour_Steps"
+        :options="{
+          useKeyboardNavigation: true,
+          highlight: true,
+          labels: {
+            buttonSkip: 'Tour schließen',
+            buttonPrevious: 'Zurück',
+            buttonNext: 'Weiter',
+            buttonStop: 'Tour beenden'
+          }
+        }"
+        :callbacks="tourCallbacks"
+      >
+      </v-tour>
   </v-layout>
 </template>
 <script lang="ts">

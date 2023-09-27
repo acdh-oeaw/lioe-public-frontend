@@ -1,12 +1,14 @@
 <template>
-  <div class="cookie-notice-container" :class="{active :showCookieNotification}" >
+  <div class="cookie-notice-container flex-column" :class="{ active: showCookieNotification }" >
     <p class="mt-4">
       {{ message }} <a @click="$router.push({
         path: '/resources?link=home%2Fdatenschutz%2F',
       });">hier</a>.
     </p>
-    <v-btn @click="onAccept()">Akzeptieren</v-btn>
-    <v-btn @click="onDecline()">Ablehnen</v-btn>
+    <div class="d-flex mb-4">
+      <v-btn class="mx-4" @click="onAccept()">Akzeptieren</v-btn>
+      <v-btn class="mx-4" @click="onDecline()">Ablehnen</v-btn>
+    </div>
   </div>
 
 </template>
@@ -74,9 +76,7 @@ export default class CookieNotification extends Vue {
   border-radius: 0.75em 0.75em 0 0;
 
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 2.5rem;
   z-index: 10;
   transition: all 500ms ease-in-out;
 
