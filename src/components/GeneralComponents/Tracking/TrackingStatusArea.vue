@@ -6,8 +6,9 @@
     </p>
   </div>
 </template>
+
 <script lang="ts">
-import { getTrackingConsent, rejectTracking, trackingConsentChangedEvenKey } from '@src/utilities/trackingHelpers'
+import { getTrackingConsent, rejectTracking, trackingConsentChangedEvenKey } from '@/utilities/trackingHelpers'
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
@@ -43,5 +44,4 @@ export default class TrackingStatusArea extends Vue{
     });
   }
 }
-
 </script>

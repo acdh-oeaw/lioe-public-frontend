@@ -4,7 +4,7 @@
       <v-card>
         <v-card-text class="pa-5" primary-title>
           <div class="close-btn">
-            <v-btn @click="show = false" small text icon><v-icon dark>close</v-icon></v-btn>
+            <v-btn @click="show = false" small text icon><v-icon dark>mdi-close</v-icon></v-btn>
           </div>
           <slot/>
         </v-card-text>
@@ -12,10 +12,9 @@
     </v-flex>
   </div>
 </template>
-<script lang="ts">
 
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { getWebsiteHtml, isExternUrl, isLocalUrl } from '../api'
+<script lang="ts">
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 @Component
 
@@ -24,6 +23,7 @@ export default class InfoBox extends Vue {
   show: boolean = true
 }
 </script>
+
 <style lang="scss" scoped>
 .close-btn {
   position: absolute;

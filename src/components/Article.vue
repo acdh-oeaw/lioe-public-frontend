@@ -12,7 +12,7 @@
         :items="articleList"
         item-text="title"
         item-value="xmlUrl"
-        prepend-inner-icon="search"
+        prepend-inner-icon="mdi-magnify"
         v-model:search-input="searchTerm"
       >
         <template v-slot:item="{ props, item, on }">
@@ -23,65 +23,7 @@
             <article-search-item
             :article="item"
             :search="searchTerm">
-
             </article-search-item>
-            <!-- <v-list-item-content class="py-0">
-              <v-list-item-title>
-                {{item.lemma}} <span class="pl-2" style="color: grey; font-size: 14px;"> {{ item.title }} </span>
-              </v-list-item-title>
-              <v-list-item-subtitle
-                v-if="(item.compositum && item.compositum.length > 0) || (item.references && item.references.length > 0)"
-                class="ma-0 pa-0">
-                <div class="composita-container">
-                  <div
-                    v-for="(composita, index) in item.compositum"
-                    v-bind:key="index"
-                    class="ma-0 composita-item"
-                  >
-                    <template
-                    v-if="index <= 3">
-                      <p class="ma-0">
-                        {{ composita }}
-                      </p>
-                      <v-divider
-                        v-if="index > 0 && index < item.compositum.length - 1"
-                        class="mx-2 ma-0"
-                        style="height: inherit"
-                        vertical
-                      ></v-divider>
-                    </template>
-                  </div>
-                  <p v-if="item.compositum + item.compositum.length > 3">
-                    ...
-                  </p>
-                </div>
-
-                <div class="reference-container">
-                  <div
-                  v-for="(reference, index) in item.references"
-                  v-bind:key="index"
-                  class="ma-0 reference-item"
-                >
-                  <template
-                  v-if="index <= 3">
-                    <p>
-                      {{ reference.text }}
-                    </p>
-                    <v-divider
-                      v-if="index > 0 && index < item.references.length - 1"
-                      class="mx-2 py-3"
-                      vertical
-                    ></v-divider>
-                  </template>
-                </div>
-                <p v-if="item.compositum + item.compositum.length > 3">
-                  ...
-                </p>
-                </div>
-
-
-              </v-list-item-subtitle>
-            </v-list-item-content> -->
           </v-list-item>
         </template>
       </v-autocomplete>
@@ -115,25 +57,18 @@
         <v-layout align-end>
           <v-flex @click="handleArticleClick" xs12>
             <div v-html="lemmaXML" class="lemma" />
-            <!-- <div
-              :title="pbFacsPdfLink"
-              v-if="pbFacs"
-            >
-              {{ pbFacs }}
-            </div> -->
           </v-flex>
           <v-flex class="text-xs-right">
             <v-menu open-on-hover max-width="400" max-height="95vh" top left>
               <template v-slot:activator="{ on }">
                 <v-btn color="grey" class="mr-3" small v-on="on" icon text>
-                  <v-icon>info_outline</v-icon>
+                  <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
               </template>
               <info-text
                 class="elevation-24 pa-4 white"
                 :path="isRetro ? 'wboe-artikel/lemma-retro/' : 'wboe-artikel/lemma-short/'"
               />
-              <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
             </v-menu>
           </v-flex>
         </v-layout>
@@ -197,7 +132,7 @@
               @click="downloadEditorXML"
               >download</v-btn
             >
-            <v-btn class="pl-3 pr-3" small rounded text @click="saveEditorXML"><v-icon>close</v-icon></v-btn>
+            <v-btn class="pl-3 pr-3" small rounded text @click="saveEditorXML"><v-icon>mdi-close</v-icon></v-btn>
           </v-flex>
         </v-card-title>
         <v-card-text class="pa-0 fill-height">
@@ -219,25 +154,24 @@
     />
   </v-layout>
 </template>
+
 <script lang="ts">
-// tslint:disable:max-line-length
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
-import { getArticleByFileName, getCollectionByIds, getDocumentsByCollection } from "../api"
-import XmlEditor from "@components/XmlEditor.vue"
-import { geoStore } from "../store/geo"
-import * as _ from "lodash"
-import InfoText from "@components/InfoText.vue"
-import ArticleViewLegacy from "@components/ArticleViewLegacy.vue"
-import ArticleView from "@components/ArticleView.vue"
+import { getArticleByFileName, getCollectionByIds, getDocumentsByCollection } from "@/api"
+import XmlEditor from "@/components/XmlEditor.vue"
+import { geoStore } from "@/store/geo"
+import _ from "lodash"
+import InfoText from "@/components/InfoText.vue"
+import ArticleViewLegacy from "@/components/ArticleViewLegacy.vue"
+import ArticleView from "@/components/ArticleView.vue"
 import * as FileSaver from "file-saver"
-import { userStore, ArticleStatus } from "../store/user"
-import { stateProxy } from "@src/store/collections"
+import { userStore, ArticleStatus } from "@/store/user"
+import { stateProxy } from "@/store/collections"
 import VueHorizontal from 'vue-horizontal';
-import { articleStore }from "@src/store/articles-store"
-import { getWebsiteHtml } from '../api'
-import { fileLinkFromXMLUrl } from "@src/utilities/helper-functions"
-import { watch } from "fs"
-import ArticleSearchItem  from "../components/ArticleSearchItem.vue"
+import { articleStore }from "@/store/articles-store"
+import { getWebsiteHtml } from '@/api'
+import { fileLinkFromXMLUrl } from "@/utilities/helper-functions"
+import ArticleSearchItem  from "@/components/ArticleSearchItem.vue"
 
 @Component({
   components: {
@@ -784,6 +718,7 @@ export default class Article extends Vue {
 
 }
 </script>
+
 <style lang="scss">
 @media print {
   // FIREFOX HAS A PROBLEM WITH FLEXBOX

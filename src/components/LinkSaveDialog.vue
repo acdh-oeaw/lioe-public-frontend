@@ -36,9 +36,9 @@
     </v-dialog>
   </div>
 </template>
-<script lang="ts">
 
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+<script lang="ts">
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import VueClipboard from 'vue-clipboard2'
 
 Vue.use(VueClipboard);
@@ -73,5 +73,3 @@ export default class SaveLink extends Vue {
 }
 
 </script>
-<style lang="scss" scoped>
-</style>

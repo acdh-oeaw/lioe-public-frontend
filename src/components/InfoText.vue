@@ -6,15 +6,15 @@
     <div class="info-text" v-else>
       <slot />
       <div class="pa-2 grey--text text-center" v-if="html === ''">
-        <v-icon>code</v-icon> <br> "{{ path }}" is empty
+        <v-icon>mdi-code-tags</v-icon> <br> "{{ path }}" is empty
       </div>
       <div v-if="subHtml !== null && !subDialog">
         <div>
-          <v-btn @click="subHtml = null" text small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
+          <v-btn @click="subHtml = null" text small><v-icon small>mdi-arrow-left</v-icon> Zurück</v-btn>
         </div>
         <div ref="infoContent" class="info-content" v-html="subHtml" />
         <div>
-          <v-btn @click="subHtml = null" text small><v-icon small>arrow_back</v-icon> Zurück</v-btn>
+          <v-btn @click="subHtml = null" text small><v-icon small>mdi-arrow-left</v-icon> Zurück</v-btn>
         </div>
       </div>
       <div
@@ -43,7 +43,7 @@
         <v-card text class="fill-height pa-4">
           <div class="close-btn">
             <v-btn :href="subInternalUrl" target="_blank" class="mr-2" text icon v-if="subInternalUrl"><v-icon dark>mdi-open-in-new</v-icon></v-btn>
-            <v-btn @click="showSubDialog = false" class="mr-2" text icon><v-icon dark>close</v-icon></v-btn>
+            <v-btn @click="showSubDialog = false" class="mr-2" text icon><v-icon dark>mdi-close</v-icon></v-btn>
           </div>
           <v-card-text class="pa-0 fill-height">
             <info-text class="pa-4 white fill-height" :path="subUrl" v-if="subUrl" />
@@ -54,10 +54,10 @@
     </div>
   </div>
 </template>
-<script lang="ts">
 
+<script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { getWebsiteHtml, isExternUrl, isLocalUrl } from '../api'
+import { getWebsiteHtml, isExternUrl, isLocalUrl } from '@/api'
 
 @Component({ name: 'info-text' })
 export default class InfoText extends Vue {
@@ -188,12 +188,13 @@ export default class InfoText extends Vue {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .close-btn {
   position: absolute;
   right: 0;
 }
-div /deep/ .frame > p:last-child {
+div ::v-deep .frame > p:last-child {
   margin-bottom: 0;
 }
 .info-text{
@@ -201,15 +202,15 @@ div /deep/ .frame > p:last-child {
   margin-left: auto;
   margin-right: auto;
 }
-.info-text /deep/ h1,
-.info-text /deep/ h2,
-.info-text /deep/ h3 {
+.info-text ::v-deep h1,
+.info-text ::v-deep h2,
+.info-text ::v-deep h3 {
   margin-bottom: .35em;
 }
-div /deep/ a{
+div ::v-deep a{
   text-decoration: none;
 }
-div /deep/ a.button {
+div ::v-deep a.button {
   display: inline-block;
   background-color: #408ca3;
   color: #fff;
@@ -220,7 +221,7 @@ div /deep/ a.button {
 .info-content {
   min-width:10em;
 }
-.info-content /deep/ {
+.info-content ::v-deep {
   img {
     max-width: 100%;
     height: auto;

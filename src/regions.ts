@@ -1,6 +1,4 @@
-// tslint:disable:max-line-length
-import * as _ from 'lodash'
-import { map } from 'lodash'
+import _ from 'lodash'
 
 const bundeslaender = getBundeslaender()
 const kleinregionen = getKleinregionen()

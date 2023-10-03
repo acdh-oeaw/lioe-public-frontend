@@ -1,4 +1,3 @@
-
 export function fileLinkFromXMLUrl(xmlUrl?: string) :string {
   const articlesHelperString = '/articles/';
 

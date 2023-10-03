@@ -1,7 +1,7 @@
 <template>
   <v-snackbar
       :max-width="notificationMaxWidth"
-      :timeout="0"
+      :timeout="-1"
       v-model="showNotification"
 
       bottom
@@ -15,15 +15,16 @@
         text
         @click="showNotification = false"
       >
-        <v-icon>close</v-icon>
+        <v-icon>mdi-close</v-icon>
       </v-btn>
 
     </v-snackbar>
 </template>
+
 <script lang="ts">
-import { Notification } from '@src/utilities/notifications';
+import { Notification } from '@/utilities/notifications';
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { $bus } from '..';
+import { $bus } from '@/main';
 
 @Component({
   name: 'NotificationModule'
@@ -43,8 +44,6 @@ export default class NotificationsModule extends Vue {
   }
 
   timeouts: boolean[] = []
-
-  
 
   get notificationTimeout(){
       return this.activeNotification.timeout || 4000;
@@ -102,7 +101,5 @@ interface NotificationStyle {
   color: string;
   
 }
-
-
 </script>
 

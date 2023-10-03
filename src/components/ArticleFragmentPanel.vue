@@ -12,9 +12,8 @@
 </template>
 
 <script lang="ts">
-
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import ArticleFragmentHeader from '@components/ArticleFragmentHeader.vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import ArticleFragmentHeader from '@/components/ArticleFragmentHeader.vue'
 
 @Component({
   components: {
@@ -31,6 +30,7 @@ export default class ArticleFragementPanel extends Vue {
 
 }
 </script>
+
 <style lang="scss" scoped>
 .article-xml {
   font-size: 100%;

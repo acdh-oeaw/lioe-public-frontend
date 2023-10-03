@@ -1,4 +1,3 @@
-
 export type ArticleStatus = 'unfinished'|
   'draft'|
   'proofed'|

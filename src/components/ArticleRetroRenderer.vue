@@ -9,7 +9,7 @@
       <v-menu open-on-hover max-width="400" max-height="95vh" top left :key="k" v-if="htmlHeaderUrls[h.name]">
         <template v-slot:activator="{ on }">
           <v-btn color="grey" class="fx-header-info-btn" :style="{top: h.top + 'px'}" small v-on="on" icon text>
-            <v-icon>info_outline</v-icon>
+            <v-icon>mdi-information-outline</v-icon>
           </v-btn>
         </template>
         <info-text
@@ -20,16 +20,16 @@
     </template>
   </v-card>
 </template>
+
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import InfoText from "@components/InfoText.vue";
+import InfoText from "@/components/InfoText.vue";
 
 @Component({
   components: {
     InfoText,
   }
 })
-// tslint:disable:max-line-length
 export default class ArticleRetroRenderer extends Vue {
   @Prop({ required: true }) retroXml: string;
   @Prop({ default: {} }) xmlObjRetro: any;
@@ -174,13 +174,14 @@ export default class ArticleRetroRenderer extends Vue {
   }
 }
 </script>
+
 <style lang="scss" scoped>
   .fx-header-info-btn {
     position: absolute;
     margin-top: 0;
     right: 0.75rem;
   }
-  .retro-box /deep/ {
+  .retro-box ::v-deep {
     #i-marker-start {
       position: absolute;
       top: 0.5rem;
