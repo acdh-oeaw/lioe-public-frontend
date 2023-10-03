@@ -7,8 +7,8 @@ describe('The LiÖ landing page', () => {
   })
   it('finds a populous austrian place in the Omni Search Box', () => {
     const placename = 'Wien'
-    cy.intercept('/static/Gemeinden.geojson.json').as('Gemeinden')
-    cy.intercept('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json').as('Orte')
+    cy.intercept('/assets/geojson/gemeinden.geojson').as('Gemeinden')
+    cy.intercept('/assets/geojson/ortsdatenbank.geojson').as('Orte')
     cy.wait('@Gemeinden')
     cy.wait('@Orte')
     cy.get('[test-id=omni-search]')

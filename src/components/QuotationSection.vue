@@ -3,7 +3,7 @@
     <h4>
       Zitation
       <v-btn fab icon>
-        <v-icon @click="copyContent">mdi mdi-content-copy</v-icon>
+        <v-icon @click="copyContent">mdi-content-copy</v-icon>
       </v-btn>
     </h4>
     <span v-html="content"></span>
@@ -11,12 +11,8 @@
 </template>
 
 <script lang="ts">
-// tslint:disable:max-line-length
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import * as _ from "lodash";
-import { userStore } from "../store/user";
+import { Vue, Component, Prop } from "vue-property-decorator";
 import { format } from "date-fns";
-import { log } from "util";
 
 @Component({
   components: {},

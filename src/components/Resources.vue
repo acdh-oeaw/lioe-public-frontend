@@ -3,9 +3,10 @@
     <info-text link-list="false" subDialog="true" :path="link" />
   </div>
 </template>
+
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import InfoText from '@components/InfoText.vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import InfoText from '@/components/InfoText.vue'
 
 @Component({
   components: {
@@ -16,5 +17,3 @@ export default class Resources extends Vue {
   @Prop({ default: 'materialien/einleitungstext/' }) link: string|null
 }
 </script>
-<style lang="scss" scoped>
-</style>

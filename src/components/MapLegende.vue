@@ -32,16 +32,13 @@
 </template>
 
 <script lang="ts">
-import { getDocumentsByCollection, searchCollections } from "@src/api";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { stateProxy, Collection } from "../store/collections";
-import SaveLink from "@components/LinkSaveDialog.vue";
+import { Component, Vue } from "vue-property-decorator";
+import { stateProxy, Collection } from "@/store/collections";
+import SaveLink from "@/components/LinkSaveDialog.vue";
 import draggable from "vuedraggable";
-import colorPickerCollections from "../components/colorPickerCollections.vue"
-
+import colorPickerCollections from "@/components/colorPickerCollections.vue"
 
 @Component({
-  // if you use components add them here
   components: {
     SaveLink,
     draggable,
@@ -78,7 +75,6 @@ export default class MapLegende extends Vue {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 h3 {
   margin: 40px 0 0;

@@ -3,9 +3,9 @@
     <div :style="{height: '10px', width: width + 'px'}" class="fake-scrollbar-inner" />
   </div>
 </template>
+
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import ResizeObserver from '../resizeobserver'
 
 @Component
 export default class FakeScrollbar extends Vue {
@@ -42,6 +42,7 @@ export default class FakeScrollbar extends Vue {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .fake-scrollbar {
   height: 20px;

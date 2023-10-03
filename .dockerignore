@@ -1,1 +1,48 @@
-node_modules
+## .gitignore ##
+
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+
+# logs
+*.log
+
+# non-public environment variables
+.env.local
+.env.*.local
+
+# caches
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# misc
+.DS_Store
+.idea/
+
+# cypress
+/cypress/screenshots/
+/cypress/videos/
+
+
+## .dockerignore ##
+
+# git
+.git/
+.gitignore
+
+# github
+.github/
+
+# vscode settings
+.vscode/
+
+# environment variables
+.env
+.env.*
+
+# tests
+/cypress/

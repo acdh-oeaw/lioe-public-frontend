@@ -1,13 +1,7 @@
-import { Collection } from '@src/store/collections'
+import { Collection } from '@/store/collections'
 import axios from 'axios'
-import * as _ from 'lodash'
-import { userStore } from '../store/user'
-
-declare var process: {
-  env: {
-    [key: string]: string
-  }
-}
+import _ from 'lodash'
+import { userStore } from '@/store/user'
 
 interface Documents {
   total: {
@@ -44,7 +38,7 @@ interface individualRequest {
 
 const apiEndpoint = 'https://dboeannotation.acdh.oeaw.ac.at/api'
 const txtEndpoint = 'https://lioe-cms.dioe.at/' // 'https://lioe-cms.acdh-dev.oeaw.ac.at/lioetxt/'
-export const localEndpoint = process.env.API_HOST
+export const localEndpoint = import.meta.env.VITE_APP_API_BASE_URL || ""
 const articleEndpoint = localEndpoint + '/api/articles'
 
 const localUrls: { [remoteUrl: string]: string } = {
@@ -92,43 +86,29 @@ export function isLocalUrl(url: string): string | null {
 }
 
 /**
- * GET total number of documents accessible in the data base
+ * Get total number of documents accessible in the database.
  */
 export async function getDocumentTotalCount(): Promise<number> {
-  const query_tmp = { match_all: {} };
-  const params = { query: query_tmp }
   const r = (await axios(localEndpoint + '/es-count', {
-    method: 'GET',
-    params: params
+    method: 'POST',
+    data: { query: { match_all: {} } },
   })
   ).data
-  return r.count ? r.count : 0;
 
-  // const r = await await axios({
-  //   method: 'GET',
-  //   url: apiEndpoint + '/documents/?page=1&page_size=1',
-  // }).catch((er) => {
-  //   console.error(er)
-  // })
-  // return r && r.data && r.data.count ? r.data.count : 0
+  return r.count ? r.count : 0;
 }
 
 /**
- * Get total number of documents while sending a search query
+ * Get total number of documents while sending a search query.
  */
 export async function getDocumentTotalCountPerRequest(): Promise<number> {
-
-  const params = { query: finalQuery }
-
   const r = (await axios(localEndpoint + '/es-count', {
-    method: 'GET',
-    params: params
+    method: 'POST',
+    data: { query: finalQuery },
   })
   ).data
 
-
-
-  return r.count ? r.count : 0; // && r.data && r.data.count ? r.data.count : 0;
+  return r.count ? r.count : 0;
 }
 
 export async function getDocuments(
@@ -147,43 +127,13 @@ export async function getDocuments(
       sort.push(sortBy[0])
     }
   }
-  //const r = await (await fetch(apiEndpoint + '/documents/?page=' + page + '&page_size=' + items)).json()
+
   const ds = (
     await axios({
       method: 'POST',
       data: {
         size: items,
         from: (page - 1) * items,
-        /* query: {
-      ids: {
-          type: '_doc',
-          values: r.results.map((result: any) => result.es_id)
-          }
-        },
-       */
-        /*query: {
-       bool: {
-         must: [
-           {
-             exists: {
-               field: "_source.entry"
-             }
-           }
-         ]
-       }
-     },
-     query:  {
-       nested : {
-           path : '_source',
-           query : {
-               bool : {
-                   must : [
-                     { exists : { field: 'entry' } },
-                   ]
-               }
-           }
-       }
-   },*/
         sort,
       },
       url: localEndpoint + '/es-query',
@@ -219,7 +169,6 @@ function sigleFromEsRef(
   }
 }
 
-// tslint:disable-next-line:max-line-length
 export async function searchCollections(
   val: string,
   page = 1
@@ -245,7 +194,7 @@ export async function searchCollections(
     }),
   }
 }
-// tslint:disable-next-line:max-line-length
+
 export async function getCollectionByIds(
   ids: string[]
 ): Promise<{ name: string; value: string; description: string }[]> {
@@ -295,13 +244,6 @@ export async function searchDocuments(
         from: (page - 1) * items,
         size: items,
         query: finalQuery,
-
-        // multi_match: {
-        //   fields: searchFields,
-        //   query: search,
-        //   type: 'best_fields',
-        //   fuzziness: fuzziness ? 3 : 0,
-        // }
       },
     })
   ).data
@@ -605,6 +547,7 @@ function getFinalQuery(
 
   return {} // will never reach this state
 }
+
 export async function getDocumentsByCollection(
   ids: string[],
   page = 1,
@@ -692,7 +635,6 @@ export async function getArticles(
   pageSize?: Number,
   pageNr?: Number,
 ): Promise<ArticlesResponse> {
-  // tslint:disable-next-line:max-line-length
   const searchStatus = filter !== null && filter !== undefined ? filter : userStore.articleStatus.join(',');
   const req = articleEndpoint +
           '?initial=' + ((search && search != 'undefined') ? search : '') +
@@ -747,8 +689,6 @@ export interface ArticleVersion {
 export async function getArticlesVersion() : Promise<ArticleVersion> {
   return await (await fetch(articleEndpoint + '-version')).json();
 }
-
-
 
 export async function getArticleByFileName(fileName: string): Promise<string> {
   console.log('getArticleByFileName', encodeURIComponent(fileName))

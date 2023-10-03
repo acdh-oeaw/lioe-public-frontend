@@ -2,6 +2,7 @@
   <v-layout column>
     <v-flex class="text-xs-left">
       <v-btn
+        data-test="btn-toggle-sidebar"
         @click="togglePlaylistSidebar()"
         color="primary"
         fab
@@ -38,12 +39,13 @@
               <template v-slot:activator="{ on }">
                 <span v-on="on">
                   <v-text-field
+                    data-test="db-searchbar"
                     @click.stop=""
                     v-if="type === 'fulltext'"
                     autofocus
                     flat
                     label="Datenbank durchsuchen…"
-                    prepend-inner-icon="search"
+                    prepend-inner-icon="mdi-magnify"
                     :value="req.query"
                     @input="updateRequestQueryDebounced(index, $event)"
                     :disabled="showSelectedCollection"
@@ -65,11 +67,12 @@
             <v-tooltip top>
               <template v-slot:activator="{ on }">
                 <v-btn
+                  data-test="btn-add-search-term"
                   icon
                   @click="appendArrayReq()"
                   v-on="on"
                   :disabled="showSelectedCollection"
-                  ><v-icon>add_circle_outline</v-icon></v-btn
+                  ><v-icon>mdi-plus-circle-outline</v-icon></v-btn
                 ></template
               >
               <span>Suchwort hinzufügen</span>
@@ -79,21 +82,22 @@
             <v-tooltip top>
               <template v-slot:activator="{ on }">
                 <v-btn
+                  data-test="btn-remove-search-term"
                   icon
                   @click="removeElementArrayReq(req)"
                   v-on="on"
                   :disabled="showSelectedCollection"
-                  ><v-icon>remove_circle_outline</v-icon></v-btn
+                  ><v-icon>mdi-minus-circle-outline</v-icon></v-btn
                 ></template
               >
               <span>Suchwort entfernen</span>
             </v-tooltip>
           </v-col>
           <v-col v-if="index === 0" cols="auto" class="pa-0 divider-left">
-            <v-btn-toggle v-model="toggleModel" mandatory>
+            <v-btn-toggle data-test="search-mode-radio" v-model="toggleModel" mandatory>
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
-                  <v-btn class="text-no-transform" text v-on="on"
+                  <v-btn data-test="toggle-prefix-search" class="text-no-transform" text v-on="on"
                     >Wortanfangsuche</v-btn
                   >
                 </template>
@@ -101,7 +105,7 @@
               </v-tooltip>
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
-                  <v-btn class="text-no-transform" text v-on="on"
+                  <v-btn data-test="toggle-wildcard-search" class="text-no-transform" text v-on="on"
                     >Wildcards Suche</v-btn
                   >
                 </template>
@@ -112,7 +116,7 @@
               </v-tooltip>
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
-                  <v-btn class="text-no-transform" text v-on="on"
+                  <v-btn data-test="toggle-fuzzy-search" class="text-no-transform" text v-on="on"
                     >Fehlertolerante Suche</v-btn
                   >
                 </template>
@@ -148,6 +152,7 @@
               </template>
               <v-list dense>
                 <v-list-item
+                  data-test="search-in-all-columns"
                   dense
                   :disabled="type === 'collection'"
                   @click="selectNoColumnsAndSearch(req)"
@@ -165,6 +170,7 @@
                 <!-- HERE THE SINGLE CHOICE -->
                 <v-list-item
                   v-for="(h, i) in visibleHeaders.filter((h) => h.searchable)"
+                  :data-test="`search-in-column-${h.text}`"
                   :disabled="type === 'collection'"
                   :key="h.value"
                   :label="h.text"
@@ -186,7 +192,7 @@
             <v-menu offset-y>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn color="accent" icon v-bind="attrs" v-on="on">
-                  <v-icon>info</v-icon>
+                  <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
               </template>
               <v-list>
@@ -203,7 +209,7 @@
                     icon
                     @click="startTour()"
                   >
-                    <v-icon>info</v-icon>
+                    <v-icon>mdi-information-outline</v-icon>
                   </v-btn>
 
                   <v-dialog
@@ -330,8 +336,6 @@
             <td>
               <v-checkbox
                 :value="isSelected"
-                @change="customSelect(item)"
-                @click.prevent=""
               ></v-checkbox>
             </td>
             <!-- v-if="!showScanWindow" -->
@@ -356,10 +360,8 @@
                       :disabled="header.renderFnc(item) === ''"
                       @click.stop="onImageClick(header.renderFnc(item))"
                     >
-                      <v-icon v-if="header.renderFnc(item) === ''"
-                        >mdi-image-off
-                      </v-icon>
-                      <v-icon v-else>mdi-image </v-icon>
+                      <v-icon v-if="header.renderFnc(item) === ''">mdi-image-off</v-icon>
+                      <v-icon v-else>mdi-image</v-icon>
                     </v-btn>
                   </template>
 
@@ -410,6 +412,7 @@
         <v-menu offset-y v-if="temp_coll.length !== 0">
           <template v-slot:activator="{ on, attrs }">
             <v-btn
+              data-test="btn-add-to-collection"
               color="secondary"
               v-bind="attrs"
               v-on="on"
@@ -424,6 +427,7 @@
             <v-list-item
               class="addToCollectionItem"
               v-for="(item, index) in temp_coll"
+              :data-test="`add-to-collection-${item.collection_name}`"
               :key="index"
               @click="addBelegtoCollection(item)"
             >
@@ -464,16 +468,15 @@
           <template v-slot:activator="{ on }">
             <v-btn
               color="secondary"
+              data-test="btn-create-collection-with-selected-docs"
               @click="createCollectionWithSelectedDocuments()"
               class="white--text mx-1"
               rounded
               style="float: left"
               v-on="on"
             >
-              <v-icon>mdi-playlist-plus </v-icon>
-              <span v-if="temp_coll.length === 0" class="pl-1"
-                >Neue Sammlung</span
-              >
+              <v-icon>mdi-playlist-plus</v-icon>
+              <span v-if="temp_coll.length === 0" class="pl-1">Neue Sammlung</span>
             </v-btn>
           </template>
           Erstelle eine neue Sammlung mit den ausgewählten Dokumenten.
@@ -484,17 +487,18 @@
           <template v-slot:activator="{ on }">
             <v-btn
               color="secondary"
+              data-test="btn-create-collection-with-selected-docs-and-show-on-map"
               @click="createCollectionWithSelectedDocumentsAndShowOnMap()"
               class="white--text mx-1"
               rounded
               style="float: left"
               v-on="on"
             >
-              <v-icon class="pr-1">mdi-playlist-plus </v-icon>
-              <v-icon>mdi-map </v-icon>
-              <span v-if="temp_coll.length === 0" class="pl-1"
-                >Neue Sammlung und auf Karte anzeigen</span
-              >
+              <v-icon class="pr-1">mdi-playlist-plus</v-icon>
+              <v-icon>mdi-map</v-icon>
+              <span v-if="temp_coll.length === 0" class="pl-1">
+                Neue Sammlung und auf Karte anzeigen
+              </span>
             </v-btn>
           </template>
           Erstelle eine neue Sammlung mit den ausgewählten Dokumenten und zeige
@@ -504,6 +508,7 @@
         <v-tooltip top style="width: 100px">
           <template v-slot:activator="{ on }">
             <v-btn
+              data-test="btn-download-fiduz"
               style="float: left"
               v-on="on"
               color="accent"
@@ -511,7 +516,7 @@
               text
               @click="downloadFiduz"
             >
-              <v-icon>info</v-icon>
+              <v-icon>mdi-information-outline</v-icon>
             </v-btn>
           </template>
           Die Font Fiduz wird benötigt, um die exportierten Einträge anzeigen zu
@@ -521,6 +526,7 @@
         <v-menu top open-on-hover offset-y>
           <template v-slot:activator="{ on }">
             <v-btn
+              data-test="btn-export-selected-docs"
               slot="activator"
               v-on="on"
               small
@@ -534,9 +540,9 @@
             </v-btn>
           </template>
           <v-list class="context-menu-list" dense>
-            <v-list-item @click="saveXLSX">EXCEL</v-list-item>
-            <v-list-item @click="saveJSON">JSON</v-list-item>
-            <v-list-item @click="saveCSV">CSV</v-list-item>
+            <v-list-item data-test="export-selection-as-excel" @click="saveXLSX">EXCEL</v-list-item>
+            <v-list-item data-test="export-selection-as-json" @click="saveJSON">JSON</v-list-item>
+            <v-list-item data-test="export-selection-as-csv" @click="saveCSV">CSV</v-list-item>
           </v-list>
         </v-menu>
       </div>
@@ -559,11 +565,12 @@
     </v-tour>
   </v-layout>
 </template>
+
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import InfoText from "@components/InfoText.vue";
-import InfoBox from "@components/InfoBox.vue";
-import Playlist from "@src/components/playlist.vue";
+import InfoText from "@/components/InfoText.vue";
+import InfoBox from "@/components/InfoBox.vue";
+import Playlist from "@/components/playlist.vue";
 import {
   getDocuments,
   searchDocuments,
@@ -573,16 +580,13 @@ import {
   getCollectionByIds,
   SearchRequest,
   getDocumentTotalCountPerRequest,
-} from "../api";
-import { stateProxy, Collection } from "../store/collections";
-import { geoStore } from "../store/geo";
-import { regions } from "../regions";
+} from "@/api";
+import { stateProxy, Collection } from "@/store/collections";
+import { geoStore } from "@/store/geo";
+import { regions } from "@/regions";
 import * as FileSaver from "file-saver";
 import * as xlsx from "xlsx";
-import * as _ from "lodash";
-import { concat, forEach } from "lodash";
-import { $addNotification } from "@src/utilities/notifications";
-import { watch } from "fs";
+import _ from "lodash";
 
 const deepEqual = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -773,7 +777,6 @@ export default class Database extends Vue {
   ];
 
   headers: TableHeader[] = [
-    // tslint:disable-next-line:max-line-length
     {
       searchable: false,
       show: false,
@@ -1259,7 +1262,7 @@ export default class Database extends Vue {
         h.show = !h.show;
       }
     });
-    
+
   }
 
   // the changed function - was before under the renderBedeutung function
@@ -2022,6 +2025,7 @@ export default class Database extends Vue {
   }
 }
 </script>
+
 <style lang="scss">
 th {
   padding-top: 1em !important;

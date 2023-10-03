@@ -1,6 +1,5 @@
-// tslint:disable:max-line-length
-import * as geojson from 'geojson'
-import * as _ from 'lodash'
+import type * as geojson from 'geojson'
+import _ from 'lodash'
 
 export const geoStore = {
   gemeindenPoints: null as geojson.FeatureCollection|null,
@@ -15,13 +14,13 @@ export const geoStore = {
 }
 
 async function init() {
-  geoStore.kleinregionen = await (await fetch('/static/Kleinregionen.geojson.json')).json() as geojson.FeatureCollection
-  geoStore.gemeindenPoints = getPointsNotPoly(await (await fetch('/static/Gemeinden.geojson.json')).json() as geojson.FeatureCollection, await( await fetch('/static/sigle-polygone.json')).json() as geojson.FeatureCollection)
-  geoStore.gemeindenArea = await (await fetch('/static/Gemeinden.geojson.json')).json() as geojson.FeatureCollection
-  geoStore.grossregionen = await (await fetch('/static/grossregionen-geojson-optimized.json')).json() as geojson.FeatureCollection
-  geoStore.bundeslaender = await (await fetch('/static/bundeslaender.geojson.json')).json() as geojson.FeatureCollection
-  geoStore.dialektregionen = addIDToDialekt(await (await fetch('/static/SFB_Dialektregionen.geojson')).json() as geojson.FeatureCollection)
-  geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/static/Ortsdatenbank_Orte-Gemeinden-Kleinregionen-Grossregionen-Bundeslaender_nur+OE+STir.json')).json() as geojson.FeatureCollection)
+  geoStore.kleinregionen = await (await fetch('/assets/geojson/kleinregionen.geojson')).json() as geojson.FeatureCollection
+  geoStore.gemeindenPoints = getPointsNotPoly(await (await fetch('/assets/geojson/gemeinden.geojson')).json() as geojson.FeatureCollection, await( await fetch('/assets/geojson/sigle-polygone.geojson')).json() as geojson.FeatureCollection)
+  geoStore.gemeindenArea = await (await fetch('/assets/geojson/gemeinden.geojson')).json() as geojson.FeatureCollection
+  geoStore.grossregionen = await (await fetch('/assets/geojson/grossregionen.geojson')).json() as geojson.FeatureCollection
+  geoStore.bundeslaender = await (await fetch('/assets/geojson/bundeslaender.geojson')).json() as geojson.FeatureCollection
+  geoStore.dialektregionen = addIDToDialekt(await (await fetch('/assets/geojson/sfb-dialektregionen.geojson')).json() as geojson.FeatureCollection)
+  geoStore.ortslistenDaten = getOrtslistenDaten(await (await fetch('/assets/geojson/ortsdatenbank.geojson')).json() as geojson.FeatureCollection)
   geoStore.ortsliste = geoStore.ortslistenDaten !== null ? geoStore.ortslistenDaten.all || [] : []
   geoStore.ortslisteGeo = filterOrtslisteByGeoJSON(
     geoStore.ortsliste,

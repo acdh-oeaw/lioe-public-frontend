@@ -12,8 +12,9 @@
   </div>
 
 </template>
+
 <script lang="ts">
-import { getTrackingConsent, giveTrackingConsent, rejectTracking } from '@src/utilities/trackingHelpers';
+import { getTrackingConsent, giveTrackingConsent, rejectTracking } from '@/utilities/trackingHelpers';
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
@@ -57,6 +58,7 @@ export default class CookieNotification extends Vue {
   }
 }
 </script>
+
 <style>
 
 .cookie-notice-container {

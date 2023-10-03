@@ -1,13 +1,13 @@
 import Router from 'vue-router'
-import Main from '@components/Main.vue'
-import Maps from '@components/Maps.vue'
-import NotFound from '@components/NotFound.vue'
-import Articles from '@components/Articles.vue'
-import Article from '@components/Article.vue'
-import Database from '@components/Database.vue'
-import Resources from '@components/Resources.vue'
+import Main from '@/components/Main.vue'
+import Maps from '@/components/Maps.vue'
+import NotFound from '@/components/NotFound.vue'
+import Articles from '@/components/Articles.vue'
+import Article from '@/components/Article.vue'
+import Database from '@/components/Database.vue'
+import Resources from '@/components/Resources.vue'
 
-const r = new Router({
+const router = new Router({
   mode : 'history',
   routes : [
     {
@@ -49,4 +49,4 @@ const r = new Router({
   ]
 })
 
-export default r
+export default router

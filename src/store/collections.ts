@@ -1,8 +1,9 @@
-import { createModule, mutation, action, extractVuexModule, Module, createProxy, } from "vuex-class-component";
-import { getDocumentsByCollection } from "../api";
+import { createModule, mutation, action, extractVuexModule, createProxy, } from "vuex-class-component";
+import { getDocumentsByCollection } from "@/api";
 import Vuex from 'vuex'
 import Vue from 'vue'
-import { $addNotification } from "@src/utilities/notifications";
+import { $addNotification } from "@/utilities/notifications";
+
 Vue.use(Vuex)
 
 const VuexModule = createModule({
