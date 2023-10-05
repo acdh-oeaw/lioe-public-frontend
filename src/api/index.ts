@@ -570,7 +570,6 @@ export async function getDocumentsByCollection(
         size: items,
         query: {
           ids: {
-            type: '_doc',
             values: r.results.map((result: any) => result.es_id),
           },
         },
