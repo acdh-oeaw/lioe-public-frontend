@@ -169,13 +169,20 @@ function sigleFromEsRef(
   }
 }
 
+export type WBOECollection = {
+  name: string,
+  value: number,
+  description: string,
+  text?: string
+}
+
 export async function searchCollections(
   val: string,
   page = 1
 ): Promise<{
   count: number
   next: string | null
-  results: { name: string; value: string; description: string }[]
+  results: WBOECollection[]
 }> {
   const res = await (
     await fetch(
@@ -549,7 +556,7 @@ function getFinalQuery(
 }
 
 export async function getDocumentsByCollection(
-  ids: string[],
+  ids: number[],
   page = 1,
   items = 100
 ): Promise<Documents> {
@@ -570,7 +577,6 @@ export async function getDocumentsByCollection(
         size: items,
         query: {
           ids: {
-            type: '_doc',
             values: r.results.map((result: any) => result.es_id),
           },
         },

@@ -138,11 +138,11 @@ class CollectionModule extends VuexModule {
                 addingSuccesfull = true;
             }
         });
-        if(addingSuccesfull) 
+        if(addingSuccesfull)
             $addNotification({message: 'Belege wurden erfolgreich zu ' + colName + ' hinzugefügt.', type: 'success'});
         else
             $addNotification({message: 'Belege konnten nicht hinzugefügt werden.', type: 'error'});
-        
+
     }
 
     @mutation

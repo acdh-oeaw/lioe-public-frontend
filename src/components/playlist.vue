@@ -221,6 +221,7 @@
               filled
               hide-selected
               multiple
+              :loading="loadingWboeCollection"
             >
               <template v-slot:no-data>
                 <v-list-item v-if="isSearching">
@@ -244,9 +245,7 @@
                 </v-list-item>
               </template>
               <template v-slot:item="{ item }">
-                <v-list-item-content
-                  @click="getLocationsOfCollections(this.selectedCollections)"
-                >
+                <v-list-item-content>
                   <v-list-item-title v-text="item.text"></v-list-item-title>
                   <v-list-item-subtitle
                     v-text="item.description"
@@ -284,9 +283,9 @@
                     item.collection_name
                       .toLowerCase()
                       .includes(
-                        this.filterCollection.toLowerCase() == null
+                        filterCollection.toLowerCase() == null
                           ? ''
-                          : this.filterCollection.toLowerCase()
+                          : filterCollection.toLowerCase()
                       )
                   )"
                   @click="switchShow(item)"
@@ -459,7 +458,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { stateProxy, Collection } from "@/store/collections";
-import { getDocumentsByCollection, searchCollections } from "@/api";
+import { getDocumentsByCollection, searchCollections, WBOECollection } from "@/api";
 import LoadMoreItems from "@/components/LoadMoreItems.vue";
 import draggable from "vuedraggable";
 import * as FileSaver from "file-saver";
@@ -477,13 +476,16 @@ import colorPickerCollections from "@/components/colorPickerCollections.vue";
 })
 export default class Playlist extends Vue {
   @Prop() onMapPage: Boolean;
-  collectionSearchItems: any[] = [];
-  selectedCollections: any[] = [];
+  collectionSearchItems: WBOECollection[] = [];
+  selectedCollections: number[] = [];
+  cachedCollections: number[] = [];
   searchCollection: string | null = null;
   filterCollection: string = "";
   collectionSearchHasNextPage: boolean = false;
   collectionSearchCurrentPage = 1;
   isSearching = false;
+
+  loadingWboeCollection = false;
 
   sortedHeaders: any[] = [
     "ID",
@@ -590,9 +592,17 @@ export default class Playlist extends Vue {
     }
   }
 
-  async getLocationsOfCollections(colls: any[]) {
+  @Watch("selectedCollections", { deep: true })
+  async onSelectedCollectionsChanged() {
+    this.loadingWboeCollection = true;
+    await this.getLocationsOfCollections(this.selectedCollections.filter(collection => this.cachedCollections.indexOf(collection) === -1));
+    this.cachedCollections = this.selectedCollections;
+    this.loadingWboeCollection = false;
+  }
+
+  async getLocationsOfCollections(colls: number[]) {
     // i should really change this at some point to be more efficient
-    if (typeof colls === "object") {
+    if (Array.isArray(colls) && colls.length > 0) {
       colls.forEach(async (coll) => {
         let shownInGeo;
         this.wboe_coll.forEach((CollInGeo) => {
@@ -639,12 +649,6 @@ export default class Playlist extends Vue {
           });
         }
       });
-      this.selectedCollections = [];
-    } else {
-      setTimeout(
-        () => this.getLocationsOfCollections(this.selectedCollections),
-        100
-      );
     }
   }
 
@@ -737,6 +741,9 @@ export default class Playlist extends Vue {
   deleteCol(col: Collection) {
     if (col.preColl !== -1) {
       stateProxy.collections.addWBOE_coll({ changedColl: col, add: false });
+      this.selectedCollections = this.selectedCollections.filter(
+        (item) => item !== col.preColl
+      );
     } else {
       stateProxy.collections.removeTemp_coll({ changedColl: col });
     }
