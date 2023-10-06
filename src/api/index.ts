@@ -556,7 +556,7 @@ function getFinalQuery(
 }
 
 export async function getDocumentsByCollection(
-  ids: string[],
+  ids: number[],
   page = 1,
   items = 100
 ): Promise<Documents> {
