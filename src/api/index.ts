@@ -169,13 +169,20 @@ function sigleFromEsRef(
   }
 }
 
+export type WBOECollection = {
+  name: string,
+  value: number,
+  description: string,
+  text?: string
+}
+
 export async function searchCollections(
   val: string,
   page = 1
 ): Promise<{
   count: number
   next: string | null
-  results: { name: string; value: string; description: string }[]
+  results: WBOECollection[]
 }> {
   const res = await (
     await fetch(

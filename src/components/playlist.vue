@@ -245,7 +245,7 @@
               </template>
               <template v-slot:item="{ item }">
                 <v-list-item-content
-                  @click="getLocationsOfCollections(this.selectedCollections)"
+                  @click="getLocationsOfCollections(selectedCollections)"
                 >
                   <v-list-item-title v-text="item.text"></v-list-item-title>
                   <v-list-item-subtitle
@@ -284,9 +284,9 @@
                     item.collection_name
                       .toLowerCase()
                       .includes(
-                        this.filterCollection.toLowerCase() == null
+                        filterCollection.toLowerCase() == null
                           ? ''
-                          : this.filterCollection.toLowerCase()
+                          : filterCollection.toLowerCase()
                       )
                   )"
                   @click="switchShow(item)"
@@ -459,7 +459,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { stateProxy, Collection } from "@/store/collections";
-import { getDocumentsByCollection, searchCollections } from "@/api";
+import { getDocumentsByCollection, searchCollections, WBOECollection } from "@/api";
 import LoadMoreItems from "@/components/LoadMoreItems.vue";
 import draggable from "vuedraggable";
 import * as FileSaver from "file-saver";
@@ -477,8 +477,8 @@ import colorPickerCollections from "@/components/colorPickerCollections.vue";
 })
 export default class Playlist extends Vue {
   @Prop() onMapPage: Boolean;
-  collectionSearchItems: any[] = [];
-  selectedCollections: any[] = [];
+  collectionSearchItems: WBOECollection[] = [];
+  selectedCollections: WBOECollection[] = [];
   searchCollection: string | null = null;
   filterCollection: string = "";
   collectionSearchHasNextPage: boolean = false;
@@ -590,9 +590,9 @@ export default class Playlist extends Vue {
     }
   }
 
-  async getLocationsOfCollections(colls: any[]) {
+  async getLocationsOfCollections(colls: WBOECollection[]) {
     // i should really change this at some point to be more efficient
-    if (typeof colls === "object") {
+    if (Array.isArray(colls) && colls.length > 0) {
       colls.forEach(async (coll) => {
         let shownInGeo;
         this.wboe_coll.forEach((CollInGeo) => {
