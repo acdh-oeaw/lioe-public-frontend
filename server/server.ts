@@ -1,4 +1,5 @@
 import type { ParsedUrlQuery } from 'node:querystring'
+import { fileURLToPath } from 'node:url'
 
 import compression from "compression";
 import cors from "cors";
@@ -112,7 +113,7 @@ app.post("/es-count", async (req, res, next) => {
   }
 });
 
-app.use(express.static(new URL("..", import.meta.url).pathname));
+app.use(express.static(fileURLToPath(new URL("..", import.meta.url))));
 
 app.use(errorHandler)
 
