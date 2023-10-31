@@ -1,6 +1,0 @@
-[submodule "src/service/parser-functions"]
-	path = src/service/parser-functions
-	url = ../wboe-article-parser.git
-[submodule "src/components/ViewPreview"]
-	path = src/components/ViewPreview
-	url = ../wboe-article-view.git
