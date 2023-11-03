@@ -7,12 +7,12 @@ describe('The LiÖ landing page', () => {
   })
   it('finds a populous austrian place in the Omni Search Box', () => {
     const placename = 'Wien'
+    cy.get('[test-id=omni-search]')
+      .type(placename)
     cy.intercept('/assets/geojson/gemeinden.geojson').as('Gemeinden')
     cy.intercept('/assets/geojson/ortsdatenbank.geojson').as('Orte')
     cy.wait('@Gemeinden')
     cy.wait('@Orte')
-    cy.get('[test-id=omni-search]')
-      .type(placename)
     cy.get('[test-id=omni-search-result]')
       .contains(placename)
       .should('exist')
