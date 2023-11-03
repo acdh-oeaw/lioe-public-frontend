@@ -3,9 +3,10 @@
     <div class="article-xml" v-html="content" />
   </article-fragment-panel>
 </template>
+
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import ArticleFragmentPanel from '@components/ArticleFragmentPanel.vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import ArticleFragmentPanel from '@/components/ArticleFragmentPanel.vue'
 
 @Component({
   components: {
@@ -28,6 +29,7 @@ export default class ArticleFragment extends Vue {
   }
 }
 </script>
+
 <style lang="scss">
 .close-btn {
   position: absolute;

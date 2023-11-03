@@ -1,4 +1,3 @@
-
 stages:
   - build
   - test
@@ -65,18 +64,22 @@ mirror-on-github:
     set -eo pipefail
     apt-get update && apt-get install -y podman
     git config --global user.email "acdh-ch-filter-bot@oeaw.ac.at"
-    git config --global user.name "ACDH-CH filter bot"
+    git config --global user.name "ACDH-CH filter bot"^
+    git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
     git fetch --unshallow origin
     git remote set-url origin https://${GITLAB_WRITE_USER}:${GITLAB_WRITE_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git
-    current_branch=$(git branch -a --contains $(git show-ref -s $CI_COMMIT_REF_NAME) | grep -v HEAD | sed 's~remotes/origin/~~')
+    current_branch=$(git branch -a --contains $(git show-ref -s $CI_COMMIT_REF_NAME) | sed 's~remotes/origin/~~' | grep -v HEAD | grep -v 'no branch' | grep -v '/' | tail -n 1)
     tag=$(git describe --tags --abbrev=0)
     msg=$(git tag -l --format='%(contents)' $tag)
+    echo "current branch: $current_branch tag: $tag message: $msg"
     git checkout $current_branch
     to_revert=$(git rev-parse HEAD)
     git checkout origin/main -B main
     git merge --squash --allow-unrelated-histories $to_revert -s ort -X theirs || ":"
     git submodule update --init --force --checkout
     git submodule -q foreach git add .
+    # force the article API endpoint to the restricted one
+    sed -i "s~const articleAPIEndpoint = .*$~const articleAPIEndpoint = 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/';~g" ./server/index.js
     git commit -a -m "$msg"
     git tag "$tag-release" -m "$msg"
     git push origin main

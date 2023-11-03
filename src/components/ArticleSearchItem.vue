@@ -63,8 +63,8 @@
 </template>
 
 <script lang="ts">
-import { Article } from '@src/api'
-import { sortByTerm } from '@src/utilities/helper-functions';
+import { Article } from '@/api'
+import { sortByTerm } from '@/utilities/helper-functions';
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import { Prop } from 'vue-property-decorator'

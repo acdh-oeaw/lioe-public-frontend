@@ -14,9 +14,10 @@
     />
   </v-expansion-panel>
 </template>
+
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import ArticleFragmentLegacy from '@components/ArticleFragmentLegacy.vue'
+import ArticleFragmentLegacy from '@/components/ArticleFragmentLegacy.vue'
 
 @Component({
   components: {
@@ -27,5 +28,3 @@ export default class ArticleViewLegacy extends Vue {
   @Prop({ required: true }) xmls: {[fragmentName: string]: string}
 }
 </script>
-<style lang="scss" scoped>
-</style>

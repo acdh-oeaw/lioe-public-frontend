@@ -24,7 +24,7 @@
           <v-menu open-on-hover :offset-y="true" left nudge nudge-left>
             <template v-slot:activator="{ on }">
               <v-btn style="left: 63%" color="accent" small icon text v-on="on">
-                <v-icon>info</v-icon>
+                <v-icon>mdi-information-outline</v-icon>
               </v-btn>
             </template>
             <info-text
@@ -35,7 +35,7 @@
           </v-menu>
         </v-card-title>
         <v-card-text>
-          <v-checkbox v-model="fixTooltip" hide-details style="float: left" />
+          <v-checkbox data-test="rsb-show-names" v-model="fixTooltip" hide-details style="float: left" />
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <span
@@ -58,6 +58,7 @@
           </v-tooltip>
           <br style="clear: both" />
           <v-checkbox
+            data-test="rsb-show-legacy-gemeinde"
             v-model="legacyGemeinde"
             hide-details
             style="float: left"
@@ -84,10 +85,11 @@
           </v-tooltip>
         </v-card-text>
         <v-divider style="clear: both; margin-top: 50px" />
-        <v-card-text>
+        <v-card-text data-test="rsb-radio-map-tileset">
           <v-card-subtitle class="subtitles">Grundkarten</v-card-subtitle>
           <v-radio-group v-model="selectedTileSet">
             <v-radio
+              :data-test="`rsb-map-tileset-${i}`"
               v-for="(tileSet, i) in tileSets"
               :value="i"
               :key="i"
@@ -99,26 +101,31 @@
             <small>WBÖ</small>
           </v-card-subtitle>
           <v-checkbox
+            data-test="rsb-show-wboe-states"
             v-model="showBundeslaender"
             hide-details
             label="Untersuchungsgebiet (Bundeslandgrenzen + Südtirol)"
           />
           <v-checkbox
+            data-test="rsb-show-wboe-large-areas"
             v-model="showGrossregionen"
             hide-details
             label="Großregionen"
           />
           <v-checkbox
+            data-test="rsb-show-wboe-small-areas"
             v-model="showKleinregionen"
             hide-details
             label="Kleinregionen"
           />
           <v-checkbox
+            data-test="rsb-show-wboe-communities-point"
             v-model="showGemeinden"
             hide-details
             label="untersuchte Gemeinden (Punkte)"
           />
           <v-checkbox
+            data-test="rsb-show-wboe-communities-area"
             v-model="showGemeindenArea"
             hide-details
             label="untersuchte Gemeinden (Flächen)"
@@ -127,17 +134,19 @@
             <small>Weitere</small>
           </v-card-subtitle>
           <v-checkbox
+            data-test="rsb-show-dialect-regionn-area"
             v-model="showDialektregionenFill"
             hide-details
             label="Dialektregionen Ö - Flächen (SFB-DiÖ)"
           />
           <v-checkbox
+            data-test="rsb-show-dialect-regionn-border"
             v-model="showDialektregionenBorder"
             hide-details
             label="Dialektregionen Ö - Grenzen (SFB-DiÖ)"
           />
-          <v-checkbox v-model="showRivers" hide-details label="Flüsse" />
-          <v-checkbox v-model="showHillshades" hide-details label="Gebirge" />
+          <v-checkbox data-test="rsb-show-rivers" v-model="showRivers" hide-details label="Flüsse" />
+          <v-checkbox data-test="rsb-show-Mountains" v-model="showHillshades" hide-details label="Gebirge" />
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
@@ -147,6 +156,7 @@
       <v-layout>
         <v-flex xs12>
           <v-autocomplete
+            data-test="place-search"
             :loading="isLoading"
             :items="locationsSearchItems"
             :search-input.sync="search"
@@ -161,13 +171,13 @@
             multiple
             deletable-chips
             chips
-            prepend-inner-icon="search"
+            prepend-inner-icon="mdi-magnify"
             solo
             elevation="0"
             clearable
           >
             <template v-slot:item="{ item }">
-              <v-list-item-content>
+              <v-list-item-content :data-test="`search-result-place-${item.text}-${item.subtitle}`">
                 <v-list-item-title>{{ item.text }}</v-list-item-title>
                 <v-list-item-subtitle>
                   {{ item.subtitle }}
@@ -185,7 +195,7 @@
           <v-menu open-on-hover :offset-y="true">
             <template v-slot:activator="{ on }">
               <v-btn color="accent" icon medium v-on="on">
-                <v-icon>info</v-icon>
+                <v-icon>mdi-information-outline</v-icon>
               </v-btn>
             </template>
             <info-text
@@ -199,46 +209,47 @@
 
     <v-layout class="map-overlay pa-4">
       <v-flex xs1>
-        <v-btn fab small class="zoom" @click="zoom = zoom + 1">
-          <v-icon>add</v-icon>
+        <v-btn data-test="btn-zoom-in" fab small class="zoom" @click="zoom = zoom + 1">
+          <v-icon>mdi-plus</v-icon>
         </v-btn>
         <v-tooltip color="ci" dark right>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" class="zoom" fab small @click="resetView">
-              <v-icon>home</v-icon>
+            <v-btn data-test="btn-default-zoom" v-on="on" class="zoom" fab small @click="resetView">
+              <v-icon>mdi-home-outline</v-icon>
             </v-btn>
           </template>
           <span>Ursprungsposition</span>
         </v-tooltip>
-        <v-btn fab small class="zoom" @click="zoom = zoom - 1">
-          <v-icon>remove</v-icon>
+        <v-btn data-test="btn-zoom-out" fab small class="zoom" @click="zoom = zoom - 1">
+          <v-icon>mdi-minus</v-icon>
         </v-btn>
         <v-menu min-width="200" fixed left>
           <template v-slot:activator="{ on }">
-            <v-btn dark class="zoom" color="ci" fab small v-on="on">
-              <v-icon>save_alt</v-icon>
+            <v-btn data-test="btn-map-export" dark class="zoom" color="ci" fab small v-on="on">
+              <v-icon>mdi-content-save</v-icon>
             </v-btn>
           </template>
 
           <v-list class="context-menu-list" dense>
             <v-subheader>
-              <v-icon class="mr-1" small>save_alt</v-icon>Export/Download
+              <v-icon class="mr-1" small>mdi-content-save</v-icon>Export/Download
             </v-subheader>
-            <v-list-item @click="printMap('png')">PNG</v-list-item>
+            <v-list-item data-test="map-export-png" @click="printMap('png')">PNG</v-list-item>
             <!--<v-list-item disabled @click="printMap('svg')">SVG</v-list-item>-->
-            <v-list-item @click="printMap('json')">GeoJSON</v-list-item>
+            <v-list-item data-test="map-export-geoJson" @click="printMap('json')">GeoJSON</v-list-item>
           </v-list>
         </v-menu>
       </v-flex>
 
       <v-flex class="text-xs-right" offset-xs11>
-        <v-btn style="margin-top: 5px" fab @click="sideBar = !sideBar">
-          <v-icon>layers</v-icon>
+        <v-btn data-test="toggle-right-sb" style="margin-top: 5px" fab @click="sideBar = !sideBar">
+          <v-icon>mdi-layers-outline</v-icon>
         </v-btn>
       </v-flex>
 
       <v-flex class="text-xs-left" >
         <v-btn
+            data-test="btn-toggle-left-sb"
             @click="togglePlaylistSidebar()"
             color="primary"
             fab
@@ -254,7 +265,7 @@
         <img
           :style="{ left: playlistBar === true ? '255px' : '0vw' }"
           class="logo mt-2 logo-container"
-          src="/static/img/logo.svg"
+          src="/assets/images/logo.svg"
         />
       </router-link>
 
@@ -378,7 +389,10 @@
     </l-map>
   </div>
 </template>
+
 <script lang="ts">
+import "leaflet/dist/leaflet.css";
+
 /* eslint-disable no-use-v-if-with-v-for*/
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import {
@@ -388,20 +402,19 @@ import {
   LGeoJson,
   LWMSTileLayer as LWmsTileLayer,
 } from "vue2-leaflet";
-import InfoText from "@components/InfoText.vue";
-import InfoBox from "@components/InfoBox.vue";
-import * as geojson from "geojson";
-import MapLegende from "@components/MapLegende.vue";
-import { regions } from "../regions";
-import { geoStore } from "../store/geo";
+import InfoText from "@/components/InfoText.vue";
+import InfoBox from "@/components/InfoBox.vue";
+import type * as geojson from "geojson";
+import MapLegende from "@/components/MapLegende.vue";
+import { regions } from "@/regions";
+import { geoStore } from "@/store/geo";
 import * as FileSaver from "file-saver";
 import domtoimage from "dom-to-image";
-import * as L from "leaflet";
-import * as _ from "lodash";
-import { stateProxy, Collection } from "../store/collections";
-//@ts-ignore
-import Playlist from "@components/playlist.vue";
-import { searchDocumentsFromES } from "../api";
+import _ from 'lodash'
+import { circleMarker, canvas, type Layer } from 'leaflet'
+import { stateProxy } from "@/store/collections";
+import Playlist from "@/components/playlist.vue";
+import { searchDocumentsFromES } from "@/api";
 
 function base64ToBlob(dataURI: string) {
   const byteString = atob(dataURI.split(",")[1]);
@@ -508,12 +521,12 @@ export default class Maps extends Vue {
   mapOptions = {
     scrollWheelZoom: true,
     zoomControl: false,
-    renderer: L.canvas(),
+    renderer: canvas(),
   };
   optionsEveryGemeinde = {
     onEachFeature: this.bindTooltip(["name"]),
     pointToLayer: (feature: any, latlng: any) => {
-      return L.circleMarker(latlng, {
+      return circleMarker(latlng, {
         radius: 3,
         fillColor: this.colorGemeinde,
         weight: 1,
@@ -526,7 +539,7 @@ export default class Maps extends Vue {
   options = {
     onEachFeature: this.bindPopUpPlace(),
     pointToLayer: (feature: any, latlng: any) => {
-      return L.circleMarker(latlng, {
+      return circleMarker(latlng, {
         radius: 3,
         weight: 1,
         opacity: 1,
@@ -538,7 +551,7 @@ export default class Maps extends Vue {
   optionsColl = {
     onEachFeature: this.bindPopUpPlaceCollection(),
     pointToLayer: (feature: any, latlng: any) => {
-      return L.circleMarker(latlng, {
+      return circleMarker(latlng, {
         radius: 3,
         weight: 1,
         opacity: 1,
@@ -868,7 +881,7 @@ export default class Maps extends Vue {
   }
 
   bindTooltip(properties = ["name"], showLabel = false, perm = false) {
-    return (feature: geojson.Feature, layer: L.Layer) => {
+    return (feature: geojson.Feature, layer: Layer) => {
       layer.bindTooltip(
         properties
           .map(
@@ -884,7 +897,7 @@ export default class Maps extends Vue {
   }
 
   bindPopUpPlace() {
-    return async (feature: geojson.Feature, layer: L.Layer): Promise<void> => {
+    return async (feature: geojson.Feature, layer: Layer): Promise<void> => {
       let docs: any = {};
       let regionType: any;
       if (feature.properties) {
@@ -985,7 +998,7 @@ export default class Maps extends Vue {
 
 
   bindPopUpPlaceCollection() {
-    return async (feature: geojson.Feature, layer: L.Layer): Promise<void> => {
+    return async (feature: geojson.Feature, layer: Layer): Promise<void> => {
       let allItems: any[] = [];
       this.wboeColl.forEach((beleg: any) => {
         if (beleg.selected) {
@@ -1044,7 +1057,7 @@ export default class Maps extends Vue {
 
   get onEachFeatureFunction() {
     const aThis: any = this;
-    return (feature: geojson.Feature, layer: L.Layer) => {
+    return (feature: geojson.Feature, layer: Layer) => {
       //@ts-ignore
       if (feature.properties.fid) {
         this.bindTooltip(["Name", "sigle"], true)(feature, layer);
@@ -1079,7 +1092,6 @@ export default class Maps extends Vue {
     }
   }
   async loadRivers() {
-    // tslint:disable-next-line:max-line-length
     this.rivers = await (
       await fetch(
         "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_rivers_europe.geojson"
@@ -1148,8 +1160,8 @@ export default class Maps extends Vue {
   }
 }
 </script>
+
 <style lang="scss" scoped>
-@import "../../node_modules/leaflet/dist/leaflet.css";
 .map-overlay {
   position: absolute;
   z-index: 1;

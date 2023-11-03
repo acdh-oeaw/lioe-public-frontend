@@ -4,30 +4,35 @@
       <v-layout>
         <v-flex class="text-center" xs12>
           <v-text-field
+            data-test="articles-search"
             :loading="loading"
             v-model="searchTerm"
             autofocus
             flat
             hide-details
             label="Suche Artikel…"
-            prepend-inner-icon="search"
-            append-inner-icon="info"
+            prepend-inner-icon="mdi-magnify"
+            append-inner-icon="mdi-information-outline"
             solo
             clearable
           />
         </v-flex>
         <v-col cols="auto" class="pa-0 divider-left">
-          <v-btn-toggle v-model="toggleModel" mandatory>
-            <v-btn class="text-no-transform" text>Retrodigitalisierte Artikel</v-btn>
-            <v-btn class="text-no-transform" text>Aktuelle Artikel</v-btn>
-            <v-btn class="text-no-transform" text>Alle Artikel</v-btn>
+          <v-btn-toggle
+            data-test="article-search-radio"
+            v-model="toggleModel"
+            mandatory
+          >
+            <v-btn data-test="filter-retro" class="text-no-transform" text>Retrodigitalisierte Artikel</v-btn>
+            <v-btn data-test="filter-current" class="text-no-transform" text>Aktuelle Artikel</v-btn>
+            <v-btn data-test="filter-all" class="text-no-transform" text>Alle Artikel</v-btn>
           </v-btn-toggle>
         </v-col>
         <v-flex>
           <v-menu open-on-hover max-width="700" max-height="95vh" top left>
             <template v-slot:activator="{ on }">
               <v-btn v-on="on" color="accent" icon text class="pt-2">
-                <v-icon>info</v-icon>
+                <v-icon>mdi-information-outline</v-icon>
               </v-btn>
             </template>
             <info-text class="elevation-24 pa-4 white" path="wboe-artikel/" />
@@ -37,8 +42,8 @@
     </v-card>
     <v-flex xs12>
       <info-text subDialog="true" class="pa-4" path="wboe-artikelstruktur/" />
-      <v-tabs grow v-model="letter" class="tabs-letter my-3" color="ci" background-color="transparent" center-active centered>
-        <v-tab v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
+      <v-tabs data-test="letter-group-tabs" grow v-model="letter" class="tabs-letter my-3" color="ci" background-color="transparent" center-active centered>
+        <v-tab :data-test="'letter-group-' + aLetter.char" v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
 
           <p>{{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span></p>
 
@@ -96,13 +101,14 @@
     </v-flex>
   </v-layout>
 </template>
+
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { Article, getArticles } from '../api'
-import InfoText from '@components/InfoText.vue'
-import * as _ from 'lodash'
-import { articleStore } from '@src/store/articles-store'
-import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions'
+import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Article, getArticles } from '@/api'
+import InfoText from '@/components/InfoText.vue'
+import _ from 'lodash'
+import { articleStore } from '@/store/articles-store'
+import { fileLinkFromXMLUrl } from '@/utilities/helper-functions'
 
 interface articleGroup {
   initials: string,
@@ -114,7 +120,6 @@ interface articleGroup {
     InfoText
   }
 })
-// tslint:disable:max-line-length
 export default class Articles extends Vue {
 
   visibleArticles: articleGroup[] = [];
@@ -393,6 +398,7 @@ export default class Articles extends Vue {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .sticky{
   position: -webkit-sticky;
@@ -405,7 +411,7 @@ export default class Articles extends Vue {
 .tabs-letter{
   font-weight: bold;
 }
-.tabs-letter /deep/ .v-slide-group__prev.v-slide-group__prev--disabled {
+.tabs-letter ::v-deep .v-slide-group__prev.v-slide-group__prev--disabled {
   display: none!important;
 }
 </style>

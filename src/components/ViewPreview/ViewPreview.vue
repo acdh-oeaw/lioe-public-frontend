@@ -102,8 +102,8 @@
 
 <script>
   import _ from 'lodash'
-  import VariableTag from './VariableTag'
-  import PreviewContent from './PreviewContent'
+  import VariableTag from '@/components/ViewPreview/VariableTag.vue'
+  import PreviewContent from '@/components/ViewPreview/PreviewContent.vue'
 
   export default {
     name: 'ViewPreview',

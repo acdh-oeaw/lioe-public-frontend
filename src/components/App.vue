@@ -1,18 +1,13 @@
 <template>
   <v-app>
-    <v-content>
+    <v-main>
       <v-container fill-height class="py-0 px-2" app>
         <v-layout column>
           <v-flex class="header-navigation pb-3">
-            <!-- <v-flex class="text-xs-right" xs12>
-              <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
-              <v-btn class="text-no-transform" color="grey" small rounded text>test</v-btn>
-            </v-flex> -->
             <v-layout>
                 <v-flex xs12 :class="['text-center', 'logo-container', $route.name === 'maps' && 'logo-hidden']">
-                  <router-link to="/"><img  class="logo mt-5" src="/static/img/logo.svg"
+                  <router-link to="/"><img  class="logo mt-5" src="/assets/images/logo.svg"
                     height="100" width="250" /></router-link>
-                  <!-- <div class="project-name">Lexikalisches Informationssystem Österreich</div> -->
                 </v-flex>
             </v-layout>
           </v-flex>
@@ -48,17 +43,18 @@
         </v-layout>
       </v-container>
       <CookieNotification/>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
+
 <script lang="ts">
-import { articleStore } from '@src/store/articles-store';
-import { initMatomoTracking } from '@src/utilities/trackingHelpers';
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { initialize as initGeo } from '../store/geo'
-import CookieNotification from './GeneralComponents/Tracking/CookieNotification.vue';
-import LioeFooter from './LioeFooter.vue'
-import NotificationsModule from './NotificationsModule.vue'
+import { articleStore } from '@/store/articles-store';
+import { initMatomoTracking } from '@/utilities/trackingHelpers';
+import { Vue, Component } from 'vue-property-decorator'
+import { initialize as initGeo } from '@/store/geo'
+import CookieNotification from '@/components/GeneralComponents/Tracking/CookieNotification.vue';
+import LioeFooter from '@/components/LioeFooter.vue'
+import NotificationsModule from '@/components/NotificationsModule.vue'
 
 @Component({
   components: {
@@ -81,12 +77,6 @@ export default class App extends Vue {
 </script>
 
 <style>
-  @import 'https://fonts.googleapis.com/icon?family=Material+Icons';
-  @import 'https://cdn.materialdesignicons.com/5.3.45/css/materialdesignicons.min.css';
-  @import '../../node_modules/vuetify/dist/vuetify.min.css';
-  @import '../styles/fonts.scss';
-  @import '../styles/global.scss';
-  @import '../../node_modules/vue-tour/dist/vue-tour.css'; /* Neede to make vue-tour work! */
   .tabs-top .v-slide-group__prev.v-slide-group__prev--disabled {
     display: none!important;
   }
@@ -147,7 +137,7 @@ body.v-tour--active {
   overflow: hidden;
   border-radius: 5px;
 }
-.v-tabs /deep/ .v-item-group:not(.v-tabs-bar--is-mobile) .v-tab > div {
+.v-tabs ::v-deep .v-item-group:not(.v-tabs-bar--is-mobile) .v-tab > div {
   padding-top: 4px;
 }
 .v-tab .v-icon{
@@ -155,13 +145,13 @@ body.v-tour--active {
   margin-right: 10px;
   font-size: 30px;
 }
-.v-tabs /deep/ .v-tabs-bar--is-mobile .v-tab .v-icon{
+.v-tabs ::v-deep .v-tabs-bar--is-mobile .v-tab .v-icon{
   display: block;
   margin-top: 0;
   margin-right: 0;
   margin-bottom: 5px;
 }
-.v-tabs /deep/ .v-tabs-bar.v-tabs-bar--is-mobile {
+.v-tabs ::v-deep .v-tabs-bar.v-tabs-bar--is-mobile {
   height: 80px!important;
 }
 .project-name{

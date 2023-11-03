@@ -6,6 +6,7 @@
           <v-card-text
             ><h1>
               Sammlungen<v-btn
+                data-test="close-sidebar"
                 @click="togglePlaylistSidebar()"
                 color="secondary"
                 text
@@ -20,6 +21,7 @@
       <v-card class="fill-height d-flex flex-column" elevation="0">
         <v-card-title>
           <v-text-field
+            data-test="filter-collections"
             label="Sammlungen Filtern"
             class="text-body-2"
             rounded
@@ -40,6 +42,7 @@
           <v-list dense>
             <v-subheader>Belegdatenbank</v-subheader>
             <v-switch
+              data-test="show-all-belege-switch"
               :disabled="onMapPage || !extra_colls_exist"
               v-model="showAlleBelege"
               color="primary"
@@ -50,6 +53,7 @@
             <v-tooltip right max-width="220" min-width="100">
               <template v-slot:activator="{ on }">
                 <v-btn
+                  data-test="btn-create-collection"
                   color="primary"
                   depressed
                   @click="addCollection()"
@@ -73,6 +77,7 @@
                 @end="drag = false"
               >
                 <v-list-item
+                  :data-test="`collection-${item.collection_name}`"
                   v-for="(item, i) in temp_coll.filter((item) =>
                     item.collection_name
                       .toLowerCase()
@@ -141,6 +146,7 @@
                     <v-menu offset-y>
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
+                          :data-test="`btn-edit-collection-menu-${item.collection_name}`"
                           x-small
                           fab
                           text
@@ -152,16 +158,17 @@
                         </v-btn>
                       </template>
                       <v-list dense>
-                        <v-list-item @click="item.editing = true">
+                        <v-list-item :data-test="`rename-${item.collection_name}`" @click="item.editing = true">
                           <v-list-item-title>Umbennenen</v-list-item-title>
                         </v-list-item>
-                        <v-list-item @click="deleteCol(item)">
+                        <v-list-item :data-test="`delete-${item.collection_name}`" @click="deleteCol(item)">
                           <v-list-item-title>Löschen</v-list-item-title>
                         </v-list-item>
                         <v-list-item>
                           <v-menu right open-on-hover offset-x>
                             <template v-slot:activator="{ on }">
                               <v-btn
+                                :data-test="`export-${item.collection_name}`"
                                 v-on="on"
                                 @click.prevent=""
                                 style="padding-left: 0px"
@@ -172,17 +179,17 @@
                               </v-btn>
                             </template>
                             <v-list dense>
-                              <v-list-item @click="saveXLSX(item)">
+                              <v-list-item :data-test="`exportas-excel-${item.collection_name}`" @click="saveXLSX(item)">
                                 <v-list-item-title class="export-btn">
                                   Microsoft Excel</v-list-item-title
                                 >
                               </v-list-item>
-                              <v-list-item @click="saveJSON(item)">
+                              <v-list-item :data-test="`exportas-excel-${item.collection_name}`" @click="saveJSON(item)">
                                 <v-list-item-title class="export-btn">
                                   JSON</v-list-item-title
                                 >
                               </v-list-item>
-                              <v-list-item @click="saveCSV(item)">
+                              <v-list-item :data-test="`exportas-excel-${item.collection_name}`" @click="saveCSV(item)">
                                 <v-list-item-title class="export-btn">
                                   CSV</v-list-item-title
                                 >
@@ -201,6 +208,7 @@
           <v-list dense>
             <v-subheader>WBÖ Sammlungen</v-subheader>
             <v-autocomplete
+              data-test="search-wboe-collections"
               :items="collectionSearchItems"
               v-model="selectedCollections"
               :search-input.sync="searchCollection"
@@ -213,6 +221,7 @@
               filled
               hide-selected
               multiple
+              :loading="loadingWboeCollection"
             >
               <template v-slot:no-data>
                 <v-list-item v-if="isSearching">
@@ -236,9 +245,7 @@
                 </v-list-item>
               </template>
               <template v-slot:item="{ item }">
-                <v-list-item-content
-                  @click="getLocationsOfCollections(this.selectedCollections)"
-                >
+                <v-list-item-content>
                   <v-list-item-title v-text="item.text"></v-list-item-title>
                   <v-list-item-subtitle
                     v-text="item.description"
@@ -271,13 +278,14 @@
                 @end="drag = false"
               >
                 <v-list-item
+                  :data-test="`toggle-wboe-collection-${item.collection_name}`"
                   v-for="(item, i) in wboe_coll.filter((item) =>
                     item.collection_name
                       .toLowerCase()
                       .includes(
-                        this.filterCollection.toLowerCase() == null
+                        filterCollection.toLowerCase() == null
                           ? ''
-                          : this.filterCollection.toLowerCase()
+                          : filterCollection.toLowerCase()
                       )
                   )"
                   @click="switchShow(item)"
@@ -327,16 +335,17 @@
                         </v-btn>
                       </template>
                       <v-list dense>
-                        <v-list-item @click="deleteCol(item)">
+                        <v-list-item :data-test="`remove-wboe-coll-${item.collection_name}`" @click="deleteCol(item)">
                           <v-list-item-title>Entfernen</v-list-item-title>
                         </v-list-item>
-                        <v-list-item @click="createCopyColl(item)">
+                        <v-list-item :data-test="`locale-duplicate-wboe-coll-${item.collection_name}`" @click="createCopyColl(item)">
                           <v-list-item-title>Kopie erstellen</v-list-item-title>
                         </v-list-item>
                         <v-list-item>
                           <v-menu right open-on-hover offset-x>
                             <template v-slot:activator="{ on }">
                               <v-btn
+                                :data-test="`export-menu-wboe-coll-${item.collection_name}`"
                                 v-on="on"
                                 @click.prevent=""
                                 style="padding-left: 0px"
@@ -346,17 +355,17 @@
                                 Exportieren</v-btn
                               >
                             </template>
-                            <v-list-item @click="saveXLSX(item)">
+                            <v-list-item :data-test="`export-wboe-coll-${item.collection_name}-as-excel`" @click="saveXLSX(item)">
                               <v-list-item-title class="export-btn">
                                 Microsoft Excel</v-list-item-title
                               >
                             </v-list-item>
-                            <v-list-item @click="saveJSON(item)"
+                            <v-list-item :data-test="`export-wboe-coll-${item.collection_name}-as-json`" @click="saveJSON(item)"
                               ><v-list-item-title class="export-btn"
                                 >JSON</v-list-item-title
                               ></v-list-item
                             >
-                            <v-list-item @click="saveCSV(item)"
+                            <v-list-item :data-test="`export-wboe-coll-${item.collection_name}-as-csv`" @click="saveCSV(item)"
                               ><v-list-item-title class="export-btn"
                                 >CSV</v-list-item-title
                               ></v-list-item
@@ -367,6 +376,7 @@
                           <v-menu right open-on-hover offset-x>
                             <template v-slot:activator="{ on }">
                               <v-btn
+                                :data-test="`open-add-wboe-coll-${item.collection_name}-to-own-coll`"
                                 v-on="on"
                                 @click.prevent=""
                                 style="padding-left: 0px"
@@ -378,6 +388,7 @@
                             <v-list dense>
                               <v-list-item
                                 v-for="(coll, index) in temp_coll"
+                                :data-test="`add-wboe-coll-${item.collection_name}-to-${coll}-coll`"
                                 :key="index"
                                 @click="addBelegeToCollection(item, coll)"
                               >
@@ -416,16 +427,18 @@
         <v-card elevation="1">
           <v-card-actions>
             <v-btn
+              data-test="to-db"
               block
               v-if="onMapPage"
               elevation="0"
               @click="routeToDB()"
               color="primary"
             >
-              <v-icon left>mdi-database</v-icon>
+              <v-icon left>mdi-database-outline</v-icon>
               In Datenbank zeigen
             </v-btn>
             <v-btn
+              data-test="to-map"
               block
               v-else
               elevation="0"
@@ -441,17 +454,18 @@
     </v-flex>
   </div>
 </template>
+
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { stateProxy, Collection } from "../store/collections";
-import { getDocumentsByCollection, searchCollections } from "@src/api";
-import LoadMoreItems from "./LoadMoreItems.vue";
+import { stateProxy, Collection } from "@/store/collections";
+import { getDocumentsByCollection, searchCollections, WBOECollection } from "@/api";
+import LoadMoreItems from "@/components/LoadMoreItems.vue";
 import draggable from "vuedraggable";
 import * as FileSaver from "file-saver";
-import * as _ from "lodash";
+import _ from "lodash";
 import * as xlsx from "xlsx";
-import { regions } from "@src/regions";
-import colorPickerCollections from "../components/colorPickerCollections.vue";
+import { regions } from "@/regions";
+import colorPickerCollections from "@/components/colorPickerCollections.vue";
 
 @Component({
   components: {
@@ -462,13 +476,16 @@ import colorPickerCollections from "../components/colorPickerCollections.vue";
 })
 export default class Playlist extends Vue {
   @Prop() onMapPage: Boolean;
-  collectionSearchItems: any[] = [];
-  selectedCollections: any[] = [];
+  collectionSearchItems: WBOECollection[] = [];
+  selectedCollections: number[] = [];
+  cachedCollections: number[] = [];
   searchCollection: string | null = null;
   filterCollection: string = "";
   collectionSearchHasNextPage: boolean = false;
   collectionSearchCurrentPage = 1;
   isSearching = false;
+
+  loadingWboeCollection = false;
 
   sortedHeaders: any[] = [
     "ID",
@@ -575,9 +592,17 @@ export default class Playlist extends Vue {
     }
   }
 
-  async getLocationsOfCollections(colls: any[]) {
+  @Watch("selectedCollections", { deep: true })
+  async onSelectedCollectionsChanged() {
+    this.loadingWboeCollection = true;
+    await this.getLocationsOfCollections(this.selectedCollections.filter(collection => this.cachedCollections.indexOf(collection) === -1));
+    this.cachedCollections = this.selectedCollections;
+    this.loadingWboeCollection = false;
+  }
+
+  async getLocationsOfCollections(colls: number[]) {
     // i should really change this at some point to be more efficient
-    if (typeof colls === "object" && colls !== []) {
+    if (Array.isArray(colls) && colls.length > 0) {
       colls.forEach(async (coll) => {
         let shownInGeo;
         this.wboe_coll.forEach((CollInGeo) => {
@@ -624,12 +649,6 @@ export default class Playlist extends Vue {
           });
         }
       });
-      this.selectedCollections = [];
-    } else {
-      setTimeout(
-        () => this.getLocationsOfCollections(this.selectedCollections),
-        100
-      );
     }
   }
 
@@ -722,6 +741,9 @@ export default class Playlist extends Vue {
   deleteCol(col: Collection) {
     if (col.preColl !== -1) {
       stateProxy.collections.addWBOE_coll({ changedColl: col, add: false });
+      this.selectedCollections = this.selectedCollections.filter(
+        (item) => item !== col.preColl
+      );
     } else {
       stateProxy.collections.removeTemp_coll({ changedColl: col });
     }
@@ -1030,6 +1052,7 @@ export default class Playlist extends Vue {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .close-btn {
   position: absolute;

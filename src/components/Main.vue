@@ -1,18 +1,5 @@
 <template>
   <v-layout column fill-height>
-    <!-- <v-flex class="text-center">
-      <v-text-field
-        :loading="loading"
-        autofocus
-        text
-        v-model="searchTerm"
-        label="Suche…"
-        prepend-inner-icon="search"
-        solo
-        clearable
-      />
-    </v-flex> -->
-
     <v-layout column>
       <v-flex>
         <v-col class="pa-0">
@@ -28,10 +15,9 @@
             text
             class="mb-4"
             hide-details
-            prepend-inner-icon="search"
+            prepend-inner-icon="mdi-magnify"
             solo
             clearable
-            append-icon='$dropdown'
             id="mainOmnisearch"
           >
             <template v-slot:item="{ item }">
@@ -63,7 +49,7 @@
                   <v-tooltip top>
                     <template v-slot:activator="{ on }">
                       <v-icon v-if="item.type === 'place'" v-on="on"
-                        >map</v-icon
+                        >mdi-map</v-icon
                       >
                     </template>
                     <span>Ort in Datenbank anzeigen</span>
@@ -144,22 +130,15 @@
                 @click="startTour()"
                 id='mainInfoButton'
               >
-                <v-icon>info</v-icon>
+                <v-icon>mdi-information-outline</v-icon>
               </v-btn>
             </template>
           </v-autocomplete>
-
         </v-col>
       </v-flex>
     </v-layout>
 
     <v-flex style="height: 40vh" xs12>
-      <!-- <v-progress-linear
-        height="1"
-        class="pa-0 ma-0 absolute"
-        v-if="wordProgress !== null && wordProgress !== 100"
-        indeterminate
-      /> -->
       <vue-word-cloud
         style="height: 360px"
         :enter-animation="{ opacity: 0, transform: 'scale3d(0.3, 1, 0.3)' }"
@@ -208,22 +187,21 @@
       </v-tour>
   </v-layout>
 </template>
+
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
-import * as _ from 'lodash';
-import InfoText from '@components/InfoText.vue';
+import _ from 'lodash';
+import InfoText from '@/components/InfoText.vue';
 import {
-  getArticles,
   searchCollections,
   getDocumentsByCollection,
-  Article,
   ExtendedArticle,
-} from '../api';
-import { stateProxy } from '../store/collections';
-import InfoBox from '@components/InfoBox.vue';
-import { geoStore } from '../store/geo';
-import { articleStore } from '@src/store/articles-store';
-import { fileLinkFromXMLUrl } from '@src/utilities/helper-functions';
+} from '@/api';
+import { stateProxy } from '@/store/collections';
+import InfoBox from '@/components/InfoBox.vue';
+import { geoStore } from '@/store/geo';
+import { articleStore } from '@/store/articles-store';
+import { fileLinkFromXMLUrl } from '@/utilities/helper-functions';
 
 @Component({
   components: {
@@ -289,7 +267,6 @@ export default class Main extends Vue {
         placement: 'bottom'
       }
     },
-
   ]
 
   tourCallbacks = {
@@ -570,6 +547,7 @@ export default class Main extends Vue {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 .word-cloud-link {
   opacity: 0.6;

@@ -12,7 +12,7 @@
         top
         left>
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on" class="mr-3">info_outline</v-icon>
+          <v-icon v-on="on" class="mr-3">mdi-information-outline</v-icon>
         </template>
         <info-text class="elevation-24 pa-4 white" :path="infoUrl" />
         <v-btn @click="showDetails = true" block color="ci" class="ma-0" dark v-if="extInfoUrl">Weitere Informationen</v-btn>
@@ -21,7 +21,7 @@
     <v-dialog v-model="showDetails" max-width="1000" color="#2b2735" scrollable v-if="extInfoUrl">
       <v-card text class="fill-height pa-4">
         <div class="close-btn">
-          <v-btn @click="showDetails = false" text icon><v-icon dark>close</v-icon></v-btn>
+          <v-btn @click="showDetails = false" text icon><v-icon dark>mdi-close</v-icon></v-btn>
         </div>
         <v-card-text class="pa-0 fill-height">
           <info-text class="pa-4 white fill-height" :path="extInfoUrl" />
@@ -32,9 +32,8 @@
 </template>
 
 <script lang="ts">
-
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import InfoText from '@components/InfoText.vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import InfoText from '@/components/InfoText.vue'
 
 @Component({
   components: {
@@ -51,6 +50,7 @@ export default class ArticleFragmentHeader extends Vue {
 
 }
 </script>
+
 <style lang="scss" scoped>
 .header{
   font-weight: bold;

@@ -1,4 +1,4 @@
-import { loadFromLocalStorage, safeToLocalStorage } from "./helper-functions";
+import { loadFromLocalStorage, safeToLocalStorage } from "@/utilities/helper-functions";
 
 const trackingConsentKey = 'trackingConsent';
 

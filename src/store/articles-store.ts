@@ -1,7 +1,8 @@
 import { createModule, action, extractVuexModule, createProxy, } from "vuex-class-component";
 import Vuex from 'vuex'
 import Vue from 'vue'
-import { Article, ArticlesResponse, getArticles, getArticlesVersion } from "@src/api";
+import { Article, ArticlesResponse, getArticles, getArticlesVersion } from "@/api";
+
 Vue.use(Vuex)
 
 const VuexModule = createModule({
@@ -17,8 +18,6 @@ export interface searchOptions {
 }
 
 class ArticlesModule extends VuexModule {
-
-
     articleCount?: Number = void 0;
 
     articlesResponse: Promise<ArticlesResponse>;
@@ -52,7 +51,7 @@ class ArticlesModule extends VuexModule {
     lastFilter: string = '';
 
     // @ts-ignore
-    frontendVersion: String = process.env.VUE_APP_VERSION;
+    frontendVersion: String = import.meta.env.VITE_APP_GIT_TAG;
 
     articleApiVersion: String = 'version';
 

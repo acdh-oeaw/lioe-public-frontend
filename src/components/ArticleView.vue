@@ -26,14 +26,13 @@
         <v-menu open-on-hover max-width="400" max-height="95vh" top left>
           <template v-slot:activator="{ on }">
             <v-btn color="grey" class="mr-3" small v-on="on" icon text>
-              <v-icon>info_outline</v-icon>
+              <v-icon>mdi-information-outline</v-icon>
             </v-btn>
           </template>
           <info-text
             class="elevation-24 pa-4 white"
             :path="isRetro ? 'wboe-artikel/grammatische-angaben-retro/' : 'wboe-artikel/grammatische-angaben-short/'"
           />
-          <!-- <v-btn block color="ci" class="ma-0" dark>Weitere Informationen</v-btn> -->
         </v-menu>
       </v-flex>
     </v-layout>
@@ -77,7 +76,6 @@
       >
         <template v-if="lautung.length > 0">
           <article-fragment-header title="Überblick" />
-          <!-- ext-info-url="wboe-artikel/ueberblick/" info-url="wboe-artikel/ueberblick-short/" -->
           <PreviewContent
             :geo-store="geoStore"
             v-for="(u, i) in lautung"
@@ -87,7 +85,6 @@
         </template>
         <template v-if="belegauswahl && belegauswahl.length">
           <article-fragment-header class="mb-3" title="Belegauswahl" />
-          <!--  ext-info-url="wboe-artikel/belegauswahl/" info-url="wboe-artikel/belegauswahl-short/" -->
           <PreviewContent
             :geo-store="geoStore"
             v-for="(b, i) in belegauswahl"
@@ -179,24 +176,22 @@
     />
   </div>
 </template>
+
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import * as _ from "lodash";
-import InfoText from "@components/InfoText.vue";
-import ViewPreview from "@components/ViewPreview/ViewPreview.vue";
-import XmlObject from "../service/parser-functions/xml/Xml";
-import EditorObject from "../service/parser-functions/editor/Editor";
-import ParserObject from "../service/parser-functions/parser/Parser";
-import PreviewContent from "@components/ViewPreview/PreviewContent.vue";
-import ArticleFragmentHeader from "@components/ArticleFragmentHeader.vue";
-import ArticleRetroRenderer from "@components/ArticleRetroRenderer.vue";
-import ArticleFragmentPanel from "@components/ArticleFragmentPanel.vue";
-import QuotationSection from "@components/QuotationSection.vue";
+import InfoText from "@/components/InfoText.vue";
+import ViewPreview from "@/components/ViewPreview/ViewPreview.vue";
+import XmlObject from "@/service/parser-functions/xml/Xml";
+import EditorObject from "@/service/parser-functions/editor/Editor";
+import ParserObject from "@/service/parser-functions/parser/Parser";
+import PreviewContent from "@/components/ViewPreview/PreviewContent.vue";
+import ArticleFragmentHeader from "@/components/ArticleFragmentHeader.vue";
+import ArticleRetroRenderer from "@/components/ArticleRetroRenderer.vue";
+import ArticleFragmentPanel from "@/components/ArticleFragmentPanel.vue";
+import QuotationSection from "@/components/QuotationSection.vue";
 
-import { localEndpoint } from "../api";
 import * as xlsx from "xlsx";
-import { userStore } from "../store/user";
-import { log } from "util";
+import { userStore } from "@/store/user";
 
 const replaceAsync = async (input: string, regex: RegExp, replacer: any) => {
   // we need to remove the 'g' flag, if defined, so that all replacements can be made
@@ -204,7 +199,6 @@ const replaceAsync = async (input: string, regex: RegExp, replacer: any) => {
   const re = new RegExp(regex, flags);
   let index = 0;
   let match;
-  // tslint:disable-next-line:no-conditional-assignment
   while ((match = re.exec(input.slice(index)))) {
     const value = await replacer(...match);
     index += match.index;
@@ -248,7 +242,7 @@ export default class ArticleView extends Vue {
   @Prop({ default: null}) pbFacs: string[];
 
   parser: any = null;
-  parserDefinitionPath = "/static/parser-xml/";
+  parserDefinitionPath = "/parser-xml/";
   editorObj: null | any = null;
 
   xmlObjRetro: null | any = null;
@@ -439,6 +433,7 @@ export default class ArticleView extends Vue {
   }
 }
 </script>
+
 <style lang="scss">
 .article-panels {
   .h1,

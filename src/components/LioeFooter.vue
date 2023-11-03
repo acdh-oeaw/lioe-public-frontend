@@ -4,22 +4,22 @@
     <h4 class="mb-4 mt-3 grey--text">Ein Projekt von</h4>
     <v-layout align-center justify-space-around wrap>
       <a target="_blank" href="https://www.oeaw.ac.at">
-        <v-img aspect-ratio="1" width="170" max-height="70" contain src="/static/img/oeaw_logo_446x192.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="170" max-height="70" contain src="/assets/images/oeaw-logo.png" alt="" class="src" />
       </a>
       <a target="_blank" href="https://acdh.oeaw.ac.at">
-        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/acdh-ch-logo-with-text.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/acdh-ch-logo-with-text.png" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.oeaw.ac.at/acdh/sprachwissenschaft/projekte/wboe">
-        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/wboelogo_230px_transp.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/wboe-logo.png" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.fwf.ac.at">
-        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/fwf-logo.gif" alt="" class="src" />
+        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/fwf-logo.gif" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.univie.ac.at">
-        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/uni-logo.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/uni-vienna-logo.png" alt="" class="src" />
       </a>
-      <a target="_blank" href="https://dioe.at/">
-        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/static/img/logodioe.png" alt="" class="src" />
+      <a target="_blank" href="https://dioe.at">
+        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/dioe-logo.png" alt="" class="src" />
       </a>
     </v-layout>
 
@@ -47,9 +47,10 @@
     </div>
     </v-flex>
 </template>
+
 <script lang="ts">
-import { articleStore } from '@src/store/articles-store';
-import TrackingStatusArea from './GeneralComponents/Tracking/TrackingStatusArea.vue';
+import { articleStore } from '@/store/articles-store';
+import TrackingStatusArea from '@/components/GeneralComponents/Tracking/TrackingStatusArea.vue';
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
@@ -64,15 +65,15 @@ export default class LioeFooter extends Vue {
   }
 
   get frontendVersion() {
-    return process.env.VUE_APP_VERSION ?? 'version';
+    return import.meta.env.VITE_APP_GIT_TAG ?? 'version';
   }
 
   get commit_hash()  {
-    return process.env.VUE_APP_COMMIT_HASH ?? 'commit hash';
+    return import.meta.env.VITE_APP_GIT_COMMIT_HASH ?? 'commit hash';
   }
 
   get branch(){
-    return process.env.VUE_APP_BRANCH ?? 'branch';
+    return import.meta.env.VITE_APP_GIT_BRANCH_NAME ?? 'branch';
   }
 
   get articleApiVersion() {
@@ -84,5 +85,3 @@ export default class LioeFooter extends Vue {
   }
 }
 </script>
-<style lang="scss" scoped>
-</style>
