@@ -64,7 +64,7 @@ mirror-on-github:
     set -eo pipefail
     apt-get update && apt-get install -y podman
     git config --global user.email "acdh-ch-filter-bot@oeaw.ac.at"
-    git config --global user.name "ACDH-CH filter bot"^
+    git config --global user.name "ACDH-CH filter bot"
     git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
     git fetch --unshallow origin
     git remote set-url origin https://${GITLAB_WRITE_USER}:${GITLAB_WRITE_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git
@@ -79,7 +79,7 @@ mirror-on-github:
     git submodule update --init --force --checkout
     git submodule -q foreach git add .
     # force the article API endpoint to the restricted one
-    sed -i "s~const articleAPIEndpoint = .*$~const articleAPIEndpoint = 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/';~g" ./server/index.js
+    sed -i "s~https://wboe-api-retro.acdh-dev.oeaw.ac.at/~https://wboe-curation.acdh-dev.oeaw.ac.at/~g" ./server/server.ts
     git commit -a -m "$msg"
     git tag "$tag-release" -m "$msg"
     git push origin main
