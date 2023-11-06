@@ -4,13 +4,29 @@ import { fileURLToPath } from 'node:url'
 import compression from "compression";
 import cors from "cors";
 import express from "express";
+import morgan from "morgan";
 import { createUrl, createUrlSearchParams, request } from "@acdh-oeaw/lib";
 import { errorHandler } from "./error";
+
+function jsonFormat(tokens, req, res) {
+  return JSON.stringify({
+    "remote-address": tokens["remote-addr"](req, res),
+    time: tokens["date"](req, res, "iso"),
+    method: tokens["method"](req, res),
+    url: tokens["url"](req, res),
+    "http-version": tokens["http-version"](req, res),
+    "status-code": tokens["status"](req, res),
+    "content-length": tokens["res"](req, res, "content-length"),
+    referrer: tokens["referrer"](req, res),
+    "user-agent": tokens["user-agent"](req, res)
+  });
+}
 
 const app = express();
 
 app.enable("trust proxy");
 app.use(cors());
+app.use(morgan(jsonFormat));
 app.use(compression());
 app.use(express.json());
 /** Use `node:querystring` instead of `qs`. */
