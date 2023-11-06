@@ -79,7 +79,7 @@ mirror-on-github:
     git submodule update --init --force --checkout
     git submodule -q foreach git add .
     # force the article API endpoint to the restricted one
-    sed -i "s~const articleAPIEndpoint = .*$~const articleAPIEndpoint = 'https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/';~g" ./server/index.js
+    sed -i "s~https://wboe-api-retro.acdh-dev.oeaw.ac.at/~https://wboe-curation.acdh-dev.oeaw.ac.at/~g" ./server/server.ts
     git commit -a -m "$msg"
     git tag "$tag-release" -m "$msg"
     git push origin main
