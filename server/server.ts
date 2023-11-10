@@ -129,7 +129,11 @@ app.post("/es-count", async (req, res, next) => {
   }
 });
 
-app.use(express.static(fileURLToPath(new URL("..", import.meta.url))));
+const root = fileURLToPath(new URL("..", import.meta.url))
+app.use(express.static(root));
+app.get('*', (_req, res) => {
+	res.sendFile('index.html', { root })
+})
 
 app.use(errorHandler)
 
