@@ -4,11 +4,11 @@ import { fileURLToPath } from 'node:url'
 import compression from "compression";
 import cors from "cors";
 import express from "express";
-import morgan from "morgan";
+import morgan, { type FormatFn } from "morgan";
 import { createUrl, createUrlSearchParams, request } from "@acdh-oeaw/lib";
 import { errorHandler } from "./error";
 
-function jsonFormat(tokens, req, res) {
+const jsonFormat: FormatFn = function jsonFormat(tokens, req, res) {
   return JSON.stringify({
     "remote-address": tokens["remote-addr"](req, res),
     time: tokens["date"](req, res, "iso"),
