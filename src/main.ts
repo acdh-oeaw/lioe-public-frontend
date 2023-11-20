@@ -50,7 +50,7 @@ Vue.use(VueLazyload, { lazyComponent: true });
 Vue.component(VueWordCloud.name, VueWordCloud);
 Vue.use(VueMatomo, {
   host: "https://matomo.acdh.oeaw.ac.at",
-  siteId: "194",
+  siteId: "217",
   router: router,
   requireConsent: true,
   enableHeartBeatTimer: true,
