@@ -165,15 +165,25 @@
         <span>{{ autor.fullname || "" }} </span>
       </v-tooltip>
     </div>
-    <QuotationSection
-      :noteAutor="noteAuthor"
-      :filename="filename"
-      :lautung="lautung"
-      :autor="autor"
-      :xml="xml"
-      :isRetro="isRetro"
-      :pbFacs="pbFacs"
-    />
+    <div class="row align-center mx-auto justify-center">
+      <div :class="isRetro ? 'col-12 col-sm-11 col-md-8' : 'col-12 col-sm-11 col-md-10'">
+        <QuotationSection
+          :noteAutor="noteAuthor"
+          :filename="filename"
+          :lautung="lautung"
+          :autor="autor"
+          :xml="xml"
+          :isRetro="isRetro"
+          :pbFacs="pbFacs"
+        />
+      </div>
+      <div class="col-12 col-md-2" v-if="isRetro">
+        <div class="mx-auto" style="width: fit-content;">
+          <p>In Zusammenarbeit mit</p>
+          <img class="d-block" style="max-width: 100%; height: auto" src="/assets/images/oeaw_logo_de.svg" width="250" height="100" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
