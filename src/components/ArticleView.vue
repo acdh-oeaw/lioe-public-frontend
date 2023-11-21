@@ -73,8 +73,9 @@
         title="Lautung"
         ext-info-url="wboe-artikel/lautung/"
         info-url="wboe-artikel/lautung-short/"
+        v-if="(lautung.length > 0 && lautungTxt.length >= 20) || (belegauswahl && belegauswahl.length)"
       >
-        <template v-if="lautung.length > 0">
+        <template v-if="lautung.length > 0 && lautungTxt.length >= 20">
           <article-fragment-header title="Überblick" />
           <PreviewContent
             :geo-store="geoStore"
@@ -265,6 +266,7 @@ export default class ArticleView extends Vue {
   wortbildungen: any = null;
   redewendungen: any = null;
   lautung: any = null;
+  lautungTxt: any = null;
   userStore = userStore;
 
   refresh: boolean = false;
@@ -418,6 +420,8 @@ export default class ArticleView extends Vue {
           e.orgXmlObj.childs.length > 0
         );
       });
+      this.lautungTxt = [].concat.apply([], this.lautung.map((e: any) => e.orgXmlObj.getValue())).join(' ')
+      // console.log(this.lautung, this.lautungTxt)
       this.editorObj = editorObj;
     }
     this.refresh = true
