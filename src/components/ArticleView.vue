@@ -40,6 +40,8 @@
       <article-retro-renderer
         :xmlObjRetro="xmlObjRetro"
         :retroXml="retroXml"
+        :autor="autor"
+        :noteAutor="noteAuthor"
         class="mt-3 article-panels"
         v-if="retroXml"
       />
