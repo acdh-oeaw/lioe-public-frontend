@@ -17,6 +17,8 @@ export interface searchOptions {
   pageSize: number,
 }
 
+const possibleArticleFilters = ['proofed', 'finished', 'retro', 'retro Verweis'];
+
 class ArticlesModule extends VuexModule {
     articleCount?: Number = void 0;
 
@@ -124,8 +126,11 @@ class ArticlesModule extends VuexModule {
       let pageNr = 1;
       let totalPages = 1;
 
-      await getArticles(void 0, void 0, pageSize, pageNr).then( response => {
-        this.allArticles = sortArticles(filterAndMapArticles(response.articles));
+      const filters = possibleArticleFilters.join(',');
+
+      await getArticles(void 0, filters, pageSize, pageNr).then( response => {
+        this.allArticles = sortArticles(filterAndMapArticles(response.articles));        
+        this.articleCount = response.page.totalElements;
         totalPages = response.page.totalPages.valueOf();
       });
 
@@ -135,7 +140,7 @@ class ArticlesModule extends VuexModule {
 
       for (pageNr = 2; pageNr <= totalPages; pageNr++) {
         requests.push(
-          getArticles(void 0, void 0, pageSize, pageNr).then( resp => {
+          getArticles(void 0, filters, pageSize, pageNr).then( resp => {
             articleCache.push( ...sortArticles(filterAndMapArticles(resp.articles)));
           })
         );

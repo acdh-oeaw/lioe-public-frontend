@@ -220,11 +220,11 @@ export default class Articles extends Vue {
       filter:'retro'
     },
     {
-      selected: false,
+      selected: true,
       label: 'Retro Verweise',
       filter:'retro Verweis'
     }
-  ]
+  ];
 
   readonly characters_to_delete_for_search = /[-*<>;%†\u1AB0–\u1AFF\u1DC0–\u1DFF\u02B0-\u02FF\u20D0–\u20FF\u26a0\u0300-\u036F\uFE20–\uFE2F()\[\]"']/g
   readonly restore_umlaut_for_search_map: Record<string, string> = {
