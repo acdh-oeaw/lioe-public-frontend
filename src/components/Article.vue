@@ -158,7 +158,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator"
 import { getArticleByFileName, getCollectionByIds, getDocumentsByCollection } from "@/api"
-import XmlEditor from "@/components/XmlEditor.vue"
 import { geoStore } from "@/store/geo"
 import _ from "lodash"
 import InfoText from "@/components/InfoText.vue"
@@ -175,7 +174,6 @@ import ArticleSearchItem  from "@/components/ArticleSearchItem.vue"
 
 @Component({
   components: {
-    XmlEditor,
     InfoText,
     ArticleViewLegacy,
     ArticleView,
