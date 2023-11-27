@@ -133,7 +133,14 @@ export default class ArticleRetroRenderer extends Vue {
         } else if (e.type === 'TEXT') {
           const tVal = e.value.trim()
           if (tVal[0] !== ',' && tVal[0] !== '.' && tVal[0] !== ';' && tVal[0] !== ':' && tVal[0] !== ')' && tVal[0] !== ']' && tVal[0] !== '}') {
-            out += '<span class="ws"> </span>'
+            let aPos = this.xmlObjRetro.family.indexOf(e)
+            let lChar = ''
+            if (aPos > 0) {
+              lChar = (this.xmlObjRetro.family.slice(Math.max(0, aPos - 5), aPos - 1).map((e: any) => e.type === 'TEXT' ? e.value : '').join('') || '').slice(-1)
+            }
+            if (!lChar || (lChar !== '(' && lChar !== '[' && lChar !== '{')) {
+              out += '<span class="ws"> </span>'
+            }
           }
           if (tVal === 'Belegauswahl (Lautung)') {
             out += 'Lautung'
