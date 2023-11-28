@@ -127,7 +127,7 @@ class ArticlesModule extends VuexModule {
       let pageNr = 1;
       let totalPages = 1;
 
-      const filtersArray: Array<ArticleFilter> = ['finished', 'proofed','retro', 'retro Verweis']; 
+      const filtersArray: Array<ArticleFilter> = ['finished', 'proofed','retro']; 
       const filters: string = filtersArray.join(',');
 
       await getArticles(void 0, filters, pageSize, pageNr).then( response => {

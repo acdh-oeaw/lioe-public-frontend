@@ -116,8 +116,8 @@ interface articleGroup {
   articles: Article[],
 }
 
-const filterAll: Array<ArticleFilter> = ['finished', 'proofed', 'retro', 'retro Verweis']
-const filterRetro: Array<ArticleFilter> = ['retro', 'retro Verweis'];
+const filterAll: Array<ArticleFilter> = ['finished', 'proofed', 'retro']
+const filterRetro: Array<ArticleFilter> = ['retro'];
 const filterCurrent: Array<ArticleFilter> = ['finished', 'proofed'];
 
 @Component({
