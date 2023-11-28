@@ -945,6 +945,7 @@ export default class Database extends Vue {
       renderFnc: (val: any) =>
         `${_(val.Sigle1)
           .flatten()
+          .filter((sigl) => sigl !== '⚠')
           .replace(/[›]?[L|K]T[\d]?/g, "")}`,
       sortable: true,
     },
