@@ -17,7 +17,8 @@ export interface searchOptions {
   pageSize: number,
 }
 
-const possibleArticleFilters = ['proofed', 'finished', 'retro', 'retro Verweis'];
+export const possibleArticleFilters = ['proofed', 'finished', 'retro', 'retro Verweis'] as const;
+export type ArticleFilter = typeof possibleArticleFilters[number];
 
 class ArticlesModule extends VuexModule {
     articleCount?: Number = void 0;
@@ -126,7 +127,8 @@ class ArticlesModule extends VuexModule {
       let pageNr = 1;
       let totalPages = 1;
 
-      const filters = possibleArticleFilters.join(',');
+      const filtersArray: Array<ArticleFilter> = ['finished', 'proofed','retro']; 
+      const filters: string = filtersArray.join(',');
 
       await getArticles(void 0, filters, pageSize, pageNr).then( response => {
         this.allArticles = sortArticles(filterAndMapArticles(response.articles));        
