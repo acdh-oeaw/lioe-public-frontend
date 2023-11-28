@@ -47,7 +47,7 @@
               </v-col>
             </v-row>
           <vue-horizontal v-else responsive snap="center" ref="horizontal_articles">
-            <section v-for="item in articleList" :key="item.xmlUrl">
+            <section v-for="item in truncatedArticleList" :key="item.xmlUrl">
               <v-btn class="ml-6 mx-2" text :to="`/articles/${ getFileLink(item.xmlUrl) }`" :key="item.xmlUrl">{{item.title}}</v-btn>
             </section>
           </vue-horizontal>
@@ -171,6 +171,7 @@ import { articleStore }from "@/store/articles-store"
 import { getWebsiteHtml } from '@/api'
 import { fileLinkFromXMLUrl } from "@/utilities/helper-functions"
 import ArticleSearchItem  from "@/components/ArticleSearchItem.vue"
+import { type Article as ApiArticle } from "@/api"
 
 @Component({
   components: {
@@ -224,6 +225,30 @@ export default class Article extends Vue {
   }
 
   updateHorizontalArticleList: boolean = true;
+
+  get truncatedArticleList() {
+    const size = 53;
+
+    const index = this.getArticleIndex(this.articleList);
+
+    console.log(`index: ${index}`)
+
+    let minIndex = Math.max(0, index - Math.floor(size / 2));
+    const minDiff = index - minIndex;
+    let maxIndex = Math.min(index + Math.floor(size / 2) + 1, this.articleList.length);
+    const maxDiff = maxIndex - index;
+    if(Math.abs(minDiff) < size/2) {
+      maxIndex = maxIndex + (size/2 - minDiff);
+    } else if (maxDiff < size/2) {
+      minIndex = minIndex - (size/2 - maxDiff);
+    }    
+
+    const subarray = this.articleList.slice(
+      minIndex,
+      maxIndex
+    );
+    return subarray;
+  }
 
   get articleList() {
     return articleStore.articles.AllArticles;
@@ -698,7 +723,7 @@ export default class Article extends Vue {
   }
 
   scrollToArticle() {
-    const artIndex = this.getArticleIndex() - 2;
+    const artIndex = this.getArticleIndex(this.truncatedArticleList) - 2;
 
     if(artIndex > 0 && this.$refs.horizontal_articles){
     // @ts-ignore
@@ -706,10 +731,10 @@ export default class Article extends Vue {
     }
   }
 
-  getArticleIndex(): number {
+  getArticleIndex(articles: Array<ApiArticle>): number {
     const encodedFilename = encodeURIComponent( this.filename.replace('.xml', ''));
 
-    let artIndex = this.articleList.map( a => fileLinkFromXMLUrl(a.xmlUrl)).indexOf(encodedFilename);
+    let artIndex = articles.map( a => fileLinkFromXMLUrl(a.xmlUrl)).indexOf(encodedFilename);
 
     return artIndex
   }
