@@ -140,8 +140,8 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
   padding-top: 0%;
   background-color: #e1eff4;
   top: 100px;
-  width: 80%;
   margin: auto;
   border-radius: 5px;
+  width: 100%;
 }
 </style>

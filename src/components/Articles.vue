@@ -109,11 +109,16 @@ import InfoText from '@/components/InfoText.vue'
 import _ from 'lodash'
 import { articleStore } from '@/store/articles-store'
 import { fileLinkFromXMLUrl } from '@/utilities/helper-functions'
+import { type ArticleFilter } from '@/store/articles-store'
 
 interface articleGroup {
   initials: string,
   articles: Article[],
 }
+
+const filterAll: Array<ArticleFilter> = ['finished', 'proofed', 'retro']
+const filterRetro: Array<ArticleFilter> = ['retro'];
+const filterCurrent: Array<ArticleFilter> = ['finished', 'proofed'];
 
 @Component({
   components: {
@@ -203,28 +208,7 @@ export default class Articles extends Vue {
     this.debouncedSearchArticle(this.searchTerm);
   }
 
-  articleStatusFilters = [
-    {
-      selected: true,
-      label: 'Kontroliert',
-      filter: 'proofed'
-    },
-    {
-      selected: true,
-      label: 'Fertiggestellt',
-      filter:'finished'
-    },
-    {
-      selected: true,
-      label: 'Retro',
-      filter:'retro'
-    },
-    {
-      selected: false,
-      label: 'Retro Verweise',
-      filter:'retro Verweis'
-    }
-  ]
+  activeArticleStatusFilters: Array<ArticleFilter> = filterAll;
 
   readonly characters_to_delete_for_search = /[-*<>;%†\u1AB0–\u1AFF\u1DC0–\u1DFF\u02B0-\u02FF\u20D0–\u20FF\u26a0\u0300-\u036F\uFE20–\uFE2F()\[\]"']/g
   readonly restore_umlaut_for_search_map: Record<string, string> = {
@@ -267,21 +251,15 @@ export default class Articles extends Vue {
   updateFilterStatus() {
     switch(this.toggleModel) {
       case 0: { // RETRO
-        for (var i = 1; i < 4; i++) {
-          this.articleStatusFilters[i].selected = i >= 2 ? true : false;
-        }
+        this.activeArticleStatusFilters = filterRetro;
       break;
       }
       case 1: {
-        for (var i = 1; i < 4; i++) {
-          this.articleStatusFilters[i].selected = i >= 2 ? false : true;
-        }
+        this.activeArticleStatusFilters = filterCurrent;
       break;
       }
       case 2: { // ALLE
-        for (var i = 0; i < 4; i++) {
-          this.articleStatusFilters[i].selected = true;
-        }
+        this.activeArticleStatusFilters = filterAll;
       break;
       }
       default: {
@@ -326,10 +304,7 @@ export default class Articles extends Vue {
   }
 
   get activeFiltersAsString() {
-    return this.articleStatusFilters
-    .filter((item) => { return item.selected === true})
-    .map((item) => { return item.filter})
-    .join(',');
+    return this.activeArticleStatusFilters.join(',');
   }
 
   get allArticles() : Array<Article> {

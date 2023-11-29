@@ -40,6 +40,8 @@
       <article-retro-renderer
         :xmlObjRetro="xmlObjRetro"
         :retroXml="retroXml"
+        :autor="autor"
+        :noteAutor="noteAuthor"
         class="mt-3 article-panels"
         v-if="retroXml"
       />
@@ -73,8 +75,9 @@
         title="Lautung"
         ext-info-url="wboe-artikel/lautung/"
         info-url="wboe-artikel/lautung-short/"
+        v-if="(lautung.length > 0 && lautungTxt.length >= 20) || (belegauswahl && belegauswahl.length)"
       >
-        <template v-if="lautung.length > 0">
+        <template v-if="lautung.length > 0 && lautungTxt.length >= 20">
           <article-fragment-header title="Überblick" />
           <PreviewContent
             :geo-store="geoStore"
@@ -165,15 +168,25 @@
         <span>{{ autor.fullname || "" }} </span>
       </v-tooltip>
     </div>
-    <QuotationSection
-      :noteAutor="noteAuthor"
-      :filename="filename"
-      :lautung="lautung"
-      :autor="autor"
-      :xml="xml"
-      :isRetro="isRetro"
-      :pbFacs="pbFacs"
-    />
+    <div class="row align-center mx-auto justify-center">
+      <div :class="isRetro ? 'col-12 col-sm-11 col-md-8' : 'col-12 col-sm-11 col-md-10'">
+        <QuotationSection
+          :noteAutor="noteAuthor"
+          :filename="filename"
+          :lautung="lautung"
+          :autor="autor"
+          :xml="xml"
+          :isRetro="isRetro"
+          :pbFacs="pbFacs"
+        />
+      </div>
+      <div class="col-12 col-md-2" v-if="isRetro">
+        <div class="mx-auto" style="width: fit-content;">
+          <p>In Zusammenarbeit mit</p>
+          <img class="d-block" style="max-width: 100%; height: auto" src="/assets/images/oeaw_logo_de.svg" width="250" height="100" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -255,6 +268,7 @@ export default class ArticleView extends Vue {
   wortbildungen: any = null;
   redewendungen: any = null;
   lautung: any = null;
+  lautungTxt: any = null;
   userStore = userStore;
 
   refresh: boolean = false;
@@ -408,6 +422,8 @@ export default class ArticleView extends Vue {
           e.orgXmlObj.childs.length > 0
         );
       });
+      this.lautungTxt = [].concat.apply([], this.lautung.map((e: any) => e.orgXmlObj.getValue())).join(' ')
+      // console.log(this.lautung, this.lautungTxt)
       this.editorObj = editorObj;
     }
     this.refresh = true
