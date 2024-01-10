@@ -23,9 +23,11 @@ dist/
 .DS_Store
 .idea/
 
-# cypress
-/cypress/screenshots/
-/cypress/videos/
+# playwright
+/blob-report/
+/playwright/.cache/
+/playwright-report/
+/test-results/
 
 
 ## .dockerignore ##
@@ -45,4 +47,4 @@ dist/
 .env.*
 
 # tests
-/cypress/
+/e2e/

@@ -21,10 +21,6 @@ dist/
 .DS_Store
 .idea/
 
-# cypress
-/cypress/screenshots/
-/cypress/videos/
-
 # playwright
 /blob-report/
 /playwright/.cache/
