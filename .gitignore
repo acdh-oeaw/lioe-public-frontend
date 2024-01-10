@@ -24,3 +24,9 @@ dist/
 # cypress
 /cypress/screenshots/
 /cypress/videos/
+
+# playwright
+/blob-report/
+/playwright/.cache/
+/playwright-report/
+/test-results/
