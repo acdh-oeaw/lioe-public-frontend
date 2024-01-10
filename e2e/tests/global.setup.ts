@@ -1,8 +1,9 @@
 import { createUrl } from "@acdh-oeaw/lib";
 import { test as setup } from "@playwright/test";
 
-// TODO: move to environment variable
-const matomoUrl = "https://matomo.acdh.oeaw.ac.at"
+import { env } from '~/config/env.config'
+
+const matomoUrl = env.VITE_APP_MATOMO_BASE_URL
 
 if (matomoUrl) {
   const baseUrl = String(createUrl({ baseUrl: matomoUrl, pathname: "/**" }));

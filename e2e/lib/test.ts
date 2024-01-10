@@ -1,8 +1,8 @@
 import { AxeBuilder } from "@axe-core/playwright";
 import { test as base } from "@playwright/test";
 
-import { ImprintPage } from "./fixtures/imprint-page";
-import { IndexPage } from "./fixtures/index-page";
+import { ImprintPage } from "~/e2e/lib/fixtures/imprint-page";
+import { IndexPage } from "~/e2e/lib/fixtures/index-page";
 
 interface Fixtures {
 	createAccessibilityScanner: () => AxeBuilder;

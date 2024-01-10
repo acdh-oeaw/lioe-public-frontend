@@ -1,4 +1,4 @@
-import { expect, test } from '../lib/test'
+import { expect, test } from '~/e2e/lib/test'
 
 test.describe('Imprint page', () => {
   test('should have document title', async ({ imprintPage }) => {
