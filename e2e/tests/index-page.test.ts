@@ -28,9 +28,10 @@ test.describe("Index page", () => {
     );
   });
 
-  test("should find a place in the search field", async ({ indexPage }) => {
+  test("should find a place in the search field", async ({ indexPage, page }) => {
     await indexPage.goto();
-    // TODO: close tour popup
+
+    await page.getByRole('button', { name: 'Tour schließen' }).click();
 
     const placename = "Wien";
 
@@ -47,6 +48,6 @@ test.describe("Index page", () => {
     await expect(firstSearchResult).toContainText(placename);
 
     await firstSearchResult.getByRole('button', { name: 'Ort auf Karte anzeigen'}).click()
-    await expect(indexPage.page.url).toContain("/maps")
+    await expect(page).toHaveURL("/maps")
   });
 });
