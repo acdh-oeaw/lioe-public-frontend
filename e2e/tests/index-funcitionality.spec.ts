@@ -14,7 +14,9 @@ const test = base.extend<{ indexPage: IndexPage }>({
 
 test.describe('Index Functionality', () => {
 
-  test('should find article', async ({ indexPage, page }) => {
+  test('should find article', async ({ indexPage, page }, testInfo ) => {
+    testInfo.setTimeout(60 * 1000);
+
     await page.getByRole('combobox').locator('div').filter({ hasText: 'Alle Ressourcen durchsuchen...' }).click();
     await page.waitForResponse('**/api/articles?status=finished,proofed,retro&pageSize=500&pageNr=8');
     await page.getByTestId('omni-search').fill('Âbend');

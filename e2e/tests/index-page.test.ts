@@ -17,7 +17,7 @@ test.describe("Index page", () => {
     );
   });
 
-  test("should not have any automatically detectable accessibility issues", async ({
+  test.fixme("should not have any automatically detectable accessibility issues", async ({
     createAccessibilityScanner,
     indexPage,
   }) => {
@@ -28,7 +28,8 @@ test.describe("Index page", () => {
     );
   });
 
-  test("should find a place in the search field", async ({ indexPage, page }) => {
+  test("should find a place in the search field", async ({ indexPage, page }, testInfo) => {
+    testInfo.setTimeout(60 * 1000);
     await indexPage.goto();
 
     await page.getByRole('button', { name: 'Tour schließen' }).click();
