@@ -12,14 +12,12 @@
     "build": "run-s build:client build:server",
     "build:client": "dotenv -c production -- vite build",
     "build:server": "dotenv -c production -- tsup-node ./server/index.ts --format esm --out-dir ./dist/server/ --target es2021",
-    "cy:open": "npx cypress open",
-    "cy:run": "npx cypress run",
     "dev": "run-p dev:client dev:server",
     "dev:client": "dotenv -c development -- vite dev",
     "dev:server": "dotenv -c development -- tsx watch ./server/index.ts",
     "start": "dotenv -c production -- node ./dist/server/index.js",
-    "test": "dotenv -c test -- start-server-and-test start http://localhost:8080 cy:run",
-    "test:interactive": "dotenv -c test -- start-server-and-test start http://localhost:8080 cy:open"
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
   },
   "dependencies": {
     "@acdh-oeaw/lib": "^0.1.6",
@@ -31,7 +29,6 @@
     "bootstrap-vue": "^2.14.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
-    "cypress": "^8.1.0",
     "date-fns": "^1.30.1",
     "dom-to-image": "^2.6.0",
     "express": "^4.18.2",
@@ -59,6 +56,8 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.8.2",
+    "@playwright/test": "^1.40.1",
     "@types/compression": "^1.7.3",
     "@types/cors": "^2.8.14",
     "@types/dom-to-image": "^2.6.0",
@@ -70,7 +69,10 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^18.17.15",
     "@vitejs/plugin-vue2": "^2.2.0",
+    "ci-info": "^4.0.0",
+    "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
+    "dotenv-expand": "^10.0.0",
     "npm-run-all2": "^6.0.6",
     "sass": "^1.67.0",
     "start-server-and-test": "^1.13.1",

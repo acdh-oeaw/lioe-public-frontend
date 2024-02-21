@@ -54,9 +54,9 @@
                     </template>
                     <span>Ort in Datenbank anzeigen</span>
                   </v-tooltip>
-                  <v-icon v-if="item.type === 'collection'"
-                    >mdi-folder-outline</v-icon
-                  >
+                  <v-icon v-if="item.type === 'collection'">
+                    mdi-folder-outline
+                  </v-icon>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title> {{ item.text }}</v-list-item-title>
@@ -76,8 +76,8 @@
                     text
                     @click.stop.prevent="routeToMaps(item)"
                   >
-                    Ort auf Karte anzeigen</v-btn
-                  >
+                    {{ getSearchItemRedirectText(item.type) }}
+                  </v-btn>
                   <v-btn
                     v-if="item.type === `article`"
                     text
@@ -85,17 +85,19 @@
                     class="text-no-transform"
                     @click.stop.prevent="
                       $router.replace(`/db?q=HL,${item.text}`)
-                    "
-                    >&rarr; Belege in Datenbank anzeigen</v-btn
+                      "
                   >
+                    {{ getSearchItemRedirectText(item.type) }}
+                  </v-btn>
                   <v-btn
                     text
                     v-if="item.type === `collection`"
                     class="text-no-transform"
                     color="ci"
                     @click.stop.prevent="getLocationsOfCollections(item, 'btn')"
-                    >&rarr; Sammlung auf Karte anzeigen</v-btn
                   >
+                    {{ getSearchItemRedirectText(item.type) }}
+                  </v-btn>
                 </v-list-item-action>
               </v-list-item>
             </template>
@@ -202,6 +204,7 @@ import InfoBox from '@/components/InfoBox.vue';
 import { geoStore } from '@/store/geo';
 import { articleStore } from '@/store/articles-store';
 import { fileLinkFromXMLUrl } from '@/utilities/helper-functions';
+import { indexSearchTypesDictionary, CollectionResult, PlaceResult, ArticleResult, IndexResultItem, IndexResultItemType } from "@/types/indexSearch"
 
 @Component({
   components: {
@@ -211,6 +214,12 @@ import { fileLinkFromXMLUrl } from '@/utilities/helper-functions';
 })
 export default class Main extends Vue {
   localStorage = window.localStorage;
+
+  typeDictionary = indexSearchTypesDictionary;
+
+  getSearchItemRedirectText(type: string) {
+    return this.typeDictionary[type as IndexResultItemType] ?? '';
+  }
 
   mainTour_Steps = [
     {
@@ -320,12 +329,7 @@ export default class Main extends Vue {
   loc: string | null;
   geoStore = geoStore;
   isSearching = false;
-  searchItems: Array<{
-    type: string;
-    text: string;
-    value: string;
-    description: string;
-  }> = [];
+  searchItems: Array<IndexResultItem> = [];
   // items=[{text: 'Lemma', value: 'Lemma', disabled: false},{text: 'Ort', value: 'Ort', disabled: false}]
 
   debouncedPerformSearch = _.debounce(this.performSearch, 300);
@@ -343,24 +347,24 @@ export default class Main extends Vue {
       return ret;
   }, {});
 
-
   async performSearch(s: string | null) {
+
     if (s !== null && s.trim() !== '') {
       this.searchTerm = s;
       this.isSearching = true;
-      const collections = (await searchCollections(s)).results.map((c) => ({
+      const collections: CollectionResult[] = (await searchCollections(s)).results.map((c): CollectionResult => ({
         type: 'collection',
         text: c.name,
-        value: c.value,
+        value: c.value.toString(),
         description: c.description,
       }));
-      const articles = this.articles.map((a) => ({
+      const articles: ArticleResult[] = this.articles.map((a): ArticleResult => ({
         type: 'article',
         text: a.title,
-        value: a.xmlUrl,
+        value: a.xmlUrl ?? '',
         description: '',
       }));
-      const places = this.geoStore.ortslisteGeo.map((f: any) => ({
+      const places: PlaceResult[] = this.geoStore.ortslisteGeo.map((f: any): PlaceResult => ({
         type: 'place',
         text: f.name,
         value: f.sigle,
@@ -542,6 +546,8 @@ export default class Main extends Vue {
   }
 
   async mounted() {
+    console.log('indexSearchTypesDictionary', indexSearchTypesDictionary)
+    this.typeDictionary = indexSearchTypesDictionary;
     this.onLandingTourHandler();
 
   }

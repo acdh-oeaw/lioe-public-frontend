@@ -23,8 +23,8 @@ Note that this sets the `NODE_ENV` environment variable to `production` and ther
 Developing tests
 ----------------
 
-For testing (cypress e2e testing) the code is built for production (`npm run build`). After it is build
-you can launch the test development environment using `npm run test:interactive`. Every test should run without
+For testing (playwright e2e testing) the code is built for production (`npm run build`). After it is build
+you can launch the test development environment using `npm run test:ui`. Every test should run without
 error in this environment.
 To be sure you can also run `npm run test` before you push because this is what runs on the build server.
 
