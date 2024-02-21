@@ -16,7 +16,7 @@
     "dev:client": "dotenv -c development -- vite dev",
     "dev:server": "dotenv -c development -- tsx watch ./server/index.ts",
     "start": "dotenv -c production -- node ./dist/server/index.js",
-    "test": "playwright test",
+    "test": "playwright install && playwright test",
     "test:ui": "playwright test --ui"
   },
   "dependencies": {
