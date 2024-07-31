@@ -32,7 +32,7 @@ app.use(express.json());
 /** Use `node:querystring` instead of `qs`. */
 app.set('query parser', 'simple')
 
-/** eXist db instance. */
+/** exist db instance. */
 const wboeApiBaseUrl =
   "https://wboe-curation.acdh-dev.oeaw.ac.at/exist/restxq/wboe-api/v1.0/";
 /** Elasticsearch instance. */

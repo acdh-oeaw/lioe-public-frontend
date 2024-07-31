@@ -75,7 +75,7 @@ export default class MapLegende extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 h3 {
   margin: 40px 0 0;
 }
