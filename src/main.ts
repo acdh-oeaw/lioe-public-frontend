@@ -14,6 +14,7 @@ import VueRouter from "vue-router";
 import VueTour from "vue-tour";
 
 import App from "@/components/App.vue";
+import { env } from "~/config/env.config";
 import router from "@/router";
 
 export const $bus = new Vue();
@@ -49,8 +50,8 @@ const vuetify = new Vuetify({
 Vue.use(VueLazyload, { lazyComponent: true });
 Vue.component(VueWordCloud.name, VueWordCloud);
 Vue.use(VueMatomo, {
-  host: "https://matomo.acdh.oeaw.ac.at",
-  siteId: "217",
+  host: env.VITE_APP_MATOMO_BASE_URL,
+  siteId: env.VITE_APP_MATOMO_ID,
   router: router,
   requireConsent: true,
   enableHeartBeatTimer: true,
