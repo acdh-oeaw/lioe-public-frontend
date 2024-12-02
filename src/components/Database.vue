@@ -303,7 +303,7 @@
         <!-- Bottom line -->
         <template v-slot:footer="{ props, on, headers }">
           <v-divider />
-          <v-row>
+          <v-row class="my-0">
             <v-col class="py-0">
               <v-btn
                 style="margin-top: 10px"

@@ -66,6 +66,19 @@ export default class ArticleRetroRenderer extends Vue {
               const av = e.attributes[a].trim()
               const ac = 'a-' + a.toLowerCase()
               classes.push(ac + ' ' + ac + '-' + av.toLowerCase().replaceAll(/[^a-z0-9\s]/g, '').replaceAll(/\s/g, '-'))
+              if (a.trim().toLowerCase() === 'subtype' && av.toLowerCase() === 'compound') {
+                let nSib = e.siblings.indexOf(e) + 1
+                if (nSib > 0 && e.siblings.length > nSib) {
+                  let aPos = this.xmlObjRetro.family.indexOf(e.siblings[nSib])
+                  let nChar = ''
+                  if (aPos > 0) {
+                    nChar = (this.xmlObjRetro.family.slice(aPos, aPos + 10).map((e: any) => e.type === 'TEXT' ? e.value : '').join('') || '').trim().slice(0, 1)
+                  }
+                  if (nChar === ':' || nChar === ',' || nChar === ';' || nChar === '.') {
+                    classes.push('follow-no-space-char')
+                  }
+                }
+              }
               if (a === 'n') {
                 before += '<span class="fx-n">' + av + '</span>'
               }
@@ -130,16 +143,29 @@ export default class ArticleRetroRenderer extends Vue {
             out += '<br>'
           }
           out += '</span>'
+          if (e.name === 'q' || e.name === 'pRef') {
+            let nSib = e.siblings.indexOf(e) + 1
+            if (nSib > 0 && e.siblings.length > nSib) {
+              let aPos = this.xmlObjRetro.family.indexOf(e.siblings[nSib])
+              let nChar = ''
+              if (aPos > 0) {
+                nChar = (this.xmlObjRetro.family.slice(aPos, aPos + 10).map((e: any) => e.type === 'TEXT' ? e.value : '').join('') || '').trim().slice(0, 1)
+              }
+              if (nChar && /^\p{L}$/u.test(nChar)) {
+                out += '<span class="ws"> </span>'
+              }
+            }
+          }
         } else if (e.type === 'TEXT') {
           const tVal = e.value.trim()
-          if (tVal[0] !== ',' && tVal[0] !== '.' && tVal[0] !== ';' && tVal[0] !== ':' && tVal[0] !== ')' && tVal[0] !== ']' && tVal[0] !== '}') {
+          if (tVal[0] !== ',' && tVal[0] !== '.' && tVal[0] !== ';' && tVal[0] !== ':' && tVal[0] !== ')' && tVal[0] !== ']' && tVal[0] !== '}' && !(/^\p{No}$/u.test(tVal[0]))) {
             let aPos = this.xmlObjRetro.family.indexOf(e)
             let lChar = ''
             if (aPos > 0) {
               lChar = (this.xmlObjRetro.family.slice(Math.max(0, aPos - 5), aPos - 1).map((e: any) => e.type === 'TEXT' ? e.value : '').join('') || '').slice(-1)
             }
             if (!lChar || (lChar !== '(' && lChar !== '[' && lChar !== '{')) {
-              out += '<span class="ws"> </span>'
+              out += '<span class="ws ws-ls"> </span>'
             }
           }
           if (tVal === 'Belegauswahl (Lautung)') {
@@ -160,7 +186,8 @@ export default class ArticleRetroRenderer extends Vue {
       }
       return out
     }
-    this.htmlRetro = renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '');
+    let htmlRetroStr = renderer(this.xmlObjRetro.family.filter((e: any) => e.name === 'entry')[0], '')
+    this.htmlRetro = htmlRetroStr
     this.htmlHeader = htmlHeader
     this.$nextTick(() => {
       this.getHtmlHeaderTop()
@@ -238,6 +265,9 @@ export default class ArticleRetroRenderer extends Vue {
     .e-form.a-type.a-type-lemma.a-subtype.a-subtype-compound:first-child {
       margin-right: 2rem;
     }
+    .e-form.a-type.a-type-lemma.a-subtype.a-subtype-compound:first-child.follow-no-space-char {
+      margin-right: 0;
+    }
     .e-note {
       display: block;
       margin-bottom: 1rem;
@@ -299,6 +329,9 @@ export default class ArticleRetroRenderer extends Vue {
     .e-re > .e-def {
       letter-spacing: 0.15rem;
     }
+    .a-n > .e-form {
+      display: block;
+    }
   }
   .retro-box.band-2 ::v-deep {
     .fx-n + .e-usg {
@@ -343,6 +376,19 @@ export default class ArticleRetroRenderer extends Vue {
       display: block;
       margin-bottom: 0.3rem;
       letter-spacing: 0.15rem;
+    }
+  }
+  .retro-box.band-3 ::v-deep {
+  }
+  .retro-box.band-4 ::v-deep {
+    .e-m {
+      font-style: italic;
+    }
+    .e-c {
+      font-style: italic;
+    }
+    .e-xr.a-type-synonym > .e-ref {
+      font-style: italic;
     }
   }
 </style>

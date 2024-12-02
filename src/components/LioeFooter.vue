@@ -6,10 +6,10 @@
       <a target="_blank" href="https://www.oeaw.ac.at">
         <v-img aspect-ratio="1" width="170" max-height="70" contain src="/assets/images/oeaw-logo.png" alt="" class="src" />
       </a>
-      <a target="_blank" href="https://acdh.oeaw.ac.at">
+      <a target="_blank" href="https://www.oeaw.ac.at/de/acdh/acdh-ch-home">
         <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/acdh-ch-logo-with-text.png" alt="" class="src" />
       </a>
-      <a target="_blank" href="https://www.oeaw.ac.at/acdh/sprachwissenschaft/projekte/wboe">
+      <a target="_blank" href="https://www.oeaw.ac.at/de/acdh/wboe-projektcluster">
         <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/wboe-logo.png" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.fwf.ac.at">
