@@ -56,6 +56,7 @@
                           {"value": "Agnes Kim", "attribute": {"ref": "#AK"}},
                           {"value": "Ingeborg Geyer", "attribute": {"ref": "#IG"}},
                           {"value": "Katharina Korecky-Kröll", "attribute": {"ref": "#KK"}},
+                          {"value": "Wolfgang Koppensteiner", "attribute": {"ref": "#WK"}},
                           {"value": "Manfred Glauninger", "attribute": {"ref": "#MG"}}
                         ]
                       }}],
@@ -100,6 +101,7 @@
         <name xml:id="AK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Agnes Kim</name>
         <name xml:id="IG"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Ingeborg Geyer</name>
         <name xml:id="KK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Katharina Korecky-Kröll</name>
+        <name xml:id="WK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Wolfgang Koppensteiner</name>
         <name xml:id="MG"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Manfred Glauninger</name>
       </respStmt>
       <respStmt>
@@ -230,6 +232,7 @@
                                                                                 {"title": "Agnes Kim", "value": "AK"},
                                                                                 {"title": "Ingeborg Geyer", "value": "IG"},
                                                                                 {"title": "Katharina Korecky-Kröll", "value": "KK"},
+                                                                                {"title": "Wolfgang Koppensteiner", "value": "WK"},
                                                                                 {"title": "Manfred Glauninger", "value": "MG"}
                                                                               ]}
                     }],

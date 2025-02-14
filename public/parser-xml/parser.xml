@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objParser type="lioe" version="0.8.3">
+<objParser type="lioe" version="0.8.4">
   <xmlParserHeader>
     &lt;?xml version="1.0" encoding="UTF-8"?&gt;
     &lt;?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?&gt;
@@ -1708,6 +1708,8 @@
                                               {"title": "Markus Kunzmann", "value": "#MK"},
                                               {"title": "Agnes Kim", "value": "#AK"},
                                               {"title": "Ingeborg Geyer", "value": "#IG"},
+                                              {"title": "Katharina Korecky-Kröll", "value": "#KK"},
+                                              {"title": "Wolfgang Koppensteiner", "value": "#WK"},
                                               {"title": "Manfred Glauninger", "value": "#MG"}
                                             ]}
                     }],

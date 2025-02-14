@@ -44,9 +44,7 @@
       <info-text subDialog="true" class="pa-4" path="wboe-artikelstruktur/" />
       <v-tabs data-test="letter-group-tabs" grow v-model="letter" class="tabs-letter my-3" color="ci" background-color="transparent" center-active centered>
         <v-tab :data-test="'letter-group-' + aLetter.char" v-for="(aLetter, i) in articlesFirstLetter" :key="'stab' + i">
-
           <p>{{ aLetter.char }}<span class="ml-1" style="font-size: 12px;">({{ aLetter.length }})</span></p>
-
         </v-tab>
       </v-tabs>
       <v-list v-if="filteredArticlesByInitial.length > 0">

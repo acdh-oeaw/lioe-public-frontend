@@ -1,6 +1,6 @@
 <template>
   <div v-if="!refresh">
-    <v-layout class="article-tools" align-end>
+    <v-layout class="article-tools fx-info-2" align-end>
       <v-flex @click="$emit('handleArticleClick')" xs12>
         <PreviewContent
           :geo-store="geoStore"
@@ -175,6 +175,7 @@
           :filename="filename"
           :lautung="lautung"
           :autor="autor"
+          :retroAutor="retroAutor"
           :xml="xml"
           :isRetro="isRetro"
           :pbFacs="pbFacs"
@@ -250,6 +251,7 @@ export default class ArticleView extends Vue {
   @Prop() value: boolean[];
   @Prop() isEveryArticleExpanded: any;
   @Prop() autor: any;
+  @Prop() retroAutor: any;
   @Prop({ default: null}) retroXml: string[];
   @Prop({ default: false}) isRetro: boolean[];
   @Prop({ default: null}) pbFacs: string[];

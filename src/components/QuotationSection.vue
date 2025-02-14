@@ -6,6 +6,7 @@
         <v-icon @click="copyContent">mdi-content-copy</v-icon>
       </v-btn>
     </h4>
+    <span v-if="retroAutor && retroAutor.length > 0">{{ retroAutor.join('/') }}: </span>
     <span v-html="content"></span>
   </v-col>
 </template>
@@ -19,6 +20,7 @@ import { format } from "date-fns";
 })
 export default class QuotationSection extends Vue {
   @Prop() autor: any
+  @Prop() retroAutor: any
   @Prop() noteAutor: any
   @Prop() publicationDate: any
   @Prop({ default: "" }) xml: string

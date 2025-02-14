@@ -332,6 +332,9 @@ export default class ArticleRetroRenderer extends Vue {
     .a-n > .e-form {
       display: block;
     }
+    .a-type-bibl {
+      letter-spacing: normal;
+    }
   }
   .retro-box.band-2 ::v-deep {
     .fx-n + .e-usg {

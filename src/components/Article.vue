@@ -1,5 +1,5 @@
 <template>
-  <v-layout column>
+  <v-layout column :class="isRetro ? 'retro-xml' : ''">
     <v-flex xs12>
       <v-autocomplete
         class="article-search"
@@ -58,7 +58,7 @@
           <v-flex @click="handleArticleClick" xs12>
             <div v-html="lemmaXML" class="lemma" />
           </v-flex>
-          <v-flex class="text-xs-right">
+          <v-flex class="text-xs-right fx-info-1">
             <v-menu open-on-hover max-width="400" max-height="95vh" top left>
               <template v-slot:activator="{ on }">
                 <v-btn color="grey" class="mr-3" small v-on="on" icon text>
@@ -79,6 +79,7 @@
           @printArticle="printArticle"
           @showEditor="showEditor = true"
           :autor="editor"
+          :retroAutor="retroAutor"
           :isEveryArticleExpanded="isEveryArticleExpanded"
           v-if="articleXML !== null"
           :xml="articleXML"
@@ -136,11 +137,10 @@
           </v-flex>
         </v-card-title>
         <v-card-text class="pa-0 fill-height">
-          <xml-editor
+          <div
             v-if="showEditor"
-            :show="showEditor"
-            class="fill-height"
-            v-model="articleXML"
+            class="xml-viewer fill-height"
+            v-html="highlightedXML"
           />
         </v-card-text>
       </v-card>
@@ -172,6 +172,7 @@ import { getWebsiteHtml } from '@/api'
 import { fileLinkFromXMLUrl } from "@/utilities/helper-functions"
 import ArticleSearchItem  from "@/components/ArticleSearchItem.vue"
 import { type Article as ApiArticle } from "@/api"
+import { arrayOutputType } from "zod"
 
 @Component({
   components: {
@@ -199,6 +200,7 @@ export default class Article extends Vue {
   }
   expanded: number[] = [3]
 
+  retroAutor: any = []
   articleXML: string | null = ""
   title: string | null = null
   bedeutungXML: string | null = null
@@ -647,6 +649,29 @@ export default class Article extends Vue {
           initials: facsData.length > 2 ? ('WBÖ Band ' + facsData[1] + ', S. ' + facsData[2]) : (aTitle && aTitle.innerHTML || 'Retro'),
           fullname: '', // 'OEAW-Verlag (H. Rosenkranz)',
         };
+        // <respons locus="name value" resp="E.K., A.E."/>
+        let retroAutorTmp = this.elementsFromDom('respons[locus="name value"]', xml)
+        if (retroAutorTmp && retroAutorTmp.item(0) && retroAutorTmp.item(0).attributes && (<any>retroAutorTmp.item(0).attributes).resp) {
+          let retroAutorStr = (<any>retroAutorTmp.item(0).attributes).resp.value
+          let retroAutorNameList: any = {
+            'A.E.': 'Etz, Albrecht',
+            'E.G.': 'Groschopf, Elisabeth',
+            'E.K.': 'Kranzmayer, Eberhard',
+            'E.Kü.': 'Kühn, Erika',
+            'E.S.': 'Schuster, Elisabeth',
+            'G.L.': 'Lipold, Günter',
+            'H.T.': 'Tatzreiter, Herbert',
+            'I.G.': 'Geyer, Ingeborg',
+            'I.M.': 'Marschall, Ingrid',
+            'I.S.': 'Schönhuber, Ingeborg',
+            'M.H.': 'Hornung, Maria',
+            'W.B.': 'Bauer, Werner',
+            'W.S.': 'Schabus, Wilfried'
+          }
+          this.retroAutor = retroAutorStr.split(',').map((v: string) => retroAutorNameList[v.trim()] || v.trim())
+        } else {
+          this.retroAutor = []
+        }
         // console.log('pbFacs', this.pbFacs, this.pbFacsPdfLink)
       } else {
         this.retroXML = null;
@@ -739,6 +764,13 @@ export default class Article extends Vue {
     return artIndex
   }
 
+  get highlightedXML(): string {
+    if (this.articleXML) {
+      return this.articleXML.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/(&lt;.*?&gt;)/g, "<b>$1</b>")
+    } else {
+      return ''
+    }
+  }
 }
 </script>
 
@@ -875,5 +907,29 @@ iframe.comment {
   padding: 5px 10px;
   width: 380px;
   margin-left: -10px;
+}
+.xml-viewer {
+  white-space: pre;
+  padding: 1rem 2rem;
+  width: 100%;
+  overflow: auto;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: monospace;
+  b {
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+@media only screen and (min-height: 800px) {
+  .retro-xml ::v-deep {
+    .fx-info-1 {
+      top: -28px;
+      position: relative;
+    }
+    .fx-info-2 {
+      position: relative;
+      top: 0px;
+      height: 0;
+    }
+  }
 }
 </style>
