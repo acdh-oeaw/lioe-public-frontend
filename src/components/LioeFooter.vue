@@ -4,10 +4,10 @@
     <h4 class="mb-4 mt-3 grey--text">Ein Projekt von</h4>
     <v-layout align-center justify-space-around wrap>
       <a target="_blank" href="https://www.oeaw.ac.at">
-        <v-img aspect-ratio="1" width="170" max-height="70" contain src="/assets/images/oeaw-logo.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="170" max-height="70" contain src="/assets/images/oeaw-logo.svg" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.oeaw.ac.at/de/acdh/acdh-ch-home">
-        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/acdh-ch-logo-with-text.png" alt="" class="src" />
+        <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/acdh-logo-with-text.svg" alt="" class="src" />
       </a>
       <a target="_blank" href="https://www.oeaw.ac.at/de/acdh/wboe-projektcluster">
         <v-img aspect-ratio="1" width="150" max-height="70" contain src="/assets/images/wboe-logo.png" alt="" class="src" />

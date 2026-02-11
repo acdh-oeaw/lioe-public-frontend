@@ -6,7 +6,7 @@
         <v-icon @click="copyContent">mdi-content-copy</v-icon>
       </v-btn>
     </h4>
-    <span v-if="retroAutor && retroAutor.length > 0">{{ retroAutor.join('/') }}: </span>
+    <span v-if="isRetro && retroAutor && retroAutor.length > 0">{{ retroAutor.join('/') }}: </span>
     <span v-html="content"></span>
   </v-col>
 </template>
@@ -47,7 +47,7 @@ export default class QuotationSection extends Vue {
     } else {
       return `
 ${this.autName} (${this.pubDatePfusch}): <i>${this.title}</i>.
-${lautungsueberblick}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ).
+${lautungsueberblick}${this.subversionPrefix}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ).
 URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">https://lioe.dioe.at/articles/${this.filename || this.title}</a>
 [Zugriff: ${this.date}].`;
     }
@@ -83,7 +83,7 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
       let lautungsueberblick = this.noteName && this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
       return `${this.autName} (${this.pubDatePfusch}): ${
         this.title
-      }. ${lautungsueberblick}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
+      }. ${lautungsueberblick}${this.subversionPrefix}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
         this.filename || this.title
       } [Zugriff: ${this.date}].`;
     }
@@ -113,6 +113,17 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
 
       return names.join(", ");
     }
+  }
+
+  get subversion() {
+    if (!this.xml) return "";
+    const m = this.xml.match(/<\?parser[^>]*\ssubversion="([^"]+)"/i);
+    return m && m[1] ? m[1].trim() : "";
+  }
+
+  get subversionPrefix() {
+    if (this.isRetro) return "";
+    return `${this.subversion || "Vollartikel"}. `;
   }
 
   get noteName() {

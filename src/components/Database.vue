@@ -1407,8 +1407,22 @@ export default class Database extends Vue {
   }
 
   onImageClick(imgLink: string) {
-    const decodedUrl = decodeURIComponent(imgLink);
-    window.open(decodedUrl);
+  // 1) Decode the whole string and trim whitespace.
+  const decodedRaw = decodeURIComponent(imgLink).trim();
+
+  // 2) Split into individual image paths by whitespace.
+  const imagePaths = decodedRaw.split(/\s+/);
+
+  if (imagePaths.length) {
+      // 3) Split into path segments and re-encode each one.
+      const segments = imagePaths[0].split('/');
+      const encodedSegments = segments.map(segment => encodeURIComponent(segment));
+      const safeIdentifier = encodedSegments.join('/');
+
+      // 4) Build the IIIF URL and open in a new tab.
+      const iiifUrl = `https://walk-want-grew-imgs.acdh-dev.oeaw.ac.at/iiif/images/${safeIdentifier}/full/!2500,1500/0/default.jpg`;
+      window.open(iiifUrl, '_blank');
+    };
   }
 
   async mounted() {

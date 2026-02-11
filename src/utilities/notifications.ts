@@ -1,4 +1,4 @@
-import { $bus } from "@/main";
+import { $bus } from "@/utilities/eventBus";
 
 export function $addNotification( notification:Notification) {
     $bus.$emit('notify', notification);

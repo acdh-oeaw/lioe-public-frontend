@@ -57,7 +57,8 @@
                           {"value": "Ingeborg Geyer", "attribute": {"ref": "#IG"}},
                           {"value": "Katharina Korecky-Kröll", "attribute": {"ref": "#KK"}},
                           {"value": "Wolfgang Koppensteiner", "attribute": {"ref": "#WK"}},
-                          {"value": "Manfred Glauninger", "attribute": {"ref": "#MG"}}
+                          {"value": "Manfred Glauninger", "attribute": {"ref": "#MG"}},
+                          {"value": "Maria Luisa Krapp", "attribute": {"ref": "#MLK"}}
                         ]
                       }}],
                       "layout": { "frame": "line" }
@@ -103,6 +104,7 @@
         <name xml:id="KK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Katharina Korecky-Kröll</name>
         <name xml:id="WK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Wolfgang Koppensteiner</name>
         <name xml:id="MG"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Manfred Glauninger</name>
+        <name xml:id="MLK"><?copyOptions { "fromId": "nameSimple", "options": { "tag": ["possibleTag", "shouldTag"], "layout": { "after": null } } } ?>Maria Luisa Krapp</name>
       </respStmt>
       <respStmt>
         <?options { "title": "Student assistants", "layout": { "frame": "panelClosed" } } ?>
@@ -233,7 +235,8 @@
                                                                                 {"title": "Ingeborg Geyer", "value": "IG"},
                                                                                 {"title": "Katharina Korecky-Kröll", "value": "KK"},
                                                                                 {"title": "Wolfgang Koppensteiner", "value": "WK"},
-                                                                                {"title": "Manfred Glauninger", "value": "MG"}
+                                                                                {"title": "Manfred Glauninger", "value": "MG"},
+                                                                                {"title": "Maria Luisa Krapp", "value": "MLK"}
                                                                               ]}
                     }],
                     "tag": ["multiple", "possibleTag", "shouldTag"],

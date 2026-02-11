@@ -16,8 +16,7 @@ import VueTour from "vue-tour";
 import App from "@/components/App.vue";
 import { env } from "~/config/env.config";
 import router from "@/router";
-
-export const $bus = new Vue();
+import { $bus } from "@/utilities/eventBus";
 
 Vue.prototype.$bus = $bus;
 

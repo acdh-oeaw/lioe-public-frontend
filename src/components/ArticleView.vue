@@ -1,6 +1,6 @@
 <template>
   <div v-if="!refresh">
-    <v-layout class="article-tools fx-info-2" align-end>
+    <v-layout class="article-tools fx-info-2">
       <v-flex @click="$emit('handleArticleClick')" xs12>
         <PreviewContent
           :geo-store="geoStore"
@@ -233,6 +233,11 @@ interface ParserFile {
   JSON?: object;
 }
 
+interface ParserMainDef {
+  subversions: string[];
+  xmlBySubversion: Record<string, string>;
+}
+
 @Component({
   components: {
     InfoText,
@@ -257,6 +262,9 @@ export default class ArticleView extends Vue {
   @Prop({ default: null}) pbFacs: string[];
 
   parser: any = null;
+  parserBySubVersion: Record<string, any> = {};
+  parserDefaultSubVersion: string = "";
+  availableParserSubVersions: string[] = [];
   parserDefinitionPath = "/parser-xml/";
   editorObj: null | any = null;
 
@@ -319,33 +327,85 @@ export default class ArticleView extends Vue {
     );
   }
 
-  async getParserMainDef(path: string): Promise<string> {
+  async inlineImportFiles(fileContent: string, subVersion: string): Promise<string> {
+    let hasImports = false;
+    let current = fileContent;
+    do {
+      hasImports = false;
+      current = current.replace(
+        /<\?import\s+subversion="([^"]+)"\s+"([^"]+\.xml)"\s*\?>/gi,
+        (imp, sv, file) => {
+          if (!subVersion) return "";
+          if (sv !== subVersion) return "";
+          return '<?import "' + file + '" ?>';
+        }
+      );
+      current = await replaceAsync(
+        current,
+        /<\?import "(.+)" \?>/gi,
+        async (match: string, capture: string) => {
+          hasImports = true;
+          // get the imported file
+          return (
+            (await (await fetch(this.parserDefinitionPath + capture)).text())
+              // remove the opening xml tag from the imported file
+              .replace(/<\?xml.+\?>/gi, "")
+          );
+        }
+      );
+    } while (hasImports && /<\?import "(.+)" \?>/i.test(current));
+    return current;
+  }
+
+  async getParserMainDef(path: string): Promise<ParserMainDef> {
     // get the orignal file
     const xmlWithImportTags = await (await fetch(path)).text();
-    // replace the <?import {{filename}}> tags with contents of the referenced file
-    return replaceAsync(
-      xmlWithImportTags,
-      /<\?import "(.+)" \?>/gi,
-      async (match: string, capture: string) => {
-        // get the imported file
-        return (
-          (await (await fetch(this.parserDefinitionPath + capture)).text())
-            // remove the opening xml tag from the imported file
-            .replace(/<\?xml.+\?>/gi, "")
-        );
-      }
+    let subversions: string[] = [];
+    const mSub = xmlWithImportTags.match(
+      /<objParser[^>]*\ssubversions="([^"]+)"[^>]*>/i
     );
+    if (mSub && mSub[1]) {
+      subversions = mSub[1]
+        .split(",")
+        .map((v) => (v || "").trim())
+        .filter(Boolean);
+    }
+
+    const subversionList = subversions.length ? subversions : [""];
+    const xmlBySubversion: Record<string, string> = {};
+
+    for (const subVersion of subversionList) {
+      xmlBySubversion[subVersion] = await this.inlineImportFiles(
+        xmlWithImportTags,
+        subVersion
+      );
+    }
+
+    return { subversions, xmlBySubversion };
   }
 
   async initParser(): Promise<any> {
     this.defs = await this.getAllParserDefinitions();
     const parserFilePath = this.parserDefinitionPath + "parser.xml";
-    const parserXML = await this.getParserMainDef(parserFilePath);
-    this.parser = new ParserObject.ParserBase(
-      parserXML,
-      parserFilePath,
-      this.getAdditionalFile
-    );
+    const parserDef = await this.getParserMainDef(parserFilePath);
+    this.availableParserSubVersions = parserDef.subversions;
+    this.parserDefaultSubVersion = parserDef.subversions.length > 0 ? parserDef.subversions[0] : "";
+    this.parserBySubVersion = {};
+    Object.keys(parserDef.xmlBySubversion).forEach((subVersion) => {
+      const parserXML = parserDef.xmlBySubversion[subVersion];
+      this.parserBySubVersion[subVersion] = new ParserObject.ParserBase(
+        parserXML,
+        parserFilePath,
+        this.getAdditionalFile,
+        subVersion || null,
+        parserDef.subversions
+      );
+    });
+    this.parser =
+      this.parserBySubVersion[this.parserDefaultSubVersion] ||
+      this.parserBySubVersion[""] ||
+      null;
+    console.log('parserBySubVersion', this.parserBySubVersion, this.parserDefaultSubVersion)
   }
   publicationDate: Date | any = null;
 
@@ -368,6 +428,14 @@ export default class ArticleView extends Vue {
       console.log('retro', this.xmlObjRetro)
     } else {
       this.xmlObjRetro = null
+      const requestedSubVersion = xmlObj.parserSubVersion || "";
+      if (this.parserBySubVersion && Object.keys(this.parserBySubVersion).length > 0) {
+        this.parser =
+          this.parserBySubVersion[requestedSubVersion] ||
+          this.parserBySubVersion[this.parserDefaultSubVersion] ||
+          this.parserBySubVersion[""] ||
+          this.parser;
+      }
       const editorObj = new EditorObject.EditorBase(
         this.parser,
         xmlObj,
@@ -379,7 +447,6 @@ export default class ArticleView extends Vue {
             console.log('err', e, i, e2)
           })
         })
-        console.log('editorObj Error', Object.keys(editorObj.errors).length, editorObj.errors[Object.keys(editorObj.errors)[0]][0], editorObj)
       }
       let noteObj = editorObj.getAllEditorObjById("note")[0];
       let aNotePersons = {} as any;

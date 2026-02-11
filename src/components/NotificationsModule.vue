@@ -24,7 +24,7 @@
 <script lang="ts">
 import { Notification } from '@/utilities/notifications';
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { $bus } from '@/main';
+import { $bus } from '@/utilities/eventBus';
 
 @Component({
   name: 'NotificationModule'
@@ -102,4 +102,3 @@ interface NotificationStyle {
   
 }
 </script>
-

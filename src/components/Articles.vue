@@ -132,7 +132,7 @@ export default class Articles extends Vue {
 
     const cleanupRegex = /[\u0300-\u036f\W_]/g;
 
-    const normalizedSearchTerm = this.searchTerm.toLocaleLowerCase().normalize("NFD").replace(cleanupRegex, "");
+    const normalizedSearchTerm = (this.searchTerm ?? '').toLocaleLowerCase().normalize("NFD").replace(cleanupRegex, "");
 
     if(article.lemma.toLowerCase().normalize("NFD").replace(cleanupRegex, "").includes(normalizedSearchTerm)) {
       hits.push(article.lemma);
