@@ -60,6 +60,7 @@
         title="Verbreitung"
         ext-info-url="wboe-artikel/verbreitung/"
         info-url="wboe-artikel/verbreitung-short/"
+        v-if="subversion !== 'Grundlagenartikel'"
       >
         <template v-if="verbreitung">
           <PreviewContent
@@ -69,6 +70,19 @@
             :content="v"
           />
         </template>
+      </article-fragment-panel>
+      <article-fragment-panel
+        v-show="bedeutung"
+        title="Bedeutung"
+        ext-info-url="wboe-artikel/bedeutung/"
+        info-url="wboe-artikel/bedeutung-short/"
+        v-if="subversion === 'Grundlagenartikel'"
+      >
+        <PreviewContent
+          v-if="bedeutung"
+          :geo-store="geoStore"
+          :content="bedeutung"
+        />
       </article-fragment-panel>
       <article-fragment-panel
         v-show="belegauswahl || lautung.length > 0"
@@ -113,6 +127,7 @@
         title="Bedeutung"
         ext-info-url="wboe-artikel/bedeutung/"
         info-url="wboe-artikel/bedeutung-short/"
+        v-if="subversion !== 'Grundlagenartikel'"
       >
         <PreviewContent
           v-if="bedeutung"
@@ -436,11 +451,7 @@ export default class ArticleView extends Vue {
           this.parserBySubVersion[""] ||
           this.parser;
       }
-      const editorObj = new EditorObject.EditorBase(
-        this.parser,
-        xmlObj,
-        () => void 0
-      ) as any;
+      const editorObj = new EditorObject.EditorBase(this.parser, xmlObj, () => void 0) as any;
       if (Object.keys(editorObj.errors).length > 0) {
         Object.keys(editorObj.errors).forEach(e => {
           editorObj.errors[e].forEach((e2: any, i: any) => {
@@ -477,7 +488,7 @@ export default class ArticleView extends Vue {
         ...editorObj.getAllEditorObjById("diminuiertekurzform"),
         ...editorObj.getAllEditorObjById("nebenform"),
       ];
-      this.bedeutung = editorObj.getEditorObjById("senseMain");
+      this.bedeutung = editorObj.getEditorObjById("senseMain") || editorObj.getEditorObjById("senseShort");
       this.verbreitung = editorObj.getAllEditorObjById("usg-geo-verbreitung");
       this.belegauswahl = editorObj.getAllEditorObjById("form-dialect");
       this.etymologie = editorObj.getEditorObjById("etymologie");
@@ -515,6 +526,12 @@ export default class ArticleView extends Vue {
   async mounted() {
     const parser = await this.initParser();
     this.showArticle();
+  }
+
+  get subversion() {
+    if (!this.xml) return "";
+    const m = this.xml.match(/<\?parser[^>]*\ssubversion="([^"]+)"/i);
+    return m && m[1] ? m[1].trim() : "";
   }
 }
 </script>

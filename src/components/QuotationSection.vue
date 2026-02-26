@@ -42,13 +42,13 @@ export default class QuotationSection extends Vue {
     let lautungsueberblick = this.noteName && this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
     if (this.isRetro) {
       return this.title + '. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). ' +
-        'URL: <a href="https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '">https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + '</a> [Zugriff: ' + this.date + '] ' +
+        'URL: <a href="' + this.articleUrlEncoded + '">' + this.articleUrlEncoded + '</a> [Zugriff: ' + this.date + '] ' +
         '(Originalquelle: Wörterbuch der bairischen Mundarten in Österreich.' + this.facsTxt + ').'
     } else {
       return `
 ${this.autName} (${this.pubDatePfusch}): <i>${this.title}</i>.
 ${lautungsueberblick}${this.subversionPrefix}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ).
-URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">https://lioe.dioe.at/articles/${this.filename || this.title}</a>
+URL: <a href="${this.articleUrl}">${this.articleUrl}</a>
 [Zugriff: ${this.date}].`;
     }
   }
@@ -77,16 +77,31 @@ URL: <a href="https://lioe.dioe.at/articles/${this.filename || this.title}">http
   get quote() {
     if (this.isRetro) {
       return this.title + '. In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). ' +
-        'URL: https://lioe.dioe.at/articles/' + (this.filename || this.title).replace('#', '%23') + ' [Zugriff: ' + this.date + '] ' +
+        'URL: ' + this.articleUrlEncoded + ' [Zugriff: ' + this.date + '] ' +
         '(Originalquelle: Wörterbuch der bairischen Mundarten in Österreich.' + this.facsTxt + ').'
     } else {
       let lautungsueberblick = this.noteName && this.lautung && this.lautung.length > 0 && this.lautung[0] && this.lautung[0].orgXmlObj && this.lautung[0].orgXmlObj.getXML() && this.lautung[0].orgXmlObj.getXML().length > 100 ? `Mit einem Lautungsüberblick von ${this.noteName}. ` : ''
       return `${this.autName} (${this.pubDatePfusch}): ${
         this.title
-      }. ${lautungsueberblick}${this.subversionPrefix}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: https://lioe.dioe.at/articles/${
-        this.filename || this.title
+      }. ${lautungsueberblick}${this.subversionPrefix}In: Wörterbuch der bairischen Mundarten in Österreich (WBÖ). Publiziert über das Lexikalische Informationssystem Österreich (LIÖ). URL: ${
+        this.articleUrl
       } [Zugriff: ${this.date}].`;
     }
+  }
+
+  get articleBaseUrl() {
+    if (typeof window !== "undefined" && window.location && window.location.origin) {
+      return window.location.origin;
+    }
+    return "https://wboe.lapis-online.at";
+  }
+
+  get articleUrl() {
+    return `${this.articleBaseUrl}/articles/${this.filename || this.title}`;
+  }
+
+  get articleUrlEncoded() {
+    return this.articleUrl.replace("#", "%23");
   }
 
   copyContent() {
