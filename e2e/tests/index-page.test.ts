@@ -5,7 +5,7 @@ test.describe("Index page", () => {
     await indexPage.goto();
 
     await expect(indexPage.page).toHaveTitle(
-      "LIÖ – Lexikalisches Informationssystem Österreich"
+      "Wörterbuch der bairischen Mundarten in Österreich (WBÖ)"
     );
   });
 
@@ -13,7 +13,7 @@ test.describe("Index page", () => {
     await indexPage.goto();
 
     await expect(indexPage.title).toHaveText(
-      "Lexikalisches Informationssystem Österreich (LIÖ)"
+      "Wörterbuch der bairischen Mundarten in Österreich (WBÖ)"
     );
   });
 

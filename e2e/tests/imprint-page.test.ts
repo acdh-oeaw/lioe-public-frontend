@@ -4,7 +4,7 @@ test.describe('Imprint page', () => {
   test('should have document title', async ({ imprintPage }) => {
     await imprintPage.goto()
 
-    await expect(imprintPage.page).toHaveTitle('LIÖ – Lexikalisches Informationssystem Österreich')
+    await expect(imprintPage.page).toHaveTitle('Wörterbuch der bairischen Mundarten in Österreich (WBÖ)')
   })
 
   test.fixme("should have main heading", async ({ imprintPage }) => {

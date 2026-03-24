@@ -6,8 +6,7 @@
           <v-flex class="header-navigation pb-3">
             <v-layout>
                 <v-flex xs12 :class="['text-center', 'logo-container', $route.name === 'maps' && 'logo-hidden']">
-                  <router-link to="/"><img  class="logo mt-5" src="/assets/images/logo.svg"
-                    height="100" width="250" /></router-link>
+                  <router-link to="/"><img  class="logo my-2" src="/assets/images/wboe-logo.png" width="180" /></router-link>
                 </v-flex>
             </v-layout>
           </v-flex>
@@ -26,7 +25,7 @@
                 hide-slider
                 slider-color="white">
                 <v-tab to="/" id="tabHome"><div><v-icon color="white">mdi-home-outline</v-icon>Home</div></v-tab>
-                <v-tab to="/articles"  id="tabWBOE"><div><v-icon color="white">mdi-newspaper</v-icon>WBÖ-Artikel</div></v-tab>
+                <v-tab to="/articles"  id="tabWBOE"><div><v-icon color="white">mdi-newspaper</v-icon>Wörterbuchartikel</div></v-tab>
                 <v-tab to="/db" id="tabBelegDB"><div><v-icon color="white">mdi-database</v-icon>Belegdatenbank</div></v-tab>
                 <v-tab to="/maps" id="tabMap"><div><v-icon color="white">mdi-map</v-icon>Kartierung</div></v-tab>
                 <v-tab to="/resources" id="tabInformationen"><div><v-icon color="white">mdi-information-variant</v-icon>Informationen</div></v-tab>
@@ -95,7 +94,7 @@ export default class App extends Vue {
   }
   .logo-container{
     transition: .5s;
-    height: 130px;
+    height: 110px;
   }
   .logo-container.logo-hidden{
     overflow: hidden;

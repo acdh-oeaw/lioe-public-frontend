@@ -456,6 +456,7 @@
                           "hideTitle": true,
                           "frame": "line",
                           "header": "Bedeutung",
+                          "ls1pt": true,
                           "spaceBefore": 10,
                           "spaceAfter": 5
                         }

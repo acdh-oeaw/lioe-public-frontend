@@ -265,7 +265,7 @@
         <img
           :style="{ left: playlistBar === true ? '255px' : '0vw' }"
           class="logo mt-2 logo-container"
-          src="/assets/images/logo.svg"
+          src="/assets/images/wboe-logo.png"
         />
       </router-link>
 
